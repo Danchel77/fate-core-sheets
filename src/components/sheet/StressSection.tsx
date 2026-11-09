@@ -60,28 +60,22 @@ export const StressSection: React.FC<StressSectionProps> = ({ character, onChang
   };
 
   return (
-    <div className="bg-[#121721] border border-[#1C212B] rounded-2xl p-5 shadow-xl space-y-5">
+    <div className="bg-[#121721] border border-[#1C212B] rounded-2xl p-5 shadow-sm space-y-5">
       {/* 1. Stress Tracks */}
       <div>
-        <div className="flex items-center justify-between mb-3 border-b border-[#1C212B] pb-2">
-          <div className="flex items-center gap-2">
-            <div className="w-1.5 h-4 bg-amber-500 rounded-xs" />
-            <h2 className="font-fantasy font-bold text-base text-slate-100 tracking-wide uppercase">
-              Стресс (Stress)
-            </h2>
-          </div>
-          <span className="text-[11px] text-slate-400 font-medium">
-            Сбрасывается после конфликта
-          </span>
+        <div className="flex items-center justify-between mb-3 border-b border-[#1C212B] pb-2.5">
+          <h2 className="font-fantasy font-bold text-base text-slate-100 tracking-wide uppercase">
+            Стресс
+          </h2>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {/* Physical Stress */}
           <div className="p-3 rounded-xl bg-[#0B0E14] border border-[#1C212B]">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-bold text-red-400 font-fantasy flex items-center gap-1.5">
-                <Flame className="w-3.5 h-3.5" />
-                Физ. стресс
+              <span className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+                <Flame className="w-3.5 h-3.5 text-amber-500/80" />
+                Физический
               </span>
               <span className="text-[10px] text-slate-500">
                 Сложение ({physiqueRating > 0 ? `+${physiqueRating}` : '0'})
@@ -96,11 +90,10 @@ export const StressSection: React.FC<StressSectionProps> = ({ character, onChang
                   return (
                     <div
                       key={boxNum}
-                      className="h-10 rounded-lg border border-dashed border-[#1C212B] bg-[#0B0E14]/40 flex flex-col items-center justify-center text-slate-600 select-none cursor-not-allowed"
+                      className="h-9 rounded-lg border border-dashed border-[#1C212B] bg-[#0B0E14]/40 flex items-center justify-center text-slate-600 select-none cursor-not-allowed"
                       title={boxNum === 3 ? 'Требуется Сложение +1' : 'Требуется Сложение +3'}
                     >
-                      <Lock className="w-3 h-3 mb-0.5 opacity-50" />
-                      <span className="text-[10px] font-mono">[{boxNum}]</span>
+                      <Lock className="w-3 h-3 opacity-40" />
                     </div>
                   );
                 }
@@ -110,10 +103,10 @@ export const StressSection: React.FC<StressSectionProps> = ({ character, onChang
                     type="button"
                     key={boxNum}
                     onClick={() => toggleStress('physical', boxNum)}
-                    className={`h-10 rounded-lg border flex items-center justify-center font-mono font-bold text-sm transition cursor-pointer ${
+                    className={`h-9 rounded-lg border flex items-center justify-center font-mono font-bold text-sm transition cursor-pointer ${
                       isChecked
-                        ? 'bg-red-950/80 border-red-600 text-red-400 line-through'
-                        : 'bg-[#121721] border-[#2E3440] hover:border-red-500/50 text-slate-300 hover:text-white'
+                        ? 'bg-red-950/70 border-red-700/60 text-red-300 line-through'
+                        : 'bg-[#121721] border-[#1C212B] hover:border-slate-700 text-slate-300 hover:text-white'
                     }`}
                     title={isChecked ? 'Отметить как свободный' : `Получить ${boxNum} физ. стресса`}
                   >
@@ -127,9 +120,9 @@ export const StressSection: React.FC<StressSectionProps> = ({ character, onChang
           {/* Mental Stress */}
           <div className="p-3 rounded-xl bg-[#0B0E14] border border-[#1C212B]">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-bold text-sky-400 font-fantasy flex items-center gap-1.5">
-                <Brain className="w-3.5 h-3.5" />
-                Ментал. стресс
+              <span className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+                <Brain className="w-3.5 h-3.5 text-sky-400/80" />
+                Ментальный
               </span>
               <span className="text-[10px] text-slate-500">
                 Воля ({willRating > 0 ? `+${willRating}` : '0'})
@@ -144,11 +137,10 @@ export const StressSection: React.FC<StressSectionProps> = ({ character, onChang
                   return (
                     <div
                       key={boxNum}
-                      className="h-10 rounded-lg border border-dashed border-[#1C212B] bg-[#0B0E14]/40 flex flex-col items-center justify-center text-slate-600 select-none cursor-not-allowed"
+                      className="h-9 rounded-lg border border-dashed border-[#1C212B] bg-[#0B0E14]/40 flex items-center justify-center text-slate-600 select-none cursor-not-allowed"
                       title={boxNum === 3 ? 'Требуется Воля +1' : 'Требуется Воля +3'}
                     >
-                      <Lock className="w-3 h-3 mb-0.5 opacity-50" />
-                      <span className="text-[10px] font-mono">[{boxNum}]</span>
+                      <Lock className="w-3 h-3 opacity-40" />
                     </div>
                   );
                 }
@@ -158,10 +150,10 @@ export const StressSection: React.FC<StressSectionProps> = ({ character, onChang
                     type="button"
                     key={boxNum}
                     onClick={() => toggleStress('mental', boxNum)}
-                    className={`h-10 rounded-lg border flex items-center justify-center font-mono font-bold text-sm transition cursor-pointer ${
+                    className={`h-9 rounded-lg border flex items-center justify-center font-mono font-bold text-sm transition cursor-pointer ${
                       isChecked
-                        ? 'bg-sky-950/80 border-sky-600 text-sky-400 line-through'
-                        : 'bg-[#121721] border-[#2E3440] hover:border-sky-500/50 text-slate-300 hover:text-white'
+                        ? 'bg-sky-950/70 border-sky-700/60 text-sky-300 line-through'
+                        : 'bg-[#121721] border-[#1C212B] hover:border-slate-700 text-slate-300 hover:text-white'
                     }`}
                     title={isChecked ? 'Отметить как свободный' : `Получить ${boxNum} ментал. стресса`}
                   >
@@ -176,26 +168,20 @@ export const StressSection: React.FC<StressSectionProps> = ({ character, onChang
 
       {/* 2. Consequences */}
       <div>
-        <div className="flex items-center justify-between mb-3 border-b border-[#1C212B] pb-2">
-          <div className="flex items-center gap-2">
-            <div className="w-1.5 h-4 bg-amber-500 rounded-xs" />
-            <h2 className="font-fantasy font-bold text-base text-slate-100 tracking-wide uppercase">
-              Последствия (Consequences)
-            </h2>
-          </div>
-          <span className="text-[11px] text-slate-400 font-medium">
-            Временные аспекты травм
-          </span>
+        <div className="flex items-center justify-between mb-3 border-b border-[#1C212B] pb-2.5">
+          <h2 className="font-fantasy font-bold text-base text-slate-100 tracking-wide uppercase">
+            Последствия
+          </h2>
         </div>
 
         <div className="space-y-2">
           {/* Mild [2] */}
-          <div className="p-2.5 rounded-xl bg-[#0B0E14] border border-[#1C212B] focus-within:border-slate-500 flex items-center gap-3">
+          <div className="p-2.5 rounded-xl bg-[#0B0E14] border border-[#1C212B] focus-within:border-slate-700 flex items-center gap-3">
             <div className="flex items-center gap-1.5 w-24 shrink-0">
-              <span className="px-1.5 py-0.5 rounded bg-emerald-950 border border-emerald-700/50 text-emerald-400 font-mono text-xs font-bold">
+              <span className="px-1.5 py-0.5 rounded bg-[#1A202C] border border-[#2E3440] text-slate-300 font-mono text-xs font-bold">
                 2
               </span>
-              <span className="text-xs font-semibold text-slate-300">
+              <span className="text-xs font-medium text-slate-300">
                 Легкое
               </span>
             </div>
@@ -203,18 +189,18 @@ export const StressSection: React.FC<StressSectionProps> = ({ character, onChang
               type="text"
               value={character.consequences.mild.aspect}
               onChange={(e) => handleConsequenceChange('mild', e.target.value)}
-              placeholder="Например, «Рассеченная бровь» или «Дрожащие руки»..."
+              placeholder="Формулировка аспекта травмы..."
               className="flex-1 bg-transparent text-xs text-slate-200 placeholder-slate-600 focus:outline-none"
             />
           </div>
 
           {/* Moderate [4] */}
-          <div className="p-2.5 rounded-xl bg-[#0B0E14] border border-[#1C212B] focus-within:border-slate-500 flex items-center gap-3">
+          <div className="p-2.5 rounded-xl bg-[#0B0E14] border border-[#1C212B] focus-within:border-slate-700 flex items-center gap-3">
             <div className="flex items-center gap-1.5 w-24 shrink-0">
-              <span className="px-1.5 py-0.5 rounded bg-amber-950 border border-amber-700/50 text-amber-400 font-mono text-xs font-bold">
+              <span className="px-1.5 py-0.5 rounded bg-[#1A202C] border border-[#2E3440] text-slate-300 font-mono text-xs font-bold">
                 4
               </span>
-              <span className="text-xs font-semibold text-slate-300">
+              <span className="text-xs font-medium text-slate-300">
                 Среднее
               </span>
             </div>
@@ -222,18 +208,18 @@ export const StressSection: React.FC<StressSectionProps> = ({ character, onChang
               type="text"
               value={character.consequences.moderate.aspect}
               onChange={(e) => handleConsequenceChange('moderate', e.target.value)}
-              placeholder="Например, «Глубокая колотая рана» или «Панический страх»..."
+              placeholder="Формулировка аспекта травмы..."
               className="flex-1 bg-transparent text-xs text-slate-200 placeholder-slate-600 focus:outline-none"
             />
           </div>
 
           {/* Severe [6] */}
-          <div className="p-2.5 rounded-xl bg-[#0B0E14] border border-[#1C212B] focus-within:border-slate-500 flex items-center gap-3">
+          <div className="p-2.5 rounded-xl bg-[#0B0E14] border border-[#1C212B] focus-within:border-slate-700 flex items-center gap-3">
             <div className="flex items-center gap-1.5 w-24 shrink-0">
-              <span className="px-1.5 py-0.5 rounded bg-red-950 border border-red-700/50 text-red-400 font-mono text-xs font-bold">
+              <span className="px-1.5 py-0.5 rounded bg-[#1A202C] border border-[#2E3440] text-slate-300 font-mono text-xs font-bold">
                 6
               </span>
-              <span className="text-xs font-semibold text-slate-300">
+              <span className="text-xs font-medium text-slate-300">
                 Тяжелое
               </span>
             </div>
@@ -241,7 +227,7 @@ export const StressSection: React.FC<StressSectionProps> = ({ character, onChang
               type="text"
               value={character.consequences.severe.aspect}
               onChange={(e) => handleConsequenceChange('severe', e.target.value)}
-              placeholder="Например, «Сломанные ребра» или «Сломленная гордость»..."
+              placeholder="Формулировка аспекта травмы..."
               className="flex-1 bg-transparent text-xs text-slate-200 placeholder-slate-600 focus:outline-none"
             />
           </div>
@@ -251,19 +237,16 @@ export const StressSection: React.FC<StressSectionProps> = ({ character, onChang
       {/* 3. Extras / Notes (Дополнения) */}
       <div>
         <div className="flex items-center justify-between mb-2 border-b border-[#1C212B] pb-2">
-          <div className="flex items-center gap-2">
-            <div className="w-1.5 h-4 bg-amber-500 rounded-xs" />
-            <h2 className="font-fantasy font-bold text-base text-slate-100 tracking-wide uppercase">
-              Дополнения и Заметки (Extras)
-            </h2>
-          </div>
+          <h2 className="font-fantasy font-bold text-base text-slate-100 tracking-wide uppercase">
+            Заметки и снаряжение
+          </h2>
         </div>
         <textarea
           rows={3}
           value={character.notes || ''}
           onChange={(e) => onChange({ ...character, notes: e.target.value })}
-          placeholder="Снаряжение, серебряный меч, эликсиры, бомбы, репутация или особые свойства..."
-          className="w-full p-3 rounded-xl bg-[#0B0E14] border border-[#1C212B] focus:border-slate-500 text-xs text-slate-300 placeholder-slate-500 focus:outline-none resize-none leading-relaxed"
+          placeholder="Снаряжение, серебряный меч, эликсиры, бомбы, репутация..."
+          className="w-full p-3 rounded-xl bg-[#0B0E14] border border-[#1C212B] focus:border-slate-700 text-xs text-slate-300 placeholder-slate-600 focus:outline-none resize-none leading-relaxed"
         />
       </div>
     </div>

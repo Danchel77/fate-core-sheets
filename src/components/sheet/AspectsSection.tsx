@@ -54,29 +54,26 @@ export const AspectsSection: React.FC<AspectsSectionProps> = ({
       kind: 'high_concept' as const,
       label: 'Концепция',
       sublabel: 'High Concept',
-      placeholder: 'Кем является персонаж в мире? Роль, суть, яркий эпитет...',
+      placeholder: 'Кем является персонаж в мире...',
       suggestions: settingPreset.defaultAspectSuggestions.highConcept,
-      accentBorder: 'border-amber-500/40 focus-within:border-amber-500',
-      labelColor: 'text-amber-400',
+      labelColor: 'text-amber-400/90',
     },
     {
       key: 'trouble' as const,
       kind: 'trouble' as const,
       label: 'Проблема',
       sublabel: 'Trouble',
-      placeholder: 'Что постоянно усложняет жизнь? Враг, слабость, долг, кодекс...',
+      placeholder: 'Что постоянно усложняет жизнь...',
       suggestions: settingPreset.defaultAspectSuggestions.trouble,
-      accentBorder: 'border-red-500/40 focus-within:border-red-500',
-      labelColor: 'text-red-400',
+      labelColor: 'text-red-400/90',
     },
     {
       key: 'aspect_3' as const,
       kind: 'other' as const,
       label: 'Аспект 3',
       sublabel: '',
-      placeholder: 'Связь, организация, репутация или предыстория...',
+      placeholder: 'Связь, организация или предыстория...',
       suggestions: settingPreset.defaultAspectSuggestions.others,
-      accentBorder: 'border-[#1C212B] focus-within:border-slate-500',
       labelColor: 'text-slate-400',
     },
     {
@@ -84,9 +81,8 @@ export const AspectsSection: React.FC<AspectsSectionProps> = ({
       kind: 'other' as const,
       label: 'Аспект 4',
       sublabel: '',
-      placeholder: 'Знаковая вещь, особый стиль или необычное убеждение...',
+      placeholder: 'Особый стиль, вещь или убеждение...',
       suggestions: settingPreset.defaultAspectSuggestions.others,
-      accentBorder: 'border-[#1C212B] focus-within:border-slate-500',
       labelColor: 'text-slate-400',
     },
     {
@@ -94,37 +90,30 @@ export const AspectsSection: React.FC<AspectsSectionProps> = ({
       kind: 'other' as const,
       label: 'Аспект 5',
       sublabel: '',
-      placeholder: 'Личная цель, тайная привязанность или роковая тайна...',
+      placeholder: 'Личная цель или тайна...',
       suggestions: settingPreset.defaultAspectSuggestions.others,
-      accentBorder: 'border-[#1C212B] focus-within:border-slate-500',
       labelColor: 'text-slate-400',
     },
   ];
 
   return (
-    <div className="bg-[#121721] border border-[#1C212B] rounded-2xl p-5 shadow-xl">
+    <div className="bg-[#121721] border border-[#1C212B] rounded-2xl p-5 shadow-sm">
       {/* Section Header */}
-      <div className="flex items-center justify-between mb-4 border-b border-[#1C212B] pb-3">
-        <div className="flex items-center gap-2">
-          <div className="w-1.5 h-4 bg-amber-500 rounded-xs" />
-          <h2 className="font-fantasy font-bold text-base text-slate-100 tracking-wide uppercase">
-            Аспекты (Aspects)
-          </h2>
-        </div>
-        <span className="text-[11px] text-slate-400 font-medium">
-          5 аспектов героя
-        </span>
+      <div className="flex items-center justify-between mb-3 border-b border-[#1C212B] pb-2.5">
+        <h2 className="font-fantasy font-bold text-base text-slate-100 tracking-wide uppercase">
+          Аспекты
+        </h2>
       </div>
 
       {/* 5 Aspect Slots */}
-      <div className="space-y-2.5">
+      <div className="space-y-2">
         {aspectSlots.map((slot) => {
           const value = character.aspects[slot.key] || '';
 
           return (
             <div
               key={slot.key}
-              className={`p-2.5 rounded-xl bg-[#0B0E14] border ${slot.accentBorder} transition relative group flex items-start gap-3`}
+              className="p-2.5 rounded-xl bg-[#0B0E14] border border-[#1C212B] focus-within:border-slate-700 transition relative group flex items-start gap-3"
             >
               {/* Badge Label */}
               <div className="w-24 shrink-0 pt-0.5">
@@ -153,10 +142,10 @@ export const AspectsSection: React.FC<AspectsSectionProps> = ({
               <button
                 type="button"
                 onClick={() => openGemini(slot.key, slot.kind)}
-                className="opacity-40 group-hover:opacity-100 hover:text-amber-400 text-slate-400 p-1 rounded-md transition"
-                title="Помощь Gemini в формулировке"
+                className="opacity-0 group-hover:opacity-100 text-slate-500 hover:text-amber-400 p-1 rounded-md transition cursor-pointer"
+                title="Помощь Gemini"
               >
-                <Sparkles className="w-4 h-4" />
+                <Sparkles className="w-3.5 h-3.5" />
               </button>
             </div>
           );

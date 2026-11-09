@@ -68,50 +68,47 @@ export const CharacterSheet: React.FC = () => {
   const baseUrl = import.meta.env.BASE_URL || '/';
 
   return (
-    <div className="max-w-[1380px] mx-auto px-4 sm:px-6 py-6">
-      {/* Top action navigation */}
-      <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+    <div className="max-w-[1380px] mx-auto px-4 sm:px-6 py-6 space-y-6">
+      {/* Top action bar: clean, subdued, aligned with dashboard */}
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <button
           onClick={() => selectChar(null)}
           className="flex items-center gap-2 text-slate-400 hover:text-slate-100 text-sm font-medium transition cursor-pointer group"
         >
-          <ArrowLeft className="w-4 h-4 text-amber-500 group-hover:-translate-x-0.5 transition" />
+          <ArrowLeft className="w-4 h-4 text-slate-400 group-hover:text-slate-200 group-hover:-translate-x-0.5 transition" />
           <span>Вернуться к выбору персонажа</span>
         </button>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5">
           <button
             onClick={() => setIsApiKeyOpen(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-amber-500/30 bg-amber-500/10 hover:bg-amber-500/20 text-xs text-amber-400 font-medium transition cursor-pointer"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-[#1C212B] bg-[#121721] hover:bg-[#1A202C] hover:border-slate-700 text-xs text-slate-300 hover:text-white font-medium transition cursor-pointer"
           >
-            <Sparkles className="w-3.5 h-3.5" />
+            <Sparkles className="w-3.5 h-3.5 text-amber-400/80" />
             <span>Настроить Gemini</span>
           </button>
 
           <button
             onClick={handleExport}
             disabled={isExporting}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-semibold text-xs shadow-md transition disabled:opacity-50 cursor-pointer"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl border border-[#1C212B] bg-[#121721] hover:bg-[#1A202C] hover:border-slate-700 text-xs text-slate-200 hover:text-white font-medium transition disabled:opacity-50 cursor-pointer shadow-xs"
           >
-            <Download className="w-3.5 h-3.5 stroke-[2.5]" />
+            <Download className="w-3.5 h-3.5" />
             <span>{isExporting ? 'Экспорт...' : 'Экспорт в PDF'}</span>
           </button>
         </div>
       </div>
 
       {/* The Printable / Renderable Container */}
-      <div 
-        id="printable-character-sheet"
-        className="bg-[#0B0E14] border border-[#1C212B] rounded-3xl p-6 sm:p-8 shadow-2xl relative space-y-6"
-      >
+      <div id="printable-character-sheet" className="space-y-6">
         {/* Character Passport Header */}
-        <div className="bg-[#121721] border border-[#1C212B] rounded-2xl p-5 shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+        <div className="bg-[#121721] border border-[#1C212B] rounded-2xl p-5 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
           <div className="flex items-center gap-5 flex-1 min-w-0">
             {/* Avatar Portrait */}
             <div className="relative group shrink-0">
               <div 
                 onClick={() => fileInputRef.current?.click()}
-                className="w-24 h-24 rounded-2xl overflow-hidden bg-[#0B0E14] border border-[#2E3440] group-hover:border-amber-500 cursor-pointer flex items-center justify-center transition shadow-lg relative"
+                className="w-22 h-22 rounded-xl overflow-hidden bg-[#0B0E14] border border-[#1C212B] group-hover:border-slate-700 cursor-pointer flex items-center justify-center transition relative"
               >
                 {activeCharacter.avatar ? (
                   <img
@@ -120,14 +117,14 @@ export const CharacterSheet: React.FC = () => {
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <div className="flex flex-col items-center justify-center text-slate-600 group-hover:text-amber-500 transition">
-                    <Shield className="w-8 h-8 stroke-[1.5]" />
-                    <span className="text-[10px] mt-1 font-semibold uppercase tracking-wider text-slate-500">Портрет</span>
+                  <div className="flex flex-col items-center justify-center text-slate-600 group-hover:text-slate-400 transition">
+                    <Shield className="w-7 h-7 stroke-[1.5]" />
+                    <span className="text-[10px] mt-1 font-medium text-slate-500">Портрет</span>
                   </div>
                 )}
 
-                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center text-white text-[10px] font-semibold transition backdrop-blur-xs">
-                  <Upload className="w-4 h-4 mb-0.5" />
+                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center text-white text-[10px] font-medium transition backdrop-blur-xs">
+                  <Upload className="w-3.5 h-3.5 mb-0.5" />
                   <span>Сменить</span>
                 </div>
               </div>
@@ -143,7 +140,7 @@ export const CharacterSheet: React.FC = () => {
               {activeCharacter.avatar && (
                 <button
                   onClick={handleRemoveAvatar}
-                  className="absolute -top-1.5 -right-1.5 p-1 rounded-full bg-red-600/90 text-white shadow-md hover:bg-red-500 transition"
+                  className="absolute -top-1.5 -right-1.5 p-1 rounded-full bg-[#1A202C] border border-[#2E3440] text-slate-400 hover:text-red-400 shadow-sm transition"
                   title="Удалить портрет"
                 >
                   <Trash2 className="w-3 h-3" />
@@ -153,10 +150,12 @@ export const CharacterSheet: React.FC = () => {
 
             {/* Name and Description */}
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-1.5">
-                <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-[#1A202C] border border-[#2E3440] text-amber-400">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
                   {currentSetting.name}
                 </span>
+
+                <span className="text-slate-600">•</span>
 
                 <select
                   value={activeCharacter.setting}
@@ -186,42 +185,39 @@ export const CharacterSheet: React.FC = () => {
             </div>
           </div>
 
-          {/* Right side: System Medallion Logo & Resource Counters */}
-          <div className="flex items-center gap-4 shrink-0 self-stretch sm:self-auto justify-end">
-            {/* Setting Medallion Logo */}
-            <div className="flex items-center justify-center p-2 rounded-2xl bg-[#0B0E14] border border-[#1C212B] w-16 h-16 shrink-0" title={currentSetting.name}>
+          {/* Right side: Medallion & Resource Counters */}
+          <div className="flex items-center gap-3 shrink-0 self-stretch sm:self-auto justify-end">
+            {/* Setting Medallion */}
+            <div className="flex items-center justify-center p-2 rounded-xl bg-[#0B0E14] border border-[#1C212B] w-14 h-14 shrink-0" title={currentSetting.name}>
               {activeCharacter.setting === 'witcher' ? (
                 <img
                   src={`${baseUrl}witcher-medallion.svg`}
                   alt="Witcher Medallion"
-                  className="w-12 h-12 object-contain filter drop-shadow-md"
+                  className="w-9 h-9 object-contain filter drop-shadow-sm opacity-90"
                 />
               ) : (
                 <div className="flex flex-col items-center justify-center text-center">
-                  <span className="font-fantasy font-black text-amber-400 text-lg leading-none">FATE</span>
-                  <span className="text-[9px] font-bold text-slate-500 tracking-wider">CORE</span>
+                  <span className="font-fantasy font-black text-amber-400 text-sm leading-none">FATE</span>
+                  <span className="text-[8px] font-bold text-slate-500 tracking-wider">CORE</span>
                 </div>
               )}
             </div>
 
-            {/* Refresh (Освежение) */}
-            <div className="p-2.5 rounded-xl bg-[#0B0E14] border border-[#1C212B] flex flex-col items-center justify-center min-w-[80px]">
-              <span className="text-[10px] uppercase font-bold tracking-wider text-amber-400 flex items-center gap-1">
-                <Award className="w-3 h-3" />
+            {/* Refresh */}
+            <div className="px-3 py-2 rounded-xl bg-[#0B0E14] border border-[#1C212B] flex flex-col items-center justify-center min-w-[76px]">
+              <span className="text-[10px] font-medium text-slate-400 flex items-center gap-1">
+                <Award className="w-3 h-3 text-amber-400/80" />
                 Освежение
               </span>
-              <span className="font-fantasy font-black text-xl text-amber-300 my-0.5">
+              <span className="font-mono font-bold text-lg text-slate-100 my-0.5">
                 {activeCharacter.refresh}
-              </span>
-              <span className="text-[9px] text-slate-500">
-                Базовое: 3
               </span>
             </div>
 
-            {/* Fate Points (Жетоны судьбы) */}
-            <div className="p-2.5 rounded-xl bg-[#0B0E14] border border-[#1C212B] flex flex-col items-center justify-center min-w-[96px]">
-              <span className="text-[10px] uppercase font-bold tracking-wider text-slate-300 flex items-center gap-1">
-                <Coins className="w-3 h-3 text-amber-400" />
+            {/* Fate Points */}
+            <div className="px-3 py-2 rounded-xl bg-[#0B0E14] border border-[#1C212B] flex flex-col items-center justify-center min-w-[92px]">
+              <span className="text-[10px] font-medium text-slate-400 flex items-center gap-1">
+                <Coins className="w-3 h-3 text-amber-400/80" />
                 Жетоны Fate
               </span>
               <div className="flex items-center gap-1.5 my-0.5">
@@ -231,11 +227,11 @@ export const CharacterSheet: React.FC = () => {
                     ...activeCharacter, 
                     currentFatePoints: Math.max(0, activeCharacter.currentFatePoints - 1) 
                   })}
-                  className="w-5 h-5 rounded bg-[#121721] border border-[#2E3440] hover:border-amber-500 text-slate-300 flex items-center justify-center text-xs transition cursor-pointer"
+                  className="w-5 h-5 rounded bg-[#121721] border border-[#1C212B] hover:border-slate-600 text-slate-400 hover:text-white flex items-center justify-center text-xs transition cursor-pointer"
                 >
                   <Minus className="w-3 h-3" />
                 </button>
-                <span className="font-fantasy font-bold text-xl text-white min-w-[20px] text-center">
+                <span className="font-mono font-bold text-lg text-white min-w-[18px] text-center">
                   {activeCharacter.currentFatePoints}
                 </span>
                 <button
@@ -244,14 +240,11 @@ export const CharacterSheet: React.FC = () => {
                     ...activeCharacter, 
                     currentFatePoints: activeCharacter.currentFatePoints + 1 
                   })}
-                  className="w-5 h-5 rounded bg-[#121721] border border-[#2E3440] hover:border-amber-500 text-slate-300 flex items-center justify-center text-xs transition cursor-pointer"
+                  className="w-5 h-5 rounded bg-[#121721] border border-[#1C212B] hover:border-slate-600 text-slate-400 hover:text-white flex items-center justify-center text-xs transition cursor-pointer"
                 >
                   <Plus className="w-3 h-3" />
                 </button>
               </div>
-              <span className="text-[9px] text-slate-500">
-                В игре
-              </span>
             </div>
           </div>
         </div>

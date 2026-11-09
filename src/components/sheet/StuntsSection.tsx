@@ -70,19 +70,16 @@ export const StuntsSection: React.FC<StuntsSectionProps> = ({
   };
 
   return (
-    <div className="bg-[#121721] border border-[#1C212B] rounded-2xl p-5 shadow-xl">
+    <div className="bg-[#121721] border border-[#1C212B] rounded-2xl p-5 shadow-sm">
       {/* Section Header */}
-      <div className="flex items-center justify-between mb-4 border-b border-[#1C212B] pb-3">
-        <div className="flex items-center gap-2">
-          <div className="w-1.5 h-4 bg-amber-500 rounded-xs" />
-          <h2 className="font-fantasy font-bold text-base text-slate-100 tracking-wide uppercase">
-            Трюки (Stunts)
-          </h2>
-        </div>
+      <div className="flex items-center justify-between mb-3 border-b border-[#1C212B] pb-2.5">
+        <h2 className="font-fantasy font-bold text-base text-slate-100 tracking-wide uppercase">
+          Трюки
+        </h2>
         <button
           type="button"
           onClick={handleAddStunt}
-          className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#1A202C] border border-[#2E3440] hover:border-amber-500/50 text-slate-300 hover:text-amber-400 text-xs font-medium transition"
+          className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#0B0E14] border border-[#1C212B] hover:border-slate-700 text-slate-300 hover:text-white text-xs font-medium transition cursor-pointer"
         >
           <Plus className="w-3.5 h-3.5" />
           <span>Добавить трюк</span>
@@ -90,18 +87,18 @@ export const StuntsSection: React.FC<StuntsSectionProps> = ({
       </div>
 
       {/* Stunts List */}
-      <div className="space-y-3">
+      <div className="space-y-2.5">
         {character.stunts.map((stunt, index) => (
           <div
             key={stunt.id}
-            className="p-3 rounded-xl bg-[#0B0E14] border border-[#1C212B] focus-within:border-slate-500 transition group relative"
+            className="p-3 rounded-xl bg-[#0B0E14] border border-[#1C212B] focus-within:border-slate-700 transition group relative"
           >
-            <div className="flex items-center justify-between gap-3 mb-1.5">
+            <div className="flex items-center justify-between gap-3 mb-1">
               <input
                 type="text"
                 value={stunt.name}
                 onChange={(e) => handleUpdateStunt(index, { name: e.target.value })}
-                placeholder={`Название трюка #${index + 1} (например, «Пируэт ведьмака»)`}
+                placeholder={`Название трюка #${index + 1}...`}
                 className="bg-transparent font-fantasy font-bold text-xs text-amber-300 placeholder-slate-600 focus:outline-none flex-1"
               />
 
@@ -109,7 +106,7 @@ export const StuntsSection: React.FC<StuntsSectionProps> = ({
                 <button
                   type="button"
                   onClick={() => openGemini(index)}
-                  className="opacity-40 group-hover:opacity-100 text-slate-400 hover:text-amber-400 p-1 transition"
+                  className="opacity-0 group-hover:opacity-100 text-slate-500 hover:text-amber-400 p-1 transition cursor-pointer"
                   title="Сформулировать через Gemini"
                 >
                   <Sparkles className="w-3.5 h-3.5" />
@@ -117,7 +114,7 @@ export const StuntsSection: React.FC<StuntsSectionProps> = ({
                 <button
                   type="button"
                   onClick={() => handleDeleteStunt(index)}
-                  className="opacity-40 group-hover:opacity-100 text-slate-500 hover:text-red-400 p-1 transition"
+                  className="opacity-0 group-hover:opacity-100 text-slate-500 hover:text-red-400 p-1 transition cursor-pointer"
                   title="Удалить трюк"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
@@ -129,15 +126,15 @@ export const StuntsSection: React.FC<StuntsSectionProps> = ({
               rows={2}
               value={stunt.description}
               onChange={(e) => handleUpdateStunt(index, { description: e.target.value })}
-              placeholder="Правило: +2 к проверке или замена навыка при определенных условиях..."
+              placeholder="Формулировка правила трюка (+2 или замена навыка)..."
               className="w-full bg-transparent text-xs text-slate-300 placeholder-slate-600 focus:outline-none resize-none leading-relaxed"
             />
           </div>
         ))}
 
         {character.stunts.length === 0 && (
-          <div className="text-center py-6 border border-dashed border-[#1C212B] rounded-xl text-xs text-slate-500">
-            У персонажа пока нет трюков. Нажмите «Добавить трюк».
+          <div className="text-center py-5 border border-dashed border-[#1C212B] rounded-xl text-xs text-slate-500">
+            Нет добавленных трюков. Нажмите «Добавить трюк».
           </div>
         )}
       </div>
