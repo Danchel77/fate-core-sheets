@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Search, Plus, Sword, Compass, Sparkles, Filter } from 'lucide-react';
+import { Plus, Sparkles, Sword, Compass } from 'lucide-react';
 import { useCharacters } from '../../context/CharacterContext';
 import { CharacterCard } from './CharacterCard';
 import { SettingType } from '../../types/character';
@@ -7,7 +7,6 @@ import { SAMPLE_CHARACTERS } from '../../config/sampleCharacters';
 
 export const CharacterList: React.FC = () => {
   const { characters, selectChar, createChar, duplicateChar, deleteChar, updateChar } = useCharacters();
-  const [search, setSearch] = useState('');
   const [filter, setFilter] = useState<'all' | SettingType>('all');
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
@@ -15,17 +14,9 @@ export const CharacterList: React.FC = () => {
   const universalCount = useMemo(() => characters.filter(c => c.setting === 'universal').length, [characters]);
 
   const filteredCharacters = useMemo(() => {
-    return characters.filter(c => {
-      const matchesSearch = 
-        (c.name || '').toLowerCase().includes(search.toLowerCase()) ||
-        (c.aspects.high_concept || '').toLowerCase().includes(search.toLowerCase()) ||
-        (c.aspects.trouble || '').toLowerCase().includes(search.toLowerCase());
-
-      const matchesFilter = filter === 'all' || c.setting === filter;
-
-      return matchesSearch && matchesFilter;
-    });
-  }, [characters, search, filter]);
+    if (filter === 'all') return characters;
+    return characters.filter(c => c.setting === filter);
+  }, [characters, filter]);
 
   const handleCreate = async (setting: SettingType) => {
     setIsCreateModalOpen(false);
@@ -38,38 +29,20 @@ export const CharacterList: React.FC = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 lg:px-8 py-7">
-      {/* Top action bar */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 mb-6">
-        {/* Title & Count */}
-        <div className="flex items-center gap-2.5">
-          <h1 className="text-xl font-semibold text-slate-100 tracking-tight">
-            Пул персонажей
+    <div className="max-w-7xl mx-auto px-6 lg:px-8 py-8">
+      {/* Top action bar: Title + Count on left, Filters, Create button on right */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+        {/* Title and Filter tabs together */}
+        <div className="flex flex-wrap items-center gap-4 sm:gap-6">
+          <h1 className="text-2xl font-bold text-slate-100 tracking-tight">
+            Мои персонажи <span className="text-slate-400 font-normal text-lg">({characters.length})</span>
           </h1>
-          <span className="px-2 py-0.5 rounded-full bg-[#1A222F] border border-[#263346] text-xs text-slate-400 font-medium">
-            {characters.length}
-          </span>
-        </div>
 
-        {/* Controls: Search, Filters, Create Button */}
-        <div className="flex flex-wrap items-center gap-2.5">
-          {/* Search */}
-          <div className="relative flex-1 sm:w-60 md:w-72">
-            <Search className="w-3.5 h-3.5 absolute left-3 top-2.5 text-slate-500" />
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Поиск по имени или аспекту..."
-              className="w-full bg-[#141A23] border border-[#252E3E] rounded-lg pl-9 pr-3 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-slate-500 transition"
-            />
-          </div>
-
-          {/* Setting filter tabs */}
+          {/* Setting filter tabs (no icons, clean text pills) */}
           <div className="flex items-center bg-[#141A23] border border-[#252E3E] p-1 rounded-lg text-xs">
             <button
               onClick={() => setFilter('all')}
-              className={`px-2.5 py-1 rounded-md transition font-medium ${
+              className={`px-3 py-1 rounded-md transition font-medium ${
                 filter === 'all'
                   ? 'bg-[#252E3E] text-white'
                   : 'text-slate-400 hover:text-slate-200'
@@ -79,39 +52,35 @@ export const CharacterList: React.FC = () => {
             </button>
             <button
               onClick={() => setFilter('witcher')}
-              className={`px-2.5 py-1 rounded-md transition font-medium flex items-center gap-1.5 ${
+              className={`px-3 py-1 rounded-md transition font-medium ${
                 filter === 'witcher'
                   ? 'bg-[#252E3E] text-white'
                   : 'text-slate-400 hover:text-slate-200'
               }`}
             >
-              <Sword className="w-3 h-3 text-slate-400" />
-              <span>Ведьмак</span>
-              <span className="text-[10px] text-slate-500">({witcherCount})</span>
+              Ведьмак {witcherCount > 0 && <span className="text-slate-500 ml-1">({witcherCount})</span>}
             </button>
             <button
               onClick={() => setFilter('universal')}
-              className={`px-2.5 py-1 rounded-md transition font-medium flex items-center gap-1.5 ${
+              className={`px-3 py-1 rounded-md transition font-medium ${
                 filter === 'universal'
                   ? 'bg-[#252E3E] text-white'
                   : 'text-slate-400 hover:text-slate-200'
               }`}
             >
-              <Compass className="w-3 h-3 text-slate-400" />
-              <span>Fate Core</span>
-              <span className="text-[10px] text-slate-500">({universalCount})</span>
+              Fate Core {universalCount > 0 && <span className="text-slate-500 ml-1">({universalCount})</span>}
             </button>
           </div>
-
-          {/* New Character button */}
-          <button
-            onClick={() => setIsCreateModalOpen(true)}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-slate-100 hover:bg-white text-slate-900 font-medium text-xs shadow-sm hover:shadow transition"
-          >
-            <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
-            <span>Новый герой</span>
-          </button>
         </div>
+
+        {/* New Character button (aligned to the right, matching header edge) */}
+        <button
+          onClick={() => setIsCreateModalOpen(true)}
+          className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-slate-100 hover:bg-white text-slate-900 font-medium text-xs shadow-sm hover:shadow transition self-end sm:self-auto"
+        >
+          <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+          <span>Новый герой</span>
+        </button>
       </div>
 
       {/* Grid of characters */}
@@ -130,16 +99,11 @@ export const CharacterList: React.FC = () => {
       ) : (
         /* Empty State */
         <div className="bg-[#141A23] border border-[#252E3E] rounded-2xl p-10 text-center max-w-lg mx-auto my-12 shadow-sm">
-          <div className="w-12 h-12 rounded-xl bg-[#1D2533] border border-[#2B3648] text-slate-400 flex items-center justify-center mx-auto mb-4">
-            <Sword className="w-6 h-6 stroke-[1.5]" />
-          </div>
           <h2 className="font-semibold text-lg text-slate-100 mb-1.5">
-            {search ? 'Персонажи не найдены' : 'В пуле пока нет героев'}
+            В пуле пока нет героев
           </h2>
           <p className="text-xs text-slate-400 mb-6 leading-relaxed">
-            {search 
-              ? `По запросу «${search}» ничего не найдено. Попробуйте изменить параметры поиска.` 
-              : 'Создайте персонажа для сеттинга Ведьмака или классического Fate Core, либо загрузите готовых героев.'}
+            Создайте персонажа для сеттинга Ведьмака или классического Fate Core, либо загрузите готовых героев.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
             <button
