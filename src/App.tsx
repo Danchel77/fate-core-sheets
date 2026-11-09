@@ -35,28 +35,10 @@ export const App: React.FC = () => {
           <Header />
           <MainContent />
 
-          {/* Minimalist, clean footer matching header style */}
-          <footer className="border-t border-[#1C212B] bg-[#0B0E14] text-slate-400 py-3 mt-auto">
-            <div className="max-w-[1380px] mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs">
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-4 rounded bg-[#141820] border border-[#242C38] flex items-center justify-center text-slate-300">
-                  <Shield className="w-2.5 h-2.5" />
-                </div>
-                <span className="font-fantasy text-slate-300 font-medium">Fate Core Sheets</span>
-                <span className="text-slate-400">© 2026</span>
-              </div>
-              <div className="flex items-center gap-4 text-slate-400">
-                <a
-                  href="https://fate-srd.com/fate-core"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="hover:text-slate-300 transition"
-                >
-                  Fate SRD
-                </a>
-                <span className="text-slate-500">•</span>
-                <span>Ведьмак &amp; Classic Core</span>
-              </div>
+          {/* Minimalist, clean footer */}
+          <footer className="border-t border-[#1C212B] bg-[#0B0E14] py-3 mt-auto">
+            <div className="max-w-[1380px] mx-auto px-4 sm:px-6 text-xs text-slate-500">
+              <span>© 2026</span>
             </div>
           </footer>
         </div>

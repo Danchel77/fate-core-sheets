@@ -33,9 +33,9 @@ export const CharacterList: React.FC = () => {
       {/* Top Bar: Title on Left, Equal-width Filters Aligned to Right */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-white tracking-wide">
-            Мои персонажи
-            <span className="ml-2.5 text-xs sm:text-sm font-normal text-slate-400">
+          <h1 className="text-xl sm:text-2xl font-bold text-white tracking-wide flex items-baseline gap-2.5">
+            <span>Мои персонажи</span>
+            <span className="text-lg sm:text-xl font-medium text-slate-400 tabular-nums">
               ({characters.length})
             </span>
           </h1>
@@ -76,26 +76,8 @@ export const CharacterList: React.FC = () => {
         </div>
       </div>
 
-      {/* Grid of Characters with Dedicated "+" Card */}
+      {/* Grid of Characters with Dedicated "+" Card placed at the END */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
-        {/* Large "+" Card Button */}
-        <button
-          onClick={() => setIsCreateModalOpen(true)}
-          className="group min-h-[104px] sm:min-h-[112px] p-3.5 sm:p-4 rounded-xl border border-dashed border-[#2B3545] hover:border-slate-400 bg-[#12161F]/60 hover:bg-[#161C27] flex items-center justify-center gap-3 transition-all cursor-pointer text-left"
-        >
-          <div className="w-9 h-9 rounded-lg bg-[#18202C] border border-[#2D384A] flex items-center justify-center text-slate-400 group-hover:text-white group-hover:border-slate-400 transition">
-            <Plus className="w-5 h-5 stroke-[2]" />
-          </div>
-          <div>
-            <span className="font-medium text-sm sm:text-base text-slate-300 group-hover:text-white transition block">
-              Создать персонажа
-            </span>
-            <span className="text-xs text-slate-400 block mt-0.5">
-              Новый лист Fate Core
-            </span>
-          </div>
-        </button>
-
         {/* Existing Character Cards */}
         {filteredCharacters.map((char) => (
           <CharacterCard
@@ -106,6 +88,19 @@ export const CharacterList: React.FC = () => {
             onDelete={() => deleteChar(char.id)}
           />
         ))}
+
+        {/* Large "+" Card Button at the END of the list */}
+        <button
+          onClick={() => setIsCreateModalOpen(true)}
+          className="group min-h-[104px] sm:min-h-[112px] p-3.5 sm:p-4 rounded-xl border border-dashed border-[#2B3545] hover:border-slate-400 bg-[#12161F]/60 hover:bg-[#161C27] flex items-center justify-center gap-3 transition-all cursor-pointer text-left"
+        >
+          <div className="w-9 h-9 rounded-lg bg-[#18202C] border border-[#2D384A] flex items-center justify-center text-slate-400 group-hover:text-white group-hover:border-slate-400 transition">
+            <Plus className="w-5 h-5 stroke-[2]" />
+          </div>
+          <span className="font-medium text-sm sm:text-base text-slate-300 group-hover:text-white transition">
+            Создать персонажа
+          </span>
+        </button>
       </div>
 
       {/* Empty State when no characters match */}
@@ -123,14 +118,14 @@ export const CharacterList: React.FC = () => {
           <div className="flex items-center justify-center gap-3">
             <button
               onClick={() => setIsCreateModalOpen(true)}
-              className="px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-medium text-xs sm:text-sm transition flex items-center gap-2"
+              className="px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-medium text-xs sm:text-sm transition flex items-center gap-2 cursor-pointer"
             >
               <Plus className="w-4 h-4" />
               <span>Создать героя</span>
             </button>
             <button
               onClick={handleLoadSamples}
-              className="px-4 py-2 rounded-xl border border-[#2E3A4C] bg-[#161D27] hover:bg-[#1E2734] text-slate-300 hover:text-white text-xs sm:text-sm transition flex items-center gap-2"
+              className="px-4 py-2 rounded-xl border border-[#2E3A4C] bg-[#161D27] hover:bg-[#1E2734] text-slate-300 hover:text-white text-xs sm:text-sm transition flex items-center gap-2 cursor-pointer"
             >
               <Sparkles className="w-4 h-4 text-amber-400" />
               <span>Загрузить примеры</span>
