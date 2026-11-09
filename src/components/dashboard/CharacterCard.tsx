@@ -30,16 +30,15 @@ export const CharacterCard: React.FC<CharacterCardProps> = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const isWitcher = character.setting === 'witcher';
   const highConcept = character.aspects.high_concept?.trim();
   const trouble = character.aspects.trouble?.trim();
 
   return (
     <div 
       onClick={onSelect}
-      className="group relative bg-[#171D27] hover:bg-[#1C2330] border border-[#252E3E] hover:border-[#38465E] rounded-xl p-5 min-h-[120px] transition-all duration-150 cursor-pointer shadow-sm hover:shadow-md flex items-center justify-between"
+      className="group relative bg-[#171D27] hover:bg-[#1C2330] border border-[#252E3E] hover:border-[#38465E] rounded-xl p-3.5 sm:p-4 min-h-[104px] sm:min-h-[112px] transition-all duration-150 cursor-pointer shadow-sm hover:shadow-md flex items-center"
     >
-      <div className="flex items-center gap-4.5 min-w-0 flex-1 pr-20">
+      <div className="flex items-center gap-4 sm:gap-5 min-w-0 flex-1">
         {/* Avatar */}
         <div className="w-18 h-18 sm:w-20 sm:h-20 rounded-xl overflow-hidden bg-[#10141C] border border-[#252E3E] shrink-0 flex items-center justify-center">
           {character.avatar ? (
@@ -55,11 +54,13 @@ export const CharacterCard: React.FC<CharacterCardProps> = ({
           )}
         </div>
 
-        {/* Details */}
+        {/* Details: Spreads freely over the available width */}
         <div className="flex-1 min-w-0 py-0.5">
-          <h3 className="font-semibold text-base sm:text-lg text-slate-100 group-hover:text-white truncate transition">
-            {character.name || 'Безымянный персонаж'}
-          </h3>
+          <div className="pr-6">
+            <h3 className="font-semibold text-base sm:text-lg text-slate-100 group-hover:text-white truncate transition">
+              {character.name || 'Безымянный персонаж'}
+            </h3>
+          </div>
           
           <p className="text-xs sm:text-sm text-slate-300 truncate mt-1">
             {highConcept || <span className="text-slate-500 italic">Концепция не указана</span>}
@@ -73,15 +74,15 @@ export const CharacterCard: React.FC<CharacterCardProps> = ({
         </div>
       </div>
 
-      {/* Horizontal Kebab Menu (top-right) */}
+      {/* Horizontal Kebab Menu (moved to the top right corner) */}
       <div 
         ref={menuRef} 
-        className="absolute top-4 right-4"
+        className="absolute top-2.5 right-2.5"
         onClick={(e) => e.stopPropagation()}
       >
         <button
           onClick={() => setMenuOpen(!menuOpen)}
-          className="p-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-[#252E3E] transition"
+          className="p-1 rounded-md text-slate-400 hover:text-white hover:bg-[#252E3E] transition"
           title="Действия с персонажем"
         >
           <MoreHorizontal className="w-4 h-4" />
@@ -134,13 +135,6 @@ export const CharacterCard: React.FC<CharacterCardProps> = ({
             </button>
           </div>
         )}
-      </div>
-
-      {/* Setting Badge (bottom-right) */}
-      <div className="absolute bottom-4 right-4">
-        <span className="px-2.5 py-0.5 rounded-md text-[10px] font-medium bg-[#10141C] border border-[#232B3A] text-slate-400">
-          {isWitcher ? 'Ведьмак' : 'Fate Core'}
-        </span>
       </div>
     </div>
   );
