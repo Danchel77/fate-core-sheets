@@ -1,7 +1,8 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { Character, SettingType } from '../types/character';
-import { fetchCharacters, saveCharacter, deleteCharacter, getActiveCharacterId, setActiveCharacterId } from '../services/storage';
+import { fetchCharacters, saveCharacter, deleteCharacter, getActiveCharacterId, setActiveCharacterId, saveLocalCharacters } from '../services/storage';
 import { createNewCharacter, calculateStressBoxes, calculateRefresh, getSkillRating } from '../utils/fateMath';
+import { SAMPLE_CHARACTERS } from '../config/sampleCharacters';
 import { useAuth } from './AuthContext';
 
 interface CharacterContextType {
@@ -37,17 +38,33 @@ export const CharacterProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     let isMounted = true;
     async function load() {
       setLoading(true);
-      const list = await fetchCharacters(user?.uid);
+      let list = await fetchCharacters(user?.uid);
+      
+      const isMockMode = typeof window !== 'undefined' && window.location.search.includes('mock=1');
+      if (list.length === 0 || isMockMode) {
+        list = SAMPLE_CHARACTERS;
+        saveLocalCharacters(list);
+      }
+
       if (!isMounted) return;
       
       setCharacters(list);
-      const activeId = getActiveCharacterId();
-      if (activeId) {
-        const found = list.find(c => c.id === activeId);
-        if (found) {
-          setActiveCharacter(found);
+
+      const params = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+      const requestedView = params?.get('view');
+
+      if (requestedView === 'sheet' && list.length > 0) {
+        setActiveCharacter(list[0]);
+      } else {
+        const activeId = getActiveCharacterId();
+        if (activeId) {
+          const found = list.find(c => c.id === activeId);
+          if (found) {
+            setActiveCharacter(found);
+          }
         }
       }
+
       setLoading(false);
     }
     load();
