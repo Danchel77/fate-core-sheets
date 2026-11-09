@@ -38,7 +38,7 @@ export const App: React.FC = () => {
           {/* Minimalist, clean footer */}
           <footer className="border-t border-[#1C212B] bg-[#0B0E14] py-3 mt-auto">
             <div className="max-w-[1380px] mx-auto px-4 sm:px-6 text-xs text-slate-500">
-              <span>© 2026</span>
+              <span>© 2026. Все права на сеттинги принадлежат их законным правообладателям.</span>
             </div>
           </footer>
         </div>
