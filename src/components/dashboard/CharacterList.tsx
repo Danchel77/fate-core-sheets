@@ -30,15 +30,14 @@ export const CharacterList: React.FC = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-6 lg:px-8 py-8">
-      {/* Top action bar: Title + Count on left, Filters, Create button on right */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
-        {/* Title and Filter tabs together */}
+      {/* Top bar: Title + Count on left, Filters */}
+      <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
         <div className="flex flex-wrap items-center gap-4 sm:gap-6">
           <h1 className="text-2xl font-bold text-slate-100 tracking-tight">
             Мои персонажи <span className="text-slate-400 font-normal text-lg">({characters.length})</span>
           </h1>
 
-          {/* Setting filter tabs (no icons, clean text pills) */}
+          {/* Setting filter tabs */}
           <div className="flex items-center bg-[#141A23] border border-[#252E3E] p-1 rounded-lg text-xs">
             <button
               onClick={() => setFilter('all')}
@@ -72,20 +71,11 @@ export const CharacterList: React.FC = () => {
             </button>
           </div>
         </div>
-
-        {/* New Character button (aligned to the right, matching header edge) */}
-        <button
-          onClick={() => setIsCreateModalOpen(true)}
-          className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-slate-100 hover:bg-white text-slate-900 font-medium text-xs shadow-sm hover:shadow transition self-end sm:self-auto"
-        >
-          <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
-          <span>Новый герой</span>
-        </button>
       </div>
 
-      {/* Grid of characters */}
-      {filteredCharacters.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      {/* Grid of characters + Large Add Character Card */}
+      {characters.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-5">
           {filteredCharacters.map((char) => (
             <CharacterCard
               key={char.id}
@@ -95,15 +85,34 @@ export const CharacterList: React.FC = () => {
               onDelete={() => deleteChar(char.id)}
             />
           ))}
+
+          {/* Large "+ Create Character" Card Button (Long Story Short style) */}
+          <button
+            onClick={() => setIsCreateModalOpen(true)}
+            className="group relative bg-[#141A23]/40 hover:bg-[#171D27] border border-dashed border-[#2B3648] hover:border-slate-500 rounded-xl p-5 min-h-[100px] sm:min-h-[110px] flex items-center justify-center transition-all duration-150 cursor-pointer text-slate-400 hover:text-slate-200"
+            title="Создать нового персонажа"
+          >
+            <div className="flex flex-col items-center justify-center gap-2">
+              <div className="w-9 h-9 rounded-full bg-[#18202C] border border-[#2B3648] group-hover:border-slate-500 flex items-center justify-center text-slate-400 group-hover:text-white transition">
+                <Plus className="w-5 h-5 stroke-[2]" />
+              </div>
+              <span className="text-xs font-medium text-slate-400 group-hover:text-slate-200 transition">
+                Создать персонажа
+              </span>
+            </div>
+          </button>
         </div>
       ) : (
-        /* Empty State */
+        /* Empty State when 0 characters */
         <div className="bg-[#141A23] border border-[#252E3E] rounded-2xl p-10 text-center max-w-lg mx-auto my-12 shadow-sm">
+          <div className="w-12 h-12 rounded-xl bg-[#18202C] border border-[#2B3648] text-slate-400 flex items-center justify-center mx-auto mb-4">
+            <Plus className="w-6 h-6 stroke-[1.75]" />
+          </div>
           <h2 className="font-semibold text-lg text-slate-100 mb-1.5">
             В пуле пока нет героев
           </h2>
           <p className="text-xs text-slate-400 mb-6 leading-relaxed">
-            Создайте персонажа для сеттинга Ведьмака или классического Fate Core, либо загрузите готовых героев.
+            Создайте своего первого героя для Ведьмака или классического Fate Core, либо загрузите готовых персонажей.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
             <button
