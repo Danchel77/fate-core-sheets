@@ -5,7 +5,7 @@ export const SAMPLE_CHARACTERS: Character[] = [
   {
     ...createNewCharacter('witcher', 'Геральт из Ривии'),
     id: 'char_sample_geralt',
-    avatar: 'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=300&auto=format&fit=crop&q=80',
+    avatar: 'https://images.unsplash.com/photo-1514533450685-4493e01d1fdc?w=400&auto=format&fit=crop&q=80',
     aspects: {
       high_concept: 'Опытный ведьмак Школы Волка',
       trouble: '«Зло — это зло. Меньшее, большее, среднее...»',

@@ -41,6 +41,9 @@ export interface Character {
     severe: ConsequenceSlot; // -6
   };
 
+  // Extras / Notes (Дополнения)
+  notes?: string;
+
   createdAt: number;
   updatedAt: number;
 }

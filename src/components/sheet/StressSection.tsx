@@ -1,7 +1,7 @@
 import React from 'react';
-import { Flame, Zap, ShieldAlert, HeartPulse, CheckSquare, Square } from 'lucide-react';
+import { Flame, Brain, Lock } from 'lucide-react';
 import { Character } from '../../types/character';
-import { StressBox } from '../../types/fate';
+import { getSkillRating } from '../../utils/fateMath';
 
 interface StressSectionProps {
   character: Character;
@@ -9,23 +9,37 @@ interface StressSectionProps {
 }
 
 export const StressSection: React.FC<StressSectionProps> = ({ character, onChange }) => {
-  const togglePhysicalStress = (boxIndex: number) => {
-    const updated = character.physicalStress.map(b => 
-      b.index === boxIndex ? { ...b, checked: !b.checked } : b
-    );
-    onChange({
-      ...character,
-      physicalStress: updated,
-    });
-  };
+  const physiqueRating = getSkillRating(character, 'physique');
+  const willRating = getSkillRating(character, 'will');
 
-  const toggleMentalStress = (boxIndex: number) => {
-    const updated = character.mentalStress.map(b => 
-      b.index === boxIndex ? { ...b, checked: !b.checked } : b
-    );
+  // Fate Core rules:
+  // Base: 2 boxes (1, 2)
+  // Rating 1-2: unlocks box 3
+  // Rating 3+: unlocks box 4
+  const maxPhysicalBoxes = physiqueRating >= 3 ? 4 : physiqueRating >= 1 ? 3 : 2;
+  const maxMentalBoxes = willRating >= 3 ? 4 : willRating >= 1 ? 3 : 2;
+
+  const toggleStress = (track: 'physical' | 'mental', index: number) => {
+    const listKey = track === 'physical' ? 'physicalStress' : 'mentalStress';
+    const currentList = [...character[listKey]];
+    
+    const existingIndex = currentList.findIndex(b => b.index === index);
+    if (existingIndex >= 0) {
+      currentList[existingIndex] = {
+        ...currentList[existingIndex],
+        checked: !currentList[existingIndex].checked,
+      };
+    } else {
+      currentList.push({
+        index,
+        value: index,
+        checked: true,
+      });
+    }
+
     onChange({
       ...character,
-      mentalStress: updated,
+      [listKey]: currentList,
     });
   };
 
@@ -46,160 +60,211 @@ export const StressSection: React.FC<StressSectionProps> = ({ character, onChang
   };
 
   return (
-    <div className="bg-[#161B22] border border-[#2E3440] rounded-2xl p-5 shadow-xl space-y-6">
-      {/* Header */}
-      <div className="border-b border-slate-800 pb-3">
-        <h2 className="font-fantasy font-bold text-lg text-amber-400 tracking-wide flex items-center gap-2">
-          Стресс и Последствия
-        </h2>
-        <p className="text-xs text-slate-400">
-          Стресс сбрасывается в конце конфликта. Последствия — это временные аспекты ранений.
-        </p>
-      </div>
+    <div className="bg-[#121721] border border-[#1C212B] rounded-2xl p-5 shadow-xl space-y-5">
+      {/* 1. Stress Tracks */}
+      <div>
+        <div className="flex items-center justify-between mb-3 border-b border-[#1C212B] pb-2">
+          <div className="flex items-center gap-2">
+            <div className="w-1.5 h-4 bg-amber-500 rounded-xs" />
+            <h2 className="font-fantasy font-bold text-base text-slate-100 tracking-wide uppercase">
+              Стресс (Stress)
+            </h2>
+          </div>
+          <span className="text-[11px] text-slate-400 font-medium">
+            Сбрасывается после конфликта
+          </span>
+        </div>
 
-      {/* Stress Tracks Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Physical Stress */}
-        <div className="p-4 rounded-xl bg-[#0B0E14] border border-red-950/60 shadow-inner">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <div className="p-1.5 rounded-lg bg-red-500/10 text-red-500">
-                <Flame className="w-4 h-4" />
-              </div>
-              <div>
-                <span className="font-fantasy font-bold text-xs text-slate-200">
-                  Физический стресс
-                </span>
-                <span className="text-[10px] text-slate-500 block">Зависит от «Сложения»</span>
-              </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {/* Physical Stress */}
+          <div className="p-3 rounded-xl bg-[#0B0E14] border border-[#1C212B]">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-bold text-red-400 font-fantasy flex items-center gap-1.5">
+                <Flame className="w-3.5 h-3.5" />
+                Физ. стресс
+              </span>
+              <span className="text-[10px] text-slate-500">
+                Сложение ({physiqueRating > 0 ? `+${physiqueRating}` : '0'})
+              </span>
+            </div>
+            <div className="grid grid-cols-4 gap-2">
+              {[1, 2, 3, 4].map((boxNum) => {
+                const isUnlocked = boxNum <= maxPhysicalBoxes;
+                const isChecked = character.physicalStress.some(b => b.index === boxNum && b.checked);
+
+                if (!isUnlocked) {
+                  return (
+                    <div
+                      key={boxNum}
+                      className="h-10 rounded-lg border border-dashed border-[#1C212B] bg-[#0B0E14]/40 flex flex-col items-center justify-center text-slate-600 select-none cursor-not-allowed"
+                      title={boxNum === 3 ? 'Требуется Сложение +1' : 'Требуется Сложение +3'}
+                    >
+                      <Lock className="w-3 h-3 mb-0.5 opacity-50" />
+                      <span className="text-[10px] font-mono">[{boxNum}]</span>
+                    </div>
+                  );
+                }
+
+                return (
+                  <button
+                    type="button"
+                    key={boxNum}
+                    onClick={() => toggleStress('physical', boxNum)}
+                    className={`h-10 rounded-lg border flex items-center justify-center font-mono font-bold text-sm transition cursor-pointer ${
+                      isChecked
+                        ? 'bg-red-950/80 border-red-600 text-red-400 line-through'
+                        : 'bg-[#121721] border-[#2E3440] hover:border-red-500/50 text-slate-300 hover:text-white'
+                    }`}
+                    title={isChecked ? 'Отметить как свободный' : `Получить ${boxNum} физ. стресса`}
+                  >
+                    {boxNum}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
-          <div className="flex gap-2.5">
-            {character.physicalStress.map((box) => (
-              <button
-                type="button"
-                key={box.index}
-                onClick={() => togglePhysicalStress(box.index)}
-                className={`flex-1 h-12 rounded-xl border flex flex-col items-center justify-center transition group ${
-                  box.checked
-                    ? 'bg-red-950/90 border-red-600 text-red-400 shadow-lg shadow-red-950/50'
-                    : 'bg-[#161B22] border-slate-700/80 hover:border-red-500/50 text-slate-300'
-                }`}
-              >
-                <span className={`text-base font-bold font-fantasy ${box.checked ? 'line-through text-red-400' : ''}`}>
-                  [{box.value}]
-                </span>
-                <span className="text-[9px] uppercase tracking-wider text-slate-500 group-hover:text-red-400">
-                  {box.checked ? 'Занято' : 'Свободно'}
-                </span>
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Mental Stress */}
-        <div className="p-4 rounded-xl bg-[#0B0E14] border border-sky-950/60 shadow-inner">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <div className="p-1.5 rounded-lg bg-sky-500/10 text-sky-400">
-                <Zap className="w-4 h-4" />
-              </div>
-              <div>
-                <span className="font-fantasy font-bold text-xs text-slate-200">
-                  Ментальный стресс
-                </span>
-                <span className="text-[10px] text-slate-500 block">Зависит от «Воли»</span>
-              </div>
+          {/* Mental Stress */}
+          <div className="p-3 rounded-xl bg-[#0B0E14] border border-[#1C212B]">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-bold text-sky-400 font-fantasy flex items-center gap-1.5">
+                <Brain className="w-3.5 h-3.5" />
+                Ментал. стресс
+              </span>
+              <span className="text-[10px] text-slate-500">
+                Воля ({willRating > 0 ? `+${willRating}` : '0'})
+              </span>
             </div>
-          </div>
+            <div className="grid grid-cols-4 gap-2">
+              {[1, 2, 3, 4].map((boxNum) => {
+                const isUnlocked = boxNum <= maxMentalBoxes;
+                const isChecked = character.mentalStress.some(b => b.index === boxNum && b.checked);
 
-          <div className="flex gap-2.5">
-            {character.mentalStress.map((box) => (
-              <button
-                type="button"
-                key={box.index}
-                onClick={() => toggleMentalStress(box.index)}
-                className={`flex-1 h-12 rounded-xl border flex flex-col items-center justify-center transition group ${
-                  box.checked
-                    ? 'bg-sky-950/90 border-sky-500 text-sky-300 shadow-lg shadow-sky-950/50'
-                    : 'bg-[#161B22] border-slate-700/80 hover:border-sky-500/50 text-slate-300'
-                }`}
-              >
-                <span className={`text-base font-bold font-fantasy ${box.checked ? 'line-through text-sky-400' : ''}`}>
-                  [{box.value}]
-                </span>
-                <span className="text-[9px] uppercase tracking-wider text-slate-500 group-hover:text-sky-400">
-                  {box.checked ? 'Занято' : 'Свободно'}
-                </span>
-              </button>
-            ))}
+                if (!isUnlocked) {
+                  return (
+                    <div
+                      key={boxNum}
+                      className="h-10 rounded-lg border border-dashed border-[#1C212B] bg-[#0B0E14]/40 flex flex-col items-center justify-center text-slate-600 select-none cursor-not-allowed"
+                      title={boxNum === 3 ? 'Требуется Воля +1' : 'Требуется Воля +3'}
+                    >
+                      <Lock className="w-3 h-3 mb-0.5 opacity-50" />
+                      <span className="text-[10px] font-mono">[{boxNum}]</span>
+                    </div>
+                  );
+                }
+
+                return (
+                  <button
+                    type="button"
+                    key={boxNum}
+                    onClick={() => toggleStress('mental', boxNum)}
+                    className={`h-10 rounded-lg border flex items-center justify-center font-mono font-bold text-sm transition cursor-pointer ${
+                      isChecked
+                        ? 'bg-sky-950/80 border-sky-600 text-sky-400 line-through'
+                        : 'bg-[#121721] border-[#2E3440] hover:border-sky-500/50 text-slate-300 hover:text-white'
+                    }`}
+                    title={isChecked ? 'Отметить как свободный' : `Получить ${boxNum} ментал. стресса`}
+                  >
+                    {boxNum}
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Consequences Section */}
-      <div className="space-y-3 pt-2">
-        <h3 className="font-fantasy font-bold text-xs text-slate-300 tracking-wider uppercase">
-          Последствия (Consequences)
-        </h3>
-
-        {/* Mild -2 */}
-        <div className="p-3 rounded-xl bg-[#0B0E14] border border-slate-800 focus-within:border-amber-500/50 transition">
-          <div className="flex items-center justify-between text-xs mb-1">
-            <span className="font-bold text-slate-300 font-fantasy">
-              Легкое последствие (-2)
-            </span>
-            <span className="text-[10px] text-slate-500">
-              Поглощает 2 урона. Проходит после сцены отдыха.
-            </span>
+      {/* 2. Consequences */}
+      <div>
+        <div className="flex items-center justify-between mb-3 border-b border-[#1C212B] pb-2">
+          <div className="flex items-center gap-2">
+            <div className="w-1.5 h-4 bg-amber-500 rounded-xs" />
+            <h2 className="font-fantasy font-bold text-base text-slate-100 tracking-wide uppercase">
+              Последствия (Consequences)
+            </h2>
           </div>
-          <input
-            type="text"
-            value={character.consequences.mild.aspect}
-            onChange={(e) => handleConsequenceChange('mild', e.target.value)}
-            placeholder="например, «Рассеченная бровь» или «Звенящая голова»"
-            className="w-full bg-transparent text-xs text-amber-200 placeholder-slate-600 focus:outline-none"
-          />
+          <span className="text-[11px] text-slate-400 font-medium">
+            Временные аспекты травм
+          </span>
         </div>
 
-        {/* Moderate -4 */}
-        <div className="p-3 rounded-xl bg-[#0B0E14] border border-slate-800 focus-within:border-amber-500/50 transition">
-          <div className="flex items-center justify-between text-xs mb-1">
-            <span className="font-bold text-amber-400 font-fantasy">
-              Среднее последствие (-4)
-            </span>
-            <span className="text-[10px] text-slate-500">
-              Поглощает 4 урона. Проходит после целой игровой сессии.
-            </span>
+        <div className="space-y-2">
+          {/* Mild [2] */}
+          <div className="p-2.5 rounded-xl bg-[#0B0E14] border border-[#1C212B] focus-within:border-slate-500 flex items-center gap-3">
+            <div className="flex items-center gap-1.5 w-24 shrink-0">
+              <span className="px-1.5 py-0.5 rounded bg-emerald-950 border border-emerald-700/50 text-emerald-400 font-mono text-xs font-bold">
+                2
+              </span>
+              <span className="text-xs font-semibold text-slate-300">
+                Легкое
+              </span>
+            </div>
+            <input
+              type="text"
+              value={character.consequences.mild.aspect}
+              onChange={(e) => handleConsequenceChange('mild', e.target.value)}
+              placeholder="Например, «Рассеченная бровь» или «Дрожащие руки»..."
+              className="flex-1 bg-transparent text-xs text-slate-200 placeholder-slate-600 focus:outline-none"
+            />
           </div>
-          <input
-            type="text"
-            value={character.consequences.moderate.aspect}
-            onChange={(e) => handleConsequenceChange('moderate', e.target.value)}
-            placeholder="например, «Сломанные ребра» или «Панический страх серебра»"
-            className="w-full bg-transparent text-xs text-amber-200 placeholder-slate-600 focus:outline-none"
-          />
-        </div>
 
-        {/* Severe -6 */}
-        <div className="p-3 rounded-xl bg-[#0B0E14] border border-slate-800 focus-within:border-red-500/50 transition">
-          <div className="flex items-center justify-between text-xs mb-1">
-            <span className="font-bold text-red-400 font-fantasy">
-              Тяжелое последствие (-6)
-            </span>
-            <span className="text-[10px] text-slate-500">
-              Поглощает 6 урона. Требует целого сценария на излечение.
-            </span>
+          {/* Moderate [4] */}
+          <div className="p-2.5 rounded-xl bg-[#0B0E14] border border-[#1C212B] focus-within:border-slate-500 flex items-center gap-3">
+            <div className="flex items-center gap-1.5 w-24 shrink-0">
+              <span className="px-1.5 py-0.5 rounded bg-amber-950 border border-amber-700/50 text-amber-400 font-mono text-xs font-bold">
+                4
+              </span>
+              <span className="text-xs font-semibold text-slate-300">
+                Среднее
+              </span>
+            </div>
+            <input
+              type="text"
+              value={character.consequences.moderate.aspect}
+              onChange={(e) => handleConsequenceChange('moderate', e.target.value)}
+              placeholder="Например, «Глубокая колотая рана» или «Панический страх»..."
+              className="flex-1 bg-transparent text-xs text-slate-200 placeholder-slate-600 focus:outline-none"
+            />
           </div>
-          <input
-            type="text"
-            value={character.consequences.severe.aspect}
-            onChange={(e) => handleConsequenceChange('severe', e.target.value)}
-            placeholder="например, «Разорванное плечо» или «Подорванная вера в себя»"
-            className="w-full bg-transparent text-xs text-red-200 placeholder-slate-600 focus:outline-none"
-          />
+
+          {/* Severe [6] */}
+          <div className="p-2.5 rounded-xl bg-[#0B0E14] border border-[#1C212B] focus-within:border-slate-500 flex items-center gap-3">
+            <div className="flex items-center gap-1.5 w-24 shrink-0">
+              <span className="px-1.5 py-0.5 rounded bg-red-950 border border-red-700/50 text-red-400 font-mono text-xs font-bold">
+                6
+              </span>
+              <span className="text-xs font-semibold text-slate-300">
+                Тяжелое
+              </span>
+            </div>
+            <input
+              type="text"
+              value={character.consequences.severe.aspect}
+              onChange={(e) => handleConsequenceChange('severe', e.target.value)}
+              placeholder="Например, «Сломанные ребра» или «Сломленная гордость»..."
+              className="flex-1 bg-transparent text-xs text-slate-200 placeholder-slate-600 focus:outline-none"
+            />
+          </div>
         </div>
+      </div>
+
+      {/* 3. Extras / Notes (Дополнения) */}
+      <div>
+        <div className="flex items-center justify-between mb-2 border-b border-[#1C212B] pb-2">
+          <div className="flex items-center gap-2">
+            <div className="w-1.5 h-4 bg-amber-500 rounded-xs" />
+            <h2 className="font-fantasy font-bold text-base text-slate-100 tracking-wide uppercase">
+              Дополнения и Заметки (Extras)
+            </h2>
+          </div>
+        </div>
+        <textarea
+          rows={3}
+          value={character.notes || ''}
+          onChange={(e) => onChange({ ...character, notes: e.target.value })}
+          placeholder="Снаряжение, серебряный меч, эликсиры, бомбы, репутация или особые свойства..."
+          className="w-full p-3 rounded-xl bg-[#0B0E14] border border-[#1C212B] focus:border-slate-500 text-xs text-slate-300 placeholder-slate-500 focus:outline-none resize-none leading-relaxed"
+        />
       </div>
     </div>
   );

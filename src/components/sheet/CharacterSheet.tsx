@@ -7,12 +7,9 @@ import {
   Award, 
   Coins, 
   Trash2, 
-  RefreshCw,
-  Plus,
-  Minus,
-  Check,
-  Shield,
-  FileText
+  Plus, 
+  Minus, 
+  Shield 
 } from 'lucide-react';
 import { useCharacters } from '../../context/CharacterContext';
 import { AspectsSection } from './AspectsSection';
@@ -68,23 +65,24 @@ export const CharacterSheet: React.FC = () => {
   };
 
   const currentSetting = SETTING_PRESETS[activeCharacter.setting] || SETTING_PRESETS.witcher;
+  const baseUrl = import.meta.env.BASE_URL || '/';
 
   return (
-    <div className="max-w-7xl mx-auto px-4 lg:px-8 py-6">
+    <div className="max-w-[1380px] mx-auto px-4 sm:px-6 py-6">
       {/* Top action navigation */}
       <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
         <button
           onClick={() => selectChar(null)}
-          className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-[#161B22] border border-[#2E3440] hover:border-amber-500/50 text-slate-300 hover:text-white text-xs font-semibold transition"
+          className="flex items-center gap-2 text-slate-400 hover:text-slate-100 text-sm font-medium transition cursor-pointer group"
         >
-          <ArrowLeft className="w-4 h-4 text-amber-500" />
-          <span>К списку персонажей</span>
+          <ArrowLeft className="w-4 h-4 text-amber-500 group-hover:-translate-x-0.5 transition" />
+          <span>Вернуться к выбору персонажа</span>
         </button>
 
         <div className="flex items-center gap-3">
           <button
             onClick={() => setIsApiKeyOpen(true)}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-amber-500/30 bg-amber-500/10 hover:bg-amber-500/20 text-xs text-amber-400 font-medium transition"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-amber-500/30 bg-amber-500/10 hover:bg-amber-500/20 text-xs text-amber-400 font-medium transition cursor-pointer"
           >
             <Sparkles className="w-3.5 h-3.5" />
             <span>Настроить Gemini</span>
@@ -93,10 +91,10 @@ export const CharacterSheet: React.FC = () => {
           <button
             onClick={handleExport}
             disabled={isExporting}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-black font-semibold text-xs shadow-lg shadow-amber-900/30 transition disabled:opacity-50"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-semibold text-xs shadow-md transition disabled:opacity-50 cursor-pointer"
           >
-            <Download className="w-4 h-4 stroke-[2.5]" />
-            <span>{isExporting ? 'Экспорт...' : 'Экспорт в PDF / TTS'}</span>
+            <Download className="w-3.5 h-3.5 stroke-[2.5]" />
+            <span>{isExporting ? 'Экспорт...' : 'Экспорт в PDF'}</span>
           </button>
         </div>
       </div>
@@ -104,16 +102,16 @@ export const CharacterSheet: React.FC = () => {
       {/* The Printable / Renderable Container */}
       <div 
         id="printable-character-sheet"
-        className="bg-[#0B0E14] border border-[#2E3440] rounded-3xl p-6 lg:p-8 shadow-2xl relative space-y-8"
+        className="bg-[#0B0E14] border border-[#1C212B] rounded-3xl p-6 sm:p-8 shadow-2xl relative space-y-6"
       >
         {/* Character Passport Header */}
-        <div className="bg-[#161B22] border border-[#2E3440] rounded-2xl p-6 shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+        <div className="bg-[#121721] border border-[#1C212B] rounded-2xl p-5 shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
           <div className="flex items-center gap-5 flex-1 min-w-0">
-            {/* Avatar Uploader */}
+            {/* Avatar Portrait */}
             <div className="relative group shrink-0">
               <div 
                 onClick={() => fileInputRef.current?.click()}
-                className="w-24 h-24 rounded-2xl overflow-hidden bg-[#0B0E14] border-2 border-[#2E3440] group-hover:border-amber-500 cursor-pointer flex items-center justify-center transition shadow-lg relative"
+                className="w-24 h-24 rounded-2xl overflow-hidden bg-[#0B0E14] border border-[#2E3440] group-hover:border-amber-500 cursor-pointer flex items-center justify-center transition shadow-lg relative"
               >
                 {activeCharacter.avatar ? (
                   <img
@@ -123,14 +121,14 @@ export const CharacterSheet: React.FC = () => {
                   />
                 ) : (
                   <div className="flex flex-col items-center justify-center text-slate-600 group-hover:text-amber-500 transition">
-                    <Shield className="w-10 h-10 stroke-[1.5]" />
-                    <span className="text-[10px] mt-1 font-semibold uppercase tracking-wider">Фото</span>
+                    <Shield className="w-8 h-8 stroke-[1.5]" />
+                    <span className="text-[10px] mt-1 font-semibold uppercase tracking-wider text-slate-500">Портрет</span>
                   </div>
                 )}
 
                 <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center text-white text-[10px] font-semibold transition backdrop-blur-xs">
-                  <Upload className="w-5 h-5 mb-1" />
-                  <span>Изменить</span>
+                  <Upload className="w-4 h-4 mb-0.5" />
+                  <span>Сменить</span>
                 </div>
               </div>
 
@@ -145,22 +143,18 @@ export const CharacterSheet: React.FC = () => {
               {activeCharacter.avatar && (
                 <button
                   onClick={handleRemoveAvatar}
-                  className="absolute -top-2 -right-2 p-1 rounded-full bg-red-600 text-white shadow-md hover:bg-red-500 transition"
-                  title="Удалить аватар"
+                  className="absolute -top-1.5 -right-1.5 p-1 rounded-full bg-red-600/90 text-white shadow-md hover:bg-red-500 transition"
+                  title="Удалить портрет"
                 >
                   <Trash2 className="w-3 h-3" />
                 </button>
               )}
             </div>
 
-            {/* Name and Setting */}
+            {/* Name and Description */}
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-1">
-                <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
-                  activeCharacter.setting === 'witcher'
-                    ? 'bg-amber-950 text-amber-300 border border-amber-600/40'
-                    : 'bg-indigo-950 text-indigo-300 border border-indigo-600/40'
-                }`}>
+              <div className="flex items-center gap-2 mb-1.5">
+                <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-[#1A202C] border border-[#2E3440] text-amber-400">
                   {currentSetting.name}
                 </span>
 
@@ -169,8 +163,8 @@ export const CharacterSheet: React.FC = () => {
                   onChange={(e) => updateChar({ ...activeCharacter, setting: e.target.value as SettingType })}
                   className="bg-transparent text-[11px] text-slate-500 hover:text-slate-300 focus:outline-none cursor-pointer"
                 >
-                  <option value="witcher" className="bg-[#161B22] text-slate-200">Переключить на Ведьмака</option>
-                  <option value="universal" className="bg-[#161B22] text-slate-200">Переключить на Fate Core</option>
+                  <option value="witcher" className="bg-[#121721] text-slate-200">Ведьмак</option>
+                  <option value="universal" className="bg-[#121721] text-slate-200">Fate Core</option>
                 </select>
               </div>
 
@@ -179,7 +173,7 @@ export const CharacterSheet: React.FC = () => {
                 value={activeCharacter.name}
                 onChange={(e) => updateChar({ ...activeCharacter, name: e.target.value })}
                 placeholder="Имя персонажа..."
-                className="w-full bg-transparent font-fantasy font-extrabold text-2xl lg:text-3xl text-amber-300 placeholder-slate-600 focus:outline-none tracking-wide"
+                className="w-full bg-transparent font-fantasy font-bold text-2xl lg:text-3xl text-amber-300 placeholder-slate-600 focus:outline-none tracking-wide"
               />
 
               <input
@@ -192,15 +186,31 @@ export const CharacterSheet: React.FC = () => {
             </div>
           </div>
 
-          {/* Refresh & Fate Points Widget */}
-          <div className="flex items-center gap-3 shrink-0 self-stretch sm:self-auto justify-end">
+          {/* Right side: System Medallion Logo & Resource Counters */}
+          <div className="flex items-center gap-4 shrink-0 self-stretch sm:self-auto justify-end">
+            {/* Setting Medallion Logo */}
+            <div className="flex items-center justify-center p-2 rounded-2xl bg-[#0B0E14] border border-[#1C212B] w-16 h-16 shrink-0" title={currentSetting.name}>
+              {activeCharacter.setting === 'witcher' ? (
+                <img
+                  src={`${baseUrl}witcher-medallion.svg`}
+                  alt="Witcher Medallion"
+                  className="w-12 h-12 object-contain filter drop-shadow-md"
+                />
+              ) : (
+                <div className="flex flex-col items-center justify-center text-center">
+                  <span className="font-fantasy font-black text-amber-400 text-lg leading-none">FATE</span>
+                  <span className="text-[9px] font-bold text-slate-500 tracking-wider">CORE</span>
+                </div>
+              )}
+            </div>
+
             {/* Refresh (Освежение) */}
-            <div className="p-3 rounded-xl bg-[#0B0E14] border border-amber-500/30 flex flex-col items-center justify-center min-w-[90px]">
-              <span className="text-[10px] uppercase font-bold tracking-wider text-amber-500 flex items-center gap-1">
+            <div className="p-2.5 rounded-xl bg-[#0B0E14] border border-[#1C212B] flex flex-col items-center justify-center min-w-[80px]">
+              <span className="text-[10px] uppercase font-bold tracking-wider text-amber-400 flex items-center gap-1">
                 <Award className="w-3 h-3" />
                 Освежение
               </span>
-              <span className="font-fantasy font-black text-2xl text-amber-300 my-0.5">
+              <span className="font-fantasy font-black text-xl text-amber-300 my-0.5">
                 {activeCharacter.refresh}
               </span>
               <span className="text-[9px] text-slate-500">
@@ -209,23 +219,23 @@ export const CharacterSheet: React.FC = () => {
             </div>
 
             {/* Fate Points (Жетоны судьбы) */}
-            <div className="p-3 rounded-xl bg-[#0B0E14] border border-[#2E3440] flex flex-col items-center justify-center min-w-[110px]">
+            <div className="p-2.5 rounded-xl bg-[#0B0E14] border border-[#1C212B] flex flex-col items-center justify-center min-w-[96px]">
               <span className="text-[10px] uppercase font-bold tracking-wider text-slate-300 flex items-center gap-1">
                 <Coins className="w-3 h-3 text-amber-400" />
                 Жетоны Fate
               </span>
-              <div className="flex items-center gap-2 my-0.5">
+              <div className="flex items-center gap-1.5 my-0.5">
                 <button
                   type="button"
                   onClick={() => updateChar({ 
                     ...activeCharacter, 
                     currentFatePoints: Math.max(0, activeCharacter.currentFatePoints - 1) 
                   })}
-                  className="w-6 h-6 rounded bg-[#161B22] border border-slate-700 hover:border-amber-500 text-slate-300 flex items-center justify-center text-xs transition"
+                  className="w-5 h-5 rounded bg-[#121721] border border-[#2E3440] hover:border-amber-500 text-slate-300 flex items-center justify-center text-xs transition cursor-pointer"
                 >
                   <Minus className="w-3 h-3" />
                 </button>
-                <span className="font-fantasy font-black text-2xl text-white min-w-[24px] text-center">
+                <span className="font-fantasy font-bold text-xl text-white min-w-[20px] text-center">
                   {activeCharacter.currentFatePoints}
                 </span>
                 <button
@@ -234,22 +244,22 @@ export const CharacterSheet: React.FC = () => {
                     ...activeCharacter, 
                     currentFatePoints: activeCharacter.currentFatePoints + 1 
                   })}
-                  className="w-6 h-6 rounded bg-[#161B22] border border-slate-700 hover:border-amber-500 text-slate-300 flex items-center justify-center text-xs transition"
+                  className="w-5 h-5 rounded bg-[#121721] border border-[#2E3440] hover:border-amber-500 text-slate-300 flex items-center justify-center text-xs transition cursor-pointer"
                 >
                   <Plus className="w-3 h-3" />
                 </button>
               </div>
               <span className="text-[9px] text-slate-500">
-                Тратьте в игре
+                В игре
               </span>
             </div>
           </div>
         </div>
 
         {/* 2-Column Fate Core Sheet Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-          {/* Left Column: Aspects & Stunts */}
-          <div className="space-y-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+          {/* Left Column: Aspects, Stunts */}
+          <div className="space-y-6">
             <AspectsSection
               character={activeCharacter}
               onChange={updateChar}
@@ -263,8 +273,8 @@ export const CharacterSheet: React.FC = () => {
             />
           </div>
 
-          {/* Right Column: Skill Pyramid & Stress / Consequences */}
-          <div className="space-y-8">
+          {/* Right Column: Skill Pyramid, Stress & Consequences */}
+          <div className="space-y-6">
             <SkillsPyramid
               character={activeCharacter}
               onChange={updateChar}

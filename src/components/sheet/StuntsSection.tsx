@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Sparkles, Plus, Trash2, Award, Zap, Shield, Sword } from 'lucide-react';
+import { Sparkles, Plus, Trash2 } from 'lucide-react';
 import { Character } from '../../types/character';
-import { CharacterStunt, StuntTemplate } from '../../types/fate';
+import { CharacterStunt } from '../../types/fate';
 import { SETTING_PRESETS } from '../../config/presets';
 import { GeminiModal } from '../ai/GeminiModal';
 
@@ -29,11 +29,6 @@ export const StuntsSection: React.FC<StuntsSectionProps> = ({
   const settingPreset = SETTING_PRESETS[character.setting] || SETTING_PRESETS.witcher;
 
   const handleAddStunt = () => {
-    if (character.stunts.length >= 5) {
-      alert('В Fate Core рекомендуется не более 5 трюков (чтобы сохранить хотя бы 1 пункт Освежения).');
-      return;
-    }
-
     const newStunt: CharacterStunt = {
       id: `stunt_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
       name: '',
@@ -65,7 +60,6 @@ export const StuntsSection: React.FC<StuntsSectionProps> = ({
   };
 
   const openGemini = (stuntIndex: number) => {
-    // Pick the highest skill name if available
     const topSkillId = character.skills[4]?.[0] || character.skills[3]?.[0] || 'fight';
     const skillDef = settingPreset.skills.find(s => s.id === topSkillId);
     setGeminiModalState({
@@ -76,63 +70,54 @@ export const StuntsSection: React.FC<StuntsSectionProps> = ({
   };
 
   return (
-    <div className="bg-[#161B22] border border-[#2E3440] rounded-2xl p-5 shadow-xl">
-      <div className="flex items-center justify-between mb-4 border-b border-slate-800 pb-3">
-        <div>
-          <h2 className="font-fantasy font-bold text-lg text-amber-400 tracking-wide flex items-center gap-2">
-            Трюки персонажа (Stunts)
-          </h2>
-          <p className="text-xs text-slate-400">
-            Особые приемы, знаки, мутации и модификаторы действий (+2 или замена навыка).
-          </p>
-        </div>
-
-        {/* Free Stunts Counter / Refresh Impact */}
+    <div className="bg-[#121721] border border-[#1C212B] rounded-2xl p-5 shadow-xl">
+      {/* Section Header */}
+      <div className="flex items-center justify-between mb-4 border-b border-[#1C212B] pb-3">
         <div className="flex items-center gap-2">
-          <span className="text-xs text-slate-400">
-            Бесплатно: <strong className="text-amber-400">{Math.min(3, character.stunts.length)} / 3</strong>
-          </span>
-          {character.stunts.length > 3 && (
-            <span className="px-2 py-0.5 rounded bg-red-950/80 border border-red-500/50 text-[10px] text-red-300 font-semibold">
-              -{character.stunts.length - 3} к Освежению
-            </span>
-          )}
+          <div className="w-1.5 h-4 bg-amber-500 rounded-xs" />
+          <h2 className="font-fantasy font-bold text-base text-slate-100 tracking-wide uppercase">
+            Трюки (Stunts)
+          </h2>
         </div>
+        <button
+          type="button"
+          onClick={handleAddStunt}
+          className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#1A202C] border border-[#2E3440] hover:border-amber-500/50 text-slate-300 hover:text-amber-400 text-xs font-medium transition"
+        >
+          <Plus className="w-3.5 h-3.5" />
+          <span>Добавить трюк</span>
+        </button>
       </div>
 
       {/* Stunts List */}
-      <div className="space-y-4">
+      <div className="space-y-3">
         {character.stunts.map((stunt, index) => (
           <div
             key={stunt.id}
-            className="p-3.5 rounded-xl bg-[#0B0E14] border border-[#2E3440] focus-within:border-amber-500/60 transition group relative"
+            className="p-3 rounded-xl bg-[#0B0E14] border border-[#1C212B] focus-within:border-slate-500 transition group relative"
           >
-            <div className="flex items-center justify-between gap-3 mb-2">
+            <div className="flex items-center justify-between gap-3 mb-1.5">
               <input
                 type="text"
                 value={stunt.name}
                 onChange={(e) => handleUpdateStunt(index, { name: e.target.value })}
                 placeholder={`Название трюка #${index + 1} (например, «Пируэт ведьмака»)`}
-                className="bg-transparent font-fantasy font-bold text-sm text-amber-300 placeholder-slate-600 focus:outline-none flex-1"
+                className="bg-transparent font-fantasy font-bold text-xs text-amber-300 placeholder-slate-600 focus:outline-none flex-1"
               />
 
-              <div className="flex items-center gap-1.5 shrink-0">
-                {/* Gemini Helper */}
+              <div className="flex items-center gap-1 shrink-0">
                 <button
                   type="button"
                   onClick={() => openGemini(index)}
-                  className="px-2 py-0.5 rounded-md bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-400 text-xs font-semibold flex items-center gap-1 transition"
-                  title="Сгенерировать идею трюка через Gemini"
+                  className="opacity-40 group-hover:opacity-100 text-slate-400 hover:text-amber-400 p-1 transition"
+                  title="Сформулировать через Gemini"
                 >
-                  <Sparkles className="w-3 h-3" />
-                  <span>ИИ</span>
+                  <Sparkles className="w-3.5 h-3.5" />
                 </button>
-
-                {/* Delete Button */}
                 <button
                   type="button"
                   onClick={() => handleDeleteStunt(index)}
-                  className="p-1 text-slate-500 hover:text-red-400 rounded transition"
+                  className="opacity-40 group-hover:opacity-100 text-slate-500 hover:text-red-400 p-1 transition"
                   title="Удалить трюк"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
@@ -144,39 +129,30 @@ export const StuntsSection: React.FC<StuntsSectionProps> = ({
               rows={2}
               value={stunt.description}
               onChange={(e) => handleUpdateStunt(index, { description: e.target.value })}
-              placeholder="Потому что я [особое умение или снаряжение], я получаю +2 к [навык] когда я [условие]..."
+              placeholder="Правило: +2 к проверке или замена навыка при определенных условиях..."
               className="w-full bg-transparent text-xs text-slate-300 placeholder-slate-600 focus:outline-none resize-none leading-relaxed"
             />
           </div>
         ))}
+
+        {character.stunts.length === 0 && (
+          <div className="text-center py-6 border border-dashed border-[#1C212B] rounded-xl text-xs text-slate-500">
+            У персонажа пока нет трюков. Нажмите «Добавить трюк».
+          </div>
+        )}
       </div>
 
-      {/* Add Stunt button */}
-      <div className="mt-4 pt-2 flex items-center justify-between">
-        <button
-          type="button"
-          onClick={handleAddStunt}
-          className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl border border-dashed border-amber-500/40 hover:border-amber-500 bg-amber-500/5 hover:bg-amber-500/10 text-amber-400 text-xs font-semibold transition"
-        >
-          <Plus className="w-3.5 h-3.5" />
-          <span>Добавить трюк</span>
-        </button>
-
-        <span className="text-[11px] text-slate-500">
-          Максимум 5 трюков
-        </span>
-      </div>
-
+      {/* Gemini Modal for Stunts */}
       <GeminiModal
         isOpen={geminiModalState.isOpen}
         onClose={() => setGeminiModalState(prev => ({ ...prev, isOpen: false }))}
         type="stunt"
         skillName={geminiModalState.skillName}
         character={character}
-        onSelectSuggestion={(title, desc) => {
+        onSelectSuggestion={(title: string, description?: string) => {
           handleUpdateStunt(geminiModalState.stuntIndex, {
             name: title,
-            description: desc || '',
+            description: description || '',
           });
         }}
         onOpenApiKeySettings={onOpenApiKeySettings}
