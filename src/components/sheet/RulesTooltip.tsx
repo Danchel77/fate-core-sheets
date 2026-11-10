@@ -1,17 +1,22 @@
 import React, { useEffect, useId, useRef, useState } from 'react';
-import { HelpCircle } from 'lucide-react';
 
 interface RulesTooltipProps {
   label: string;
+  title: string;
   text: string;
   className?: string;
 }
 
 /**
- * Небольшая кликабельная сноска к термину Fate Core.
- * Работает и на тач-устройствах: открывается по клику, закрывается по Esc/клику вне.
+ * Кликабельная сноска к термину Fate Core.
+ * Подчёркивание — сплошное; иконки-вопросики не используются.
  */
-export const RulesTooltip: React.FC<RulesTooltipProps> = ({ label, text, className = '' }) => {
+export const RulesTooltip: React.FC<RulesTooltipProps> = ({
+  label,
+  title,
+  text,
+  className = '',
+}) => {
   const [isOpen, setIsOpen] = useState(false);
   const rootRef = useRef<HTMLSpanElement>(null);
   const tooltipId = useId();
@@ -37,16 +42,15 @@ export const RulesTooltip: React.FC<RulesTooltipProps> = ({ label, text, classNa
   }, [isOpen]);
 
   return (
-    <span ref={rootRef} className={`relative inline-flex items-center gap-1 ${className}`}>
+    <span ref={rootRef} className={`relative inline-flex items-center ${className}`}>
       <button
         type="button"
-        onClick={() => setIsOpen(prev => !prev)}
+        onClick={() => setIsOpen((prev) => !prev)}
         aria-expanded={isOpen}
         aria-describedby={isOpen ? tooltipId : undefined}
-        className="inline-flex items-center gap-1 text-left underline decoration-dotted decoration-slate-500/70 underline-offset-4 hover:text-white transition cursor-help"
+        className="cursor-pointer text-left underline decoration-solid decoration-slate-500/70 underline-offset-4 transition hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400/40"
       >
-        <span>{label}</span>
-        <HelpCircle className="w-3 h-3 text-slate-500" aria-hidden="true" />
+        {label}
       </button>
 
       {isOpen && (
@@ -55,7 +59,8 @@ export const RulesTooltip: React.FC<RulesTooltipProps> = ({ label, text, classNa
           role="tooltip"
           className="absolute left-0 top-full z-50 mt-2 w-72 rounded-xl border border-[#2A3444] bg-[#0B0E14] p-3 text-[11px] font-normal normal-case leading-relaxed tracking-normal text-slate-300 shadow-2xl print:hidden"
         >
-          {text}
+          <span className="mb-1 block font-semibold text-slate-100">{title}</span>
+          <span className="block">{text}</span>
         </span>
       )}
     </span>

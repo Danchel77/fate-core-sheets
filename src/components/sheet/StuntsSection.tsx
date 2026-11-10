@@ -3,7 +3,6 @@ import { Sparkles, Plus, Trash2 } from 'lucide-react';
 import { Character } from '../../types/character';
 import { CharacterStunt } from '../../types/fate';
 import { SETTING_PRESETS } from '../../config/presets';
-import { countRealStunts } from '../../utils/fateMath';
 import { GeminiModal } from '../ai/GeminiModal';
 
 interface StuntsSectionProps {
@@ -35,15 +34,8 @@ export const StuntsSection: React.FC<StuntsSectionProps> = ({
   });
 
   const settingPreset = SETTING_PRESETS[character.setting] || SETTING_PRESETS.witcher;
-  const realStuntCount = countRealStunts(character.stunts);
-
-  const displayStunts: CharacterStunt[] = [...character.stunts];
-  while (displayStunts.length < 3) {
-    displayStunts.push(EMPTY_STUNT(`stunt_slot_${displayStunts.length}`));
-  }
-
   const handleUpdateStunt = (index: number, updatedFields: Partial<CharacterStunt>) => {
-    const list = [...displayStunts];
+    const list = [...character.stunts];
     list[index] = { ...list[index], ...updatedFields };
     onChange({ ...character, stunts: list });
   };
@@ -61,7 +53,7 @@ export const StuntsSection: React.FC<StuntsSectionProps> = ({
   const handleDeleteStunt = (index: number) => {
     onChange({
       ...character,
-      stunts: displayStunts.filter((_, i) => i !== index),
+      stunts: character.stunts.filter((_, i) => i !== index),
     });
   };
 
@@ -82,9 +74,6 @@ export const StuntsSection: React.FC<StuntsSectionProps> = ({
           Трюки
         </h2>
         <div className="flex items-center gap-3">
-          <span className="text-[10px] tabular-nums text-slate-500">
-            {realStuntCount} из 3 бесплатных
-          </span>
           <button
             type="button"
             onClick={handleAddStunt}
@@ -97,7 +86,7 @@ export const StuntsSection: React.FC<StuntsSectionProps> = ({
       </div>
 
       <div className="grid gap-3 md:grid-cols-2">
-        {displayStunts.map((stunt, index) => {
+        {character.stunts.map((stunt, index) => {
           const isEmpty = !stunt.name.trim() && !stunt.description.trim();
 
           return (
@@ -164,7 +153,7 @@ export const StuntsSection: React.FC<StuntsSectionProps> = ({
 
       {character.stunts.length > 3 && (
         <p className="mt-2 text-[10px] text-slate-500">
-          Каждый трюк сверх трёх снижает восстановление на 1 (минимум 1).
+          Каждый трюк сверх трёх снижает восстановление на 1.
         </p>
       )}
 

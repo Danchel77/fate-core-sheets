@@ -40,10 +40,10 @@ export const StressSection: React.FC<StressSectionProps> = ({ character, onChang
     maxBoxes: number
   ) => (
     <div>
-      <div className="mb-2 flex items-baseline justify-between gap-2">
+      <div className="mb-2 flex flex-wrap items-baseline gap-x-2 gap-y-1">
         <span className="text-[11px] font-medium text-slate-300">{label}</span>
         <span className="text-[10px] text-slate-500">
-          {skillLabel} {rating > 0 ? `+${rating}` : '0'}
+          • {skillLabel} {rating > 0 ? `+${rating}` : '0'}
         </span>
       </div>
 
@@ -99,11 +99,10 @@ export const StressSection: React.FC<StressSectionProps> = ({ character, onChang
 
   return (
     <section>
-      <div className="mb-2 flex items-baseline justify-between gap-3 border-b border-[#1C212B] pb-2.5">
+      <div className="mb-2 border-b border-[#1C212B] pb-2.5">
         <h2 className="font-fantasy text-xs font-bold uppercase tracking-[0.14em] text-slate-300">
           Стресс
         </h2>
-        <span className="text-[10px] text-slate-500">по навыкам</span>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">

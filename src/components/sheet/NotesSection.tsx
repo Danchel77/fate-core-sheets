@@ -8,7 +8,7 @@ interface NotesSectionProps {
 
 export const NotesSection: React.FC<NotesSectionProps> = ({ character, onChange }) => {
   return (
-    <section className="border-t border-[#202734] pt-4">
+    <section>
       <div className="mb-2 flex items-baseline justify-between gap-3">
         <h2 className="font-fantasy text-xs font-bold uppercase tracking-[0.14em] text-slate-300">
           Дополнения и заметки

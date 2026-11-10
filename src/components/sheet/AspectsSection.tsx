@@ -100,15 +100,12 @@ export const AspectsSection: React.FC<AspectsSectionProps> = ({
     },
   ];
 
-  const filledCount = aspectSlots.filter(slot => (character.aspects[slot.key] || '').trim()).length;
-
   return (
     <section>
-      <div className="mb-2 flex items-baseline justify-between gap-3 border-b border-[#1C212B] pb-2.5">
+      <div className="mb-2 border-b border-[#1C212B] pb-2.5">
         <h2 className="font-fantasy text-xs font-bold uppercase tracking-[0.14em] text-slate-300">
           Аспекты
         </h2>
-        <span className="text-[10px] tabular-nums text-slate-500">{filledCount} из 5</span>
       </div>
 
       <div>
@@ -118,10 +115,10 @@ export const AspectsSection: React.FC<AspectsSectionProps> = ({
           return (
             <div
               key={slot.key}
-              className="group grid grid-cols-[84px_1fr_auto] items-start gap-3 border-b border-[#1C212B]/70 py-2.5 last:border-b-0 sm:grid-cols-[96px_1fr_auto]"
+              className="group grid grid-cols-[84px_1fr_auto] items-center gap-3 border-b border-[#1C212B]/70 py-2.5 last:border-b-0 sm:grid-cols-[96px_1fr_auto]"
             >
-              <div className="pt-0.5">
-                <span className={`block font-fantasy text-[11.5px] font-semibold ${slot.labelColor}`}>
+              <div>
+                <span className={`block font-fantasy text-[11.5px] font-semibold uppercase tracking-[0.08em] ${slot.labelColor}`}>
                   {slot.label}
                 </span>
                 <span className="mt-0.5 block text-[9px] uppercase tracking-[0.12em] text-slate-500">

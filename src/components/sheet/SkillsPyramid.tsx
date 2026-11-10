@@ -90,8 +90,6 @@ export const SkillsPyramid: React.FC<SkillsPyramidProps> = ({ character, onChang
     rows.push({ level: lvl, ...levelMeta[lvl], count });
   }
 
-  const totalSlots = rows.reduce((sum, row) => sum + row.count, 0);
-
   const filteredSkills = availableSkills.filter(
     (skill) =>
       skill.nameRu.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -99,31 +97,29 @@ export const SkillsPyramid: React.FC<SkillsPyramidProps> = ({ character, onChang
       skill.description.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const assignedCount = assignedSkillIds.size;
-
   return (
     <section className="relative">
-      <div className="mb-2 flex items-baseline justify-between gap-3 border-b border-[#1C212B] pb-2.5">
+      <div className="mb-2 border-b border-[#1C212B] pb-2.5">
         <h2 className="font-fantasy text-xs font-bold uppercase tracking-[0.14em] text-slate-300">
           Навыки
         </h2>
-        <span className="text-[10px] tabular-nums text-slate-500">
-          {assignedCount} из {totalSlots}
-        </span>
       </div>
 
-      <div className="space-y-2.5">
+      <div>
         {rows.map(({ level, rating, titleRu, count }) => {
           const currentSkills = character.skills[level] || [];
 
           return (
-            <div key={level} className="flex items-start gap-3">
-              <div className="flex w-[72px] shrink-0 items-center gap-1.5 pt-1.5 sm:w-[82px]">
+            <div
+              key={level}
+              className="flex items-center gap-3 border-t border-[#1A202B] py-2.5 first:border-t-0 first:pt-0"
+            >
+              <div className="flex w-[72px] shrink-0 flex-col items-start justify-center sm:w-[82px]">
                 <span className="font-mono text-[12px] font-bold text-slate-400">{rating}</span>
-                <span className="text-[10px] text-slate-500">{titleRu}</span>
+                <span className="text-[10px] leading-tight text-slate-500">{titleRu}</span>
               </div>
 
-              <div className="flex min-w-0 flex-1 flex-wrap gap-1">
+              <div className="flex min-w-0 flex-1 flex-wrap items-center gap-1">
                 {Array.from({ length: count }).map((_, slotIndex) => {
                   const currentSkillId = currentSkills[slotIndex] || '';
                   const skillDef = availableSkills.find((skill) => skill.id === currentSkillId);

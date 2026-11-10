@@ -25,18 +25,17 @@ export const ConsequencesSection: React.FC<ConsequencesSectionProps> = ({ charac
 
   return (
     <section>
-      <div className="mb-2 flex items-baseline justify-between gap-3 border-b border-[#1C212B] pb-2.5">
+      <div className="mb-2 border-b border-[#1C212B] pb-2.5">
         <h2 className="font-fantasy text-xs font-bold uppercase tracking-[0.14em] text-slate-300">
           Последствия
         </h2>
-        <span className="font-mono text-[10px] tabular-nums text-slate-500">2 / 4 / 6</span>
       </div>
 
       <div>
         {CONSEQUENCES.map((consequence) => (
           <div
             key={consequence.key}
-            className="grid grid-cols-[28px_68px_1fr] items-center gap-3 border-b border-[#1C212B]/70 py-2.5 last:border-b-0"
+            className="grid grid-cols-[28px_68px_1fr] items-center gap-3 border-b border-[#1C212B]/70 py-2 last:border-b-0"
           >
             <span className="flex h-6 w-6 items-center justify-center rounded border border-[#2A3444] bg-[#161C26] font-mono text-[10px] font-bold text-slate-400">
               {consequence.value}

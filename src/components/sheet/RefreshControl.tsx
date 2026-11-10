@@ -61,7 +61,7 @@ export const RefreshControl: React.FC<RefreshControlProps> = ({
         aria-expanded={isOpen}
         aria-haspopup="dialog"
         aria-label={`Восстановление: ${refresh}. Изменить базовое значение`}
-        className="cursor-pointer border-b border-dotted border-slate-500 pb-0.5 text-[13px] font-semibold tabular-nums text-slate-100 transition hover:border-slate-300 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[#10141C]"
+        className="cursor-pointer text-[13px] font-semibold tabular-nums text-slate-100 transition hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[#10141C]"
       >
         {refresh}
       </button>
@@ -125,9 +125,6 @@ export const RefreshControl: React.FC<RefreshControlProps> = ({
             <span className="font-semibold tabular-nums text-slate-100">{refresh}</span>
           </div>
 
-          <p className="mt-2 text-[10px] leading-relaxed text-slate-500">
-            Минимум 3. Каждый трюк сверх трёх снижает восстановление на 1.
-          </p>
         </div>
       )}
     </span>

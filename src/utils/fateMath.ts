@@ -91,11 +91,7 @@ export function createNewCharacter(
       2: [],
       1: [],
     },
-    stunts: [
-      { id: `stunt_1_${now}`, name: '', template: 'bonus', description: '' },
-      { id: `stunt_2_${now}`, name: '', template: 'bonus', description: '' },
-      { id: `stunt_3_${now}`, name: '', template: 'bonus', description: '' },
-    ],
+    stunts: [],
     physicalStress: [
       { index: 1, value: 1, checked: false },
       { index: 2, value: 2, checked: false },
