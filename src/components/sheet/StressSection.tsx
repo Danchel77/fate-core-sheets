@@ -1,5 +1,5 @@
 import React from 'react';
-import { Flame, Brain, Lock } from 'lucide-react';
+import { Lock } from 'lucide-react';
 import { Character } from '../../types/character';
 import { getSkillRating } from '../../utils/fateMath';
 
@@ -12,35 +12,24 @@ export const StressSection: React.FC<StressSectionProps> = ({ character, onChang
   const physiqueRating = getSkillRating(character, 'physique');
   const willRating = getSkillRating(character, 'will');
 
-  // Fate Core rules:
-  // Base: 2 boxes (1, 2)
-  // Rating 1-2: unlocks box 3
-  // Rating 3+: unlocks box 4
   const maxPhysicalBoxes = physiqueRating >= 3 ? 4 : physiqueRating >= 1 ? 3 : 2;
   const maxMentalBoxes = willRating >= 3 ? 4 : willRating >= 1 ? 3 : 2;
 
   const toggleStress = (track: 'physical' | 'mental', index: number) => {
     const listKey = track === 'physical' ? 'physicalStress' : 'mentalStress';
     const currentList = [...character[listKey]];
-    
-    const existingIndex = currentList.findIndex(b => b.index === index);
+
+    const existingIndex = currentList.findIndex((box) => box.index === index);
     if (existingIndex >= 0) {
       currentList[existingIndex] = {
         ...currentList[existingIndex],
         checked: !currentList[existingIndex].checked,
       };
     } else {
-      currentList.push({
-        index,
-        value: index,
-        checked: true,
-      });
+      currentList.push({ index, value: index, checked: true });
     }
 
-    onChange({
-      ...character,
-      [listKey]: currentList,
-    });
+    onChange({ ...character, [listKey]: currentList });
   };
 
   const handleConsequenceChange = (
@@ -51,204 +40,120 @@ export const StressSection: React.FC<StressSectionProps> = ({ character, onChang
       ...character,
       consequences: {
         ...character.consequences,
-        [severity]: {
-          ...character.consequences[severity],
-          aspect: aspectText,
-        },
+        [severity]: { ...character.consequences[severity], aspect: aspectText },
       },
     });
   };
 
-  return (
-    <div className="bg-[#121721] border border-[#1C212B] rounded-2xl p-5 shadow-sm space-y-5">
-      {/* 1. Stress Tracks */}
-      <div>
-        <div className="flex items-center justify-between mb-3 border-b border-[#1C212B] pb-2.5">
-          <h2 className="font-fantasy font-bold text-base text-slate-100 tracking-wide uppercase">
-            Стресс
-          </h2>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {/* Physical Stress */}
-          <div className="p-3 rounded-xl bg-[#0B0E14] border border-[#1C212B]">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-                <Flame className="w-3.5 h-3.5 text-amber-500/80" />
-                Физический
-              </span>
-              <span className="text-[10px] text-slate-500">
-                Сложение ({physiqueRating > 0 ? `+${physiqueRating}` : '0'})
-              </span>
-            </div>
-            <div className="grid grid-cols-4 gap-2">
-              {[1, 2, 3, 4].map((boxNum) => {
-                const isUnlocked = boxNum <= maxPhysicalBoxes;
-                const isChecked = character.physicalStress.some(b => b.index === boxNum && b.checked);
-
-                if (!isUnlocked) {
-                  return (
-                    <div
-                      key={boxNum}
-                      className="h-9 rounded-lg border border-dashed border-[#1C212B] bg-[#0B0E14]/40 flex items-center justify-center text-slate-600 select-none cursor-not-allowed"
-                      title={boxNum === 3 ? 'Требуется Сложение +1' : 'Требуется Сложение +3'}
-                    >
-                      <Lock className="w-3 h-3 opacity-40" />
-                    </div>
-                  );
-                }
-
-                return (
-                  <button
-                    type="button"
-                    key={boxNum}
-                    onClick={() => toggleStress('physical', boxNum)}
-                    className={`h-9 rounded-lg border flex items-center justify-center font-mono font-bold text-sm transition cursor-pointer ${
-                      isChecked
-                        ? 'bg-red-950/70 border-red-700/60 text-red-300 line-through'
-                        : 'bg-[#121721] border-[#1C212B] hover:border-slate-700 text-slate-300 hover:text-white'
-                    }`}
-                    title={isChecked ? 'Отметить как свободный' : `Получить ${boxNum} физ. стресса`}
-                  >
-                    {boxNum}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Mental Stress */}
-          <div className="p-3 rounded-xl bg-[#0B0E14] border border-[#1C212B]">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-                <Brain className="w-3.5 h-3.5 text-sky-400/80" />
-                Ментальный
-              </span>
-              <span className="text-[10px] text-slate-500">
-                Воля ({willRating > 0 ? `+${willRating}` : '0'})
-              </span>
-            </div>
-            <div className="grid grid-cols-4 gap-2">
-              {[1, 2, 3, 4].map((boxNum) => {
-                const isUnlocked = boxNum <= maxMentalBoxes;
-                const isChecked = character.mentalStress.some(b => b.index === boxNum && b.checked);
-
-                if (!isUnlocked) {
-                  return (
-                    <div
-                      key={boxNum}
-                      className="h-9 rounded-lg border border-dashed border-[#1C212B] bg-[#0B0E14]/40 flex items-center justify-center text-slate-600 select-none cursor-not-allowed"
-                      title={boxNum === 3 ? 'Требуется Воля +1' : 'Требуется Воля +3'}
-                    >
-                      <Lock className="w-3 h-3 opacity-40" />
-                    </div>
-                  );
-                }
-
-                return (
-                  <button
-                    type="button"
-                    key={boxNum}
-                    onClick={() => toggleStress('mental', boxNum)}
-                    className={`h-9 rounded-lg border flex items-center justify-center font-mono font-bold text-sm transition cursor-pointer ${
-                      isChecked
-                        ? 'bg-sky-950/70 border-sky-700/60 text-sky-300 line-through'
-                        : 'bg-[#121721] border-[#1C212B] hover:border-slate-700 text-slate-300 hover:text-white'
-                    }`}
-                    title={isChecked ? 'Отметить как свободный' : `Получить ${boxNum} ментал. стресса`}
-                  >
-                    {boxNum}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        </div>
+  const renderTrack = (
+    track: 'physical' | 'mental',
+    label: string,
+    skillLabel: string,
+    rating: number,
+    maxBoxes: number
+  ) => (
+    <div>
+      <div className="mb-2 flex items-baseline justify-between gap-2">
+        <span className="text-[11px] font-medium text-slate-300">{label}</span>
+        <span className="text-[10px] text-slate-600">
+          {skillLabel} {rating > 0 ? `+${rating}` : '0'}
+        </span>
       </div>
 
-      {/* 2. Consequences */}
-      <div>
-        <div className="flex items-center justify-between mb-3 border-b border-[#1C212B] pb-2.5">
-          <h2 className="font-fantasy font-bold text-base text-slate-100 tracking-wide uppercase">
-            Последствия
-          </h2>
-        </div>
+      <div className="flex items-center gap-1.5">
+        {[1, 2, 3, 4].map((boxNum) => {
+          const isUnlocked = boxNum <= maxBoxes;
+          const isChecked = character[
+            track === 'physical' ? 'physicalStress' : 'mentalStress'
+          ].some((box) => box.index === boxNum && box.checked);
 
-        <div className="space-y-2">
-          {/* Mild [2] */}
-          <div className="p-2.5 rounded-xl bg-[#0B0E14] border border-[#1C212B] focus-within:border-slate-700 flex items-center gap-3">
-            <div className="flex items-center gap-1.5 w-24 shrink-0">
-              <span className="px-1.5 py-0.5 rounded bg-[#1A202C] border border-[#2E3440] text-slate-300 font-mono text-xs font-bold">
-                2
-              </span>
-              <span className="text-xs font-medium text-slate-300">
-                Легкое
-              </span>
-            </div>
-            <input
-              type="text"
-              value={character.consequences.mild.aspect}
-              onChange={(e) => handleConsequenceChange('mild', e.target.value)}
-              placeholder="Формулировка аспекта травмы..."
-              className="flex-1 bg-transparent text-xs text-slate-200 placeholder-slate-600 focus:outline-none"
-            />
-          </div>
+          if (!isUnlocked) {
+            return (
+              <div
+                key={boxNum}
+                className="flex h-8 w-8 items-center justify-center rounded border border-dashed border-[#252D3A] text-slate-700"
+                title={`Требуется ${skillLabel} +${boxNum === 3 ? 1 : 3}`}
+              >
+                <Lock className="h-3 w-3 opacity-50" />
+              </div>
+            );
+          }
 
-          {/* Moderate [4] */}
-          <div className="p-2.5 rounded-xl bg-[#0B0E14] border border-[#1C212B] focus-within:border-slate-700 flex items-center gap-3">
-            <div className="flex items-center gap-1.5 w-24 shrink-0">
-              <span className="px-1.5 py-0.5 rounded bg-[#1A202C] border border-[#2E3440] text-slate-300 font-mono text-xs font-bold">
-                4
-              </span>
-              <span className="text-xs font-medium text-slate-300">
-                Среднее
-              </span>
-            </div>
-            <input
-              type="text"
-              value={character.consequences.moderate.aspect}
-              onChange={(e) => handleConsequenceChange('moderate', e.target.value)}
-              placeholder="Формулировка аспекта травмы..."
-              className="flex-1 bg-transparent text-xs text-slate-200 placeholder-slate-600 focus:outline-none"
-            />
-          </div>
-
-          {/* Severe [6] */}
-          <div className="p-2.5 rounded-xl bg-[#0B0E14] border border-[#1C212B] focus-within:border-slate-700 flex items-center gap-3">
-            <div className="flex items-center gap-1.5 w-24 shrink-0">
-              <span className="px-1.5 py-0.5 rounded bg-[#1A202C] border border-[#2E3440] text-slate-300 font-mono text-xs font-bold">
-                6
-              </span>
-              <span className="text-xs font-medium text-slate-300">
-                Тяжелое
-              </span>
-            </div>
-            <input
-              type="text"
-              value={character.consequences.severe.aspect}
-              onChange={(e) => handleConsequenceChange('severe', e.target.value)}
-              placeholder="Формулировка аспекта травмы..."
-              className="flex-1 bg-transparent text-xs text-slate-200 placeholder-slate-600 focus:outline-none"
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* 3. Extras / Notes (Дополнения) */}
-      <div>
-        <div className="flex items-center justify-between mb-2 border-b border-[#1C212B] pb-2">
-          <h2 className="font-fantasy font-bold text-base text-slate-100 tracking-wide uppercase">
-            Заметки и снаряжение
-          </h2>
-        </div>
-        <textarea
-          rows={3}
-          value={character.notes || ''}
-          onChange={(e) => onChange({ ...character, notes: e.target.value })}
-          placeholder="Снаряжение, серебряный меч, эликсиры, бомбы, репутация..."
-          className="w-full p-3 rounded-xl bg-[#0B0E14] border border-[#1C212B] focus:border-slate-700 text-xs text-slate-300 placeholder-slate-600 focus:outline-none resize-none leading-relaxed"
-        />
+          return (
+            <button
+              type="button"
+              key={boxNum}
+              onClick={() => toggleStress(track, boxNum)}
+              className={`flex h-8 w-8 cursor-pointer items-center justify-center rounded border font-mono text-xs font-bold transition ${
+                isChecked
+                  ? track === 'physical'
+                    ? 'border-red-700/60 bg-red-950/60 text-red-300 line-through'
+                    : 'border-sky-700/60 bg-sky-950/60 text-sky-300 line-through'
+                  : 'border-[#2A3444] bg-[#161C26] text-slate-300 hover:border-slate-500 hover:text-white'
+              }`}
+              title={isChecked ? 'Отметить как свободный' : `Получить ${boxNum} стресса`}
+            >
+              {boxNum}
+            </button>
+          );
+        })}
       </div>
     </div>
+  );
+
+  const consequences = [
+    { key: 'mild' as const, value: 2, label: 'Лёгкое' },
+    { key: 'moderate' as const, value: 4, label: 'Среднее' },
+    { key: 'severe' as const, value: 6, label: 'Серьёзное' },
+  ];
+
+  return (
+    <section>
+      <div className="mb-2 flex items-baseline justify-between gap-3 border-b border-[#1C212B] pb-2.5">
+        <h2 className="font-fantasy text-xs font-bold uppercase tracking-[0.14em] text-slate-300">
+          Стресс
+        </h2>
+        <span className="text-[10px] text-slate-600">по навыкам</span>
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        {renderTrack('physical', 'Физический', 'Телосложение', physiqueRating, maxPhysicalBoxes)}
+        {renderTrack('mental', 'Ментальный', 'Воля', willRating, maxMentalBoxes)}
+      </div>
+
+      <div className="mt-5">
+        <div className="mb-2 flex items-baseline justify-between gap-3 border-b border-[#1C212B] pb-2.5">
+          <h2 className="font-fantasy text-xs font-bold uppercase tracking-[0.14em] text-slate-300">
+            Последствия
+          </h2>
+          <span className="text-[10px] text-slate-600">2 / 4 / 6</span>
+        </div>
+
+        <div>
+          {consequences.map((consequence) => (
+            <div
+              key={consequence.key}
+              className="grid grid-cols-[28px_64px_1fr] items-center gap-3 border-b border-[#1C212B]/70 py-2.5 last:border-b-0"
+            >
+              <span className="flex h-6 w-6 items-center justify-center rounded border border-[#2A3444] bg-[#161C26] font-mono text-[10px] font-bold text-slate-400">
+                {consequence.value}
+              </span>
+              <span className="text-[10px] uppercase tracking-wider text-slate-500">
+                {consequence.label}
+              </span>
+              <input
+                type="text"
+                value={character.consequences[consequence.key].aspect}
+                onChange={(e) =>
+                  handleConsequenceChange(consequence.key, e.target.value)
+                }
+                placeholder="Формулировка аспекта травмы..."
+                className="w-full bg-transparent text-xs text-slate-200 placeholder-slate-600 focus:outline-none"
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
   );
 };

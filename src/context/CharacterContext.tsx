@@ -1,7 +1,8 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { Character, SettingType } from '../types/character';
 import { fetchCharacters, saveCharacter, deleteCharacter, getActiveCharacterId, setActiveCharacterId, saveLocalCharacters } from '../services/storage';
-import { createNewCharacter, calculateStressBoxes, calculateRefresh, getSkillRating } from '../utils/fateMath';
+import { createNewCharacter, calculateStressBoxes, calculateRefresh, countRealStunts, getSkillRating } from '../utils/fateMath';
+import { PowerPresetKey } from '../config/presets';
 import { SAMPLE_CHARACTERS } from '../config/sampleCharacters';
 import { useAuth } from './AuthContext';
 
@@ -9,7 +10,7 @@ interface CharacterContextType {
   characters: Character[];
   activeCharacter: Character | null;
   loading: boolean;
-  createChar: (setting?: SettingType, name?: string) => Promise<Character>;
+  createChar: (setting?: SettingType, name?: string, power?: PowerPresetKey) => Promise<Character>;
   selectChar: (id: string | null) => void;
   updateChar: (updated: Character) => void;
   deleteChar: (id: string) => Promise<void>;
@@ -92,7 +93,11 @@ export const CharacterProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     
     const recalculatedPhysical = calculateStressBoxes(physiqueRating, updated.physicalStress);
     const recalculatedMental = calculateStressBoxes(willRating, updated.mentalStress);
-    const recalculatedRefresh = calculateRefresh(updated.stunts.length);
+    const recalculatedRefresh = calculateRefresh(
+      countRealStunts(updated.stunts),
+      updated.freeStunts ?? 3,
+      updated.baseRefresh ?? 3
+    );
 
     const fullUpdated: Character = {
       ...updated,
@@ -107,8 +112,8 @@ export const CharacterProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     saveCharacter(fullUpdated, user?.uid);
   }, [user]);
 
-  const createChar = useCallback(async (setting: SettingType = 'witcher', name?: string) => {
-    const newChar = createNewCharacter(setting, name);
+  const createChar = useCallback(async (setting: SettingType = 'witcher', name?: string, power?: PowerPresetKey) => {
+    const newChar = createNewCharacter(setting, name, power);
     if (user?.uid) {
       newChar.userId = user.uid;
     }

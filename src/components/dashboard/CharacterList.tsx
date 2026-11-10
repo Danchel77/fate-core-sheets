@@ -3,12 +3,14 @@ import { Plus, Sparkles, UserPlus, Sword, Compass } from 'lucide-react';
 import { useCharacters } from '../../context/CharacterContext';
 import { CharacterCard } from './CharacterCard';
 import { SettingType } from '../../types/character';
+import { POWER_PRESETS, PowerPresetKey } from '../../config/presets';
 import { SAMPLE_CHARACTERS } from '../../config/sampleCharacters';
 
 export const CharacterList: React.FC = () => {
   const { characters, selectChar, createChar, duplicateChar, deleteChar, updateChar } = useCharacters();
   const [filter, setFilter] = useState<'all' | SettingType>('all');
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [power, setPower] = useState<PowerPresetKey>('start');
 
   const witcherCount = useMemo(() => characters.filter(c => c.setting === 'witcher').length, [characters]);
   const universalCount = useMemo(() => characters.filter(c => c.setting === 'universal').length, [characters]);
@@ -21,7 +23,7 @@ export const CharacterList: React.FC = () => {
   const handleCreate = async (setting: SettingType) => {
     setIsCreateModalOpen(false);
     const defaultName = setting === 'witcher' ? 'Новый ведьмак' : 'Новый искатель приключений';
-    await createChar(setting, defaultName);
+    await createChar(setting, defaultName, power);
   };
 
   const handleLoadSamples = () => {
@@ -141,9 +143,37 @@ export const CharacterList: React.FC = () => {
             <h3 className="font-semibold text-lg text-slate-100 mb-1">
               Выберите сеттинг персонажа
             </h3>
-            <p className="text-xs text-slate-400 mb-5">
+            <p className="text-xs text-slate-400 mb-4">
               Сеттинг задает список адаптированных навыков и характер генерации ИИ-помощника.
             </p>
+
+            <div className="mb-5">
+              <div className="mb-2 flex items-center justify-between gap-2">
+                <span className="text-[11px] font-medium uppercase tracking-wider text-slate-400">
+                  Сила кампании
+                </span>
+                <span className="text-[10px] text-slate-500">домашняя настройка</span>
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                {(Object.keys(POWER_PRESETS) as PowerPresetKey[]).map((key) => (
+                  <button
+                    key={key}
+                    type="button"
+                    onClick={() => setPower(key)}
+                    className={`rounded-lg border px-2 py-2 text-xs font-medium transition cursor-pointer ${
+                      power === key
+                        ? 'border-slate-400 bg-[#252E3E] text-white'
+                        : 'border-[#252E3E] bg-[#10141C] text-slate-400 hover:border-slate-500 hover:text-slate-200'
+                    }`}
+                  >
+                    {POWER_PRESETS[key].label}
+                  </button>
+                ))}
+              </div>
+              <p className="mt-2 text-[11px] leading-relaxed text-slate-500">
+                {POWER_PRESETS[power].description} Обновление {POWER_PRESETS[power].refresh}, потолок навыка +{POWER_PRESETS[power].skillCap}.
+              </p>
+            </div>
 
             <div className="space-y-3 mb-6">
               {/* Witcher Option */}

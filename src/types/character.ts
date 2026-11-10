@@ -9,8 +9,18 @@ export interface Character {
   setting: SettingType;
   avatar: string | null; // Data URL or Image URL
   description: string;
-  refresh: number; // Base 3
+  refresh: number; // Starting fate points each session
   currentFatePoints: number;
+  // Campaign power preset (homebrew, not a Fate Core level)
+  baseRefresh?: number; // default 3
+  freeStunts?: number; // default 3
+  skillCap?: number; // default 4
+  skillPoints?: number; // unspent advancement points
+  milestones?: {
+    minor: number;
+    significant: number;
+    major: number;
+  };
 
   // 5 Aspects
   aspects: Record<string, string>;
@@ -21,6 +31,8 @@ export interface Character {
   // level 2: 3 skills
   // level 1: 4 skills
   skills: {
+    6?: string[];
+    5?: string[];
     4: string[];
     3: string[];
     2: string[];

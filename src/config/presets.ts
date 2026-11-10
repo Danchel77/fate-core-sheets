@@ -8,8 +8,8 @@ export const FATE_LADDER = [
   { level: 5, nameRu: 'Великолепно (+5)', nameEn: 'Superb' },
   { level: 4, nameRu: 'Отлично (+4)', nameEn: 'Great' },
   { level: 3, nameRu: 'Хорошо (+3)', nameEn: 'Good' },
-  { level: 2, nameRu: 'Сносно (+2)', nameEn: 'Fair' },
-  { level: 1, nameRu: 'Посредственно (+1)', nameEn: 'Average' },
+  { level: 2, nameRu: 'Неплохо (+2)', nameEn: 'Fair' },
+  { level: 1, nameRu: 'Средне (+1)', nameEn: 'Average' },
   { level: 0, nameRu: 'Так себе (0)', nameEn: 'Mediocre' },
   { level: -1, nameRu: 'Плохо (-1)', nameEn: 'Poor' },
   { level: -2, nameRu: 'Ужасно (-2)', nameEn: 'Terrible' },
@@ -39,27 +39,58 @@ export const UNIVERSAL_SKILLS: SkillDefinition[] = [
 ];
 
 export const WITCHER_SKILLS: SkillDefinition[] = [
-  { id: 'athletics', nameRu: 'Атлетика', nameEn: 'Athletics', category: 'physical', description: 'Акробатика, пируэты, уклонение от ударов чудовищ.' },
-  { id: 'fight', nameRu: 'Фехтование и Драка', nameEn: 'Fight', category: 'physical', description: 'Стальной и серебряный мечи, топоры, кулачный бой.' },
-  { id: 'shoot', nameRu: 'Стрельба', nameEn: 'Shoot', category: 'physical', description: 'Луки, ручные арбалеты, метание кинжалов и бомб.' },
-  { id: 'physique', nameRu: 'Сложение и Мутации', nameEn: 'Physique', category: 'physical', description: 'Ведьмачья стойкость, переносимость токсинов и эликсиров, физ. стресс.' },
-  { id: 'stealth', nameRu: 'Скрытность', nameEn: 'Stealth', category: 'physical', description: 'Бесшумное движение, засады на чудовищ, маскировка.' },
-  { id: 'ride', nameRu: 'Верховая езда', nameEn: 'Ride', category: 'physical', description: 'Управление лошадью (Плотвой), бой верхом, погони.' },
+  // Физические
+  { id: 'athletics', nameRu: 'Атлетика', nameEn: 'Athletics', category: 'physical', description: 'Бег, прыжки, акробатика, уклонение от ударов чудовищ.' },
+  { id: 'fight', nameRu: 'Ближний бой', nameEn: 'Fight', category: 'physical', description: 'Стальной и серебряный мечи, топоры, кулачный бой.' },
+  { id: 'shoot', nameRu: 'Стрельба', nameEn: 'Shoot', category: 'physical', description: 'Луки, арбалеты, метательные ножи и бомбы.' },
+  { id: 'stealth', nameRu: 'Скрытность', nameEn: 'Stealth', category: 'physical', description: 'Бесшумное движение, засады, маскировка.' },
+  { id: 'ride', nameRu: 'Верховая езда', nameEn: 'Ride', category: 'physical', description: 'Управление лошадью, бой верхом, погони.' },
+  { id: 'physique', nameRu: 'Телосложение', nameEn: 'Physique', category: 'physical', description: 'Сила, выносливость, стойкость к ядам и эликсирам; физический стресс.' },
 
-  { id: 'notice', nameRu: 'Ведьмачье чутьё / Внимание', nameEn: 'Notice', category: 'mental', description: 'Острый слух, кошачьи глаза, восприятие ауры чудовищ.' },
-  { id: 'investigate', nameRu: 'Расследование', nameEn: 'Investigate', category: 'mental', description: 'Чтение следов когтей, вскрытие трупов, анализ контракта.' },
-  { id: 'lore', nameRu: 'Бестиарий и Магия', nameEn: 'Lore', category: 'mental', description: 'Повадки монстров, Знаки (Аард, Игни...), ритуалы, древние легенды.' },
-  { id: 'crafts', nameRu: 'Алхимия и Ремесло', nameEn: 'Crafts', category: 'mental', description: 'Варка эликсиров, масел, изготовление бомб, заточка мечей.' },
-  { id: 'will', nameRu: 'Воля', nameEn: 'Will', category: 'mental', description: 'Концентрация для Знаков, защита от чар и ужаса, ментальный стресс.' },
+  // Ментальные
+  { id: 'notice', nameRu: 'Внимание', nameEn: 'Notice', category: 'mental', description: 'Острый слух, кошачьи глаза, восприятие ауры чудовищ.' },
+  { id: 'investigate', nameRu: 'Расследование', nameEn: 'Investigate', category: 'mental', description: 'Следы, вскрытие, анализ контракта, сбор улик.' },
+  { id: 'bestiary', nameRu: 'Бестиарий', nameEn: 'Bestiary', category: 'mental', description: 'Повадки и слабости монстров, древние легенды, проклятия.' },
+  { id: 'alchemy', nameRu: 'Алхимия', nameEn: 'Alchemy', category: 'mental', description: 'Эликсиры, масла, бомбы, яды и травы.' },
+  { id: 'magic', nameRu: 'Магия', nameEn: 'Magic', category: 'mental', description: 'Знаки, ритуалы, магические теории и проклятия.' },
+  { id: 'will', nameRu: 'Воля', nameEn: 'Will', category: 'mental', description: 'Концентрация для Знаков, защита от чар и ужаса; ментальный стресс.' },
 
-  { id: 'burglary', nameRu: 'Ловкость рук', nameEn: 'Burglary', category: 'physical', description: 'Взлом сундуков в руинах, снятие капканов, снятие трофеев.' },
-  { id: 'contacts', nameRu: 'Связи и Слухи', nameEn: 'Contacts', category: 'social', description: 'Трактирщики, старосты, краснолюдские ростовщики, наемники.' },
-  { id: 'deceive', nameRu: 'Обман и Уловки', nameEn: 'Deceive', category: 'social', description: 'Ложь, блеф, сокрытие истинных мотивов, финты.' },
-  { id: 'empathy', nameRu: 'Проницательность', nameEn: 'Empathy', category: 'social', description: 'Понимание чувств людей и даже разумных чудовищ.' },
-  { id: 'provoke', nameRu: 'Угрозы и Провокация', nameEn: 'Provoke', category: 'social', description: 'Желтые глаза, демонстрация отрубленной головы, устрашение.' },
-  { id: 'rapport', nameRu: 'Торг и Убеждение', nameEn: 'Rapport', category: 'social', description: 'Торг за чеканную монету за контракт, переговоры с баронами.' },
-  { id: 'resources', nameRu: 'Ресурсы (Орены / Кроны)', nameEn: 'Resources', category: 'social', description: 'Золото, запасы трав, серебро, ценные трофеи.' },
+  // Социальные
+  { id: 'rapport', nameRu: 'Убеждение', nameEn: 'Rapport', category: 'social', description: 'Доверие, дипломатия, светская беседа, переговоры.' },
+  { id: 'deceive', nameRu: 'Обман', nameEn: 'Deceive', category: 'social', description: 'Ложь, блеф, маскировка, сокрытие мотивов.' },
+  { id: 'provoke', nameRu: 'Запугивание', nameEn: 'Provoke', category: 'social', description: 'Угрозы, давление, жёлтые глаза и отрубленные головы.' },
+  { id: 'empathy', nameRu: 'Эмпатия', nameEn: 'Empathy', category: 'social', description: 'Чтение эмоций и мотивов, обнаружение лжи.' },
+  { id: 'contacts', nameRu: 'Контакты', nameEn: 'Contacts', category: 'social', description: 'Трактирщики, старосты, ростовщики, наёмники.' },
+  { id: 'resources', nameRu: 'Ресурсы', nameEn: 'Resources', category: 'social', description: 'Золото, снаряжение, доступ к нужным людям и вещам.' },
 ];
+
+export type PowerPresetKey = 'start' | 'experienced' | 'veteran';
+
+export const POWER_PRESETS: Record<PowerPresetKey, {
+  label: string;
+  description: string;
+  refresh: number;
+  skillCap: number;
+}> = {
+  start: {
+    label: 'Старт',
+    description: 'Стандартный стартовый персонаж Fate Core.',
+    refresh: 3,
+    skillCap: 4,
+  },
+  experienced: {
+    label: 'Опытные',
+    description: 'Кампания с несколькими значимыми вехами: выше обновление и потолок.',
+    refresh: 4,
+    skillCap: 5,
+  },
+  veteran: {
+    label: 'Ветераны',
+    description: 'Долгая кампания: персонажи уже прошли серьёзное развитие.',
+    refresh: 5,
+    skillCap: 6,
+  },
+};
 
 export const SETTING_PRESETS: Record<SettingType, {
   name: string;

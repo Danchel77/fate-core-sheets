@@ -10,6 +10,9 @@ interface AspectsSectionProps {
   onOpenApiKeySettings: () => void;
 }
 
+type AspectKey = 'high_concept' | 'trouble' | 'aspect_3' | 'aspect_4' | 'aspect_5';
+type AspectKind = 'high_concept' | 'trouble' | 'other';
+
 export const AspectsSection: React.FC<AspectsSectionProps> = ({
   character,
   onChange,
@@ -17,8 +20,8 @@ export const AspectsSection: React.FC<AspectsSectionProps> = ({
 }) => {
   const [modalState, setModalState] = useState<{
     isOpen: boolean;
-    aspectKey: 'high_concept' | 'trouble' | 'aspect_3' | 'aspect_4' | 'aspect_5';
-    aspectKind: 'high_concept' | 'trouble' | 'other';
+    aspectKey: AspectKey;
+    aspectKind: AspectKind;
   }>({
     isOpen: false,
     aspectKey: 'high_concept',
@@ -37,122 +40,116 @@ export const AspectsSection: React.FC<AspectsSectionProps> = ({
     });
   };
 
-  const openGemini = (
-    key: 'high_concept' | 'trouble' | 'aspect_3' | 'aspect_4' | 'aspect_5',
-    kind: 'high_concept' | 'trouble' | 'other'
-  ) => {
-    setModalState({
-      isOpen: true,
-      aspectKey: key,
-      aspectKind: kind,
-    });
+  const openGemini = (key: AspectKey, kind: AspectKind) => {
+    setModalState({ isOpen: true, aspectKey: key, aspectKind: kind });
   };
 
-  const aspectSlots = [
+  const aspectSlots: Array<{
+    key: AspectKey;
+    kind: AspectKind;
+    label: string;
+    sublabel: string;
+    placeholder: string;
+    suggestions: string[];
+    labelColor: string;
+  }> = [
     {
-      key: 'high_concept' as const,
-      kind: 'high_concept' as const,
+      key: 'high_concept',
+      kind: 'high_concept',
       label: 'Концепция',
       sublabel: 'High Concept',
       placeholder: 'Кем является персонаж в мире...',
       suggestions: settingPreset.defaultAspectSuggestions.highConcept,
-      labelColor: 'text-amber-400/90',
+      labelColor: 'text-slate-200',
     },
     {
-      key: 'trouble' as const,
-      kind: 'trouble' as const,
+      key: 'trouble',
+      kind: 'trouble',
       label: 'Проблема',
       sublabel: 'Trouble',
       placeholder: 'Что постоянно усложняет жизнь...',
       suggestions: settingPreset.defaultAspectSuggestions.trouble,
-      labelColor: 'text-red-400/90',
+      labelColor: 'text-red-300/90',
     },
     {
-      key: 'aspect_3' as const,
-      kind: 'other' as const,
-      label: 'Аспект 3',
-      sublabel: '',
-      placeholder: 'Связь, организация или предыстория...',
+      key: 'aspect_3',
+      kind: 'other',
+      label: 'Предыстория',
+      sublabel: 'Origin',
+      placeholder: 'Откуда он пришёл, что сформировало его...',
       suggestions: settingPreset.defaultAspectSuggestions.others,
       labelColor: 'text-slate-400',
     },
     {
-      key: 'aspect_4' as const,
-      kind: 'other' as const,
-      label: 'Аспект 4',
-      sublabel: '',
-      placeholder: 'Особый стиль, вещь или убеждение...',
+      key: 'aspect_4',
+      kind: 'other',
+      label: 'Связь 1',
+      sublabel: 'Relationship',
+      placeholder: 'С кем или чем он связан...',
       suggestions: settingPreset.defaultAspectSuggestions.others,
       labelColor: 'text-slate-400',
     },
     {
-      key: 'aspect_5' as const,
-      kind: 'other' as const,
-      label: 'Аспект 5',
-      sublabel: '',
-      placeholder: 'Личная цель или тайна...',
+      key: 'aspect_5',
+      kind: 'other',
+      label: 'Связь 2',
+      sublabel: 'Relationship',
+      placeholder: 'Вторая важная связь...',
       suggestions: settingPreset.defaultAspectSuggestions.others,
       labelColor: 'text-slate-400',
     },
   ];
 
+  const filledCount = aspectSlots.filter(slot => (character.aspects[slot.key] || '').trim()).length;
+
   return (
-    <div className="bg-[#121721] border border-[#1C212B] rounded-2xl p-5 shadow-sm">
-      {/* Section Header */}
-      <div className="flex items-center justify-between mb-3 border-b border-[#1C212B] pb-2.5">
-        <h2 className="font-fantasy font-bold text-base text-slate-100 tracking-wide uppercase">
+    <section>
+      <div className="mb-2 flex items-baseline justify-between gap-3 border-b border-[#1C212B] pb-2.5">
+        <h2 className="font-fantasy text-xs font-bold uppercase tracking-[0.14em] text-slate-300">
           Аспекты
         </h2>
+        <span className="text-[10px] tabular-nums text-slate-600">{filledCount} из 5</span>
       </div>
 
-      {/* 5 Aspect Slots */}
-      <div className="space-y-2">
+      <div>
         {aspectSlots.map((slot) => {
           const value = character.aspects[slot.key] || '';
 
           return (
             <div
               key={slot.key}
-              className="p-2.5 rounded-xl bg-[#0B0E14] border border-[#1C212B] focus-within:border-slate-700 transition relative group flex items-start gap-3"
+              className="group grid grid-cols-[92px_1fr_auto] items-start gap-3 border-b border-[#1C212B]/70 py-2.5 last:border-b-0"
             >
-              {/* Badge Label */}
-              <div className="w-24 shrink-0 pt-0.5">
-                <span className={`text-xs font-bold font-fantasy block ${slot.labelColor}`}>
+              <div className="pt-0.5">
+                <span className={`block font-fantasy text-[11px] font-semibold ${slot.labelColor}`}>
                   {slot.label}
                 </span>
-                {slot.sublabel && (
-                  <span className="text-[9px] text-slate-500 uppercase tracking-wider block">
-                    {slot.sublabel}
-                  </span>
-                )}
+                <span className="mt-0.5 block text-[8px] uppercase tracking-[0.12em] text-slate-600">
+                  {slot.sublabel}
+                </span>
               </div>
 
-              {/* Input Area */}
-              <div className="flex-1 min-w-0">
-                <textarea
-                  rows={1}
-                  value={value}
-                  onChange={(e) => handleAspectChange(slot.key, e.target.value)}
-                  placeholder={slot.placeholder}
-                  className="w-full bg-transparent text-xs text-slate-200 placeholder-slate-600 focus:outline-none resize-none leading-relaxed"
-                />
-              </div>
+              <textarea
+                rows={1}
+                value={value}
+                onChange={(e) => handleAspectChange(slot.key, e.target.value)}
+                placeholder={slot.placeholder}
+                className="w-full resize-none bg-transparent text-[13px] leading-relaxed text-slate-200 placeholder-slate-600 [field-sizing:content] focus:outline-none"
+              />
 
-              {/* AI Assistant Button */}
               <button
                 type="button"
                 onClick={() => openGemini(slot.key, slot.kind)}
-                className="opacity-0 group-hover:opacity-100 text-slate-500 hover:text-amber-400 p-1 rounded-md transition cursor-pointer"
+                className="mt-0.5 cursor-pointer rounded-md p-1 text-slate-600 opacity-40 transition hover:text-sky-300 hover:opacity-100 group-hover:opacity-100"
                 title="Помощь Gemini"
               >
-                <Sparkles className="w-3.5 h-3.5" />
+                <Sparkles className="h-3.5 w-3.5" />
               </button>
             </div>
           );
         })}
       </div>
 
-      {/* Gemini Modal */}
       <GeminiModal
         isOpen={modalState.isOpen}
         onClose={() => setModalState(prev => ({ ...prev, isOpen: false }))}
@@ -162,6 +159,6 @@ export const AspectsSection: React.FC<AspectsSectionProps> = ({
         onSelectSuggestion={(title: string) => handleAspectChange(modalState.aspectKey, title)}
         onOpenApiKeySettings={onOpenApiKeySettings}
       />
-    </div>
+    </section>
   );
 };
