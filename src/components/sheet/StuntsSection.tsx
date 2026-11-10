@@ -66,9 +66,8 @@ export const StuntsSection: React.FC<StuntsSectionProps> = ({
   };
 
   const openGemini = (stuntIndex: number) => {
-    const topSkillId =
-      character.skills[4]?.[0] || character.skills[3]?.[0] || 'fight';
-    const skillDef = settingPreset.skills.find(s => s.id === topSkillId);
+    const topSkillId = character.skills[4]?.[0] || character.skills[3]?.[0] || 'fight';
+    const skillDef = settingPreset.skills.find((skill) => skill.id === topSkillId);
     setGeminiModalState({
       isOpen: true,
       stuntIndex,
@@ -83,13 +82,13 @@ export const StuntsSection: React.FC<StuntsSectionProps> = ({
           Трюки
         </h2>
         <div className="flex items-center gap-3">
-          <span className="text-[10px] tabular-nums text-slate-600">
+          <span className="text-[10px] tabular-nums text-slate-500">
             {realStuntCount} из 3 бесплатных
           </span>
           <button
             type="button"
             onClick={handleAddStunt}
-            className="flex cursor-pointer items-center gap-1 text-[10px] font-medium text-slate-400 transition hover:text-slate-200"
+            className="flex cursor-pointer items-center gap-1 text-[10px] font-medium text-slate-400 transition hover:text-slate-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400/40"
           >
             <Plus className="h-3 w-3" />
             Добавить
@@ -97,66 +96,81 @@ export const StuntsSection: React.FC<StuntsSectionProps> = ({
         </div>
       </div>
 
-      <div>
-        {displayStunts.map((stunt, index) => (
-          <div
-            key={stunt.id || `stunt_${index}`}
-            className="group relative border-b border-[#1C212B]/70 py-3 last:border-b-0"
-          >
-            <div className="flex items-start gap-3">
-              <span className="mt-0.5 w-6 shrink-0 font-mono text-[10px] text-slate-600">
-                {String(index + 1).padStart(2, '0')}
-              </span>
+      <div className="grid gap-3 md:grid-cols-2">
+        {displayStunts.map((stunt, index) => {
+          const isEmpty = !stunt.name.trim() && !stunt.description.trim();
 
-              <div className="min-w-0 flex-1">
-                <input
-                  type="text"
-                  value={stunt.name}
-                  onChange={(e) => handleUpdateStunt(index, { name: e.target.value })}
-                  placeholder={`Название трюка #${index + 1}...`}
-                  className="w-full bg-transparent font-fantasy text-[13px] font-semibold text-slate-100 placeholder-slate-600 focus:outline-none"
-                />
-                <textarea
-                  rows={2}
-                  value={stunt.description}
-                  onChange={(e) => handleUpdateStunt(index, { description: e.target.value })}
-                  placeholder="Формулировка правила: +2 или замена навыка..."
-                  className="mt-1 w-full resize-none bg-transparent text-[11px] leading-relaxed text-slate-400 placeholder-slate-600 [field-sizing:content] focus:outline-none"
-                />
-              </div>
+          return (
+            <div
+              key={stunt.id || `stunt_${index}`}
+              className={`group relative rounded-lg border p-3 transition focus-within:border-slate-500 ${
+                isEmpty
+                  ? 'border-dashed border-[#2A3444] bg-transparent'
+                  : 'border-[#202734] bg-[#0B0E14]/35 hover:border-[#2A3444] hover:bg-[#0E131B]'
+              }`}
+            >
+              <div className="flex items-start gap-2">
+                <span className="mt-0.5 w-5 shrink-0 font-mono text-[10px] text-slate-500">
+                  {String(index + 1).padStart(2, '0')}
+                </span>
 
-              <div className="flex shrink-0 items-center gap-1 opacity-0 transition group-hover:opacity-100">
-                <button
-                  type="button"
-                  onClick={() => openGemini(index)}
-                  className="cursor-pointer rounded p-1 text-slate-600 transition hover:text-sky-300"
-                  title="Сформулировать через Gemini"
-                >
-                  <Sparkles className="h-3.5 w-3.5" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleDeleteStunt(index)}
-                  className="cursor-pointer rounded p-1 text-slate-600 transition hover:text-red-400"
-                  title="Удалить трюк"
-                >
-                  <Trash2 className="h-3.5 w-3.5" />
-                </button>
+                <div className="min-w-0 flex-1">
+                  <input
+                    type="text"
+                    value={stunt.name}
+                    onChange={(event) => handleUpdateStunt(index, { name: event.target.value })}
+                    placeholder="Название трюка..."
+                    className="w-full border-b border-transparent bg-transparent pb-0.5 font-fantasy text-[13px] font-semibold text-slate-100 placeholder-slate-500 transition hover:border-[#202734] focus:border-slate-600 focus:outline-none"
+                  />
+                  <textarea
+                    rows={2}
+                    value={stunt.description}
+                    onChange={(event) =>
+                      handleUpdateStunt(index, { description: event.target.value })
+                    }
+                    placeholder="Что даёт этот трюк..."
+                    className="mt-1 w-full resize-none border-b border-transparent bg-transparent pb-0.5 text-[11px] leading-relaxed text-slate-400 placeholder-slate-500 transition [field-sizing:content] hover:border-[#202734] focus:border-slate-600 focus:outline-none"
+                  />
+                </div>
+
+                <div className="flex shrink-0 items-center gap-1 opacity-100 transition sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100">
+                  <button
+                    type="button"
+                    onClick={() => openGemini(index)}
+                    className="cursor-pointer rounded p-1 text-slate-500 transition hover:text-slate-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400/40"
+                    title="Сформулировать через Gemini"
+                    aria-label="Сформулировать трюк через Gemini"
+                  >
+                    <Sparkles className="h-3.5 w-3.5" />
+                  </button>
+
+                  {!isEmpty && (
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteStunt(index)}
+                      className="cursor-pointer rounded p-1 text-slate-500 transition hover:text-rose-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-400/40"
+                      title="Удалить трюк"
+                      aria-label="Удалить трюк"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {character.stunts.length > 3 && (
-        <p className="mt-2 text-[10px] text-slate-600">
-          Каждый трюк сверх трёх снижает обновление на 1 (минимум 1).
+        <p className="mt-2 text-[10px] text-slate-500">
+          Каждый трюк сверх трёх снижает восстановление на 1 (минимум 1).
         </p>
       )}
 
       <GeminiModal
         isOpen={geminiModalState.isOpen}
-        onClose={() => setGeminiModalState(prev => ({ ...prev, isOpen: false }))}
+        onClose={() => setGeminiModalState((prev) => ({ ...prev, isOpen: false }))}
         type="stunt"
         skillName={geminiModalState.skillName}
         character={character}

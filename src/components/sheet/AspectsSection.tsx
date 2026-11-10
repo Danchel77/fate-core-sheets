@@ -69,7 +69,7 @@ export const AspectsSection: React.FC<AspectsSectionProps> = ({
       sublabel: 'Trouble',
       placeholder: 'Что постоянно усложняет жизнь...',
       suggestions: settingPreset.defaultAspectSuggestions.trouble,
-      labelColor: 'text-red-300/90',
+      labelColor: 'text-slate-200',
     },
     {
       key: 'aspect_3',
@@ -108,7 +108,7 @@ export const AspectsSection: React.FC<AspectsSectionProps> = ({
         <h2 className="font-fantasy text-xs font-bold uppercase tracking-[0.14em] text-slate-300">
           Аспекты
         </h2>
-        <span className="text-[10px] tabular-nums text-slate-600">{filledCount} из 5</span>
+        <span className="text-[10px] tabular-nums text-slate-500">{filledCount} из 5</span>
       </div>
 
       <div>
@@ -118,13 +118,13 @@ export const AspectsSection: React.FC<AspectsSectionProps> = ({
           return (
             <div
               key={slot.key}
-              className="group grid grid-cols-[92px_1fr_auto] items-start gap-3 border-b border-[#1C212B]/70 py-2.5 last:border-b-0"
+              className="group grid grid-cols-[84px_1fr_auto] items-start gap-3 border-b border-[#1C212B]/70 py-2.5 last:border-b-0 sm:grid-cols-[96px_1fr_auto]"
             >
               <div className="pt-0.5">
-                <span className={`block font-fantasy text-[11px] font-semibold ${slot.labelColor}`}>
+                <span className={`block font-fantasy text-[11.5px] font-semibold ${slot.labelColor}`}>
                   {slot.label}
                 </span>
-                <span className="mt-0.5 block text-[8px] uppercase tracking-[0.12em] text-slate-600">
+                <span className="mt-0.5 block text-[9px] uppercase tracking-[0.12em] text-slate-500">
                   {slot.sublabel}
                 </span>
               </div>
@@ -134,13 +134,13 @@ export const AspectsSection: React.FC<AspectsSectionProps> = ({
                 value={value}
                 onChange={(e) => handleAspectChange(slot.key, e.target.value)}
                 placeholder={slot.placeholder}
-                className="w-full resize-none bg-transparent text-[13px] leading-relaxed text-slate-200 placeholder-slate-600 [field-sizing:content] focus:outline-none"
+                className="w-full resize-none bg-transparent text-[13px] leading-relaxed text-slate-200 placeholder-slate-500 [field-sizing:content] focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400/30"
               />
 
               <button
                 type="button"
                 onClick={() => openGemini(slot.key, slot.kind)}
-                className="mt-0.5 cursor-pointer rounded-md p-1 text-slate-600 opacity-40 transition hover:text-sky-300 hover:opacity-100 group-hover:opacity-100"
+                className="mt-0.5 cursor-pointer rounded-md p-1 text-slate-500 opacity-60 transition hover:text-slate-200 hover:opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400/40 group-hover:opacity-100"
                 title="Помощь Gemini"
               >
                 <Sparkles className="h-3.5 w-3.5" />

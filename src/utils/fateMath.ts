@@ -50,8 +50,8 @@ export function getFatePointCircles(refresh: number): {
   solid: number;
   dashed: number;
 } {
-  const solid = Math.max(0, refresh);
-  const total = Math.max(5, solid + 1);
+  const solid = Math.min(10, Math.max(0, refresh));
+  const total = Math.min(10, Math.max(5, solid + 1));
   return { total, solid, dashed: total - solid };
 }
 

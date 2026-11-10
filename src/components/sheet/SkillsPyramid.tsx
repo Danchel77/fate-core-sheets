@@ -82,21 +82,12 @@ export const SkillsPyramid: React.FC<SkillsPyramidProps> = ({ character, onChang
     rating: string;
     titleRu: string;
     count: number;
-    gridClass: string;
   }[] = [];
 
   for (let level = skillCap; level >= 1; level--) {
     const lvl = level as SkillLevel;
     const count = lvl >= 5 ? 1 : lvl === 4 ? 1 : lvl === 3 ? 2 : lvl === 2 ? 3 : 4;
-    const gridClass =
-      lvl >= 4
-        ? 'grid grid-cols-1'
-        : lvl === 3
-          ? 'grid grid-cols-2'
-          : lvl === 2
-            ? 'grid grid-cols-2 sm:grid-cols-3'
-            : 'grid grid-cols-2';
-    rows.push({ level: lvl, ...levelMeta[lvl], count, gridClass });
+    rows.push({ level: lvl, ...levelMeta[lvl], count });
   }
 
   const totalSlots = rows.reduce((sum, row) => sum + row.count, 0);
@@ -116,21 +107,23 @@ export const SkillsPyramid: React.FC<SkillsPyramidProps> = ({ character, onChang
         <h2 className="font-fantasy text-xs font-bold uppercase tracking-[0.14em] text-slate-300">
           Навыки
         </h2>
-        <span className="text-[10px] tabular-nums text-slate-600">{assignedCount} из {totalSlots}</span>
+        <span className="text-[10px] tabular-nums text-slate-500">
+          {assignedCount} из {totalSlots}
+        </span>
       </div>
 
-      <div className="space-y-2">
-        {rows.map(({ level, rating, titleRu, count, gridClass }) => {
+      <div className="space-y-2.5">
+        {rows.map(({ level, rating, titleRu, count }) => {
           const currentSkills = character.skills[level] || [];
 
           return (
             <div key={level} className="flex items-start gap-3">
-              <div className="flex w-[78px] shrink-0 items-center gap-1.5 pt-1">
-                <span className="font-mono text-[11px] font-bold text-slate-400">{rating}</span>
+              <div className="flex w-[72px] shrink-0 items-center gap-1.5 pt-1.5 sm:w-[82px]">
+                <span className="font-mono text-[12px] font-bold text-slate-400">{rating}</span>
                 <span className="text-[10px] text-slate-500">{titleRu}</span>
               </div>
 
-              <div className={`${gridClass} flex-1 gap-1.5`}>
+              <div className="flex min-w-0 flex-1 flex-wrap gap-1">
                 {Array.from({ length: count }).map((_, slotIndex) => {
                   const currentSkillId = currentSkills[slotIndex] || '';
                   const skillDef = availableSkills.find((skill) => skill.id === currentSkillId);
@@ -139,19 +132,17 @@ export const SkillsPyramid: React.FC<SkillsPyramidProps> = ({ character, onChang
                     return (
                       <div
                         key={slotIndex}
-                        className="group flex min-h-[30px] items-center justify-between rounded-md border border-[#2A3444] bg-[#161C26] px-2 py-1 text-xs text-slate-200 transition hover:border-slate-500"
+                        className="group inline-flex min-h-[32px] max-w-full items-center gap-1 rounded-md border border-[#2A3444] bg-[#161C26] px-2 text-[11px] leading-tight text-slate-200 transition hover:border-slate-500 focus-within:border-slate-500"
                       >
-                        <span
-                          className="line-clamp-2 select-none pr-1 text-[11px] leading-tight"
-                          title={skillDef.description}
-                        >
+                        <span className="min-w-0 break-words" title={skillDef.description}>
                           {skillDef.nameRu}
                         </span>
                         <button
                           type="button"
                           onClick={() => handleRemoveSkill(level, slotIndex)}
-                          className="ml-1 shrink-0 cursor-pointer rounded p-0.5 text-slate-600 opacity-0 transition hover:text-red-400 group-hover:opacity-100"
+                          className="ml-0.5 shrink-0 cursor-pointer rounded p-0.5 text-slate-600 opacity-0 transition hover:text-rose-300 focus:outline-none focus-visible:opacity-100 group-hover:opacity-100 group-focus-within:opacity-100"
                           title="Очистить слот"
+                          aria-label={`Убрать навык ${skillDef.nameRu}`}
                         >
                           <X className="h-3 w-3" />
                         </button>
@@ -167,7 +158,7 @@ export const SkillsPyramid: React.FC<SkillsPyramidProps> = ({ character, onChang
                         setActivePicker({ level, slotIndex });
                         setSearchQuery('');
                       }}
-                      className="flex min-h-[30px] cursor-pointer items-center justify-center gap-1 rounded-md border border-dashed border-[#2A3444] bg-transparent px-2 py-1 text-[10px] text-slate-600 transition hover:border-slate-500 hover:text-slate-300"
+                      className="inline-flex min-h-[32px] cursor-pointer items-center justify-center gap-1 rounded-md border border-dashed border-[#2A3444] px-2 text-[10px] text-slate-500 transition hover:border-slate-500 hover:text-slate-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400/40"
                     >
                       <Plus className="h-3 w-3" />
                       <span>Выбрать</span>
@@ -190,7 +181,8 @@ export const SkillsPyramid: React.FC<SkillsPyramidProps> = ({ character, onChang
               <button
                 type="button"
                 onClick={() => setActivePicker(null)}
-                className="cursor-pointer rounded-lg p-1 text-slate-400 transition hover:text-white"
+                className="cursor-pointer rounded-lg p-1 text-slate-400 transition hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400/40"
+                aria-label="Закрыть"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -201,9 +193,9 @@ export const SkillsPyramid: React.FC<SkillsPyramidProps> = ({ character, onChang
               <input
                 type="text"
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(event) => setSearchQuery(event.target.value)}
                 placeholder="Поиск по названию или описанию..."
-                className="w-full rounded-xl border border-[#1C212B] bg-[#0B0E14] py-2 pl-9 pr-3 text-xs text-slate-200 placeholder-slate-600 focus:border-slate-600 focus:outline-none"
+                className="w-full rounded-xl border border-[#1C212B] bg-[#0B0E14] py-2 pl-9 pr-3 text-xs text-slate-200 placeholder-slate-500 focus:border-slate-600 focus:outline-none"
                 autoFocus
               />
             </div>
