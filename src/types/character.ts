@@ -53,8 +53,9 @@ export interface Character {
     severe: ConsequenceSlot; // -6
   };
 
-  // Extras / Notes (Дополнения)
+  // Две независимые области заметок на листе
   notes?: string;
+  notesExtra?: string;
 
   createdAt: number;
   updatedAt: number;

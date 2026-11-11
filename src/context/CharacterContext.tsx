@@ -11,6 +11,7 @@ interface CharacterContextType {
   activeCharacter: Character | null;
   loading: boolean;
   createChar: (setting?: SettingType, name?: string, power?: PowerPresetKey) => Promise<Character>;
+  createCharFromDraft: (draft: Character) => Promise<Character>;
   selectChar: (id: string | null) => void;
   updateChar: (updated: Character) => void;
   deleteChar: (id: string) => Promise<void>;
@@ -22,6 +23,7 @@ const CharacterContext = createContext<CharacterContextType>({
   activeCharacter: null,
   loading: true,
   createChar: async () => createNewCharacter(),
+  createCharFromDraft: async (draft) => draft,
   selectChar: () => {},
   updateChar: () => {},
   deleteChar: async () => {},
@@ -124,6 +126,38 @@ export const CharacterProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     return newChar;
   }, [user]);
 
+  /** Сохранение персонажа, собранного в конструкторе: берём черновик как есть. */
+  const createCharFromDraft = useCallback(async (draft: Character) => {
+    const now = Date.now();
+    // Навыки и трюки собраны в конструкторе: пересчитываем производные значения.
+    const refresh = calculateRefresh(
+      countRealStunts(draft.stunts),
+      draft.freeStunts ?? 3,
+      draft.baseRefresh ?? 3
+    );
+    const newChar: Character = {
+      ...draft,
+      id: `char_${now}_${Math.random().toString(36).substring(2, 7)}`,
+      physicalStress: calculateStressBoxes(
+        getSkillRating(draft, 'physique'),
+        draft.physicalStress
+      ),
+      mentalStress: calculateStressBoxes(getSkillRating(draft, 'will'), draft.mentalStress),
+      refresh,
+      currentFatePoints: refresh,
+      createdAt: now,
+      updatedAt: now,
+    };
+    if (user?.uid) {
+      newChar.userId = user.uid;
+    }
+    await saveCharacter(newChar, user?.uid);
+    setCharacters(prev => [newChar, ...prev]);
+    setActiveCharacter(newChar);
+    setActiveCharacterId(newChar.id);
+    return newChar;
+  }, [user]);
+
   const deleteChar = useCallback(async (id: string) => {
     await deleteCharacter(id, user?.uid);
     setCharacters(prev => prev.filter(c => c.id !== id));
@@ -155,6 +189,7 @@ export const CharacterProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       activeCharacter,
       loading,
       createChar,
+      createCharFromDraft,
       selectChar,
       updateChar,
       deleteChar,

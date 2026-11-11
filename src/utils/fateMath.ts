@@ -32,10 +32,19 @@ export function calculateStressBoxes(rating: number, existingBoxes?: StressBox[]
   return boxes;
 }
 
+/**
+ * Трюком считается только заполненная карточка (название или описание).
+ * Добавленные, но пустые слоты — заготовки: их можно свободно удалять,
+ * и они не штрафуют восстановление.
+ */
 export function countRealStunts(stunts: CharacterStunt[]): number {
   return stunts.filter(s => s.name.trim() || s.description.trim()).length;
 }
 
+/**
+ * Итоговое восстановление: база минус по одному за каждый трюк сверх бесплатных.
+ * Нижняя граница — 1.
+ */
 export function calculateRefresh(
   stuntCount: number,
   freeStunts = 3,

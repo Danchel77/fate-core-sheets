@@ -47,8 +47,8 @@ ${notes ? `Дополнительные пожелания игрока: "${note
 Предложи 3 отличных варианта в JSON формате.`;
 
   // We call the Gemini API endpoint
-  // Using gemini-2.5-flash or gemini-1.5-flash compatible endpoint
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+  // Using gemini-3.6-flash or gemini-1.5-flash compatible endpoint
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey}`;
 
   const response = await fetch(url, {
     method: 'POST',
@@ -114,7 +114,7 @@ ${notes ? `Пожелания: "${notes}"` : ''}
 
 Отвечай строго массивом JSON: [{"title": "Название трюка", "description": "Потому что я [описание], я получаю +2 к [навык] когда я [условие]..."}]`;
 
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey}`;
 
   const response = await fetch(url, {
     method: 'POST',

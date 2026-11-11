@@ -1,0 +1,23 @@
+{
+  "scenario": "create-flow",
+  "elapsedMs": 5119,
+  "ok": true,
+  "assertions": [
+    {
+      "name": "driver-ok",
+      "ok": true
+    },
+    {
+      "name": "sheet-opened",
+      "ok": true
+    },
+    {
+      "name": "stunt-on-sheet",
+      "ok": true
+    },
+    {
+      "name": "name-on-sheet",
+      "ok": true
+    }
+  ]
+}

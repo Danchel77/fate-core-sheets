@@ -21,7 +21,7 @@ const MainContent: React.FC = () => {
   }
 
   return (
-    <main className="flex-1 pb-12">
+    <main className="flex-1 pb-4">
       {activeCharacter ? <CharacterSheet /> : <CharacterList />}
     </main>
   );

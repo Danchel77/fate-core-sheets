@@ -9,6 +9,7 @@ interface StuntsSectionProps {
   character: Character;
   onChange: (updated: Character) => void;
   onOpenApiKeySettings: () => void;
+  showHeader?: boolean;
 }
 
 const EMPTY_STUNT = (id: string): CharacterStunt => ({
@@ -22,6 +23,7 @@ export const StuntsSection: React.FC<StuntsSectionProps> = ({
   character,
   onChange,
   onOpenApiKeySettings,
+  showHeader = true,
 }) => {
   const [geminiModalState, setGeminiModalState] = useState<{
     isOpen: boolean;
@@ -69,20 +71,26 @@ export const StuntsSection: React.FC<StuntsSectionProps> = ({
 
   return (
     <section>
-      <div className="mb-2 flex items-baseline justify-between gap-3 border-b border-[#1C212B] pb-2.5">
-        <h2 className="font-fantasy text-xs font-bold uppercase tracking-[0.14em] text-slate-300">
-          Трюки
-        </h2>
-        <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={handleAddStunt}
-            className="flex cursor-pointer items-center gap-1 text-[10px] font-medium text-slate-400 transition hover:text-slate-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400/40"
-          >
-            <Plus className="h-3 w-3" />
-            Добавить
-          </button>
-        </div>
+      <div
+        className={
+          showHeader
+            ? 'mb-2 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 border-b border-[#1C212B] pb-2.5'
+            : 'mb-3 flex justify-end'
+        }
+      >
+        {showHeader && (
+          <h2 className="font-fantasy text-xs font-bold uppercase tracking-[0.14em] text-slate-300">
+            Трюки
+          </h2>
+        )}
+        <button
+          type="button"
+          onClick={handleAddStunt}
+          className="flex cursor-pointer items-center gap-1 text-[10px] font-medium text-slate-400 transition hover:text-slate-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400/40"
+        >
+          <Plus className="h-3 w-3" />
+          Добавить
+        </button>
       </div>
 
       <div className="grid gap-3 md:grid-cols-2">
@@ -122,7 +130,13 @@ export const StuntsSection: React.FC<StuntsSectionProps> = ({
                   />
                 </div>
 
-                <div className="flex shrink-0 items-center gap-1 opacity-100 transition sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100">
+                <div
+                  className={`flex shrink-0 items-center gap-1 transition ${
+                    isEmpty
+                      ? 'opacity-100'
+                      : 'opacity-100 sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100'
+                  }`}
+                >
                   <button
                     type="button"
                     onClick={() => openGemini(index)}
@@ -133,29 +147,21 @@ export const StuntsSection: React.FC<StuntsSectionProps> = ({
                     <Sparkles className="h-3.5 w-3.5" />
                   </button>
 
-                  {!isEmpty && (
-                    <button
-                      type="button"
-                      onClick={() => handleDeleteStunt(index)}
-                      className="cursor-pointer rounded p-1 text-slate-500 transition hover:text-rose-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-400/40"
-                      title="Удалить трюк"
-                      aria-label="Удалить трюк"
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </button>
-                  )}
+                  <button
+                    type="button"
+                    onClick={() => handleDeleteStunt(index)}
+                    className="cursor-pointer rounded p-1 text-slate-500 transition hover:text-rose-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-400/40"
+                    title={isEmpty ? 'Удалить пустую карточку' : 'Удалить трюк'}
+                    aria-label={isEmpty ? 'Удалить пустую карточку' : 'Удалить трюк'}
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
                 </div>
               </div>
             </div>
           );
         })}
       </div>
-
-      {character.stunts.length > 3 && (
-        <p className="mt-2 text-[10px] text-slate-500">
-          Каждый трюк сверх трёх снижает восстановление на 1.
-        </p>
-      )}
 
       <GeminiModal
         isOpen={geminiModalState.isOpen}

@@ -1,0 +1,27 @@
+{
+  "scenario": "stunts-gemini-stub",
+  "elapsedMs": 5955,
+  "ok": true,
+  "assertions": [
+    {
+      "name": "driver-ok",
+      "ok": true
+    },
+    {
+      "name": "score-rendered",
+      "ok": true
+    },
+    {
+      "name": "strengths-rendered",
+      "ok": true
+    },
+    {
+      "name": "improvements-rendered",
+      "ok": true
+    },
+    {
+      "name": "pattern-tag-rendered",
+      "ok": true
+    }
+  ]
+}

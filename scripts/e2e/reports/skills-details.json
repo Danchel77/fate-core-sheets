@@ -1,0 +1,19 @@
+{
+  "scenario": "skills-details",
+  "elapsedMs": 4315,
+  "ok": true,
+  "assertions": [
+    {
+      "name": "driver-ok",
+      "ok": true
+    },
+    {
+      "name": "details-open",
+      "ok": true
+    },
+    {
+      "name": "action-hint-overcome",
+      "ok": true
+    }
+  ]
+}

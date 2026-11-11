@@ -10,6 +10,10 @@ interface RulesTooltipProps {
 /**
  * Кликабельная сноска к термину Fate Core.
  * Подчёркивание — сплошное; иконки-вопросики не используются.
+ *
+ * Типографика панели намеренно совпадает с поповером восстановления:
+ * Inter (font-sans), text-xs, заголовок text-slate-200, пояснение text-slate-300.
+ * font-sans обязателен — триггер может быть обёрнут в font-fantasy.
  */
 export const RulesTooltip: React.FC<RulesTooltipProps> = ({
   label,
@@ -48,7 +52,7 @@ export const RulesTooltip: React.FC<RulesTooltipProps> = ({
         onClick={() => setIsOpen((prev) => !prev)}
         aria-expanded={isOpen}
         aria-describedby={isOpen ? tooltipId : undefined}
-        className="cursor-pointer text-left underline decoration-solid decoration-slate-500/70 underline-offset-4 transition hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400/40"
+        className="cursor-pointer text-left underline decoration-slate-500 underline-offset-4 transition hover:text-white hover:decoration-slate-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400/40"
       >
         {label}
       </button>
@@ -57,9 +61,9 @@ export const RulesTooltip: React.FC<RulesTooltipProps> = ({
         <span
           id={tooltipId}
           role="tooltip"
-          className="absolute left-0 top-full z-50 mt-2 w-72 rounded-xl border border-[#2A3444] bg-[#0B0E14] p-3 text-[11px] font-normal normal-case leading-relaxed tracking-normal text-slate-300 shadow-2xl print:hidden"
+          className="absolute left-0 top-full z-50 mt-2 w-72 rounded-xl border border-[#2A3444] bg-[#0B0E14] p-3 font-sans text-xs font-normal normal-case leading-relaxed tracking-normal text-slate-300 shadow-2xl print:hidden"
         >
-          <span className="mb-1 block font-semibold text-slate-100">{title}</span>
+          <span className="mb-1 block font-medium text-slate-200">{title}</span>
           <span className="block">{text}</span>
         </span>
       )}

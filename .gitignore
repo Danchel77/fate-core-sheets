@@ -31,3 +31,6 @@ dist-ssr
 .dsh-vision-router
 scripts/*.png
 
+
+# Временный профиль headless Chrome (scripts/interactive-shot.cjs)
+.cdp-profile-*

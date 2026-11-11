@@ -8,9 +8,14 @@ type SkillLevel = 6 | 5 | 4 | 3 | 2 | 1;
 interface SkillsPyramidProps {
   character: Character;
   onChange: (updated: Character) => void;
+  showHeader?: boolean;
 }
 
-export const SkillsPyramid: React.FC<SkillsPyramidProps> = ({ character, onChange }) => {
+export const SkillsPyramid: React.FC<SkillsPyramidProps> = ({
+  character,
+  onChange,
+  showHeader = true,
+}) => {
   const settingPreset = SETTING_PRESETS[character.setting] || SETTING_PRESETS.witcher;
   const availableSkills = settingPreset.skills;
 
@@ -99,11 +104,13 @@ export const SkillsPyramid: React.FC<SkillsPyramidProps> = ({ character, onChang
 
   return (
     <section className="relative">
-      <div className="mb-2 border-b border-[#1C212B] pb-2.5">
-        <h2 className="font-fantasy text-xs font-bold uppercase tracking-[0.14em] text-slate-300">
-          Навыки
-        </h2>
-      </div>
+      {showHeader && (
+        <div className="mb-2 border-b border-[#1C212B] pb-2.5">
+          <h2 className="font-fantasy text-xs font-bold uppercase tracking-[0.14em] text-slate-300">
+            Навыки
+          </h2>
+        </div>
+      )}
 
       <div>
         {rows.map(({ level, rating, titleRu, count }) => {

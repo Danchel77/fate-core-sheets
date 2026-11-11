@@ -1,0 +1,19 @@
+{
+  "scenario": "shell-full",
+  "elapsedMs": 5692,
+  "ok": true,
+  "assertions": [
+    {
+      "name": "driver-ok",
+      "ok": true
+    },
+    {
+      "name": "five-sections",
+      "ok": true
+    },
+    {
+      "name": "rail-present",
+      "ok": true
+    }
+  ]
+}

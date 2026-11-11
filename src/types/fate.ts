@@ -7,6 +7,8 @@ export interface SkillDefinition {
   category: 'physical' | 'mental' | 'social';
   description: string;
   witcherContext?: string;
+  actions?: ActionType[]; // какие действия Fate навык покрывает
+  examples?: string[]; // 2 примера применения в сеттинге
 }
 
 export interface SkillSlot {
@@ -31,6 +33,14 @@ export interface CharacterStunt {
   name: string;
   template: StuntTemplate;
   description: string;
+  skillId?: string; // id навыка, к которому привязан трюк
+  action?: ActionType; // действие Fate для паттерна 'bonus'
+  situation?: string; // узкое условие для 'bonus'
+  swapFromSkillId?: string; // паттерн 'swap': какой навык заменяем
+  swapToSkillId?: string; // паттерн 'swap': каким навыком заменяем
+  trigger?: string; // паттерн 'special': когда срабатывает
+  effect?: string; // паттерн 'special': что происходит
+  frequency?: string; // паттерн 'special': как часто (например «раз за сцену»)
 }
 
 export interface StressBox {

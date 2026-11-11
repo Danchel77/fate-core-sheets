@@ -1,0 +1,31 @@
+{
+  "scenario": "wizard-skills",
+  "elapsedMs": 4691,
+  "ok": true,
+  "assertions": [
+    {
+      "name": "driver-ok",
+      "ok": true
+    },
+    {
+      "name": "skills-step-visible",
+      "ok": true
+    },
+    {
+      "name": "three-locked-initially",
+      "ok": true
+    },
+    {
+      "name": "four-slots-empty-counter",
+      "ok": true
+    },
+    {
+      "name": "two-locked-after-four",
+      "ok": true
+    },
+    {
+      "name": "plus-one-tier-full",
+      "ok": true
+    }
+  ]
+}

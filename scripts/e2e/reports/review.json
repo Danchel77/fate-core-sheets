@@ -1,0 +1,31 @@
+{
+  "scenario": "review",
+  "elapsedMs": 5115,
+  "ok": true,
+  "assertions": [
+    {
+      "name": "driver-ok",
+      "ok": true
+    },
+    {
+      "name": "summary-visible",
+      "ok": true
+    },
+    {
+      "name": "no-next-buttons",
+      "ok": true
+    },
+    {
+      "name": "four-edit-links",
+      "ok": true
+    },
+    {
+      "name": "name-on-review",
+      "ok": true
+    },
+    {
+      "name": "stunt-phrase-on-review",
+      "ok": true
+    }
+  ]
+}

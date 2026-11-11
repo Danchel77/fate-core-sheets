@@ -1,0 +1,23 @@
+{
+  "scenario": "mobile-shell",
+  "elapsedMs": 5164,
+  "ok": true,
+  "assertions": [
+    {
+      "name": "driver-ok",
+      "ok": true
+    },
+    {
+      "name": "no-horizontal-scroll",
+      "ok": true
+    },
+    {
+      "name": "nav-sticky",
+      "ok": true
+    },
+    {
+      "name": "bottom-bar-present",
+      "ok": true
+    }
+  ]
+}

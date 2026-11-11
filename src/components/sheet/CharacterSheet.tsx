@@ -7,6 +7,7 @@ import { NotesSection } from './NotesSection';
 import { PortraitModal } from './PortraitModal';
 import { RefreshControl } from './RefreshControl';
 import { RulesTooltip } from './RulesTooltip';
+import { SettingEmblem } from './SettingEmblem';
 import { SheetBlock } from './SheetBlock';
 import { SkillsPyramid } from './SkillsPyramid';
 import { StressSection } from './StressSection';
@@ -82,32 +83,11 @@ export const CharacterSheet: React.FC = () => {
     fileInputRef.current?.click();
   };
 
-  const baseUrl = import.meta.env.BASE_URL || '/';
   const circles = getFatePointCircles(activeCharacter.refresh);
   const realStunts = countRealStunts(activeCharacter.stunts);
 
-  const renderLogo = () => {
-    if (activeCharacter.setting === 'witcher') {
-      return (
-        <img
-          src={`${baseUrl}wolf-head.svg`}
-          alt="Ведьмак"
-          className="h-16 w-auto max-w-[150px] object-contain opacity-95 sm:h-20 lg:h-24"
-        />
-      );
-    }
-
-    return (
-      <img
-        src={`${baseUrl}fate-core-logo.svg`}
-        alt="Fate Core System"
-        className="h-12 w-auto max-w-[170px] object-contain invert sm:h-16 lg:h-20"
-      />
-    );
-  };
-
   return (
-    <div className="mx-auto max-w-[1240px] px-4 py-6 sm:px-6">
+    <div className="mx-auto max-w-[1240px] px-4 pb-2 pt-6 sm:px-6">
       <div id="printable-character-sheet" className="space-y-4">
         <div className="grid items-stretch gap-4 lg:grid-cols-2">
           <SheetBlock>
@@ -179,22 +159,21 @@ export const CharacterSheet: React.FC = () => {
             </div>
           </SheetBlock>
 
-          <SheetBlock className="flex items-center justify-between gap-4">
+          <SheetBlock className="flex items-center justify-between gap-4 sm:gap-6">
             <div className="min-w-0">
               <RulesTooltip
-                label="Очки судьбы"
+                label="ОЧКИ СУДЬБЫ"
                 title="Очки судьбы"
                 text="Тратятся на активацию аспектов, трюков и других правил. В начале сессии вы получаете столько очков, каково ваше восстановление."
-                className="font-fantasy text-[13px] font-semibold uppercase tracking-[0.14em] text-slate-100"
+                className="font-fantasy text-xs font-bold uppercase tracking-[0.14em] text-slate-300"
               />
 
-              <div className="mt-2 flex flex-wrap items-center gap-1.5 text-[10px] tracking-[0.02em] text-slate-500">
+              <div className="mt-2 flex flex-wrap items-center gap-2.5 text-[11px] tracking-[0.02em] text-slate-400">
                 <RulesTooltip
                   label="Восстановление"
                   title="Восстановление"
                   text="Сколько очков судьбы вы получаете в начале каждой сессии. Базовое значение — 3; каждый трюк сверх трёх снижает его на 1."
                 />
-                <span className="text-slate-600">:</span>
                 <RefreshControl
                   baseRefresh={activeCharacter.baseRefresh ?? 3}
                   refresh={activeCharacter.refresh}
@@ -220,7 +199,9 @@ export const CharacterSheet: React.FC = () => {
               </div>
             </div>
 
-            <div className="shrink-0">{renderLogo()}</div>
+            <div className="flex min-w-0 flex-1 items-center justify-end">
+              <SettingEmblem setting={activeCharacter.setting} />
+            </div>
           </SheetBlock>
         </div>
 
@@ -251,9 +232,22 @@ export const CharacterSheet: React.FC = () => {
           />
         </SheetBlock>
 
-        <SheetBlock>
-          <NotesSection character={activeCharacter} onChange={updateChar} />
-        </SheetBlock>
+        <div className="grid items-stretch gap-4 md:grid-cols-2">
+          <SheetBlock className="flex flex-col">
+            <NotesSection
+              character={activeCharacter}
+              onChange={updateChar}
+              field="notes"
+            />
+          </SheetBlock>
+          <SheetBlock className="flex flex-col">
+            <NotesSection
+              character={activeCharacter}
+              onChange={updateChar}
+              field="notesExtra"
+            />
+          </SheetBlock>
+        </div>
       </div>
 
       <input

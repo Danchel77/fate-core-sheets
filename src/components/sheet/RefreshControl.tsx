@@ -70,7 +70,7 @@ export const RefreshControl: React.FC<RefreshControlProps> = ({
         <div
           role="dialog"
           aria-label="Восстановление"
-          className="absolute left-1/2 top-full z-50 mt-2 w-[248px] max-w-[calc(100vw-2rem)] -translate-x-1/2 rounded-xl border border-[#2A3444] bg-[#0B0E14] p-3 text-left normal-case shadow-2xl sm:left-auto sm:right-0 sm:translate-x-0 print:hidden"
+          className="absolute left-1/2 top-full z-50 mt-2 w-[260px] max-w-[calc(100vw-2rem)] -translate-x-1/2 rounded-xl border border-[#2A3444] bg-[#0B0E14] p-3 font-sans text-xs text-left normal-case shadow-2xl sm:left-0 sm:translate-x-0 print:hidden"
         >
           <div className="mb-3 flex items-center justify-between gap-2">
             <span className="text-[9px] font-semibold uppercase tracking-[0.16em] text-slate-500">
@@ -87,7 +87,7 @@ export const RefreshControl: React.FC<RefreshControlProps> = ({
           </div>
 
           <div className="flex items-center justify-between gap-3">
-            <span className="text-[11px] text-slate-300">Базовое</span>
+            <span className="text-slate-300">Базовое</span>
             <div className="flex items-center gap-1">
               <button
                 type="button"
@@ -115,12 +115,12 @@ export const RefreshControl: React.FC<RefreshControlProps> = ({
             </div>
           </div>
 
-          <div className="mt-2.5 flex items-center justify-between gap-3 text-[11px] text-slate-400">
+          <div className="mt-2.5 flex items-center justify-between gap-3 text-slate-400">
             <span>Трюки сверх трёх</span>
             <span className="tabular-nums">{extraStunts > 0 ? `−${extraStunts}` : '0'}</span>
           </div>
 
-          <div className="mt-2 flex items-center justify-between gap-3 border-t border-[#202734] pt-2 text-[11px]">
+          <div className="mt-2 flex items-center justify-between gap-3 border-t border-[#202734] pt-2">
             <span className="text-slate-300">Итог</span>
             <span className="font-semibold tabular-nums text-slate-100">{refresh}</span>
           </div>
