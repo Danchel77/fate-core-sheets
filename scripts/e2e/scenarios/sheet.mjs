@@ -242,6 +242,44 @@ export default {
         return true;
       })()`
     },
+    {
+      eval: `(() => {
+        const trigger = document.querySelector('[data-kit="setting-button"]');
+        if (!trigger) return false;
+        trigger.focus();
+        trigger.click();
+        return true;
+      })()`
+    },
+    { waitFor: '!!document.querySelector("[data-kit=setting-panel]")', timeout: 5000 },
+    { wait: 150 },
+    { shot: { out: 'scripts/e2e/shots/sheet-setting-picker.png' } },
+    {
+      eval: `(() => {
+        const panel = document.querySelector('[data-kit="setting-panel"]');
+        const options = Array.from(document.querySelectorAll('[data-kit="setting-option"]'));
+        const active = options.filter((option) => option.getAttribute('data-active') === 'true');
+        const button = document.querySelector('[data-kit="setting-button"]');
+        window.__settingPicker = {
+          open: !!panel,
+          options: options.length,
+          activeCount: active.length,
+          activeName: active.length === 1 ? active[0].textContent.trim() : null,
+          expanded: button ? button.getAttribute('aria-expanded') : null
+        };
+        document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+        return true;
+      })()`
+    },
+    { wait: 200 },
+    {
+      eval: `(() => {
+        if (window.__settingPicker) {
+          window.__settingPicker.closed = !document.querySelector('[data-kit="setting-panel"]');
+        }
+        return true;
+      })()`
+    },
     { shot: { out: 'scripts/e2e/shots/sheet.png' } }
   ],
   asserts: [
@@ -275,18 +313,20 @@ export default {
       })()`
     },
     {
-      name: 'S5: blocks-framed',
+      name: 'S5: blocks-panel',
       expr: `(() => {
         const blocks = Array.from(document.querySelectorAll('[data-kit="sheet-block"]'));
         if (blocks.length < 6) return false;
-        const framed = blocks.every(
-          (block) => !!block.querySelector('[data-ribbon]') && !!block.querySelector('[data-frame]')
-        );
-        const frames = Array.from(document.querySelectorAll('[data-frame]'));
-        const corners = frames.every(
-          (frame) => frame.querySelectorAll('[data-corner]').length === 4
-        );
-        return framed && frames.length > 0 && corners;
+        const panels = blocks.every((block) => {
+          const cs = getComputedStyle(block);
+          return (
+            cs.backgroundColor === 'rgb(20, 20, 20)' &&
+            cs.borderColor === 'rgb(41, 35, 25)' &&
+            !!block.querySelector('[data-ribbon]')
+          );
+        });
+        const legacy = document.querySelectorAll('[data-frame], [data-corner]').length;
+        return panels && legacy === 0;
       })()`
     },
     {
@@ -298,21 +338,23 @@ export default {
         if (window.innerWidth >= 1024) {
           return (
             rect.width >= 260 &&
-            rect.width <= 340 &&
-            rect.height >= 340 &&
-            rect.height <= 440
+            rect.width <= 300 &&
+            rect.height >= 330 &&
+            rect.height <= 380
           );
         }
-        return rect.height >= 200 && rect.height <= 240 && rect.width >= 300;
+        return rect.height > 0 && rect.height <= 224;
       })()`
     },
     {
       name: 'S7: sharp',
       expr: `(() => {
-        const framed = Array.from(document.querySelectorAll('[data-frame]'));
+        const blocks = Array.from(document.querySelectorAll('[data-kit="sheet-block"]'));
         const portrait = document.querySelector('[data-kit="sheet-portrait"]');
-        const nodes = portrait ? [...framed, portrait] : framed;
-        return nodes.length > 0 && nodes.every((el) => getComputedStyle(el).borderRadius === '0px');
+        if (!portrait || blocks.length < 6) return false;
+        return [portrait, ...blocks].every(
+          (el) => getComputedStyle(el).borderRadius === '0px'
+        );
       })()`
     },
     {
@@ -599,7 +641,7 @@ export default {
           !!facts &&
           facts.count === 1 &&
           facts.exists === true &&
-          facts.background === 'rgb(0, 0, 0)' &&
+          facts.background === 'rgb(20, 20, 20)' &&
           facts.radius === '0px' &&
           facts.ribbon === true
         );
@@ -709,8 +751,48 @@ export default {
       name: 'S37: notes-grow',
       expr: `(() => {
         if (window.innerWidth < 1024) return true;
+        // После перестановки блоков самая высокая колонка — левая: её заметки стоят
+        // на своём минимуме, а растягивается заметка правой (более короткой) колонки.
         const notes = Array.from(document.querySelectorAll('[data-kit="sheet-notes"]'));
-        return notes.length === 2 && notes.every((el) => el.getBoundingClientRect().height > 160);
+        if (notes.length !== 2) return false;
+        const heights = notes.map((el) => el.getBoundingClientRect().height);
+        return heights.every((height) => height >= 160) && heights.some((height) => height > 160);
+      })()`
+    },
+    {
+      name: 'S38: no-setting-select',
+      expr: `(() => {
+        const left = document.querySelector('[data-zone="left"]');
+        if (!left) return false;
+        return (
+          left.querySelectorAll('select').length === 0 &&
+          !!left.querySelector('[data-kit="setting-button"]')
+        );
+      })()`
+    },
+    {
+      name: 'S39: setting-picker',
+      expr: `(() => {
+        const facts = window.__settingPicker;
+        return (
+          !!facts &&
+          facts.open === true &&
+          facts.options === 2 &&
+          facts.activeCount === 1 &&
+          facts.expanded === 'true' &&
+          facts.closed === true
+        );
+      })()`
+    },
+    {
+      name: 'S40: portrait-centered',
+      expr: `(() => {
+        const portrait = document.querySelector('[data-kit="sheet-portrait"]');
+        const zone = document.querySelector('[data-zone="left"]');
+        if (!portrait || !zone) return false;
+        const p = portrait.getBoundingClientRect();
+        const z = zone.getBoundingClientRect();
+        return Math.abs(p.left + p.width / 2 - (z.left + z.width / 2)) <= 4;
       })()`
     }
   ]

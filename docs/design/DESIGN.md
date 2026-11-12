@@ -75,7 +75,7 @@ colors: {
 Эти атрибуты — часть контракта компонента: по ним сценарий `foundation` проверяет цвета и размеры. Удалил атрибут — фундамент красный.
 
 **SectionRibbon** — заголовок секции. Золотая лента на всю ширину блока, компактная:
-`relative bg-gold text-ink font-fantasy text-base leading-tight text-center py-1 [clip-path:polygon(0_50%,14px_0,calc(100%-14px)_0,100%_50%,calc(100%-14px)_100%,14px_100%)]`.
+`relative bg-gold text-ink font-fantasy text-lg leading-tight text-center py-1 [clip-path:polygon(0_50%,14px_0,calc(100%-14px)_0,100%_50%,calc(100%-14px)_100%,14px_100%)]`.
 Общая высота ленты — **не больше 34px**: это проверяет `foundation`. Прежняя лента была вдвое выше и съедала экран.
 
 **Блок листа** (`SheetBlock`) — подложка вместо скобок, тот же язык, что у модального окна:

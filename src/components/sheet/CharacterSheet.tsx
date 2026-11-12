@@ -13,7 +13,6 @@ import { SkillsPyramid } from './SkillsPyramid';
 import { StressSection } from './StressSection';
 import { StuntsSection } from './StuntsSection';
 import { SettingsModal } from '../common/SettingsModal';
-import { SettingType } from '../../types/character';
 import { countRealStunts, getFatePointCircles } from '../../utils/fateMath';
 
 const MAX_AVATAR_SOURCE_BYTES = 6 * 1024 * 1024;
@@ -90,24 +89,29 @@ export const CharacterSheet: React.FC = () => {
     <div className="mx-auto max-w-[1440px] px-4 pb-10 pt-6 lg:px-6">
       <div
         id="printable-character-sheet"
-        className="grid grid-cols-1 gap-6 lg:grid-cols-[360px_1fr_400px] lg:items-start"
+        className="grid grid-cols-1 gap-6 lg:grid-cols-[360px_1fr_400px] lg:items-stretch"
       >
-        {/* Левая зона: портрет, имя, сеттинг, очки судьбы, последствия, стресс. */}
-        <div data-zone="left" className="flex min-w-0 flex-col gap-6 lg:self-start">
+        {/* Левая зона: эмблема сеттинга над портретом, имя, очки судьбы, заметки. */}
+        <div data-zone="left" className="flex min-w-0 flex-col gap-6 lg:self-stretch">
           <header data-kit="sheet-header" className="flex flex-col gap-3">
-            <div className="relative p-4">
+            <div className="flex flex-col items-center gap-3 p-4">
+              <SettingEmblem
+                setting={activeCharacter.setting}
+                onSelect={(setting) => updateChar({ ...activeCharacter, setting })}
+              />
+
               <button
                 data-kit="sheet-portrait"
                 type="button"
                 onClick={() => setIsPortraitOpen(true)}
                 aria-label="Изменить портрет"
-                className="group relative block h-[220px] w-full max-w-full shrink-0 cursor-pointer overflow-hidden bg-ink-frame transition-colors duration-150 hover:bg-ink-raised focus:outline-none focus-visible:ring-2 focus-visible:ring-gold lg:h-[400px] lg:w-[300px]"
+                className="group relative mx-auto block h-[220px] w-full max-w-full shrink-0 cursor-pointer overflow-hidden bg-ink-frame transition-colors duration-150 hover:bg-ink-raised focus:outline-none focus-visible:ring-2 focus-visible:ring-gold lg:h-[360px] lg:w-[280px]"
               >
                 {activeCharacter.avatar ? (
                   <img
                     src={activeCharacter.avatar}
                     alt={activeCharacter.name}
-                    className="h-full w-full object-cover"
+                    className="h-full w-full object-cover object-center"
                   />
                 ) : (
                   <span className="flex h-full flex-col items-center justify-center gap-2 text-text-muted transition-colors duration-150 group-hover:text-gold">
@@ -131,22 +135,6 @@ export const CharacterSheet: React.FC = () => {
                 placeholder="Имя персонажа..."
                 className="w-full bg-transparent font-fantasy text-3xl tracking-wide text-text placeholder:text-text-muted [font-variant-caps:small-caps] focus:outline-none focus-visible:ring-2 focus-visible:ring-gold"
               />
-
-              <select
-                value={activeCharacter.setting}
-                onChange={(event) =>
-                  updateChar({ ...activeCharacter, setting: event.target.value as SettingType })
-                }
-                className="w-full cursor-pointer bg-transparent font-sans text-xs uppercase tracking-wider text-text-muted transition-colors duration-150 hover:text-gold focus:outline-none focus-visible:ring-2 focus-visible:ring-gold"
-                title="Сменить сеттинг"
-              >
-                <option value="witcher" className="bg-ink-raised text-text">
-                  Ведьмак / Тёмное фэнтези
-                </option>
-                <option value="universal" className="bg-ink-raised text-text">
-                  Fate Core / Универсал
-                </option>
-              </select>
 
               <textarea
                 rows={1}
@@ -190,27 +178,31 @@ export const CharacterSheet: React.FC = () => {
                   />
                 ))}
               </div>
-
-              <SettingEmblem setting={activeCharacter.setting} />
             </div>
           </SheetBlock>
 
-          <SheetBlock title="Последствия">
-            <ConsequencesSection character={activeCharacter} onChange={updateChar} />
+          <SheetBlock
+            title="Заметки"
+            className="flex-1 [&>*:last-child]:min-h-0 [&>*:last-child]:flex-1 [&>*:last-child>*:last-child]:h-full"
+          >
+            <NotesSection character={activeCharacter} onChange={updateChar} field="notes" />
+          </SheetBlock>
+        </div>
+
+        {/* Центральная зона: навыки, стресс, трюки. */}
+        <div data-zone="center" className="flex min-w-0 flex-col gap-6 lg:self-stretch">
+          <SheetBlock title="Навыки">
+            <SkillsPyramid character={activeCharacter} onChange={updateChar} showHeader={false} />
           </SheetBlock>
 
           <SheetBlock title="Стресс">
             <StressSection character={activeCharacter} onChange={updateChar} />
           </SheetBlock>
-        </div>
 
-        {/* Центральная зона: навыки и трюки. */}
-        <div data-zone="center" className="flex min-w-0 flex-col gap-6 lg:self-start">
-          <SheetBlock title="Навыки">
-            <SkillsPyramid character={activeCharacter} onChange={updateChar} showHeader={false} />
-          </SheetBlock>
-
-          <SheetBlock title="Трюки">
+          <SheetBlock
+            title="Трюки"
+            className="flex-1 [&>*:last-child]:min-h-0 [&>*:last-child]:flex-1 [&>*:last-child>*:last-child]:flex [&>*:last-child>*:last-child]:h-full [&>*:last-child>*:last-child]:flex-col [&>*:last-child>*:last-child>:last-child]:flex-1"
+          >
             <StuntsSection
               character={activeCharacter}
               onChange={updateChar}
@@ -220,7 +212,7 @@ export const CharacterSheet: React.FC = () => {
           </SheetBlock>
         </div>
 
-        {/* Правая зона: аспекты и две заметки. */}
+        {/* Правая зона: аспекты, последствия, дополнительно. */}
         <div data-zone="right" className="flex min-w-0 flex-col gap-6 lg:self-stretch">
           <SheetBlock title="Аспекты">
             <AspectsSection
@@ -230,11 +222,8 @@ export const CharacterSheet: React.FC = () => {
             />
           </SheetBlock>
 
-          <SheetBlock
-            title="Заметки"
-            className="flex-1 [&>*:last-child]:min-h-0 [&>*:last-child]:flex-1 [&>*:last-child>*:last-child]:h-full"
-          >
-            <NotesSection character={activeCharacter} onChange={updateChar} field="notes" />
+          <SheetBlock title="Последствия">
+            <ConsequencesSection character={activeCharacter} onChange={updateChar} />
           </SheetBlock>
 
           <SheetBlock

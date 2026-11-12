@@ -130,7 +130,7 @@ export default {
           && cs.color === "rgb(0, 0, 0)"
           && cs.fontFamily.includes("Cinzel")
           && cs.textAlign === "center"
-          && cs.fontSize === "16px"
+          && cs.fontSize === "18px"
           && cs.clipPath.includes("polygon");
       })()`
     },
