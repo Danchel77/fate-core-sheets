@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, X } from 'lucide-react';
+import { X } from 'lucide-react';
 import { Character } from '../../types/character';
 import { SETTING_PRESETS } from '../../config/presets';
 import { FieldLabel } from '../common/FieldLabel';
@@ -11,14 +11,9 @@ type SkillLevel = 6 | 5 | 4 | 3 | 2 | 1;
 interface SkillsPyramidProps {
   character: Character;
   onChange: (updated: Character) => void;
-  showHeader?: boolean;
 }
 
-export const SkillsPyramid: React.FC<SkillsPyramidProps> = ({
-  character,
-  onChange,
-  showHeader = true,
-}) => {
+export const SkillsPyramid: React.FC<SkillsPyramidProps> = ({ character, onChange }) => {
   const settingPreset = SETTING_PRESETS[character.setting] || SETTING_PRESETS.witcher;
   const availableSkills = settingPreset.skills;
 
@@ -107,74 +102,79 @@ export const SkillsPyramid: React.FC<SkillsPyramidProps> = ({
 
   return (
     <section className="relative">
-      {showHeader && (
-        <div className="mb-2 border-b border-line pb-2.5">
-          <h2 className="font-fantasy text-xs font-bold uppercase tracking-[0.14em] text-text-muted">
-            Навыки
-          </h2>
-        </div>
-      )}
-
-      <div className="table w-full border-collapse">
-        {rows.map(({ level, rating, titleRu, count }) => {
+      <div className="mt-[32px] flex flex-col gap-1">
+        {rows.map(({ level, rating, titleRu, count }, rowIndex) => {
           const currentSkills = character.skills[level] || [];
+          // На телефоне крупный знак системы занимает правый верхний угол:
+          // первые две ступени оставляют его пустым, нижние идут на всю ширину.
+          const inLogoBand = rowIndex < 2;
 
           return (
-            <div key={level} data-kit="sheet-skill-level" className="table-row">
-              <div className="table-cell whitespace-nowrap border-t border-line py-px pr-3 align-middle">
-                <span className="flex items-baseline gap-1.5 whitespace-nowrap">
-                  <span className="font-fantasy text-base leading-none tabular-nums text-gold-light">
-                    {rating}
-                  </span>
-                  <span className="text-xs leading-none text-text-muted">{titleRu}</span>
+            <div
+              key={level}
+              data-kit="skill-level"
+              className={`flex min-w-0 items-center ${
+                inLogoBand ? 'pr-[150px] lg:pr-0' : ''
+              }`}
+            >
+              {/* Подпись уровня: +4 и «Отлично» двумя строками по 13px в 52px. */}
+              <div className="flex w-[52px] shrink-0 flex-col justify-center">
+                <span className="font-fantasy text-[12px] leading-[13px] tabular-nums text-gold-light">
+                  {rating}
+                </span>
+                <span className="font-sans text-[12px] leading-[13px] text-text-muted">
+                  {titleRu}
                 </span>
               </div>
 
-              <div className="table-cell border-t border-line py-px align-middle">
-                <div className="flex flex-wrap items-center gap-1">
-                  {Array.from({ length: count }).map((_, slotIndex) => {
-                    const currentSkillId = currentSkills[slotIndex] || '';
-                    const skillDef = availableSkills.find((skill) => skill.id === currentSkillId);
+              <div className="flex min-w-0 flex-wrap items-center gap-1">
+                {Array.from({ length: count }).map((_, slotIndex) => {
+                  const currentSkillId = currentSkills[slotIndex] || '';
+                  const skillDef = availableSkills.find((skill) => skill.id === currentSkillId);
 
-                    if (skillDef) {
-                      return (
-                        <div
-                          key={slotIndex}
-                          data-kit="sheet-skill-slot"
-                          className="group inline-flex min-h-[28px] max-w-full items-center gap-1 border border-line bg-ink-raised px-2 py-0.5 font-fantasy text-sm text-text transition-colors duration-150 hover:border-gold-dim focus-within:border-gold-dim"
-                        >
-                          <span className="min-w-0 break-words" title={skillDef.description}>
-                            {skillDef.nameRu}
-                          </span>
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveSkill(level, slotIndex)}
-                            className="ml-0.5 shrink-0 cursor-pointer text-text-muted opacity-100 transition-colors duration-150 hover:text-danger focus:outline-none focus-visible:opacity-100 group-hover:opacity-100 group-focus-within:opacity-100 lg:opacity-0 lg:group-hover:opacity-100 lg:group-focus-within:opacity-100"
-                            title="Очистить слот"
-                            aria-label={`Убрать навык ${skillDef.nameRu}`}
-                          >
-                            <X className="size-3" strokeWidth={1.5} />
-                          </button>
-                        </div>
-                      );
-                    }
-
+                  if (skillDef) {
                     return (
-                      <button
+                      <div
                         key={slotIndex}
-                        type="button"
-                        onClick={() => {
-                          setActivePicker({ level, slotIndex });
-                          setSearchQuery('');
-                        }}
-                        className="inline-flex min-h-[28px] cursor-pointer items-center justify-center gap-1 border border-dashed border-line px-2 py-0.5 text-xs text-text-muted transition-colors duration-150 hover:border-gold-dim hover:text-gold-light focus:outline-none focus-visible:border-gold-dim focus-visible:text-gold-light"
+                        data-kit="skill-cell"
+                        data-slot="filled"
+                        tabIndex={-1}
+                        className="group relative flex h-[28px] w-[96px] shrink-0 items-center border border-line bg-panel pl-[4px] pr-0 outline-none transition-colors duration-150 hover:border-gold-dim"
                       >
-                        <Plus className="size-3" strokeWidth={1.5} />
-                        <span>Выбрать</span>
-                      </button>
+                        <span
+                          className="min-w-0 flex-1 overflow-hidden whitespace-nowrap font-sans text-xs leading-none text-text"
+                          title={skillDef.nameRu}
+                        >
+                          {skillDef.nameRu}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveSkill(level, slotIndex)}
+                          className="absolute right-0 top-1/2 -translate-y-1/2 cursor-pointer bg-panel p-1 text-text-muted opacity-0 transition-opacity duration-150 hover:text-danger focus:outline-none focus-visible:text-danger group-hover:opacity-100 group-focus-within:opacity-100"
+                          title="Очистить слот"
+                          aria-label={`Убрать навык ${skillDef.nameRu}`}
+                        >
+                          <X className="size-3" strokeWidth={1.5} />
+                        </button>
+                      </div>
                     );
-                  })}
-                </div>
+                  }
+
+                  return (
+                    <button
+                      key={slotIndex}
+                      type="button"
+                      data-kit="skill-cell"
+                      data-slot="empty"
+                      aria-label={`Выбрать навык уровня ${rating}`}
+                      onClick={() => {
+                        setActivePicker({ level, slotIndex });
+                        setSearchQuery('');
+                      }}
+                      className="h-[28px] w-[96px] shrink-0 cursor-pointer border border-dashed border-line transition-colors duration-150 hover:border-gold-dim focus:outline-none focus-visible:border-gold-dim"
+                    />
+                  );
+                })}
               </div>
             </div>
           );

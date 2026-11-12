@@ -89,79 +89,76 @@ export const CharacterSheet: React.FC = () => {
     <div className="mx-auto max-w-[1440px] px-6 pb-8 pt-6">
       <div
         id="printable-character-sheet"
-        className="grid grid-cols-1 gap-6 lg:grid-cols-[320px_minmax(0,1fr)]"
+        className="grid grid-cols-1 gap-6 lg:grid-cols-3"
       >
-        {/* Левая зона: плашка персонажа, очки судьбы, стресс, последствия. */}
+        {/* Левая зона: имя, портрет в рамке, описание, затем три блока правил. */}
         <div data-zone="left" className="flex min-w-0 flex-col gap-4">
           <header data-kit="sheet-header" className="min-w-0">
-            <div
-              data-kit="character-plate"
-              className="flex min-w-0 flex-col items-center gap-2 border border-gold p-1.5"
-            >
-              <SettingEmblem
-                setting={activeCharacter.setting}
-                onSelect={(setting) => updateChar({ ...activeCharacter, setting })}
+            <div data-kit="character-identity" className="flex min-w-0 flex-col gap-3">
+              <input
+                data-kit="character-name"
+                type="text"
+                value={activeCharacter.name}
+                title={activeCharacter.name}
+                onChange={(event) => updateChar({ ...activeCharacter, name: event.target.value })}
+                placeholder="Имя персонажа..."
+                className="w-full min-w-0 whitespace-nowrap bg-transparent p-0 text-left font-fantasy text-[32px] leading-[38px] tracking-wide text-text placeholder:text-text-muted [font-variant-caps:small-caps] focus:outline-none focus-visible:ring-2 focus-visible:ring-gold"
               />
 
-              <button
-                data-kit="sheet-portrait"
-                type="button"
-                onClick={() => setIsPortraitOpen(true)}
-                aria-label="Изменить портрет"
-                className="group relative block h-[208px] w-[240px] shrink-0 cursor-pointer overflow-hidden bg-ink-frame transition-colors duration-150 hover:bg-ink-raised focus:outline-none focus-visible:ring-2 focus-visible:ring-gold lg:h-[300px]"
+              {/* Рамка — только у изображения портрета; у имени и описания её нет. */}
+              <div
+                data-kit="portrait-frame"
+                className="flex w-[272px] items-center justify-center border border-gold p-1.5"
               >
-                {activeCharacter.avatar ? (
-                  <img
-                    src={activeCharacter.avatar}
-                    alt={activeCharacter.name}
-                    className="h-full w-full object-cover object-center"
-                  />
-                ) : (
-                  <span className="flex h-full flex-col items-center justify-center gap-2 text-text-muted transition-colors duration-150 group-hover:text-gold">
+                <button
+                  data-kit="sheet-portrait"
+                  type="button"
+                  onClick={() => setIsPortraitOpen(true)}
+                  aria-label="Изменить портрет"
+                  className="group relative block h-[300px] w-[240px] shrink-0 cursor-pointer overflow-hidden bg-ink-frame transition-colors duration-150 hover:bg-ink-raised focus:outline-none focus-visible:ring-2 focus-visible:ring-gold"
+                >
+                  <span
+                    aria-hidden="true"
+                    className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-text-muted transition-colors duration-150 group-hover:text-gold"
+                  >
                     <Shield className="size-5" strokeWidth={1.5} />
                     <span className="font-sans text-xs uppercase tracking-wider">Портрет</span>
                   </span>
-                )}
 
-                <span className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 bg-ink/75 font-sans text-xs uppercase tracking-wider text-text opacity-0 transition-opacity duration-150 group-hover:opacity-100 group-focus-visible:opacity-100">
-                  <Pencil className="size-4" strokeWidth={1.5} />
-                  <span>Изменить</span>
-                </span>
-              </button>
+                  {activeCharacter.avatar && (
+                    <img
+                      src={activeCharacter.avatar}
+                      alt={activeCharacter.name}
+                      className="relative h-full w-full object-cover object-center"
+                    />
+                  )}
 
-              <div className="flex w-full min-w-0 flex-col gap-1 text-center">
-                <input
-                  data-kit="character-name"
-                  type="text"
-                  value={activeCharacter.name}
-                  title={activeCharacter.name}
-                  onChange={(event) =>
-                    updateChar({ ...activeCharacter, name: event.target.value })
-                  }
-                  placeholder="Имя персонажа..."
-                  className="w-full min-w-0 whitespace-nowrap bg-transparent text-center font-fantasy text-2xl tracking-wide text-text placeholder:text-text-muted [font-variant-caps:small-caps] focus:outline-none focus-visible:ring-2 focus-visible:ring-gold"
-                />
-
-                <textarea
-                  data-kit="character-description"
-                  rows={3}
-                  value={activeCharacter.description}
-                  title={activeCharacter.description}
-                  onChange={(event) =>
-                    updateChar({ ...activeCharacter, description: event.target.value })
-                  }
-                  placeholder="Краткое описание, раса, принадлежность или титул..."
-                  className="max-h-[58px] w-full resize-none overflow-y-auto bg-transparent text-center font-sans text-sm leading-snug text-text-muted placeholder:text-text-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-gold"
-                />
+                  <span className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 bg-ink/75 font-sans text-xs uppercase tracking-wider text-text opacity-0 transition-opacity duration-150 group-hover:opacity-100 group-focus-visible:opacity-100">
+                    <Pencil className="size-4" strokeWidth={1.5} />
+                    <span>Изменить</span>
+                  </span>
+                </button>
               </div>
+
+              <textarea
+                data-kit="character-description"
+                rows={3}
+                value={activeCharacter.description}
+                title={activeCharacter.description}
+                onChange={(event) =>
+                  updateChar({ ...activeCharacter, description: event.target.value })
+                }
+                placeholder="Краткое описание, раса, принадлежность или титул..."
+                className="h-[54px] w-full resize-none overflow-y-auto bg-transparent p-0 text-left font-sans text-[13px] leading-snug text-text-muted placeholder:text-text-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-gold"
+              />
             </div>
           </header>
 
-          <SheetBlock title="Очки судьбы">
-            <div data-kit="sheet-fate" className="flex flex-col gap-0.5">
+          <SheetBlock title="Восстановление">
+            <div data-kit="sheet-fate" className="flex flex-col gap-1">
               <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
                 <RulesTooltip
-                  label="Восстановление"
+                  label="Как считается"
                   title="Восстановление"
                   text="Сколько очков судьбы вы получаете в начале каждой сессии. База — 3; каждый трюк сверх трёх снижает это число на один."
                   className="font-sans text-xs uppercase tracking-wider text-text-muted"
@@ -201,36 +198,43 @@ export const CharacterSheet: React.FC = () => {
           </SheetBlock>
         </div>
 
-        {/* Правая зона: навыки на всю ширину, две подколонки, заметки внизу. */}
-        <div data-zone="right" className="flex min-w-0 flex-col gap-4">
-          <SheetBlock title="Навыки">
-            <SkillsPyramid character={activeCharacter} onChange={updateChar} showHeader={false} />
+        {/* Средняя зона: навыки с крупным знаком системы в углу, ниже трюки. */}
+        <div data-zone="center" className="flex min-w-0 flex-col gap-4">
+          <SheetBlock title="Навыки" className="relative">
+            <SettingEmblem
+              setting={activeCharacter.setting}
+              onSelect={(setting) => updateChar({ ...activeCharacter, setting })}
+              variant="hero"
+            />
+            <SkillsPyramid character={activeCharacter} onChange={updateChar} />
           </SheetBlock>
 
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-            <SheetBlock title="Трюки">
-              <StuntsSection
-                character={activeCharacter}
-                onChange={updateChar}
-                onOpenApiKeySettings={() => setIsSettingsOpen(true)}
-                showHeader={false}
-              />
-            </SheetBlock>
+          <SheetBlock title="Трюки">
+            <StuntsSection
+              character={activeCharacter}
+              onChange={updateChar}
+              onOpenApiKeySettings={() => setIsSettingsOpen(true)}
+              showHeader={false}
+            />
+          </SheetBlock>
+        </div>
 
-            <SheetBlock title="Аспекты">
-              <AspectsSection
-                character={activeCharacter}
-                onChange={updateChar}
-                onOpenApiKeySettings={() => setIsSettingsOpen(true)}
-              />
-            </SheetBlock>
-          </div>
+        {/* Правая зона: аспекты и два отдельных блока заметок. */}
+        <div data-zone="right" className="flex min-w-0 flex-col gap-4">
+          <SheetBlock title="Аспекты">
+            <AspectsSection
+              character={activeCharacter}
+              onChange={updateChar}
+              onOpenApiKeySettings={() => setIsSettingsOpen(true)}
+            />
+          </SheetBlock>
 
-          <SheetBlock
-            title="Заметки"
-            className="lg:flex-1 lg:min-h-[120px] lg:[&>div:last-child]:min-h-0 lg:[&>div:last-child]:flex-1"
-          >
+          <SheetBlock title="Заметки">
             <NotesSection character={activeCharacter} onChange={updateChar} field="notes" />
+          </SheetBlock>
+
+          <SheetBlock title="Дополнительно">
+            <NotesSection character={activeCharacter} onChange={updateChar} field="notesExtra" />
           </SheetBlock>
         </div>
       </div>

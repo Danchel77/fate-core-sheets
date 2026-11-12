@@ -126,11 +126,19 @@ export default {
         const el = document.querySelector("[data-ribbon]");
         if (!el) return false;
         const cs = getComputedStyle(el);
-        return cs.backgroundColor === "rgb(152, 120, 73)"
-          && cs.color === "rgb(0, 0, 0)"
+        const bg = cs.backgroundColor;
+        // Подложка полупрозрачная: alpha ≤ 0.3, тон полосы, а не брусок.
+        const alpha = bg.startsWith("rgba(")
+          ? parseFloat(bg.slice(bg.lastIndexOf(",") + 1))
+          : 1;
+        const rect = el.getBoundingClientRect();
+        return bg.startsWith("rgba(152, 120, 73")
+          && alpha <= 0.3
+          && cs.color === "rgb(166, 131, 84)"
           && cs.fontFamily.includes("Cinzel")
           && cs.textAlign === "center"
-          && cs.fontSize === "18px"
+          && cs.fontSize === "14px"
+          && rect.height <= 28
           && cs.clipPath.includes("polygon");
       })()`
     },
@@ -361,7 +369,7 @@ export default {
       expr: `(() => {
         const ribbons = Array.from(document.querySelectorAll("[data-ribbon]"));
         return ribbons.length > 0
-          && ribbons.every((el) => el.getBoundingClientRect().height <= 34);
+          && ribbons.every((el) => el.getBoundingClientRect().height <= 28);
       })()`
     },
     {

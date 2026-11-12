@@ -1,7 +1,7 @@
 export default {
   name: 'sheet',
   url: '/?mock=1&view=sheet',
-  regions: ['[data-kit="character-plate"]', '[data-zone="left"]', '[data-zone="right"]'],
+  regions: ['[data-kit="character-identity"]', '[data-zone="center"]', '[data-zone="right"]'],
   steps: [
     { waitFor: 'document.readyState === "complete"', timeout: 15000 },
     {
@@ -16,7 +16,7 @@ export default {
         localStorage.setItem('e2e_pool_backup', localStorage.getItem('fate_characters_pool') || '');
         const list = document.querySelector('[data-kit="sheet-stunt-list"]');
         const block = list.closest('[data-kit="sheet-block"]');
-        const plate = document.querySelector('[data-kit="character-plate"]');
+        const identity = document.querySelector('[data-kit="character-identity"]');
         const portrait = document.querySelector('[data-kit="sheet-portrait"]');
         const name = document.querySelector('[data-kit="character-name"]');
         const desc = document.querySelector('[data-kit="character-description"]');
@@ -24,7 +24,7 @@ export default {
         window.__noAvatarBefore = {
           w: pr.width,
           h: pr.height,
-          plateH: plate.getBoundingClientRect().height
+          identityH: identity.getBoundingClientRect().height
         };
         window.__stuntsScroll = {
           rowsBefore: document.querySelectorAll('[data-kit="sheet-stunt"]').length,
@@ -36,9 +36,9 @@ export default {
         window.__longName = {
           nameBefore: name.value,
           descBefore: desc.value,
-          plateHBefore: plate.getBoundingClientRect().height
+          identityHBefore: identity.getBoundingClientRect().height
         };
-        const levels = document.querySelectorAll('[data-kit="sheet-skill-level"]').length;
+        const levels = document.querySelectorAll('[data-kit="skill-level"]').length;
         const right = document.querySelector('[data-zone="right"]').getBoundingClientRect();
         localStorage.setItem('e2e_skillcap', JSON.stringify({
           capBefore: null,
@@ -142,12 +142,12 @@ export default {
       eval: `(() => {
         const name = document.querySelector('[data-kit="character-name"]');
         const desc = document.querySelector('[data-kit="character-description"]');
-        const plate = document.querySelector('[data-kit="character-plate"]');
+        const identity = document.querySelector('[data-kit="character-identity"]');
         const descStyle = getComputedStyle(desc);
         Object.assign(window.__longName, {
           docScrollW: document.documentElement.scrollWidth,
           innerW: window.innerWidth,
-          plateHAfter: plate.getBoundingClientRect().height,
+          identityHAfter: identity.getBoundingClientRect().height,
           nameH: name.getBoundingClientRect().height,
           titleFull: name.getAttribute('title') === name.value,
           descH: desc.getBoundingClientRect().height,
@@ -202,17 +202,17 @@ export default {
       // Без портрета рамка на месте: те же ширина/высота, иконка и подпись.
       eval: `(() => {
         const portrait = document.querySelector('[data-kit="sheet-portrait"]');
-        const plate = document.querySelector('[data-kit="character-plate"]');
+        const identity = document.querySelector('[data-kit="character-identity"]');
         const rect = portrait.getBoundingClientRect();
         const facts = {
           hasImg: !!portrait.querySelector('img'),
           hasLabel: (portrait.textContent || '').includes('Портрет'),
           w: rect.width,
           h: rect.height,
-          plateH: plate.getBoundingClientRect().height,
+          identityH: identity.getBoundingClientRect().height,
           wBefore: window.__noAvatarBefore.w,
           hBefore: window.__noAvatarBefore.h,
-          plateHBefore: window.__noAvatarBefore.plateH
+          identityHBefore: window.__noAvatarBefore.identityH
         };
         localStorage.setItem('e2e_noavatar', JSON.stringify(facts));
         return JSON.stringify(facts);
@@ -238,13 +238,13 @@ export default {
       waitFor: 'document.querySelectorAll("[data-kit=sheet-block]").length >= 6',
       timeout: 15000
     },
-    { waitFor: 'document.querySelectorAll("[data-kit=sheet-skill-level]").length === 6', timeout: 5000 },
+    { waitFor: 'document.querySelectorAll("[data-kit=skill-level]").length === 6', timeout: 5000 },
     {
       eval: `(() => {
         const facts = JSON.parse(localStorage.getItem('e2e_skillcap') || '{}');
         const right = document.querySelector('[data-zone="right"]');
         const left = document.querySelector('[data-zone="left"]');
-        facts.rowsAfter = document.querySelectorAll('[data-kit="sheet-skill-level"]').length;
+        facts.rowsAfter = document.querySelectorAll('[data-kit="skill-level"]').length;
         facts.rightWAfter = right.getBoundingClientRect().width;
         facts.leftXAfter = Math.round(left.getBoundingClientRect().x);
         facts.pageAfter = document.documentElement.scrollHeight;
@@ -274,7 +274,7 @@ export default {
           name: name ? name.value : null,
           avatar: !!(portrait && portrait.querySelector('img')),
           stunts: document.querySelectorAll('[data-kit="sheet-stunt"]').length,
-          levels: document.querySelectorAll('[data-kit="sheet-skill-level"]').length
+          levels: document.querySelectorAll('[data-kit="skill-level"]').length
         });
       })()`
     },
@@ -512,6 +512,24 @@ export default {
       })()`
     },
     {
+      // Одна ячейка навыка освобождается: на снимке видна и занятая, и пустая.
+      eval: `(() => {
+        const cells = Array.from(
+          document.querySelectorAll('[data-kit="skill-cell"][data-slot="filled"]')
+        );
+        if (!cells.length) return false;
+        const remove = cells[cells.length - 1].querySelector('button');
+        if (!remove) return false;
+        remove.click();
+        return true;
+      })()`
+    },
+    { wait: 250 },
+    {
+      waitFor: 'document.querySelectorAll("[data-kit=skill-cell][data-slot=empty]").length >= 1',
+      timeout: 5000
+    },
+    {
       eval: `(() => {
         const trigger = document.querySelector('[data-kit="setting-button"]');
         if (!trigger) return false;
@@ -549,6 +567,38 @@ export default {
       })()`
     },
     {
+      // Крестик удаления не занимает ширину у имени: он появляется по hover и
+      // по focus внутри ячейки. На тач-экране ячейка фокусируется касанием.
+      eval: `(() => {
+        const cell = document.querySelector('[data-kit="skill-cell"][data-slot="filled"]');
+        if (!cell) throw new Error('нет заполненной ячейки');
+        cell.focus({ preventScroll: true });
+        return document.activeElement === cell;
+      })()`
+    },
+    { wait: 300 },
+    {
+      eval: `(() => {
+        const cells = Array.from(document.querySelectorAll('[data-kit="skill-cell"][data-slot="filled"]'));
+        const cell = cells[0];
+        const remove = cell.querySelector('button');
+        const name = cell.querySelector('span');
+        const rect = remove.getBoundingClientRect();
+        window.__skillRemove = {
+          focused: document.activeElement === cell,
+          opacity: parseFloat(getComputedStyle(remove).opacity),
+          hitW: Math.round(rect.width),
+          hitH: Math.round(rect.height),
+          clippedNames: Array.from(
+            document.querySelectorAll('[data-kit="skill-cell"] span')
+          )
+            .filter((span) => span.scrollWidth > span.clientWidth + 1)
+            .map((span) => (span.textContent || '').trim())
+        };
+        return JSON.stringify(window.__skillRemove);
+      })()`
+    },
+    {
       // Снимок без фокус-ринга: в покое плашка должна читаться страницей, а не
       // формой. Фокус-ринг остаётся в CSS (`focus-visible`) и виден при Tab.
       eval: `(() => {
@@ -556,6 +606,7 @@ export default {
         return true;
       })()`
     },
+    { wait: 300 },
     {
       // Числа для S36 в сыром выводе: если лист не влезает в экран, в отчёте
       // будет точная высота документа, а не только упавшее утверждение.
@@ -580,12 +631,15 @@ export default {
       expr: `getComputedStyle(document.body).backgroundColor === 'rgb(0, 0, 0)'`
     },
     {
-      name: 'S3: two-zones',
+      // Три колонки строго одинаковой ширины: ровно три зоны, разброс ≤8px.
+      name: 'S3: three-equal',
       expr: `(() => {
         const zones = Array.from(document.querySelectorAll('[data-zone]'));
-        return zones.length === 2
-          && !!document.querySelector('[data-zone="left"]')
-          && !!document.querySelector('[data-zone="right"]');
+        if (zones.length !== 3) return false;
+        const names = zones.map((zone) => zone.getAttribute('data-zone')).sort().join(',');
+        if (names !== 'center,left,right') return false;
+        const widths = zones.map((zone) => zone.getBoundingClientRect().width);
+        return Math.max(...widths) - Math.min(...widths) <= 8;
       })()`
     },
     {
@@ -596,10 +650,13 @@ export default {
           return el ? el.getBoundingClientRect() : null;
         };
         const left = box('left');
+        const center = box('center');
         const right = box('right');
-        if (!left || !right) return false;
-        if (window.innerWidth >= 1024) return left.left < right.left;
-        return left.top < right.top;
+        if (!left || !center || !right) return false;
+        if (window.innerWidth >= 1024) {
+          return left.left < center.left && center.left < right.left;
+        }
+        return left.top < center.top && center.top < right.top;
       })()`
     },
     {
@@ -620,15 +677,30 @@ export default {
       })()`
     },
     {
-      name: 'S6: portrait-size',
+      // Рамка только у портрета: img 240×300 в рамке 1px; у блока имени и
+      // описания ни рамки, ни заливки.
+      name: 'S6: portrait-frame',
       expr: `(() => {
-        const portrait = document.querySelector('[data-kit="sheet-portrait"]');
-        if (!portrait) return false;
-        const rect = portrait.getBoundingClientRect();
-        if (window.innerWidth >= 1024) {
-          return Math.abs(rect.width - 240) <= 4 && Math.abs(rect.height - 300) <= 4;
-        }
-        return rect.height > 0 && rect.height <= 224;
+        const frame = document.querySelector('[data-kit="portrait-frame"]');
+        const identity = document.querySelector('[data-kit="character-identity"]');
+        if (!frame || !identity) return false;
+        const img = frame.querySelector('img');
+        if (!img) return false;
+        const rect = img.getBoundingClientRect();
+        const frameStyle = getComputedStyle(frame);
+        const identityStyle = getComputedStyle(identity);
+        const sides = ['Top', 'Right', 'Bottom', 'Left'];
+        const noBorder = sides.every(
+          (side) => parseFloat(identityStyle['border' + side + 'Width']) === 0
+        );
+        return (
+          rect.width >= 234 && rect.width <= 246 &&
+          rect.height >= 294 && rect.height <= 306 &&
+          frameStyle.borderTopWidth === '1px' &&
+          frameStyle.borderTopColor === 'rgb(152, 120, 73)' &&
+          noBorder &&
+          identityStyle.backgroundColor === 'rgba(0, 0, 0, 0)'
+        );
       })()`
     },
     {
@@ -787,18 +859,16 @@ export default {
       })()`
     },
     {
-      name: 'S16: skill-levels',
+      // Четыре ступени пирамиды: 1, 2, 3 и 4 ячейки сверху вниз.
+      name: 'S16: skill-rows',
       expr: `(() => {
-        const levels = Array.from(document.querySelectorAll('[data-kit="sheet-skill-level"]'));
-        return (
-          levels.length === 4 &&
-          levels.every((level) => level.querySelectorAll('[data-kit="sheet-skill-slot"]').length >= 1)
+        const rows = Array.from(document.querySelectorAll('[data-kit="skill-level"]'));
+        if (rows.length !== 4) return false;
+        const counts = rows.map(
+          (row) => row.querySelectorAll('[data-kit="skill-cell"]').length
         );
+        return counts.join(',') === '1,2,3,4';
       })()`
-    },
-    {
-      name: 'S17: skill-slots',
-      expr: `document.querySelectorAll('[data-kit="sheet-skill-slot"]').length === 10`
     },
     {
       name: 'S21: stunt-rows',
@@ -870,22 +940,6 @@ export default {
           const style = getComputedStyle(label);
           return style.color === 'rgb(168, 160, 144)' && parseFloat(style.fontSize) >= 12;
         });
-      })()`
-    },
-    {
-      name: 'S26: notes',
-      expr: `(() => {
-        const notes = Array.from(document.querySelectorAll('[data-kit="sheet-notes"]'));
-        if (notes.length !== 1) return false;
-        const style = getComputedStyle(notes[0]);
-        const block = notes[0].closest('[data-kit="sheet-block"]');
-        const ribbon = block ? block.querySelector('[data-ribbon]') : null;
-        return (
-          style.backgroundColor === 'rgb(13, 13, 13)' &&
-          style.borderTopColor === 'rgb(41, 35, 25)' &&
-          !!ribbon &&
-          ribbon.textContent.trim() === 'Заметки'
-        );
       })()`
     },
     {
@@ -976,16 +1030,19 @@ export default {
       expr: `window.__tooltipClosed === true`
     },
     {
-      name: 'S35: touch-targets',
+      // Крестик живёт поверх ячейки: по focus-внутри он виден, хит ≥16px,
+      // и ни одно имя навыка не обрезано.
+      name: 'S35: skill-remove-focus',
       expr: `(() => {
-        if (window.innerWidth >= 1024) return true;
-        const slots = Array.from(document.querySelectorAll('[data-kit="sheet-skill-slot"]'));
-        if (slots.length === 0) return false;
-        return slots.every((slot) => {
-          const remove = slot.querySelector('button');
-          if (!remove) return false;
-          return parseFloat(getComputedStyle(remove).opacity) >= 0.99;
-        });
+        const facts = window.__skillRemove;
+        return (
+          !!facts &&
+          facts.focused === true &&
+          facts.opacity >= 0.99 &&
+          facts.hitW >= 16 &&
+          facts.hitH >= 16 &&
+          facts.clippedNames.length === 0
+        );
       })()`
     },
     {
@@ -999,11 +1056,11 @@ export default {
     {
       name: 'S38: no-setting-select',
       expr: `(() => {
-        const left = document.querySelector('[data-zone="left"]');
-        if (!left) return false;
+        const sheet = document.querySelector('#printable-character-sheet');
+        if (!sheet) return false;
         return (
-          left.querySelectorAll('select').length === 0 &&
-          !!left.querySelector('[data-kit="setting-button"]')
+          sheet.querySelectorAll('select').length === 0 &&
+          !!document.querySelector('[data-zone="center"] [data-kit="setting-button"]')
         );
       })()`
     },
@@ -1019,17 +1076,6 @@ export default {
           facts.expanded === 'true' &&
           facts.closed === true
         );
-      })()`
-    },
-    {
-      name: 'S40: portrait-centered',
-      expr: `(() => {
-        const portrait = document.querySelector('[data-kit="sheet-portrait"]');
-        const zone = document.querySelector('[data-zone="left"]');
-        if (!portrait || !zone) return false;
-        const p = portrait.getBoundingClientRect();
-        const z = zone.getBoundingClientRect();
-        return Math.abs(p.left + p.width / 2 - (z.left + z.width / 2)) <= 4;
       })()`
     },
     {
@@ -1052,30 +1098,6 @@ export default {
         if (!trigger) return false;
         const label = trigger.getAttribute('aria-label') || '';
         return label.includes('Восстановление') && !label.includes('Обновление');
-      })()`
-    },
-    {
-      name: 'S43: character-plate',
-      expr: `(() => {
-        const plate = document.querySelector('[data-kit="character-plate"]');
-        if (!plate) return false;
-        const portrait = plate.querySelector('[data-kit="sheet-portrait"]');
-        const name = plate.querySelector('[data-kit="character-name"]');
-        if (!portrait || !name) return false;
-        const value = name instanceof HTMLInputElement ? name.value : (name.textContent || '');
-        return (
-          value.trim().length > 0 &&
-          getComputedStyle(plate).borderTopColor === 'rgb(152, 120, 73)'
-        );
-      })()`
-    },
-    {
-      name: 'S44: wordmark-one-line',
-      expr: `(() => {
-        const mark = document.querySelector('[data-kit="setting-wordmark"]');
-        if (!mark) return false;
-        const cs = getComputedStyle(mark);
-        return mark.getBoundingClientRect().height <= 24 && cs.whiteSpace === 'nowrap';
       })()`
     },
     {
@@ -1107,7 +1129,7 @@ export default {
       })()`
     },
     {
-      // имя одной строкой, описание — ровно три, плашка не выросла,
+      // имя одной строкой, описание — ровно три, блок не вырос,
       // документ не получил горизонтального скролла.
       name: 'S47: long-name',
       expr: `(() => {
@@ -1123,7 +1145,7 @@ export default {
           facts.descScrollH > facts.descClientH;
         return (
           facts.docScrollW <= facts.innerW &&
-          Math.abs(facts.plateHAfter - facts.plateHBefore) <= 2 &&
+          Math.abs(facts.identityHAfter - facts.identityHBefore) <= 2 &&
           facts.nameH <= 40 &&
           facts.titleFull === true &&
           descriptionThreeLines
@@ -1145,7 +1167,7 @@ export default {
           facts.hasLabel === true &&
           Math.abs(facts.w - facts.wBefore) <= 2 &&
           Math.abs(facts.h - facts.hBefore) <= 2 &&
-          Math.abs(facts.plateH - facts.plateHBefore) <= 2
+          Math.abs(facts.identityH - facts.identityHBefore) <= 2
         );
       })()`
     },
@@ -1164,6 +1186,130 @@ export default {
           facts.rowsBefore === 4 &&
           facts.rowsAfter === 6 &&
           Math.abs(facts.rightWAfter - facts.rightWBefore) <= 1
+        );
+      })()`
+    },
+    {
+      // Имя стоит над портретом: низ имени выше верха рамки.
+      name: 'S50: name-above-portrait',
+      expr: `(() => {
+        const name = document.querySelector('[data-kit="character-name"]');
+        const frame = document.querySelector('[data-kit="portrait-frame"]');
+        if (!name || !frame) return false;
+        const nameRect = name.getBoundingClientRect();
+        const frameRect = frame.getBoundingClientRect();
+        return nameRect.bottom <= frameRect.top + 0.5;
+      })()`
+    },
+    {
+      // Имя по левому краю: не по центру и совпадает с левым краем рамки.
+      name: 'S51: name-left',
+      expr: `(() => {
+        const name = document.querySelector('[data-kit="character-name"]');
+        const frame = document.querySelector('[data-kit="portrait-frame"]');
+        if (!name || !frame) return false;
+        const style = getComputedStyle(name);
+        const nameRect = name.getBoundingClientRect();
+        const frameRect = frame.getBoundingClientRect();
+        return (
+          style.textAlign !== 'center' &&
+          Math.abs(nameRect.left - frameRect.left) <= 2
+        );
+      })()`
+    },
+    {
+      // Ячейки навыков фиксированного размера; пустая — пунктиром без текста.
+      name: 'S52: skill-cells',
+      expr: `(() => {
+        const cells = Array.from(document.querySelectorAll('[data-kit="skill-cell"]'));
+        if (cells.length < 10) return false;
+        const sized = cells.every((cell) => {
+          const rect = cell.getBoundingClientRect();
+          return (
+            rect.width >= 88 && rect.width <= 96 &&
+            rect.height >= 24 && rect.height <= 32
+          );
+        });
+        if (!sized) return false;
+        const empty = cells.filter((cell) => cell.getAttribute('data-slot') === 'empty');
+        return (
+          empty.length >= 1 &&
+          empty.every((cell) => {
+            const style = getComputedStyle(cell);
+            return (
+              style.borderTopStyle === 'dashed' &&
+              (cell.textContent || '').trim().length === 0
+            );
+          })
+        );
+      })()`
+    },
+    {
+      // Крупный знак системы в правом верхнем углу блока «Навыки»:
+      // правый верх, высота ≥64 и ни одного пересечения с ячейками.
+      name: 'S53: skills-logo',
+      expr: `(() => {
+        const button = document.querySelector('[data-kit="setting-button"]');
+        if (!button) return false;
+        const block = button.closest('[data-kit="sheet-block"]');
+        if (!block) return false;
+        const ribbon = block.querySelector('[data-ribbon]');
+        if (!ribbon || ribbon.textContent.trim() !== 'Навыки') return false;
+        const b = button.getBoundingClientRect();
+        const blockRect = block.getBoundingClientRect();
+        const cells = Array.from(document.querySelectorAll('[data-kit="skill-cell"]'));
+        const intersects = cells.some((cell) => {
+          const c = cell.getBoundingClientRect();
+          return !(
+            c.right <= b.left ||
+            c.left >= b.right ||
+            c.bottom <= b.top ||
+            c.top >= b.bottom
+          );
+        });
+        return (
+          b.height >= 64 &&
+          b.left > blockRect.left + blockRect.width / 2 &&
+          b.top < blockRect.top + blockRect.height / 2 &&
+          !intersects
+        );
+      })()`
+    },
+    {
+      // Две заметки, каждая 160–200px высотой.
+      name: 'S54: notes-two',
+      expr: `(() => {
+        const notes = Array.from(document.querySelectorAll('[data-kit="sheet-notes"]'));
+        if (notes.length !== 2) return false;
+        return notes.every((note) => {
+          const height = note.getBoundingClientRect().height;
+          return height >= 160 && height <= 200;
+        });
+      })()`
+    },
+    {
+      // Ни один блок не растянут на всю ширину листа (на десктопе ≤40%).
+      name: 'S55: no-wide-blocks',
+      expr: `(() => {
+        if (window.innerWidth < 1024) return true;
+        const sheet = document.querySelector('#printable-character-sheet');
+        const blocks = Array.from(document.querySelectorAll('[data-kit="sheet-block"]'));
+        if (!sheet || blocks.length < 6) return false;
+        const width = sheet.getBoundingClientRect().width;
+        return blocks.every((block) => block.getBoundingClientRect().width <= width * 0.4);
+      })()`
+    },
+    {
+      // В левой зоне нет текста сеттинга и подписи-вордмарка.
+      name: 'S56: no-setting-text',
+      expr: `(() => {
+        const left = document.querySelector('[data-zone="left"]');
+        if (!left) return false;
+        const text = left.textContent || '';
+        return (
+          !text.includes('Ведьмак') &&
+          !text.includes('Тёмное фэнтези') &&
+          left.querySelectorAll('[data-kit="setting-wordmark"]').length === 0
         );
       })()`
     }

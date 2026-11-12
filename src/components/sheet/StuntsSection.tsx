@@ -96,7 +96,7 @@ export const StuntsSection: React.FC<StuntsSectionProps> = ({
 
       <div
         data-kit="sheet-stunt-list"
-        className="flex max-h-[260px] flex-col overflow-y-auto [scrollbar-width:thin] [&::-webkit-scrollbar-thumb]:bg-gold-dim [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar]:w-1"
+        className="flex max-h-[320px] flex-col overflow-y-auto [scrollbar-width:thin] [&::-webkit-scrollbar-thumb]:bg-gold-dim [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar]:w-1"
       >
         {character.stunts.length === 0 && (
           <p className="py-2 text-sm text-text-muted">Трюков пока нет.</p>

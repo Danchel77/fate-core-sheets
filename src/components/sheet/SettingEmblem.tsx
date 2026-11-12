@@ -5,11 +5,16 @@ import { SettingType } from '../../types/character';
 interface SettingEmblemProps {
   setting: SettingType;
   onSelect: (setting: SettingType) => void;
+  /**
+   * `inline` — строка-подпись (старый вид); `hero` — крупный знак системы
+   * в правом верхнем углу блока «Навыки», высотой 64–88px.
+   */
+  variant?: 'inline' | 'hero';
 }
 
 /**
  * Логотип показываем маской, залитой золотом: файлы в `public/` белые или
- * чёрные, а маска берёт только форму, поэтому цвет приходит из токена `gold`.
+ * чёрные, а маска берёт только форму, поэтому цвет приходит из токенов.
  * Своих hex здесь нет.
  */
 const logoMask = (url: string): React.CSSProperties => ({
@@ -26,16 +31,22 @@ const logoMask = (url: string): React.CSSProperties => ({
 const SETTING_ORDER: SettingType[] = ['witcher', 'universal'];
 
 /**
- * Знак сеттинга — единственный способ сменить сеттинг на листе. Строковый
- * вариант: маска-логотип и надпись «The Witcher» / «Fate Core» в одну строку,
- * высотой с заголовок. Нажатие открывает панель вариантов.
+ * Знак сеттинга — единственный способ сменить сеттинг на листе.
+ * В крупном варианте это вертикальный блок 140×72 в правом верхнем углу
+ * блока «Навыки»: знак системы и надпись «Witcher» / «Fate Core».
+ * Нажатие открывает панель вариантов; <select> не используется.
  */
-export const SettingEmblem: React.FC<SettingEmblemProps> = ({ setting, onSelect }) => {
+export const SettingEmblem: React.FC<SettingEmblemProps> = ({
+  setting,
+  onSelect,
+  variant = 'inline',
+}) => {
   const baseUrl = import.meta.env.BASE_URL || '/';
   const [isOpen, setIsOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const isWitcher = setting === 'witcher';
   const currentName = SETTING_PRESETS[setting].name;
+  const isHero = variant === 'hero';
 
   useEffect(() => {
     if (!isOpen) return;
@@ -58,7 +69,14 @@ export const SettingEmblem: React.FC<SettingEmblemProps> = ({ setting, onSelect 
   }, [isOpen]);
 
   return (
-    <div ref={rootRef} className="relative flex w-full flex-col items-center">
+    <div
+      ref={rootRef}
+      className={
+        isHero
+          ? 'absolute right-3 top-[56px] z-20 flex w-[140px] flex-col items-stretch'
+          : 'relative flex w-full flex-col items-center'
+      }
+    >
       <button
         type="button"
         data-kit="setting-button"
@@ -66,20 +84,28 @@ export const SettingEmblem: React.FC<SettingEmblemProps> = ({ setting, onSelect 
         aria-expanded={isOpen}
         aria-label={`Сеттинг: ${currentName}. Сменить сеттинг`}
         onClick={() => setIsOpen((prev) => !prev)}
-        className="group inline-flex cursor-pointer items-center justify-center gap-2 transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-gold-light"
+        className={
+          isHero
+            ? 'group flex h-[68px] w-full cursor-pointer flex-col items-center justify-center gap-1.5 text-gold-dim lg:h-[72px] transition-colors duration-150 hover:text-gold-light focus:outline-none focus-visible:ring-2 focus-visible:ring-gold-light'
+            : 'group inline-flex cursor-pointer items-center justify-center gap-2 transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-gold-light'
+        }
       >
         <span
           role="img"
           aria-label={isWitcher ? 'Ведьмак' : 'Fate Core System'}
-          className={`block shrink-0 bg-gold ${isWitcher ? 'size-5' : 'h-5 w-16'}`}
+          className={`block shrink-0 bg-gold-dim ${
+            isHero ? 'h-9 w-9' : isWitcher ? 'size-5' : 'h-5 w-16'
+          }`}
           style={logoMask(`${baseUrl}${isWitcher ? 'wolf-head.svg' : 'fate-core-logo.svg'}`)}
         />
 
         <span
           data-kit="setting-wordmark"
-          className="whitespace-nowrap font-fantasy text-sm leading-none tracking-wide text-gold [font-variant-caps:small-caps]"
+          className={`whitespace-nowrap font-fantasy leading-none tracking-wide [font-variant-caps:small-caps] ${
+            isHero ? 'text-sm text-gold-light' : 'text-sm text-gold'
+          }`}
         >
-          {isWitcher ? 'The Witcher' : 'Fate Core'}
+          {isWitcher ? (isHero ? 'Witcher' : 'The Witcher') : 'Fate Core'}
         </span>
       </button>
 
@@ -88,7 +114,9 @@ export const SettingEmblem: React.FC<SettingEmblemProps> = ({ setting, onSelect 
           data-kit="setting-panel"
           role="listbox"
           aria-label="Сеттинг персонажа"
-          className="absolute top-full z-20 mt-2 w-full border border-line bg-panel p-1"
+          className={`absolute top-full z-30 mt-2 border border-line bg-panel p-1 ${
+            isHero ? 'right-0 w-[220px]' : 'w-full'
+          }`}
         >
           {SETTING_ORDER.map((key) => {
             const isActive = key === setting;
