@@ -34,59 +34,71 @@ export const Header: React.FC = () => {
     }
   };
 
+  const quietButton =
+    'cursor-pointer items-center gap-1.5 border border-line bg-transparent px-2.5 py-1.5 text-xs text-text-muted transition-colors duration-150 hover:border-gold-dim hover:text-gold-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-light';
+
   return (
-    <header className="sticky top-0 z-40 border-b border-[#1C212B] bg-[#0B0E14] py-3.5 transition">
-      <div className="mx-auto flex max-w-[1380px] items-center justify-between px-4 sm:px-6">
-        <div className="flex min-w-0 items-center gap-6">
+    <header className="sticky top-0 z-40 border-b border-gold-dim bg-ink py-2.5">
+      <div className="mx-auto flex max-w-[1440px] items-center justify-between gap-3 px-4 lg:px-6">
+        <div className="flex min-w-0 items-center gap-3 sm:gap-6">
           <button
             onClick={() => selectChar(null)}
-            className="group flex min-w-0 items-center gap-3 text-left transition"
+            className="group flex min-w-0 items-center gap-2 text-left transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-light"
             title="К списку персонажей"
           >
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[#242C38] bg-[#141820] text-slate-300 transition group-hover:border-slate-500 group-hover:text-white">
-              <Shield className="h-5 w-5 stroke-[2]" />
-            </div>
-            <span className="block truncate font-fantasy text-base font-bold tracking-wide text-white transition group-hover:text-slate-200 sm:text-2xl">
+            <Shield className="size-5 shrink-0 text-gold-light" strokeWidth={1.5} aria-hidden="true" />
+            <span
+              data-brand
+              className="truncate font-fantasy text-base text-gold-light [font-variant-caps:small-caps] tracking-wide transition-colors duration-150 group-hover:text-gold sm:text-xl"
+            >
               Fate Core Sheets
             </span>
           </button>
 
           {activeCharacter && (
-            <div className="hidden items-center gap-2 border-l border-[#1C212B] pl-4 text-xs sm:flex">
+            <div className="hidden items-center gap-2 border-l border-line pl-4 text-xs sm:flex">
               <button
                 onClick={() => selectChar(null)}
-                className="flex items-center gap-1.5 text-slate-400 transition hover:text-slate-200"
+                className="flex items-center gap-1.5 text-text-muted transition-colors duration-150 hover:text-gold-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-light"
               >
-                <Layers className="h-3.5 w-3.5" />
+                <Layers className="size-3.5 text-gold-dim" strokeWidth={1.5} aria-hidden="true" />
                 Мои персонажи
               </button>
-              <span className="text-slate-600">/</span>
-              <span className="max-w-[200px] truncate font-medium text-slate-200">
+              <span aria-hidden="true" className="h-3 w-px rotate-[20deg] bg-gold-dim" />
+              <span className="max-w-[200px] truncate text-text">
                 {activeCharacter.name || 'Безымянный герой'}
               </span>
             </div>
           )}
         </div>
 
-        <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
+        <div className="flex shrink-0 items-center gap-1.5">
           <a
             href="https://fate-srd.com/fate-core"
             target="_blank"
             rel="noreferrer"
-            className="hidden items-center gap-1.5 rounded-lg border border-[#242C38] bg-[#12161E] px-3 py-1.5 text-xs text-slate-300 transition hover:border-slate-600 hover:bg-[#18202A] hover:text-white md:flex"
+            className={`group hidden md:flex ${quietButton}`}
             title="Открыть официальные правила Fate SRD"
           >
-            <BookOpen className="h-3.5 w-3.5 text-slate-400" />
+            <BookOpen
+              className="size-3.5 text-gold-dim transition-colors duration-150 group-hover:text-gold-light"
+              strokeWidth={1.5}
+              aria-hidden="true"
+            />
             <span>Правила</span>
           </a>
 
           <button
             type="button"
             onClick={() => setIsSettingsOpen(true)}
-            className="flex cursor-pointer items-center gap-1.5 rounded-lg border border-[#242C38] bg-[#12161E] px-2.5 py-1.5 text-xs text-slate-300 transition hover:border-slate-600 hover:bg-[#18202A] hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400/40"
+            className={`group flex ${quietButton}`}
             title="Настройки"
           >
-            <Settings className="h-3.5 w-3.5 text-slate-400" />
+            <Settings
+              className="size-3.5 text-gold-dim transition-colors duration-150 group-hover:text-gold-light"
+              strokeWidth={1.5}
+              aria-hidden="true"
+            />
             <span className="hidden md:inline">Настройки</span>
           </button>
 
@@ -95,41 +107,46 @@ export const Header: React.FC = () => {
               type="button"
               onClick={handleExport}
               disabled={isExporting}
-              className="flex cursor-pointer items-center gap-1.5 rounded-lg border border-[#B9C9DC] bg-[#B9C9DC] px-2.5 py-1.5 text-xs font-semibold text-[#0B0E14] transition hover:border-[#CAD8E8] hover:bg-[#CAD8E8] focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-300 disabled:cursor-wait disabled:opacity-60"
+              className="flex cursor-pointer items-center gap-1.5 border border-gold bg-transparent px-2.5 py-1.5 text-xs text-gold-light transition-colors duration-150 hover:bg-gold hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-light disabled:cursor-wait disabled:opacity-60"
               title="Скачать PDF"
             >
-              <Download className="h-3.5 w-3.5" />
-              <span className="hidden md:inline">{isExporting ? 'Экспорт...' : 'Скачать PDF'}</span>
+              <Download className="size-3.5" strokeWidth={1.5} aria-hidden="true" />
+              <span className="hidden md:inline">{isExporting ? 'Экспорт…' : 'Скачать PDF'}</span>
             </button>
           )}
 
           {user ? (
-            <div className="flex items-center gap-2 border-l border-[#1C212B] pl-2">
+            <div className="flex items-center gap-2 border-l border-line pl-2">
               {user.photoURL ? (
                 <img
                   src={user.photoURL}
                   alt={user.displayName || 'User'}
-                  className="h-7 w-7 rounded-full border border-slate-700 object-cover"
+                  className="h-7 w-7 border border-line object-cover"
                 />
               ) : (
-                <div className="flex h-7 w-7 items-center justify-center rounded-full border border-[#242C38] bg-[#141820] text-xs text-slate-400">
-                  <UserIcon className="h-3.5 w-3.5" />
+                <div className="flex h-7 w-7 items-center justify-center border border-line bg-ink-frame text-text-muted">
+                  <UserIcon className="size-3.5" strokeWidth={1.5} aria-hidden="true" />
                 </div>
               )}
               <button
                 onClick={signOut}
-                className="rounded-lg p-1.5 text-slate-400 transition hover:bg-red-500/10 hover:text-red-400"
+                className="cursor-pointer p-1.5 text-text-muted transition-colors duration-150 hover:text-danger focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-light"
                 title="Выйти из аккаунта"
               >
-                <LogOut className="h-3.5 w-3.5" />
+                <LogOut className="size-3.5" strokeWidth={1.5} aria-hidden="true" />
               </button>
             </div>
           ) : (
             <button
               onClick={signInWithGoogle}
-              className="flex items-center gap-1.5 rounded-lg border border-[#242C38] bg-[#12161E] px-2.5 py-1.5 text-xs font-medium text-slate-200 transition hover:border-slate-600 hover:bg-[#18202A] sm:px-3.5"
+              className={`group flex ${quietButton}`}
+              title="Войти через Google"
             >
-              <LogIn className="h-3.5 w-3.5 text-slate-400" />
+              <LogIn
+                className="size-3.5 text-gold-dim transition-colors duration-150 group-hover:text-gold-light"
+                strokeWidth={1.5}
+                aria-hidden="true"
+              />
               <span className="hidden sm:inline">Войти</span>
             </button>
           )}

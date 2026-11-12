@@ -75,6 +75,40 @@ node scripts/e2e/verify.mjs --scenario=review
 Сценарий `foundation` гейт пропускает, поэтому рекурсии нет. Отчёт фундамента
 не нужно перечислять в `--allowed`: `scripts/e2e/**` разрешён всегда.
 
+## Шапка и подвал (`shell`)
+
+Сценарий `shell` открывает обычный вид приложения `/?mock=1` — шапка, каталог
+персонажей и подвал — без авторизации и без мастерской. Гоняется на обеих
+ширинах: `--width=1440 --height=900` и `--width=390 --height=844`.
+
+Утверждения:
+
+- `H1: header-ink` — у `header` чёрный фон `rgb(0, 0, 0)`, нижняя линия
+  `rgb(41, 35, 25)` и `position: sticky`;
+- `H2: brand-cinzel` — название набрано `Cinzel` и золотом `rgb(166, 131, 84)`;
+- `H3: header-sharp` — у всех элементов шапки с непустым `className`
+  `borderRadius === '0px'`;
+- `H4: header-no-slate` — в шапке и подвале нет классов с `slate-` и
+  вычисленных легаси-цветов `rgb(100, 116, 139)`, `rgb(11, 14, 20)`,
+  `rgb(28, 33, 43)`;
+- `H5: header-font-min` — в шапке и подвале нет видимого текста меньше `12px`;
+- `H6: footer-ink` — у `footer` верхняя линия `rgb(41, 35, 25)`, текст
+  `rgb(168, 160, 144)`;
+- `H7: header-compact` — высота шапки не больше `72px`, на 390px нет
+  горизонтального скролла;
+- `H8: header-actions` — не меньше двух кнопок/ссылок шапки с ненулевой
+  шириной и высотой от `24px`.
+
+Снимок и кропы `header`/`footer` лежат в `scripts/e2e/shots/`, отчёт — в
+`scripts/e2e/reports/shell.json`. Запуск:
+
+```bash
+npm run build
+node scripts/e2e/capture.mjs --scenario=shell --width=1440 --height=900
+node scripts/e2e/capture.mjs --scenario=shell --width=390 --height=844
+node scripts/e2e/verify.mjs --scenario=shell --allowed=src/components/common/Header.tsx,src/App.tsx,scripts/e2e/scenarios/shell.mjs,scripts/e2e/README.md
+```
+
 ## Новый сценарий
 
 `scenarios/<имя>.mjs` экспортирует:

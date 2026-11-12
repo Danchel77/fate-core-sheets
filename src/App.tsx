@@ -12,11 +12,9 @@ const MainContent: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-[70vh] flex flex-col items-center justify-center">
-        <div className="w-10 h-10 rounded-xl bg-gray border border-gray text-slate-400 flex items-center justify-center animate-pulse mb-3">
-          <Shield className="w-5 h-5 stroke-[1.5]" />
-        </div>
-        <p className="text-sm text-slate-400">Загрузка персонажей...</p>
+      <div className="flex min-h-[70vh] flex-col items-center justify-center gap-3">
+        <Shield className="size-5 animate-pulse text-gold" strokeWidth={1.5} aria-hidden="true" />
+        <p className="font-sans text-sm text-text-muted">Загрузка персонажей...</p>
       </div>
     );
   }
@@ -64,12 +62,12 @@ export const App: React.FC = () => {
   return (
     <AuthProvider>
       <CharacterProvider>
-        <div className="min-h-screen bg-ink text-text flex flex-col justify-between selection:bg-slate-700 selection:text-white">
+        <div className="flex min-h-screen flex-col justify-between bg-ink text-text">
           <Header />
           <MainContent />
 
-          <footer className="border-t border-gray bg-ink py-3 mt-auto">
-            <div className="max-w-[1380px] mx-auto px-4 sm:px-6 text-xs text-slate-500">
+          <footer className="border-t border-line py-4 text-xs text-text-muted">
+            <div className="mx-auto max-w-[1440px] px-4 lg:px-6">
               <span>© 2026. Все права на сеттинги принадлежат их законным правообладателям.</span>
             </div>
           </footer>
