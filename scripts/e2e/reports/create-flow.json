@@ -1,10 +1,104 @@
 {
   "scenario": "create-flow",
-  "png": "/home/deck/HarnessProjects/Fate/scripts/e2e/shots/create-flow-1440-2026-11-120553.png",
-  "capturedAt": "2026-11-12T05:53:41.286Z",
-  "distBuiltAt": "2026-11-12T05:45:27.967Z",
+  "png": "/home/deck/HarnessProjects/Fate/scripts/e2e/shots/create-flow-1440-20261112-125539.png",
+  "regionPngs": [],
+  "sha256": "0188cc9f34f0e22e57a60e8dbd83a73f27991024be273f70d6baf967b8f8d990",
+  "viewport": {
+    "width": 1440,
+    "height": 1100
+  },
+  "capturedAt": "2026-11-12T10:55:44.578Z",
+  "distBuiltAt": "2026-11-12T10:54:55.688Z",
   "consoleErrors": 0,
+  "asserts": [
+    {
+      "name": "driver-ok",
+      "ok": true
+    },
+    {
+      "name": "sheet-opened",
+      "ok": true
+    },
+    {
+      "name": "stunt-on-sheet",
+      "ok": true
+    },
+    {
+      "name": "name-on-sheet",
+      "ok": true
+    }
+  ],
   "failedAsserts": [],
-  "lint": null,
-  "ok": true
+  "lint": {
+    "clippedText": [],
+    "smallFont": [
+      "span.mt-1.text-[9px] (\"Портрет\") (fontSize: 9px)",
+      "span (\"Изменить\") (fontSize: 10px)",
+      "button.cursor-pointer.text-left (\"Восстановление\") (fontSize: 11px)",
+      "span.block.font-fantasy (\"The\") (fontSize: 8px)",
+      "span.block.font-fantasy (\"Концепция\") (fontSize: 11.5px)",
+      "span.mt-0.5.block (\"High Concept\") (fontSize: 9px)",
+      "span.block.font-fantasy (\"Проблема\") (fontSize: 11.5px)",
+      "span.mt-0.5.block (\"Trouble\") (fontSize: 9px)",
+      "span.block.font-fantasy (\"Прошлое\") (fontSize: 11.5px)",
+      "span.mt-0.5.block (\"Past\") (fontSize: 9px)",
+      "span.block.font-fantasy (\"Связь\") (fontSize: 11.5px)",
+      "span.mt-0.5.block (\"Bond\") (fontSize: 9px)",
+      "span.block.font-fantasy (\"Цель\") (fontSize: 11.5px)",
+      "span.mt-0.5.block (\"Goal\") (fontSize: 9px)",
+      "span.flex.h-6 (\"2\") (fontSize: 10px)",
+      "span.text-[10px].uppercase (\"Лёгкое\") (fontSize: 10px)",
+      "span.flex.h-6 (\"4\") (fontSize: 10px)",
+      "span.text-[10px].uppercase (\"Среднее\") (fontSize: 10px)",
+      "span.flex.h-6 (\"6\") (fontSize: 10px)",
+      "span.text-[10px].uppercase (\"Серьёзное\") (fontSize: 10px)",
+      "span.text-[10px].leading-tight (\"Отлично\") (fontSize: 10px)",
+      "span.min-w-0.break-words (\"Магия\") (fontSize: 11px)",
+      "span.text-[10px].leading-tight (\"Хорошо\") (fontSize: 10px)",
+      "span.min-w-0.break-words (\"Бестиарий\") (fontSize: 11px)",
+      "span.min-w-0.break-words (\"Алхимия\") (fontSize: 11px)",
+      "span.text-[10px].leading-tight (\"Неплохо\") (fontSize: 10px)",
+      "span.min-w-0.break-words (\"Верховая езда\") (fontSize: 11px)",
+      "span.min-w-0.break-words (\"Телосложение\") (fontSize: 11px)",
+      "span.min-w-0.break-words (\"Внимание\") (fontSize: 11px)",
+      "span.text-[10px].leading-tight (\"Средне\") (fontSize: 10px)",
+      "span.min-w-0.break-words (\"Атлетика\") (fontSize: 11px)",
+      "span.min-w-0.break-words (\"Ближний бой\") (fontSize: 11px)",
+      "span.min-w-0.break-words (\"Стрельба\") (fontSize: 11px)",
+      "span.min-w-0.break-words (\"Скрытность\") (fontSize: 11px)",
+      "span.text-[11px].font-medium (\"Физический\") (fontSize: 11px)",
+      "span.text-[10px].text-slate-500 (\"• Телосложение +2\") (fontSize: 10px)",
+      "span.text-[11px].font-medium (\"Ментальный\") (fontSize: 11px)",
+      "span.text-[10px].text-slate-500 (\"• Воля 0\") (fontSize: 10px)",
+      "button.flex.cursor-pointer (\"Добавить\") (fontSize: 10px)",
+      "span.mt-0.5.w-5 (\"01\") (fontSize: 10px)",
+      "textarea.mt-1.w-full (\"+2 к действию «Атака» навыком \") (fontSize: 11px)"
+    ],
+    "lowContrast": [
+      "span.text-slate-600 (\"/\") (contrast 2.55:1 < 4.5:1, fg: rgb(71, 85, 105))",
+      "span.mt-1.text-[9px] (\"Портрет\") (contrast 2.55:1 < 4.5:1, fg: rgb(71, 85, 105))",
+      "span.block.font-fantasy (\"The\") (contrast 3.87:1 < 4.5:1, fg: rgb(100, 116, 139))",
+      "span.mt-0.5.block (\"High Concept\") (contrast 3.87:1 < 4.5:1, fg: rgb(100, 116, 139))",
+      "span.mt-0.5.block (\"Trouble\") (contrast 3.87:1 < 4.5:1, fg: rgb(100, 116, 139))",
+      "span.mt-0.5.block (\"Past\") (contrast 3.87:1 < 4.5:1, fg: rgb(100, 116, 139))",
+      "span.mt-0.5.block (\"Bond\") (contrast 3.87:1 < 4.5:1, fg: rgb(100, 116, 139))",
+      "span.mt-0.5.block (\"Goal\") (contrast 3.87:1 < 4.5:1, fg: rgb(100, 116, 139))",
+      "span.text-[10px].uppercase (\"Лёгкое\") (contrast 3.87:1 < 4.5:1, fg: rgb(100, 116, 139))",
+      "span.text-[10px].uppercase (\"Среднее\") (contrast 3.87:1 < 4.5:1, fg: rgb(100, 116, 139))",
+      "span.text-[10px].uppercase (\"Серьёзное\") (contrast 3.87:1 < 4.5:1, fg: rgb(100, 116, 139))",
+      "span.text-[10px].leading-tight (\"Отлично\") (contrast 3.87:1 < 4.5:1, fg: rgb(100, 116, 139))",
+      "span.text-[10px].leading-tight (\"Хорошо\") (contrast 3.87:1 < 4.5:1, fg: rgb(100, 116, 139))",
+      "span.text-[10px].leading-tight (\"Неплохо\") (contrast 3.87:1 < 4.5:1, fg: rgb(100, 116, 139))",
+      "span.text-[10px].leading-tight (\"Средне\") (contrast 3.87:1 < 4.5:1, fg: rgb(100, 116, 139))",
+      "span.text-[10px].text-slate-500 (\"• Телосложение +2\") (contrast 3.87:1 < 4.5:1, fg: rgb(100, 116, 139))",
+      "span.text-[10px].text-slate-500 (\"• Воля 0\") (contrast 3.87:1 < 4.5:1, fg: rgb(100, 116, 139))",
+      "span.mt-0.5.w-5 (\"01\") (contrast 3.87:1 < 4.5:1, fg: rgb(100, 116, 139))",
+      "span (\"© 2026. Все права на сеттинги \") (contrast 4.41:1 < 4.5:1, fg: rgb(100, 116, 139))"
+    ],
+    "offscreen": [],
+    "overlap": [],
+    "horizontalScroll": [],
+    "hardcodedColors": []
+  },
+  "ok": false
 }

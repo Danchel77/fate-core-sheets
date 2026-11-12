@@ -34,3 +34,10 @@ scripts/*.png
 
 # Временный профиль headless Chrome (scripts/interactive-shot.cjs)
 .cdp-profile-*
+
+# Снимки экрана — артефакт прогона, живут только на диске
+scripts/e2e/shots/
+
+# Отчёты и лог прогона
+scripts/e2e/reports/
+.cdp.log
