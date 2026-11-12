@@ -13,7 +13,6 @@ import { SkillsPyramid } from './SkillsPyramid';
 import { StressSection } from './StressSection';
 import { StuntsSection } from './StuntsSection';
 import { SettingsModal } from '../common/SettingsModal';
-import { CornerFrame } from '../common/CornerFrame';
 import { SettingType } from '../../types/character';
 import { countRealStunts, getFatePointCircles } from '../../utils/fateMath';
 
@@ -96,7 +95,7 @@ export const CharacterSheet: React.FC = () => {
         {/* Левая зона: портрет, имя, сеттинг, очки судьбы, последствия, стресс. */}
         <div data-zone="left" className="flex min-w-0 flex-col gap-6 lg:self-start">
           <header data-kit="sheet-header" className="flex flex-col gap-3">
-            <CornerFrame>
+            <div className="relative p-4">
               <button
                 data-kit="sheet-portrait"
                 type="button"
@@ -122,7 +121,7 @@ export const CharacterSheet: React.FC = () => {
                   <span>Изменить</span>
                 </span>
               </button>
-            </CornerFrame>
+            </div>
 
             <div className="flex flex-col gap-3 px-4">
               <input

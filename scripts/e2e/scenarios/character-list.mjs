@@ -17,8 +17,8 @@ export default {
       expr: '(() => { const r = document.querySelector("[data-ribbon]"); return !!r && getComputedStyle(r).backgroundColor === "rgb(152, 120, 73)" && getComputedStyle(r).fontFamily.includes("Cinzel"); })()'
     },
     {
-      name: 'A3: cards',
-      expr: '(() => { const cards = Array.from(document.querySelectorAll("[data-kit=character-card]")); return cards.length >= 3 && cards.every((card) => card.querySelectorAll("[data-corner]").length === 4); })()'
+      name: 'A3: cards-panel',
+      expr: '(() => { const cards = Array.from(document.querySelectorAll("[data-kit=character-card]")); return cards.length >= 3 && cards.every((card) => { const cs = getComputedStyle(card); return cs.backgroundColor === "rgb(20, 20, 20)" && cs.borderTopColor === "rgb(41, 35, 25)"; }); })()'
     },
     {
       name: 'A4: avatar-64',

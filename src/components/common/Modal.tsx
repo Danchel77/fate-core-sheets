@@ -1,7 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { X } from 'lucide-react';
 import { SectionRibbon } from './SectionRibbon';
-import { CornerFrame } from './CornerFrame';
 
 interface ModalProps {
   isOpen: boolean;
@@ -121,7 +120,7 @@ export const Modal: React.FC<ModalProps> = ({
         aria-modal="true"
         aria-label={title}
         tabIndex={-1}
-        className={`relative flex max-h-[calc(100vh-2rem)] w-full flex-col overflow-visible rounded-none border border-line bg-ink outline-none ${maxWidthClass} ${
+        className={`relative flex max-h-[calc(100vh-2rem)] w-full flex-col overflow-visible rounded-none border border-line bg-panel outline-none ${maxWidthClass} ${
           level === 2 ? 'translate-x-6 translate-y-6' : ''
         }`}
       >
@@ -138,14 +137,12 @@ export const Modal: React.FC<ModalProps> = ({
           </button>
         </div>
         <div className="min-h-0 flex-1 overflow-y-auto px-4 py-3">
-          <CornerFrame>
-            {children}
-            {footer ? (
-              <div className="mt-3 flex flex-wrap items-center justify-end gap-3 border-t border-line pt-3">
-                {footer}
-              </div>
-            ) : null}
-          </CornerFrame>
+          {children}
+          {footer ? (
+            <div className="mt-3 flex flex-wrap items-center justify-end gap-3 border-t border-line pt-3">
+              {footer}
+            </div>
+          ) : null}
         </div>
       </div>
     </div>

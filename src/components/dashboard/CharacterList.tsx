@@ -7,7 +7,6 @@ import { saveLocalCharacters } from '../../services/storage';
 import { CharacterCard } from './CharacterCard';
 import { CharacterWizard } from '../creator/CharacterWizard';
 import { SectionRibbon } from '../common/SectionRibbon';
-import { CornerFrame } from '../common/CornerFrame';
 import { Tabs } from '../common/Tabs';
 import { Button } from '../common/Button';
 
@@ -129,21 +128,19 @@ export const CharacterList: React.FC = () => {
               />
             ))}
 
-            <div className="border border-line">
-              <CornerFrame>
-                <button
-                  type="button"
-                  data-kit="character-new"
-                  onClick={() => setIsCreating(true)}
-                  className="group flex w-full items-center justify-center gap-3 px-4 py-8 transition-colors duration-150 hover:bg-ink-raised focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gold"
-                >
-                  <Plus className="size-5 shrink-0 stroke-[1.5] text-gold transition-colors duration-150 group-hover:text-gold-light" />
-                  <span className="flex flex-col items-start gap-1">
-                    <span className="font-fantasy text-base uppercase tracking-wider text-text">Создать персонажа</span>
-                    <span className="font-sans text-xs tracking-wider text-text-muted">Новый лист персонажа</span>
-                  </span>
-                </button>
-              </CornerFrame>
+            <div className="border border-line bg-panel p-4">
+              <button
+                type="button"
+                data-kit="character-new"
+                onClick={() => setIsCreating(true)}
+                className="group flex w-full items-center justify-center gap-3 px-4 py-8 transition-colors duration-150 hover:bg-ink-raised focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gold"
+              >
+                <Plus className="size-5 shrink-0 stroke-[1.5] text-gold transition-colors duration-150 group-hover:text-gold-light" />
+                <span className="flex flex-col items-start gap-1">
+                  <span className="font-fantasy text-base uppercase tracking-wider text-text">Создать персонажа</span>
+                  <span className="font-sans text-xs tracking-wider text-text-muted">Новый лист персонажа</span>
+                </span>
+              </button>
             </div>
           </div>
         </>

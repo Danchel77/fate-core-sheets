@@ -130,28 +130,19 @@ export default {
           && cs.color === "rgb(0, 0, 0)"
           && cs.fontFamily.includes("Cinzel")
           && cs.textAlign === "center"
-          && parseFloat(cs.fontSize) >= 18
+          && cs.fontSize === "16px"
           && cs.clipPath.includes("polygon");
       })()`
     },
     {
-      name: 'F3: frame-corners',
+      name: 'F3: block-panel',
       expr: `(() => {
-        const frames = Array.from(document.querySelectorAll("[data-frame]"));
-        if (frames.length < 2) return false;
-        return frames.every((frame) => {
-          const corners = Array.from(frame.querySelectorAll("[data-corner]"));
-          if (corners.length !== 4) return false;
-          return corners.every((corner) => {
-            const cs = getComputedStyle(corner);
-            const sides = [
-              [cs.borderTopWidth, cs.borderTopColor],
-              [cs.borderRightWidth, cs.borderRightColor],
-              [cs.borderBottomWidth, cs.borderBottomColor],
-              [cs.borderLeftWidth, cs.borderLeftColor],
-            ].filter(([width]) => parseFloat(width) > 0);
-            return sides.length === 2 && sides.every(([, color]) => color === "rgb(119, 94, 57)");
-          });
+        const blocks = Array.from(document.querySelectorAll("[data-kit=sheet-block]"));
+        if (blocks.length < 2) return false;
+        return blocks.every((block) => {
+          const cs = getComputedStyle(block);
+          return cs.backgroundColor === "rgb(20, 20, 20)"
+            && cs.borderTopColor === "rgb(41, 35, 25)";
         });
       })()`
     },
@@ -309,7 +300,7 @@ export default {
         if (!probe) return false;
         return probe.level === '1'
           && probe.border === 'rgb(41, 35, 25)'
-          && probe.background === 'rgb(0, 0, 0)'
+          && probe.background === 'rgb(20, 20, 20)'
           && probe.ribbon === true
           && probe.close === true;
       })()`
@@ -363,6 +354,36 @@ export default {
           && nested.radius === '0px'
           && fits(open.panelRect)
           && fits(nested.panelRect);
+      })()`
+    },
+    {
+      name: 'F22: ribbon-height',
+      expr: `(() => {
+        const ribbons = Array.from(document.querySelectorAll("[data-ribbon]"));
+        return ribbons.length > 0
+          && ribbons.every((el) => el.getBoundingClientRect().height <= 34);
+      })()`
+    },
+    {
+      name: 'F23: no-corners',
+      expr: 'document.querySelectorAll("[data-corner]").length === 0 && document.querySelectorAll("[data-frame]").length === 0'
+    },
+    {
+      name: 'F24: type-scale',
+      expr: `(() => {
+        const allowed = new Set(["12px", "14px", "16px", "18px", "20px", "24px", "30px"]);
+        return Array.from(document.querySelectorAll("*")).every((el) => {
+          const text = (el.textContent || "").trim();
+          if (!text) return true;
+          const cs = getComputedStyle(el);
+          const rect = el.getBoundingClientRect();
+          const visible = rect.width > 0
+            && rect.height > 0
+            && cs.display !== "none"
+            && cs.visibility !== "hidden"
+            && cs.opacity !== "0";
+          return !visible || allowed.has(cs.fontSize);
+        });
       })()`
     }
   ]

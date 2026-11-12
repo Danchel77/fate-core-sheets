@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { SectionRibbon } from './SectionRibbon';
-import { CornerFrame } from './CornerFrame';
+import { SheetBlock } from '../sheet/SheetBlock';
 import { FieldLabel } from './FieldLabel';
 import { StatTable } from './StatTable';
 import { StressBox } from './StressBox';
@@ -47,8 +47,8 @@ export const UiKit: React.FC = () => {
         <header className="pb-6">
           <h1 className="font-fantasy text-2xl tracking-wide text-gold">UI Kit</h1>
           <p className="pt-2 text-sm text-text-muted">
-            Общие элементы системы Fate: ленты, угловые рамки, подписи, таблица, стресс, полоса,
-            кнопки, вкладки и поле ввода.
+            Общие элементы системы Fate: ленты, блоки на подложке, подписи, таблица, стресс,
+            полоса, кнопки, вкладки и поле ввода.
           </p>
         </header>
 
@@ -56,22 +56,16 @@ export const UiKit: React.FC = () => {
 
         <div className="space-y-8 pt-8">
           <section>
-            <SectionRibbon>Рамки и подписи</SectionRibbon>
-            <div className="flex flex-wrap gap-4 pt-4">
-              <CornerFrame>
-                <div className="min-w-[220px] space-y-2">
-                  <FieldLabel>Концепция</FieldLabel>
-                  <p className="font-fantasy text-base text-text">Следопыт из Каэр Морхена</p>
-                </div>
-              </CornerFrame>
-              <CornerFrame>
-                <div className="min-w-[220px] space-y-2">
-                  <FieldLabel>Проблема</FieldLabel>
-                  <p className="font-fantasy text-base text-text">
-                    Слово ведьмака ничего не стоит при дворе
-                  </p>
-                </div>
-              </CornerFrame>
+            <SectionRibbon>Блоки и подписи</SectionRibbon>
+            <div className="grid gap-4 pt-4 sm:grid-cols-2">
+              <SheetBlock title="Концепция">
+                <p className="font-fantasy text-base text-text">Следопыт из Каэр Морхена</p>
+              </SheetBlock>
+              <SheetBlock title="Проблема">
+                <p className="font-fantasy text-base text-text">
+                  Слово ведьмака ничего не стоит при дворе
+                </p>
+              </SheetBlock>
             </div>
           </section>
 
@@ -140,20 +134,18 @@ export const UiKit: React.FC = () => {
           <section>
             <SectionRibbon>Модальные окна</SectionRibbon>
             <div className="pt-4">
-              <CornerFrame>
-                <div className="flex flex-col gap-3">
-                  <p className="text-sm text-text-muted">
-                    Единственный каркас окон проекта: затемнение, лента заголовка, угловые скобки
-                    и крестик. Вложенное окно уровня 2 открывается поверх и закрывается по Escape
-                    первым.
-                  </p>
-                  <div data-kit="modal-demo-open" className="inline-block self-start">
-                    <Button variant="primary" onClick={() => setModalOpen(true)}>
-                      Открыть окно
-                    </Button>
-                  </div>
+              <div className="flex flex-col gap-3 border border-line bg-panel p-3">
+                <p className="text-sm text-text-muted">
+                  Единственный каркас окон проекта: затемнение, панель panel, лента заголовка
+                  и крестик. Вложенное окно уровня 2 открывается поверх и закрывается по Escape
+                  первым.
+                </p>
+                <div data-kit="modal-demo-open" className="inline-block self-start">
+                  <Button variant="primary" onClick={() => setModalOpen(true)}>
+                    Открыть окно
+                  </Button>
                 </div>
-              </CornerFrame>
+              </div>
             </div>
           </section>
 
@@ -183,7 +175,7 @@ export const UiKit: React.FC = () => {
       >
         <div className="space-y-4">
           <p className="text-sm text-text">
-            Панель на чёрном фоне, золотая лента заголовка, угловые скобки и тонкий крестик.
+            Панель на подложке panel, лента заголовка во всю ширину и тонкий крестик.
             Затемнение перекрывает экран целиком.
           </p>
           <div data-kit="modal-demo-nested" className="inline-block">
