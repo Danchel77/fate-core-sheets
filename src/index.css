@@ -4,9 +4,7 @@
 
 @layer base {
   body {
-    background-color: #0F141C;
-    color: #F1F5F9;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    @apply bg-ink text-text font-sans;
   }
 }
 

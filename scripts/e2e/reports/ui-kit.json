@@ -1,0 +1,30 @@
+{
+  "scenario": "ui-kit",
+  "png": "/home/deck/HarnessProjects/Fate/scripts/e2e/shots/ui-kit-390-20261112-082345.png",
+  "regionPngs": [
+    "/home/deck/HarnessProjects/Fate/scripts/e2e/shots/ui-kit-390-20261112-082345-r0.png",
+    "/home/deck/HarnessProjects/Fate/scripts/e2e/shots/ui-kit-390-20261112-082345-r1.png",
+    "/home/deck/HarnessProjects/Fate/scripts/e2e/shots/ui-kit-390-20261112-082345-r2.png"
+  ],
+  "sha256": "a83677c3791edc6f032a14f2b6290880ea75cbde86dc0101852373aaabca7518",
+  "viewport": {
+    "width": 390,
+    "height": 844
+  },
+  "capturedAt": "2026-11-12T06:23:49.456Z",
+  "distBuiltAt": "2026-11-12T06:23:38.130Z",
+  "consoleErrors": 0,
+  "failedAsserts": [],
+  "lint": {
+    "clippedText": [],
+    "smallFont": [],
+    "lowContrast": [
+      "button.px-4.py-2 (\"Disabled\") (contrast 3.66:1 < 4.5:1, fg: rgb(100, 116, 139))"
+    ],
+    "offscreen": [],
+    "overlap": [],
+    "horizontalScroll": [],
+    "hardcodedColors": []
+  },
+  "ok": false
+}
