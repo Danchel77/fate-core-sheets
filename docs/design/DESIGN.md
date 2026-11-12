@@ -61,7 +61,9 @@ colors: {
 
 ## 3. Компоненты (`src/components/common/`)
 
-Каждый в своём файле. Нет компонента — создай по рецепту. Для проверок в сценариях компонент ставит data-атрибут на корневой элемент: `data-ribbon` (SectionRibbon), `data-frame` (CornerFrame, каждая угловая скобка внутри — `data-corner`), `data-stress-box`, `data-btn`.
+Каждый в своём файле. Нет компонента — создай по рецепту. Для проверок в сценариях компонент ставит data-атрибут на корневой элемент: `data-ribbon` (SectionRibbon), `data-frame` (CornerFrame, каждая угловая скобка внутри — `data-corner`), `data-stress-box`, `data-btn`, `data-kit="field-label"` (FieldLabel), `data-kit="stat-row"` (строка StatTable), `data-kit="bar"` и `data-kit="bar-fill"` (трек и заполнение Bar), `data-kit="input"` (Input), `data-kit="filter-tab"` и `data-active` (Tabs).
+
+Эти атрибуты — часть контракта компонента: по ним сценарий `foundation` проверяет цвета и размеры. Удалил атрибут — фундамент красный.
 
 **SectionRibbon** — заголовок секции. Золотая лента на всю ширину блока:
 `relative bg-gold text-ink font-fantasy text-xl text-center py-2 [clip-path:polygon(0_50%,14px_0,calc(100%-14px)_0,100%_50%,calc(100%-14px)_100%,14px_100%)]`.
