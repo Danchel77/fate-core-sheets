@@ -163,41 +163,33 @@ export const CharacterSheet: React.FC = () => {
 
           <SheetBlock title="Очки судьбы">
             <div data-kit="sheet-fate" className="flex flex-col gap-3">
-              <div className="min-w-0">
+              <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
                 <RulesTooltip
-                  label="ОЧКИ СУДЬБЫ"
-                  title="Очки судьбы"
-                  text="Тратятся на активацию аспектов, трюков и других правил. В начале сессии вы получаете столько очков, каково ваше восстановление."
-                  className="font-fantasy text-xs uppercase tracking-wider text-text-muted"
+                  label="Освежение"
+                  title="Освежение"
+                  text="Сколько очков судьбы вы получаете в начале каждой сессии. Базовое значение — 3; каждый трюк сверх трёх снижает его на 1."
+                  className="font-sans text-xs uppercase tracking-wider text-text-muted"
                 />
 
-                <div className="mt-2 flex flex-wrap items-center gap-2.5 font-sans text-xs text-text-muted">
-                  <RulesTooltip
-                    label="Восстановление"
-                    title="Восстановление"
-                    text="Сколько очков судьбы вы получаете в начале каждой сессии. Базовое значение — 3; каждый трюк сверх трёх снижает его на 1."
-                  />
-                  <RefreshControl
-                    baseRefresh={activeCharacter.baseRefresh ?? 3}
-                    refresh={activeCharacter.refresh}
-                    stuntCount={realStunts}
-                    freeStunts={activeCharacter.freeStunts ?? 3}
-                    onChangeBase={(value) =>
-                      updateChar({ ...activeCharacter, baseRefresh: value })
-                    }
-                  />
-                </div>
+                <RefreshControl
+                  baseRefresh={activeCharacter.baseRefresh ?? 3}
+                  refresh={activeCharacter.refresh}
+                  stuntCount={realStunts}
+                  freeStunts={activeCharacter.freeStunts ?? 3}
+                  onChangeBase={(value) => updateChar({ ...activeCharacter, baseRefresh: value })}
+                />
+              </div>
 
-                <div className="mt-3 flex flex-wrap items-center gap-1.5" aria-hidden="true">
-                  {Array.from({ length: circles.total }).map((_, index) => (
-                    <span
-                      key={index}
-                      className={`size-3.5 border ${
-                        index < circles.solid ? 'border-gold bg-gold' : 'border-gold-dim'
-                      }`}
-                    />
-                  ))}
-                </div>
+              <div className="flex items-center gap-1.5" aria-hidden="true">
+                {Array.from({ length: Math.min(5, circles.total) }).map((_, index) => (
+                  <span
+                    key={index}
+                    data-kit="sheet-fate-token"
+                    className={`size-4 border border-gold ${
+                      index < circles.solid ? 'bg-gold' : 'bg-ink'
+                    }`}
+                  />
+                ))}
               </div>
 
               <SettingEmblem setting={activeCharacter.setting} />

@@ -52,7 +52,7 @@ export const RulesTooltip: React.FC<RulesTooltipProps> = ({
         onClick={() => setIsOpen((prev) => !prev)}
         aria-expanded={isOpen}
         aria-describedby={isOpen ? tooltipId : undefined}
-        className="cursor-pointer text-left underline decoration-slate-500 underline-offset-4 transition hover:text-white hover:decoration-slate-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400/40"
+        className="cursor-pointer text-left underline decoration-gold-dim underline-offset-4 transition hover:text-gold-light hover:decoration-gold-light focus:outline-none focus-visible:ring-2 focus-visible:ring-gold"
       >
         {label}
       </button>

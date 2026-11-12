@@ -57,49 +57,54 @@ export const RefreshControl: React.FC<RefreshControlProps> = ({
     <span ref={rootRef} className="relative inline-flex items-center">
       <button
         type="button"
+        data-kit="sheet-refresh"
         onClick={() => setIsOpen((prev) => !prev)}
         aria-expanded={isOpen}
         aria-haspopup="dialog"
-        aria-label={`Восстановление: ${refresh}. Изменить базовое значение`}
-        className="cursor-pointer text-[13px] font-semibold tabular-nums text-slate-100 transition hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[#10141C]"
+        aria-label={`Освежение: ${refresh}. Изменить базовое значение`}
+        className="cursor-pointer font-fantasy text-base tabular-nums text-text transition-colors duration-150 hover:text-gold-light focus:outline-none focus-visible:ring-2 focus-visible:ring-gold-light focus-visible:ring-offset-2 focus-visible:ring-offset-ink"
       >
         {refresh}
       </button>
 
       {isOpen && (
         <div
+          data-kit="sheet-refresh-panel"
           role="dialog"
-          aria-label="Восстановление"
-          className="absolute left-1/2 top-full z-50 mt-2 w-[260px] max-w-[calc(100vw-2rem)] -translate-x-1/2 rounded-xl border border-[#2A3444] bg-[#0B0E14] p-3 font-sans text-xs text-left normal-case shadow-2xl sm:left-0 sm:translate-x-0 print:hidden"
+          aria-label="Освежение"
+          className="absolute right-0 top-full z-50 mt-2 w-[260px] max-w-[calc(100vw-2rem)] border border-gold bg-ink-raised p-3 text-left font-sans text-xs normal-case text-text print:hidden"
         >
-          <div className="mb-3 flex items-center justify-between gap-2">
-            <span className="text-[9px] font-semibold uppercase tracking-[0.16em] text-slate-500">
-              Восстановление
+          <div className="mb-2 flex items-center justify-between gap-2">
+            <span className="font-fantasy text-sm text-gold-light [font-variant-caps:small-caps]">
+              Освежение
             </span>
             <button
               type="button"
               onClick={() => setIsOpen(false)}
-              className="cursor-pointer rounded p-0.5 text-slate-500 transition hover:text-slate-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400/50"
               aria-label="Закрыть"
+              className="cursor-pointer text-text-muted transition-colors duration-150 hover:text-gold-light focus:outline-none focus-visible:ring-2 focus-visible:ring-gold-light focus-visible:ring-offset-2 focus-visible:ring-offset-ink-raised"
             >
-              <X className="h-3.5 w-3.5" />
+              <X className="size-4" strokeWidth={1.5} aria-hidden="true" />
             </button>
           </div>
 
-          <div className="flex items-center justify-between gap-3">
-            <span className="text-slate-300">Базовое</span>
+          <div className="flex items-center justify-between gap-3 py-1.5">
+            <span className="font-sans text-xs uppercase tracking-wider text-text-muted">
+              Базовое
+            </span>
+
             <div className="flex items-center gap-1">
               <button
                 type="button"
                 onClick={() => changeBase(base - 1)}
                 disabled={base <= MIN_BASE}
-                className="flex h-7 w-7 cursor-pointer items-center justify-center rounded border border-[#2A3444] text-slate-300 transition hover:border-slate-500 hover:text-white disabled:cursor-not-allowed disabled:opacity-30"
                 aria-label="Уменьшить базовое восстановление"
+                className="flex size-7 cursor-pointer items-center justify-center border border-gold bg-transparent text-gold-light transition-colors duration-150 hover:bg-wine focus:outline-none focus-visible:ring-2 focus-visible:ring-gold-light focus-visible:ring-offset-2 focus-visible:ring-offset-ink-raised disabled:cursor-not-allowed disabled:border-line disabled:bg-ink-frame disabled:text-text-muted disabled:hover:bg-ink-frame"
               >
-                <Minus className="h-3.5 w-3.5" />
+                <Minus className="size-4" strokeWidth={1.5} aria-hidden="true" />
               </button>
 
-              <span className="w-7 text-center font-mono text-sm font-bold tabular-nums text-white">
+              <span className="w-7 text-center font-fantasy text-base tabular-nums text-text">
                 {base}
               </span>
 
@@ -107,24 +112,27 @@ export const RefreshControl: React.FC<RefreshControlProps> = ({
                 type="button"
                 onClick={() => changeBase(base + 1)}
                 disabled={base >= MAX_BASE}
-                className="flex h-7 w-7 cursor-pointer items-center justify-center rounded border border-[#2A3444] text-slate-300 transition hover:border-slate-500 hover:text-white disabled:cursor-not-allowed disabled:opacity-30"
                 aria-label="Увеличить базовое восстановление"
+                className="flex size-7 cursor-pointer items-center justify-center border border-gold bg-transparent text-gold-light transition-colors duration-150 hover:bg-wine focus:outline-none focus-visible:ring-2 focus-visible:ring-gold-light focus-visible:ring-offset-2 focus-visible:ring-offset-ink-raised disabled:cursor-not-allowed disabled:border-line disabled:bg-ink-frame disabled:text-text-muted disabled:hover:bg-ink-frame"
               >
-                <Plus className="h-3.5 w-3.5" />
+                <Plus className="size-4" strokeWidth={1.5} aria-hidden="true" />
               </button>
             </div>
           </div>
 
-          <div className="mt-2.5 flex items-center justify-between gap-3 text-slate-400">
-            <span>Трюки сверх трёх</span>
-            <span className="tabular-nums">{extraStunts > 0 ? `−${extraStunts}` : '0'}</span>
+          <div className="flex items-center justify-between gap-3 border-t border-line py-1.5">
+            <span className="font-sans text-xs text-text-muted">Трюки сверх трёх</span>
+            <span className="font-sans text-sm tabular-nums text-text">
+              {extraStunts > 0 ? `−${extraStunts}` : '0'}
+            </span>
           </div>
 
-          <div className="mt-2 flex items-center justify-between gap-3 border-t border-[#202734] pt-2">
-            <span className="text-slate-300">Итог</span>
-            <span className="font-semibold tabular-nums text-slate-100">{refresh}</span>
+          <div className="flex items-center justify-between gap-3 border-t border-line py-1.5">
+            <span className="font-sans text-xs uppercase tracking-wider text-text-muted">
+              Итог
+            </span>
+            <span className="font-fantasy text-base tabular-nums text-text">{refresh}</span>
           </div>
-
         </div>
       )}
     </span>

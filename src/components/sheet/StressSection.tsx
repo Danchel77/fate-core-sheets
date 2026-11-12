@@ -2,12 +2,18 @@ import React from 'react';
 import { Lock } from 'lucide-react';
 import { Character } from '../../types/character';
 import { getSkillRating } from '../../utils/fateMath';
+import { FieldLabel } from '../common/FieldLabel';
+import { StressBox } from '../common/StressBox';
 
 interface StressSectionProps {
   character: Character;
   onChange: (updated: Character) => void;
 }
 
+/**
+ * Две дорожки стресса: физическая и ментальная.
+ * Заголовок даёт лента SheetBlock, поэтому своего h2 здесь нет.
+ */
 export const StressSection: React.FC<StressSectionProps> = ({ character, onChange }) => {
   const physiqueRating = getSkillRating(character, 'physique');
   const willRating = getSkillRating(character, 'will');
@@ -39,11 +45,13 @@ export const StressSection: React.FC<StressSectionProps> = ({ character, onChang
     rating: number,
     maxBoxes: number
   ) => (
-    <div>
-      <div className="mb-2 flex flex-wrap items-baseline gap-x-2 gap-y-1">
-        <span className="text-[11px] font-medium text-slate-300">{label}</span>
-        <span className="text-[10px] text-slate-500">
-          • {skillLabel} {rating > 0 ? `+${rating}` : '0'}
+    <div className="flex flex-col gap-1.5">
+      {/* Дорожки стоят в двух колонках: подпись и навык держим двумя строками,
+          чтобы клетки обеих дорожек начинались на одном уровне. */}
+      <div className="flex flex-col">
+        <FieldLabel>{label}</FieldLabel>
+        <span className="font-sans text-xs tabular-nums text-text-muted">
+          {skillLabel} {rating > 0 ? `+${rating}` : '0'}
         </span>
       </div>
 
@@ -58,10 +66,11 @@ export const StressSection: React.FC<StressSectionProps> = ({ character, onChang
             return (
               <div
                 key={boxNum}
-                className="flex h-9 w-9 items-center justify-center rounded border border-dashed border-[#252D3A] text-slate-600"
+                data-stress-cell
                 title={`Требуется ${skillLabel} +${boxNum === 3 ? 1 : 3}`}
+                className="flex size-7 items-center justify-center border border-dashed border-line text-text-muted"
               >
-                <Lock className="h-3 w-3 opacity-60" />
+                <Lock className="size-3" strokeWidth={1.5} aria-hidden="true" />
               </div>
             );
           }
@@ -70,26 +79,13 @@ export const StressSection: React.FC<StressSectionProps> = ({ character, onChang
             <button
               type="button"
               key={boxNum}
+              data-stress-cell
               onClick={() => toggleStress(track, boxNum)}
               aria-pressed={isChecked}
-              className={`relative flex h-9 w-9 cursor-pointer items-center justify-center overflow-hidden rounded border font-mono text-xs font-bold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-300/50 ${
-                isChecked
-                  ? 'border-[#64748B] bg-[#1A2230] text-slate-500'
-                  : 'border-[#2A3444] bg-[#161C26] text-slate-300 hover:border-slate-500 hover:text-white'
-              }`}
               title={isChecked ? 'Отметить как свободный' : `Получить ${boxNum} стресса`}
+              className="block size-7 cursor-pointer transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-gold-light focus-visible:ring-offset-2 focus-visible:ring-offset-ink"
             >
-              {isChecked && (
-                <span
-                  aria-hidden="true"
-                  className="pointer-events-none absolute inset-0"
-                  style={{
-                    background:
-                      'linear-gradient(135deg, transparent 46%, rgba(148,163,184,0.55) 47%, rgba(148,163,184,0.55) 53%, transparent 54%)',
-                  }}
-                />
-              )}
-              <span className="relative z-10">{boxNum}</span>
+              <StressBox filled={isChecked} />
             </button>
           );
         })}
@@ -98,13 +94,7 @@ export const StressSection: React.FC<StressSectionProps> = ({ character, onChang
   );
 
   return (
-    <section>
-      <div className="mb-2 border-b border-[#1C212B] pb-2.5">
-        <h2 className="font-fantasy text-xs font-bold uppercase tracking-[0.14em] text-slate-300">
-          Стресс
-        </h2>
-      </div>
-
+    <section data-kit="sheet-stress">
       <div className="grid gap-4 sm:grid-cols-2">
         {renderTrack('physical', 'Физический', 'Телосложение', physiqueRating, maxPhysicalBoxes)}
         {renderTrack('mental', 'Ментальный', 'Воля', willRating, maxMentalBoxes)}
