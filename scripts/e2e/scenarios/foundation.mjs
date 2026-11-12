@@ -2,12 +2,117 @@
 // Сценарий намеренно не проверяет вёрстку экранов — только то, из чего она собрана.
 // Провал означает, что токена нет в tailwind.config.js, класс не сгенерирован
 // или компонент из src/components/common/ разошёлся с DESIGN.md.
+// F16–F19 дополнительно проверяют каркас модальных окон §7: открытие, вложенность,
+// Escape только для верхнего окна и восстановление прокрутки после закрытия.
 export default {
   name: 'foundation',
   url: '/?mock=1&view=kit',
   steps: [
     { waitFor: 'document.readyState === "complete"', timeout: 10000 },
     { waitFor: '!!document.querySelector("[data-ribbon]")', timeout: 10000 },
+    {
+      eval: `(() => {
+        window.__modalProbe = { overflowBefore: document.body.style.overflow };
+        const trigger = document.querySelector('[data-kit="modal-demo-open"] button');
+        if (!trigger) return false;
+        trigger.focus();
+        trigger.click();
+        // Кнопка демонстрации ниже первого экрана: снимок всего документа
+        // должен показать затемнение от верха страницы, а не от места фокуса.
+        window.scrollTo(0, 0);
+        return true;
+      })()`
+    },
+    { waitFor: `!!document.querySelector("[data-kit=modal][data-modal-level='1']")`, timeout: 5000 },
+    { wait: 200 },
+    {
+      eval: `(() => {
+        const overlay = document.querySelector('[data-kit=modal][data-modal-level="1"]');
+        const panel = overlay ? overlay.querySelector('[data-kit=modal-panel]') : null;
+        if (!panel) return false;
+        const cs = getComputedStyle(panel);
+        const panelRect = panel.getBoundingClientRect();
+        const ribbon = panel.querySelector('[data-ribbon]');
+        const ribbonRect = ribbon ? ribbon.getBoundingClientRect() : null;
+        window.__modalProbe.open = {
+          level: overlay.getAttribute('data-modal-level'),
+          border: cs.borderTopColor,
+          radius: cs.borderTopLeftRadius,
+          background: cs.backgroundColor,
+          ribbon: !!ribbon,
+          close: !!panel.querySelector('[data-kit=modal-close]'),
+          bodyLocked: getComputedStyle(document.body).overflowY === 'hidden',
+          panelRect: { left: panelRect.left, right: panelRect.right, width: panelRect.width },
+          ribbonRect: ribbonRect
+            ? { left: ribbonRect.left, right: ribbonRect.right, width: ribbonRect.width }
+            : null
+        };
+        return true;
+      })()`
+    },
+    { shot: {} },
+    { waitFor: `!!document.querySelector('[data-kit="modal-demo-nested"] button')`, timeout: 5000 },
+    {
+      eval: `(() => {
+        const trigger = document.querySelector('[data-kit="modal-demo-nested"] button');
+        if (!trigger) return false;
+        trigger.focus();
+        trigger.click();
+        return true;
+      })()`
+    },
+    { waitFor: `!!document.querySelector("[data-kit=modal][data-modal-level='2']")`, timeout: 5000 },
+    { wait: 200 },
+    {
+      eval: `(() => {
+        const panel = document.querySelector('[data-kit=modal][data-modal-level="2"] [data-kit=modal-panel]');
+        if (!panel) return false;
+        const transform = getComputedStyle(panel).transform;
+        const matrix = transform === 'none' ? null : new DOMMatrixReadOnly(transform);
+        const panelRect = panel.getBoundingClientRect();
+        window.__modalProbe.nested = {
+          overlays: document.querySelectorAll('[data-kit=modal]').length,
+          level2: true,
+          radius: getComputedStyle(panel).borderTopLeftRadius,
+          dx: matrix ? Math.round(matrix.m41) : 0,
+          dy: matrix ? Math.round(matrix.m42) : 0,
+          panelRect: { left: panelRect.left, right: panelRect.right, width: panelRect.width }
+        };
+        return true;
+      })()`
+    },
+    { shot: {} },
+    {
+      eval: `document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))`
+    },
+    { wait: 300 },
+    {
+      eval: `(() => {
+        window.__modalProbe.escape = {
+          level2Gone: !document.querySelector('[data-kit=modal][data-modal-level="2"]'),
+          level1Stays: !!document.querySelector('[data-kit=modal][data-modal-level="1"]')
+        };
+        return true;
+      })()`
+    },
+    {
+      eval: `(() => {
+        const close = document.querySelector('[data-kit=modal][data-modal-level="1"] [data-kit=modal-close]');
+        if (!close) return false;
+        close.click();
+        return true;
+      })()`
+    },
+    { wait: 300 },
+    {
+      eval: `(() => {
+        window.__modalProbe.closed = {
+          modals: document.querySelectorAll('[data-kit=modal]').length,
+          overflowAfter: document.body.style.overflow
+        };
+        return true;
+      })()`
+    },
     { shot: { out: 'scripts/e2e/shots/foundation.png' } }
   ],
   asserts: [
@@ -196,6 +301,69 @@ export default {
     {
       name: 'F15: no-scroll',
       expr: 'document.documentElement.scrollWidth <= window.innerWidth + 1'
+    },
+    {
+      name: 'F16: modal-open',
+      expr: `(() => {
+        const probe = window.__modalProbe && window.__modalProbe.open;
+        if (!probe) return false;
+        return probe.level === '1'
+          && probe.border === 'rgb(41, 35, 25)'
+          && probe.background === 'rgb(0, 0, 0)'
+          && probe.ribbon === true
+          && probe.close === true;
+      })()`
+    },
+    {
+      name: 'F17: modal-nested',
+      expr: `(() => {
+        const probe = window.__modalProbe && window.__modalProbe.nested;
+        if (!probe) return false;
+        return probe.level2 === true
+          && probe.overlays === 2
+          && probe.dx === 24
+          && probe.dy === 24;
+      })()`
+    },
+    {
+      name: 'F18: escape-top-only',
+      expr: `(() => {
+        const probe = window.__modalProbe && window.__modalProbe.escape;
+        if (!probe) return false;
+        return probe.level2Gone === true && probe.level1Stays === true;
+      })()`
+    },
+    {
+      name: 'F19: modal-closed',
+      expr: `(() => {
+        const probe = window.__modalProbe;
+        if (!probe || !probe.open || !probe.closed) return false;
+        return probe.open.bodyLocked === true
+          && probe.closed.modals === 0
+          && probe.closed.overflowAfter === probe.overflowBefore;
+      })()`
+    },
+    {
+      name: 'F20: modal-ribbon-width',
+      expr: `(() => {
+        const probe = window.__modalProbe && window.__modalProbe.open;
+        if (!probe || !probe.ribbonRect) return false;
+        return Math.abs(probe.ribbonRect.left - probe.panelRect.left) <= 1
+          && Math.abs(probe.ribbonRect.width - probe.panelRect.width) <= 1;
+      })()`
+    },
+    {
+      name: 'F21: modal-sharp-fit',
+      expr: `(() => {
+        const open = window.__modalProbe && window.__modalProbe.open;
+        const nested = window.__modalProbe && window.__modalProbe.nested;
+        if (!open || !nested) return false;
+        const fits = (rect) => rect.left >= 0 && rect.right <= window.innerWidth;
+        return open.radius === '0px'
+          && nested.radius === '0px'
+          && fits(open.panelRect)
+          && fits(nested.panelRect);
+      })()`
     }
   ]
 };

@@ -8,6 +8,7 @@ import { Bar } from './Bar';
 import { Button } from './Button';
 import { Tabs } from './Tabs';
 import { Input } from './Input';
+import { Modal } from './Modal';
 
 // Витрина общих элементов. На ней живут все компоненты из src/components/common/,
 // чтобы сценарий foundation проверял их в одном месте, а не по разным экранам.
@@ -32,6 +33,13 @@ const TABS = ['Обзор', 'Навыки', 'Трюки'];
 
 export const UiKit: React.FC = () => {
   const [activeTab, setActiveTab] = useState(TABS[0]);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [nestedOpen, setNestedOpen] = useState(false);
+
+  const closeModals = () => {
+    setNestedOpen(false);
+    setModalOpen(false);
+  };
 
   return (
     <div className="min-h-screen w-full bg-ink font-sans text-text">
@@ -130,6 +138,26 @@ export const UiKit: React.FC = () => {
           </section>
 
           <section>
+            <SectionRibbon>Модальные окна</SectionRibbon>
+            <div className="pt-4">
+              <CornerFrame>
+                <div className="flex flex-col gap-3">
+                  <p className="text-sm text-text-muted">
+                    Единственный каркас окон проекта: затемнение, лента заголовка, угловые скобки
+                    и крестик. Вложенное окно уровня 2 открывается поверх и закрывается по Escape
+                    первым.
+                  </p>
+                  <div data-kit="modal-demo-open" className="inline-block self-start">
+                    <Button variant="primary" onClick={() => setModalOpen(true)}>
+                      Открыть окно
+                    </Button>
+                  </div>
+                </div>
+              </CornerFrame>
+            </div>
+          </section>
+
+          <section>
             <SectionRibbon>Палитра токенов</SectionRibbon>
             <div className="flex flex-wrap gap-4 pt-4">
               {SWATCHES.map((swatch) => (
@@ -142,6 +170,46 @@ export const UiKit: React.FC = () => {
           </section>
         </div>
       </div>
+
+      <Modal
+        isOpen={modalOpen}
+        onClose={closeModals}
+        title="Окно уровня 1"
+        footer={
+          <Button variant="secondary" onClick={closeModals}>
+            Закрыть
+          </Button>
+        }
+      >
+        <div className="space-y-4">
+          <p className="text-sm text-text">
+            Панель на чёрном фоне, золотая лента заголовка, угловые скобки и тонкий крестик.
+            Затемнение перекрывает экран целиком.
+          </p>
+          <div data-kit="modal-demo-nested" className="inline-block">
+            <Button variant="primary" onClick={() => setNestedOpen(true)}>
+              Открыть вложенное
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      <Modal
+        isOpen={nestedOpen}
+        onClose={() => setNestedOpen(false)}
+        title="Вложенное окно"
+        level={2}
+        footer={
+          <Button variant="primary" onClick={() => setNestedOpen(false)}>
+            Закрыть
+          </Button>
+        }
+      >
+        <p className="text-sm text-text">
+          Окно уровня 2 сдвинуто вправо и вниз относительно своего затемнения, имеет свою ленту и
+          закрывается первым. Фон под ним остаётся заблокированным.
+        </p>
+      </Modal>
     </div>
   );
 };
