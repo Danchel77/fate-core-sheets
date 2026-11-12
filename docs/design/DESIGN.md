@@ -165,4 +165,4 @@ colors: {
 
 **Подсказка (тултип) правил.** Триггер — текст с `decoration-gold-dim` подчёркиванием, `hover:text-gold-light`. Плашка: `absolute z-50 w-72 border border-gold bg-ink-raised p-3`, заголовок `font-fantasy text-sm text-gold-light [font-variant-caps:small-caps]`, текст `font-sans text-xs leading-relaxed text-text`. Появляется по клику, закрывается по клику вне и по `Escape`. На узком экране не должна вылезать за край: `max-w-[calc(100vw-2rem)]`.
 
-**Поповер (например, «Освежение»).** Тот же язык, что у подсказки: `border border-gold bg-ink-raised`, заголовок капителью, внутри — обычные `Button`/`Input`/`FieldLabel`. Иконок-вопросиков не используем: подчёркнутый термин и есть триггер.
+**Поповер (например, «Обновление»).** Тот же язык, что у подсказки: `border border-gold bg-ink-raised`, заголовок капителью, внутри — обычные `Button`/`Input`/`FieldLabel`. Иконок-вопросиков не используем: подчёркнутый термин и есть триггер.
