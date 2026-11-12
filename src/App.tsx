@@ -29,10 +29,23 @@ const MainContent: React.FC = () => {
 };
 
 export const App: React.FC = () => {
-  const isKit = new URLSearchParams(window.location.search).get('view') === 'kit';
+  const view = new URLSearchParams(window.location.search).get('view');
 
-  if (isKit) {
+  if (view === 'kit') {
     return <UiKit />;
+  }
+
+  // Изолированный экран каталога: без шапки и подвала, только сам список.
+  if (view === 'list') {
+    return (
+      <AuthProvider>
+        <CharacterProvider>
+          <div className="min-h-screen bg-ink text-text">
+            <CharacterList />
+          </div>
+        </CharacterProvider>
+      </AuthProvider>
+    );
   }
 
   return (
