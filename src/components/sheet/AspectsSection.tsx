@@ -3,6 +3,7 @@ import { Sparkles } from 'lucide-react';
 import { Character } from '../../types/character';
 import { SETTING_PRESETS } from '../../config/presets';
 import { GeminiModal } from '../ai/GeminiModal';
+import { FieldLabel } from '../common/FieldLabel';
 
 interface AspectsSectionProps {
   character: Character;
@@ -51,7 +52,6 @@ export const AspectsSection: React.FC<AspectsSectionProps> = ({
     sublabel: string;
     placeholder: string;
     suggestions: string[];
-    labelColor: string;
   }> = [
     {
       key: 'high_concept',
@@ -60,7 +60,6 @@ export const AspectsSection: React.FC<AspectsSectionProps> = ({
       sublabel: 'High Concept',
       placeholder: 'Кем является персонаж в мире...',
       suggestions: settingPreset.defaultAspectSuggestions.highConcept,
-      labelColor: 'text-slate-200',
     },
     {
       key: 'trouble',
@@ -69,7 +68,6 @@ export const AspectsSection: React.FC<AspectsSectionProps> = ({
       sublabel: 'Trouble',
       placeholder: 'Что постоянно усложняет жизнь...',
       suggestions: settingPreset.defaultAspectSuggestions.trouble,
-      labelColor: 'text-slate-200',
     },
     {
       key: 'aspect_3',
@@ -78,7 +76,6 @@ export const AspectsSection: React.FC<AspectsSectionProps> = ({
       sublabel: 'Past',
       placeholder: 'Откуда он пришёл, что его сформировало...',
       suggestions: settingPreset.defaultAspectSuggestions.others,
-      labelColor: 'text-slate-400',
     },
     {
       key: 'aspect_4',
@@ -87,7 +84,6 @@ export const AspectsSection: React.FC<AspectsSectionProps> = ({
       sublabel: 'Bond',
       placeholder: 'Кто или что держит его в этом мире...',
       suggestions: settingPreset.defaultAspectSuggestions.others,
-      labelColor: 'text-slate-400',
     },
     {
       key: 'aspect_5',
@@ -96,7 +92,6 @@ export const AspectsSection: React.FC<AspectsSectionProps> = ({
       sublabel: 'Goal',
       placeholder: 'Чего он добивается сейчас...',
       suggestions: settingPreset.defaultAspectSuggestions.others,
-      labelColor: 'text-slate-400',
     },
   ];
 
@@ -109,15 +104,24 @@ export const AspectsSection: React.FC<AspectsSectionProps> = ({
           return (
             <div
               key={slot.key}
-              className="group grid grid-cols-[84px_1fr_auto] items-center gap-3 border-b border-[#1C212B]/70 py-2.5 last:border-b-0 sm:grid-cols-[96px_1fr_auto]"
+              data-kit="sheet-aspect"
+              className="group flex flex-col gap-1 py-2 first:pt-0 last:pb-0"
             >
-              <div>
-                <span className={`block font-fantasy text-[11.5px] font-semibold uppercase tracking-[0.08em] ${slot.labelColor}`}>
-                  {slot.label}
-                </span>
-                <span className="mt-0.5 block text-[9px] uppercase tracking-[0.12em] text-slate-500">
-                  {slot.sublabel}
-                </span>
+              <div className="flex items-start justify-between gap-2">
+                <div className="flex flex-col">
+                  <FieldLabel>{slot.label}</FieldLabel>
+                  <span className="font-sans text-xs text-text-muted">{slot.sublabel}</span>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => openGemini(slot.key, slot.kind)}
+                  aria-label={`Помощь Gemini: ${slot.label}`}
+                  className="cursor-pointer text-text-muted transition-colors duration-150 hover:text-gold-light focus:outline-none focus-visible:ring-2 focus-visible:ring-gold-light"
+                  title="Помощь Gemini"
+                >
+                  <Sparkles className="size-3.5" strokeWidth={1.5} />
+                </button>
               </div>
 
               <textarea
@@ -125,17 +129,8 @@ export const AspectsSection: React.FC<AspectsSectionProps> = ({
                 value={value}
                 onChange={(e) => handleAspectChange(slot.key, e.target.value)}
                 placeholder={slot.placeholder}
-                className="w-full resize-none bg-transparent text-[13px] leading-relaxed text-slate-200 placeholder-slate-500 [field-sizing:content] focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400/30"
+                className="w-full resize-none border-b border-line bg-transparent pb-1 font-sans text-sm leading-relaxed text-text placeholder:text-text-muted transition-colors duration-150 [field-sizing:content] focus:outline-none focus-visible:border-gold"
               />
-
-              <button
-                type="button"
-                onClick={() => openGemini(slot.key, slot.kind)}
-                className="mt-0.5 cursor-pointer rounded-md p-1 text-slate-500 opacity-60 transition hover:text-slate-200 hover:opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400/40 group-hover:opacity-100"
-                title="Помощь Gemini"
-              >
-                <Sparkles className="h-3.5 w-3.5" />
-              </button>
             </div>
           );
         })}

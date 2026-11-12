@@ -10,8 +10,8 @@ interface NotesSectionProps {
 }
 
 /**
- * Область заметок. На листе их две, обе подписаны «Заметки»:
- * первая — поле notes, вторая — notesExtra.
+ * Область заметок. На листе их две: первая — поле notes (лента «Заметки»),
+ * вторая — notesExtra (лента «Дополнительно»).
  */
 export const NotesSection: React.FC<NotesSectionProps> = ({
   character,
@@ -21,10 +21,12 @@ export const NotesSection: React.FC<NotesSectionProps> = ({
   return (
     <section className="flex h-full flex-col">
       <textarea
+        data-kit="sheet-notes"
         rows={5}
         value={character[field] || ''}
         onChange={(event) => onChange({ ...character, [field]: event.target.value })}
-        className="min-h-[140px] w-full flex-1 resize-y rounded-lg border border-[#202734] bg-[#0B0E14]/50 p-3 text-xs leading-relaxed text-slate-200 transition focus:border-slate-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400/30"
+        placeholder={field === 'notes' ? 'Заметки о персонаже...' : 'Дополнительные заметки...'}
+        className="min-h-[160px] w-full flex-1 resize-y border border-line bg-ink-raised p-2 font-sans text-sm leading-relaxed text-text placeholder:text-text-muted transition-colors duration-150 focus:outline-none focus-visible:border-gold"
       />
     </section>
   );

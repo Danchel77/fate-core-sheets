@@ -235,7 +235,7 @@ export const CharacterSheet: React.FC = () => {
             <NotesSection character={activeCharacter} onChange={updateChar} field="notes" />
           </SheetBlock>
 
-          <SheetBlock title="Заметки">
+          <SheetBlock title="Дополнительно">
             <NotesSection character={activeCharacter} onChange={updateChar} field="notesExtra" />
           </SheetBlock>
         </div>

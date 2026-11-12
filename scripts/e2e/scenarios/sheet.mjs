@@ -301,6 +301,85 @@ export default {
           })
         );
       })()`
+    },
+    {
+      name: 'S22: right-no-slate',
+      expr: `(() => {
+        const root = document.querySelector('[data-zone="right"]');
+        if (!root) return false;
+        const forbidden = 'rgb(100, 116, 139)';
+        const nodes = [root, ...Array.from(root.querySelectorAll('*'))];
+        return nodes.every((el) => {
+          const className = typeof el.className === 'string' ? el.className : '';
+          if (className.includes('slate-')) return false;
+          const style = getComputedStyle(el);
+          const colors = [
+            style.color,
+            style.backgroundColor,
+            style.borderTopColor,
+            style.borderRightColor,
+            style.borderBottomColor,
+            style.borderLeftColor
+          ];
+          return colors.every((color) => color !== forbidden);
+        });
+      })()`
+    },
+    {
+      name: 'S23: right-font-min',
+      expr: `(() => {
+        const root = document.querySelector('[data-zone="right"]');
+        if (!root) return false;
+        return Array.from(root.querySelectorAll('*')).every((el) => {
+          if (!el.textContent || el.textContent.trim().length === 0) return true;
+          return parseFloat(getComputedStyle(el).fontSize) >= 12;
+        });
+      })()`
+    },
+    {
+      name: 'S24: right-sharp',
+      expr: `(() => {
+        const root = document.querySelector('[data-zone="right"]');
+        if (!root) return false;
+        return [root, ...Array.from(root.querySelectorAll('*'))].every((el) => {
+          const className = typeof el.className === 'string' ? el.className : '';
+          if (!className.trim()) return true;
+          return getComputedStyle(el).borderRadius === '0px';
+        });
+      })()`
+    },
+    {
+      name: 'S25: aspects',
+      expr: `(() => {
+        const rows = Array.from(document.querySelectorAll('[data-kit="sheet-aspect"]'));
+        if (rows.length !== 5) return false;
+        return rows.every((row) => {
+          const label = row.querySelector('[data-kit="field-label"]');
+          if (!label) return false;
+          const style = getComputedStyle(label);
+          return style.color === 'rgb(168, 160, 144)' && parseFloat(style.fontSize) >= 12;
+        });
+      })()`
+    },
+    {
+      name: 'S26: notes',
+      expr: `(() => {
+        const notes = Array.from(document.querySelectorAll('[data-kit="sheet-notes"]'));
+        if (notes.length !== 2) return false;
+        const styled = notes.every((el) => {
+          const style = getComputedStyle(el);
+          return (
+            style.backgroundColor === 'rgb(13, 13, 13)' &&
+            style.borderColor === 'rgb(41, 35, 25)'
+          );
+        });
+        const titles = notes.map((el) => {
+          const block = el.closest('[data-kit="sheet-block"]');
+          const ribbon = block ? block.querySelector('[data-ribbon]') : null;
+          return ribbon ? ribbon.textContent.trim() : '';
+        });
+        return styled && titles[0] === 'Заметки' && titles[1] === 'Дополнительно';
+      })()`
     }
   ]
 };
