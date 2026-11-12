@@ -102,7 +102,7 @@ export const CharacterSheet: React.FC = () => {
                 type="button"
                 onClick={() => setIsPortraitOpen(true)}
                 aria-label="Изменить портрет"
-                className="group relative block h-[400px] w-[300px] max-w-full shrink-0 cursor-pointer overflow-hidden bg-ink-frame transition-colors duration-150 hover:bg-ink-raised focus:outline-none focus-visible:ring-2 focus-visible:ring-gold"
+                className="group relative block h-[220px] w-full max-w-full shrink-0 cursor-pointer overflow-hidden bg-ink-frame transition-colors duration-150 hover:bg-ink-raised focus:outline-none focus-visible:ring-2 focus-visible:ring-gold lg:h-[400px] lg:w-[300px]"
               >
                 {activeCharacter.avatar ? (
                   <img

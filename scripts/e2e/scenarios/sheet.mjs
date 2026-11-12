@@ -295,7 +295,15 @@ export default {
         const portrait = document.querySelector('[data-kit="sheet-portrait"]');
         if (!portrait) return false;
         const rect = portrait.getBoundingClientRect();
-        return rect.width >= 260 && rect.width <= 340 && rect.height >= 340 && rect.height <= 440;
+        if (window.innerWidth >= 1024) {
+          return (
+            rect.width >= 260 &&
+            rect.width <= 340 &&
+            rect.height >= 340 &&
+            rect.height <= 440
+          );
+        }
+        return rect.height >= 200 && rect.height <= 240 && rect.width >= 300;
       })()`
     },
     {
@@ -669,6 +677,19 @@ export default {
     {
       name: 'S34: tooltip-escape',
       expr: `window.__tooltipClosed === true`
+    },
+    {
+      name: 'S35: touch-targets',
+      expr: `(() => {
+        if (window.innerWidth >= 1024) return true;
+        const slots = Array.from(document.querySelectorAll('[data-kit="sheet-skill-slot"]'));
+        if (slots.length === 0) return false;
+        return slots.every((slot) => {
+          const remove = slot.querySelector('button');
+          if (!remove) return false;
+          return parseFloat(getComputedStyle(remove).opacity) >= 0.99;
+        });
+      })()`
     }
   ]
 };

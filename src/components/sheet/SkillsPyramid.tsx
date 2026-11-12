@@ -147,7 +147,7 @@ export const SkillsPyramid: React.FC<SkillsPyramidProps> = ({
                           <button
                             type="button"
                             onClick={() => handleRemoveSkill(level, slotIndex)}
-                            className="ml-0.5 shrink-0 cursor-pointer text-text-muted opacity-0 transition-colors duration-150 hover:text-danger focus:outline-none focus-visible:opacity-100 group-hover:opacity-100 group-focus-within:opacity-100"
+                            className="ml-0.5 shrink-0 cursor-pointer text-text-muted opacity-100 transition-colors duration-150 hover:text-danger focus:outline-none focus-visible:opacity-100 group-hover:opacity-100 group-focus-within:opacity-100 lg:opacity-0 lg:group-hover:opacity-100 lg:group-focus-within:opacity-100"
                             title="Очистить слот"
                             aria-label={`Убрать навык ${skillDef.nameRu}`}
                           >
