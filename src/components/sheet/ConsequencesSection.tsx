@@ -25,12 +25,6 @@ export const ConsequencesSection: React.FC<ConsequencesSectionProps> = ({ charac
 
   return (
     <section>
-      <div className="mb-2 border-b border-[#1C212B] pb-2.5">
-        <h2 className="font-fantasy text-xs font-bold uppercase tracking-[0.14em] text-slate-300">
-          Последствия
-        </h2>
-      </div>
-
       <div>
         {CONSEQUENCES.map((consequence) => (
           <div

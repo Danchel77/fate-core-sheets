@@ -102,12 +102,6 @@ export const AspectsSection: React.FC<AspectsSectionProps> = ({
 
   return (
     <section>
-      <div className="mb-2 border-b border-[#1C212B] pb-2.5">
-        <h2 className="font-fantasy text-xs font-bold uppercase tracking-[0.14em] text-slate-300">
-          Аспекты
-        </h2>
-      </div>
-
       <div>
         {aspectSlots.map((slot) => {
           const value = character.aspects[slot.key] || '';

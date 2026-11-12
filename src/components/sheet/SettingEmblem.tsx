@@ -6,54 +6,49 @@ interface SettingEmblemProps {
 }
 
 /**
- * Фирменный знак сеттинга для блока очков судьбы.
- * «Ведьмак» — словесный логотип Cinzel + голова волка;
- * универсальный — официальный логотип Fate Core System.
+ * Логотип показываем маской, залитой золотом: файлы в `public/` белые или
+ * чёрные, а маска берёт только форму, поэтому цвет приходит из токена `gold`.
+ * Своих hex здесь нет.
+ */
+const logoMask = (url: string): React.CSSProperties => ({
+  maskImage: `url("${url}")`,
+  WebkitMaskImage: `url("${url}")`,
+  maskSize: 'contain',
+  WebkitMaskSize: 'contain',
+  maskRepeat: 'no-repeat',
+  WebkitMaskRepeat: 'no-repeat',
+  maskPosition: 'center',
+  WebkitMaskPosition: 'center',
+});
+
+/**
+ * Знак сеттинга на листе: приглушённая линия, словесный знак и голова волка.
+ * Держим его мелким и золотым, чтобы он не спорил с лентой-заголовком.
  */
 export const SettingEmblem: React.FC<SettingEmblemProps> = ({ setting }) => {
   const baseUrl = import.meta.env.BASE_URL || '/';
-
-  if (setting === 'witcher') {
-    return (
-      <div className="flex w-full items-center justify-end gap-3 sm:gap-4">
-        {/* Тонкая линия расширяет логотипную зону и связывает её с контентом слева. */}
-        <span
-          className="hidden h-px flex-1 bg-gradient-to-r from-transparent to-[#2A3444] sm:block"
-          aria-hidden="true"
-        />
-
-        <span className="hidden select-none text-right sm:block">
-          <span className="block font-fantasy text-[8px] font-semibold uppercase tracking-[0.45em] text-slate-500">
-            The
-          </span>
-          <span className="-mt-0.5 block font-fantasy text-[15px] font-bold uppercase tracking-[0.18em] text-slate-200 lg:text-base">
-            Witcher
-          </span>
-        </span>
-
-        <span className="hidden h-11 w-px shrink-0 bg-[#202734] sm:block" aria-hidden="true" />
-
-        <img
-          src={`${baseUrl}wolf-head.svg`}
-          alt="Ведьмак"
-          className="h-14 w-auto max-w-[110px] object-contain opacity-95 sm:h-16 lg:h-20"
-        />
-      </div>
-    );
-  }
+  const isWitcher = setting === 'witcher';
 
   return (
-    <div className="flex w-full items-center justify-end gap-3 sm:gap-4">
-      {/* Та же линия, что и у «Ведьмака»: логотипная зона не выглядит пустой. */}
-      <span
-        className="hidden h-px flex-1 bg-gradient-to-r from-transparent to-[#2A3444] sm:block"
-        aria-hidden="true"
-      />
+    <div className="flex w-full items-center justify-end gap-3">
+      <span className="h-px flex-1 bg-gold-dim" aria-hidden="true" />
 
-      <img
-        src={`${baseUrl}fate-core-logo.svg`}
-        alt="Fate Core System"
-        className="h-11 w-auto max-w-[170px] object-contain invert sm:h-14 lg:h-16"
+      <span className="select-none text-right leading-none">
+        <span className="block font-fantasy text-xs uppercase tracking-[0.4em] text-gold">
+          {isWitcher ? 'The' : 'Fate'}
+        </span>
+        <span className="mt-1 block font-fantasy text-sm uppercase tracking-[0.18em] text-gold">
+          {isWitcher ? 'Witcher' : 'Core'}
+        </span>
+      </span>
+
+      <span className="h-8 w-px shrink-0 bg-gold-dim" aria-hidden="true" />
+
+      <span
+        role="img"
+        aria-label={isWitcher ? 'Ведьмак' : 'Fate Core System'}
+        className={`block shrink-0 bg-gold ${isWitcher ? 'size-12' : 'h-10 w-28'}`}
+        style={logoMask(`${baseUrl}${isWitcher ? 'wolf-head.svg' : 'fate-core-logo.svg'}`)}
       />
     </div>
   );

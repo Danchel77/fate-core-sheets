@@ -20,10 +20,6 @@ export const NotesSection: React.FC<NotesSectionProps> = ({
 }) => {
   return (
     <section className="flex h-full flex-col">
-      <h2 className="mb-2 border-b border-[#1C212B] pb-2.5 font-fantasy text-xs font-bold uppercase tracking-[0.14em] text-slate-300">
-        Заметки
-      </h2>
-
       <textarea
         rows={5}
         value={character[field] || ''}

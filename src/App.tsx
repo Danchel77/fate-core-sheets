@@ -48,6 +48,19 @@ export const App: React.FC = () => {
     );
   }
 
+  // Изолированный экран листа: без шапки и подвала, только сам лист.
+  if (view === 'sheet') {
+    return (
+      <AuthProvider>
+        <CharacterProvider>
+          <div className="min-h-screen bg-ink text-text">
+            <CharacterSheet />
+          </div>
+        </CharacterProvider>
+      </AuthProvider>
+    );
+  }
+
   return (
     <AuthProvider>
       <CharacterProvider>

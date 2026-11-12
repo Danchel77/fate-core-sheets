@@ -13,6 +13,7 @@ import { SkillsPyramid } from './SkillsPyramid';
 import { StressSection } from './StressSection';
 import { StuntsSection } from './StuntsSection';
 import { SettingsModal } from '../common/SettingsModal';
+import { CornerFrame } from '../common/CornerFrame';
 import { SettingType } from '../../types/character';
 import { countRealStunts, getFatePointCircles } from '../../utils/fateMath';
 
@@ -87,16 +88,21 @@ export const CharacterSheet: React.FC = () => {
   const realStunts = countRealStunts(activeCharacter.stunts);
 
   return (
-    <div className="mx-auto max-w-[1240px] px-4 pb-2 pt-6 sm:px-6">
-      <div id="printable-character-sheet" className="space-y-4">
-        <div className="grid items-stretch gap-4 lg:grid-cols-2">
-          <SheetBlock>
-            <div className="grid grid-cols-[64px_minmax(0,1fr)] items-start gap-x-4 gap-y-3 sm:grid-cols-[80px_minmax(0,1fr)] lg:grid-cols-[96px_minmax(0,1fr)]">
+    <div className="mx-auto max-w-[1440px] px-4 pb-10 pt-6 lg:px-6">
+      <div
+        id="printable-character-sheet"
+        className="grid grid-cols-1 gap-6 lg:grid-cols-[360px_1fr_400px] lg:items-start"
+      >
+        {/* Левая зона: портрет, имя, сеттинг, очки судьбы, последствия, стресс. */}
+        <div data-zone="left" className="flex min-w-0 flex-col gap-6">
+          <header data-kit="sheet-header" className="flex flex-col gap-3">
+            <CornerFrame>
               <button
+                data-kit="sheet-portrait"
                 type="button"
                 onClick={() => setIsPortraitOpen(true)}
                 aria-label="Изменить портрет"
-                className="group relative h-16 w-16 shrink-0 overflow-hidden rounded-lg border border-[#252D3A] bg-[#0B0E14] transition hover:border-slate-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400/40 sm:h-20 sm:w-20 lg:h-24 lg:w-24"
+                className="group relative block h-[400px] w-[300px] max-w-full shrink-0 cursor-pointer overflow-hidden bg-ink-frame transition-colors duration-150 hover:bg-ink-raised focus:outline-none focus-visible:ring-2 focus-visible:ring-gold"
               >
                 {activeCharacter.avatar ? (
                   <img
@@ -105,147 +111,139 @@ export const CharacterSheet: React.FC = () => {
                     className="h-full w-full object-cover"
                   />
                 ) : (
-                  <span className="flex h-full flex-col items-center justify-center text-slate-600 transition group-hover:text-slate-400">
-                    <Shield className="h-6 w-6 stroke-[1.5] sm:h-7 sm:w-7" />
-                    <span className="mt-1 text-[9px] font-medium uppercase tracking-[0.12em]">
-                      Портрет
-                    </span>
+                  <span className="flex h-full flex-col items-center justify-center gap-2 text-text-muted transition-colors duration-150 group-hover:text-gold">
+                    <Shield className="size-5" strokeWidth={1.5} />
+                    <span className="font-sans text-xs uppercase tracking-wider">Портрет</span>
                   </span>
                 )}
 
-                <span className="absolute inset-0 flex flex-col items-center justify-center bg-black/65 text-[10px] font-medium text-white opacity-0 backdrop-blur-sm transition group-hover:opacity-100 group-focus-visible:opacity-100">
-                  <Pencil className="mb-0.5 h-3.5 w-3.5" />
+                <span className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 bg-ink/75 font-sans text-xs uppercase tracking-wider text-text opacity-0 transition-opacity duration-150 group-hover:opacity-100 group-focus-visible:opacity-100">
+                  <Pencil className="size-4" strokeWidth={1.5} />
                   <span>Изменить</span>
                 </span>
               </button>
+            </CornerFrame>
 
-              <div className="min-w-0">
-                <div className="mb-1 flex flex-wrap items-center gap-2">
-                  <select
-                    value={activeCharacter.setting}
-                    onChange={(event) =>
-                      updateChar({ ...activeCharacter, setting: event.target.value as SettingType })
-                    }
-                    className="cursor-pointer bg-transparent text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400 transition hover:text-slate-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400/40"
-                    title="Сменить сеттинг"
-                  >
-                    <option value="witcher" className="bg-[#121721] text-slate-200">
-                      Ведьмак / Тёмное фэнтези
-                    </option>
-                    <option value="universal" className="bg-[#121721] text-slate-200">
-                      Fate Core / Универсал
-                    </option>
-                  </select>
-                </div>
-
-                <input
-                  type="text"
-                  value={activeCharacter.name}
-                  onChange={(event) => updateChar({ ...activeCharacter, name: event.target.value })}
-                  placeholder="Имя персонажа..."
-                  className="w-full bg-transparent font-fantasy text-[22px] font-bold tracking-wide text-white placeholder-slate-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400/30 sm:text-3xl"
-                />
-
-                <textarea
-                  rows={1}
-                  value={activeCharacter.description}
-                  onChange={(event) =>
-                    updateChar({ ...activeCharacter, description: event.target.value })
-                  }
-                  placeholder="Краткое описание, раса, принадлежность или титул..."
-                  className="mt-2 w-full resize-none bg-transparent text-xs leading-relaxed text-slate-400 placeholder-slate-500 [field-sizing:content] focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400/30"
-                />
-              </div>
-            </div>
-          </SheetBlock>
-
-          <SheetBlock className="flex items-center justify-between gap-4 sm:gap-6">
-            <div className="min-w-0">
-              <RulesTooltip
-                label="ОЧКИ СУДЬБЫ"
-                title="Очки судьбы"
-                text="Тратятся на активацию аспектов, трюков и других правил. В начале сессии вы получаете столько очков, каково ваше восстановление."
-                className="font-fantasy text-xs font-bold uppercase tracking-[0.14em] text-slate-300"
+            <div className="flex flex-col gap-3 px-4">
+              <input
+                type="text"
+                value={activeCharacter.name}
+                onChange={(event) => updateChar({ ...activeCharacter, name: event.target.value })}
+                placeholder="Имя персонажа..."
+                className="w-full bg-transparent font-fantasy text-3xl tracking-wide text-text placeholder:text-text-muted [font-variant-caps:small-caps] focus:outline-none focus-visible:ring-2 focus-visible:ring-gold"
               />
 
-              <div className="mt-2 flex flex-wrap items-center gap-2.5 text-[11px] tracking-[0.02em] text-slate-400">
-                <RulesTooltip
-                  label="Восстановление"
-                  title="Восстановление"
-                  text="Сколько очков судьбы вы получаете в начале каждой сессии. Базовое значение — 3; каждый трюк сверх трёх снижает его на 1."
-                />
-                <RefreshControl
-                  baseRefresh={activeCharacter.baseRefresh ?? 3}
-                  refresh={activeCharacter.refresh}
-                  stuntCount={realStunts}
-                  freeStunts={activeCharacter.freeStunts ?? 3}
-                  onChangeBase={(value) =>
-                    updateChar({ ...activeCharacter, baseRefresh: value })
-                  }
-                />
-              </div>
+              <select
+                value={activeCharacter.setting}
+                onChange={(event) =>
+                  updateChar({ ...activeCharacter, setting: event.target.value as SettingType })
+                }
+                className="w-full cursor-pointer bg-transparent font-sans text-xs uppercase tracking-wider text-text-muted transition-colors duration-150 hover:text-gold focus:outline-none focus-visible:ring-2 focus-visible:ring-gold"
+                title="Сменить сеттинг"
+              >
+                <option value="witcher" className="bg-ink-raised text-text">
+                  Ведьмак / Тёмное фэнтези
+                </option>
+                <option value="universal" className="bg-ink-raised text-text">
+                  Fate Core / Универсал
+                </option>
+              </select>
 
-              <div className="mt-3 flex flex-wrap items-center gap-1.5" aria-hidden="true">
-                {Array.from({ length: circles.total }).map((_, index) => (
-                  <span
-                    key={index}
-                    className={`h-3.5 w-3.5 rounded-full border ${
-                      index < circles.solid
-                        ? 'border-slate-300'
-                        : 'border-dashed border-slate-600'
-                    }`}
-                  />
-                ))}
-              </div>
+              <textarea
+                rows={1}
+                value={activeCharacter.description}
+                onChange={(event) =>
+                  updateChar({ ...activeCharacter, description: event.target.value })
+                }
+                placeholder="Краткое описание, раса, принадлежность или титул..."
+                className="w-full resize-none bg-transparent font-sans text-sm leading-relaxed text-text-muted placeholder:text-text-muted [field-sizing:content] focus:outline-none focus-visible:ring-2 focus-visible:ring-gold"
+              />
             </div>
+          </header>
 
-            <div className="flex min-w-0 flex-1 items-center justify-end">
+          <SheetBlock title="Очки судьбы">
+            <div data-kit="sheet-fate" className="flex flex-col gap-3">
+              <div className="min-w-0">
+                <RulesTooltip
+                  label="ОЧКИ СУДЬБЫ"
+                  title="Очки судьбы"
+                  text="Тратятся на активацию аспектов, трюков и других правил. В начале сессии вы получаете столько очков, каково ваше восстановление."
+                  className="font-fantasy text-xs uppercase tracking-wider text-text-muted"
+                />
+
+                <div className="mt-2 flex flex-wrap items-center gap-2.5 font-sans text-xs text-text-muted">
+                  <RulesTooltip
+                    label="Восстановление"
+                    title="Восстановление"
+                    text="Сколько очков судьбы вы получаете в начале каждой сессии. Базовое значение — 3; каждый трюк сверх трёх снижает его на 1."
+                  />
+                  <RefreshControl
+                    baseRefresh={activeCharacter.baseRefresh ?? 3}
+                    refresh={activeCharacter.refresh}
+                    stuntCount={realStunts}
+                    freeStunts={activeCharacter.freeStunts ?? 3}
+                    onChangeBase={(value) =>
+                      updateChar({ ...activeCharacter, baseRefresh: value })
+                    }
+                  />
+                </div>
+
+                <div className="mt-3 flex flex-wrap items-center gap-1.5" aria-hidden="true">
+                  {Array.from({ length: circles.total }).map((_, index) => (
+                    <span
+                      key={index}
+                      className={`size-3.5 border ${
+                        index < circles.solid ? 'border-gold bg-gold' : 'border-gold-dim'
+                      }`}
+                    />
+                  ))}
+                </div>
+              </div>
+
               <SettingEmblem setting={activeCharacter.setting} />
             </div>
           </SheetBlock>
+
+          <SheetBlock title="Последствия">
+            <ConsequencesSection character={activeCharacter} onChange={updateChar} />
+          </SheetBlock>
+
+          <SheetBlock title="Стресс">
+            <StressSection character={activeCharacter} onChange={updateChar} />
+          </SheetBlock>
         </div>
 
-        <div className="grid items-stretch gap-4 lg:grid-cols-2">
-          <SheetBlock className="lg:col-start-1 lg:row-start-1">
+        {/* Центральная зона: навыки и трюки. */}
+        <div data-zone="center" className="flex min-w-0 flex-col gap-6">
+          <SheetBlock title="Навыки">
+            <SkillsPyramid character={activeCharacter} onChange={updateChar} />
+          </SheetBlock>
+
+          <SheetBlock title="Трюки">
+            <StuntsSection
+              character={activeCharacter}
+              onChange={updateChar}
+              onOpenApiKeySettings={() => setIsSettingsOpen(true)}
+            />
+          </SheetBlock>
+        </div>
+
+        {/* Правая зона: аспекты и две заметки. */}
+        <div data-zone="right" className="flex min-w-0 flex-col gap-6">
+          <SheetBlock title="Аспекты">
             <AspectsSection
               character={activeCharacter}
               onChange={updateChar}
               onOpenApiKeySettings={() => setIsSettingsOpen(true)}
             />
           </SheetBlock>
-          <SheetBlock className="lg:col-start-1 lg:row-start-2">
-            <ConsequencesSection character={activeCharacter} onChange={updateChar} />
-          </SheetBlock>
-          <SheetBlock className="lg:col-start-2 lg:row-start-1">
-            <SkillsPyramid character={activeCharacter} onChange={updateChar} />
-          </SheetBlock>
-          <SheetBlock className="lg:col-start-2 lg:row-start-2">
-            <StressSection character={activeCharacter} onChange={updateChar} />
-          </SheetBlock>
-        </div>
 
-        <SheetBlock>
-          <StuntsSection
-            character={activeCharacter}
-            onChange={updateChar}
-            onOpenApiKeySettings={() => setIsSettingsOpen(true)}
-          />
-        </SheetBlock>
-
-        <div className="grid items-stretch gap-4 md:grid-cols-2">
-          <SheetBlock className="flex flex-col">
-            <NotesSection
-              character={activeCharacter}
-              onChange={updateChar}
-              field="notes"
-            />
+          <SheetBlock title="Заметки">
+            <NotesSection character={activeCharacter} onChange={updateChar} field="notes" />
           </SheetBlock>
-          <SheetBlock className="flex flex-col">
-            <NotesSection
-              character={activeCharacter}
-              onChange={updateChar}
-              field="notesExtra"
-            />
+
+          <SheetBlock title="Заметки">
+            <NotesSection character={activeCharacter} onChange={updateChar} field="notesExtra" />
           </SheetBlock>
         </div>
       </div>
