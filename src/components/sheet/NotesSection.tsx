@@ -19,7 +19,7 @@ export const NotesSection: React.FC<NotesSectionProps> = ({
   field = 'notes',
 }) => {
   return (
-    <section className="flex h-full flex-col">
+    <section className="flex h-full min-h-0 flex-1 flex-col">
       <textarea
         data-kit="sheet-notes"
         rows={5}

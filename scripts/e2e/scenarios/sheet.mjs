@@ -690,6 +690,28 @@ export default {
           return parseFloat(getComputedStyle(remove).opacity) >= 0.99;
         });
       })()`
+    },
+    {
+      name: 'S36: columns-balanced',
+      expr: `(() => {
+        if (window.innerWidth < 1024) return true;
+        const box = (name) => {
+          const el = document.querySelector('[data-zone="' + name + '"]');
+          return el ? el.getBoundingClientRect() : null;
+        };
+        const left = box('left');
+        const right = box('right');
+        if (!left || !right) return false;
+        return Math.abs(left.bottom - right.bottom) <= 24;
+      })()`
+    },
+    {
+      name: 'S37: notes-grow',
+      expr: `(() => {
+        if (window.innerWidth < 1024) return true;
+        const notes = Array.from(document.querySelectorAll('[data-kit="sheet-notes"]'));
+        return notes.length === 2 && notes.every((el) => el.getBoundingClientRect().height > 160);
+      })()`
     }
   ]
 };

@@ -94,7 +94,7 @@ export const CharacterSheet: React.FC = () => {
         className="grid grid-cols-1 gap-6 lg:grid-cols-[360px_1fr_400px] lg:items-start"
       >
         {/* Левая зона: портрет, имя, сеттинг, очки судьбы, последствия, стресс. */}
-        <div data-zone="left" className="flex min-w-0 flex-col gap-6">
+        <div data-zone="left" className="flex min-w-0 flex-col gap-6 lg:self-start">
           <header data-kit="sheet-header" className="flex flex-col gap-3">
             <CornerFrame>
               <button
@@ -206,7 +206,7 @@ export const CharacterSheet: React.FC = () => {
         </div>
 
         {/* Центральная зона: навыки и трюки. */}
-        <div data-zone="center" className="flex min-w-0 flex-col gap-6">
+        <div data-zone="center" className="flex min-w-0 flex-col gap-6 lg:self-start">
           <SheetBlock title="Навыки">
             <SkillsPyramid character={activeCharacter} onChange={updateChar} showHeader={false} />
           </SheetBlock>
@@ -222,7 +222,7 @@ export const CharacterSheet: React.FC = () => {
         </div>
 
         {/* Правая зона: аспекты и две заметки. */}
-        <div data-zone="right" className="flex min-w-0 flex-col gap-6">
+        <div data-zone="right" className="flex min-w-0 flex-col gap-6 lg:self-stretch">
           <SheetBlock title="Аспекты">
             <AspectsSection
               character={activeCharacter}
@@ -231,11 +231,17 @@ export const CharacterSheet: React.FC = () => {
             />
           </SheetBlock>
 
-          <SheetBlock title="Заметки">
+          <SheetBlock
+            title="Заметки"
+            className="flex-1 [&>*:last-child]:min-h-0 [&>*:last-child]:flex-1 [&>*:last-child>*:last-child]:h-full"
+          >
             <NotesSection character={activeCharacter} onChange={updateChar} field="notes" />
           </SheetBlock>
 
-          <SheetBlock title="Дополнительно">
+          <SheetBlock
+            title="Дополнительно"
+            className="flex-1 [&>*:last-child]:min-h-0 [&>*:last-child]:flex-1 [&>*:last-child>*:last-child]:h-full"
+          >
             <NotesSection character={activeCharacter} onChange={updateChar} field="notesExtra" />
           </SheetBlock>
         </div>

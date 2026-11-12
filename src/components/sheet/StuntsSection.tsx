@@ -4,7 +4,6 @@ import { Character } from '../../types/character';
 import { CharacterStunt } from '../../types/fate';
 import { SETTING_PRESETS } from '../../config/presets';
 import { GeminiModal } from '../ai/GeminiModal';
-import { Button } from '../common/Button';
 
 interface StuntsSectionProps {
   character: Character;
@@ -84,14 +83,15 @@ export const StuntsSection: React.FC<StuntsSectionProps> = ({
             Трюки
           </h2>
         )}
-        <Button
-          variant="secondary"
+        <button
+          type="button"
+          data-kit="stunt-add"
           onClick={handleAddStunt}
-          className="inline-flex items-center gap-1.5"
+          className="inline-flex cursor-pointer items-center gap-1 font-sans text-xs uppercase tracking-wider text-text-muted transition-colors duration-150 hover:text-gold-light focus:outline-none focus-visible:ring-2 focus-visible:ring-gold-light"
         >
           <Plus className="size-3.5" strokeWidth={1.5} />
           <span>Добавить</span>
-        </Button>
+        </button>
       </div>
 
       <div className="flex flex-col">
