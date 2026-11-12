@@ -26,9 +26,9 @@ const logoMask = (url: string): React.CSSProperties => ({
 const SETTING_ORDER: SettingType[] = ['witcher', 'universal'];
 
 /**
- * Знак сеттинга над портретом — и единственный способ сменить сеттинг на листе.
- * Нажатие открывает панель вариантов; текст держим приглушённым золотом,
- * чтобы эмблема не спорила с лентами-заголовками.
+ * Знак сеттинга — единственный способ сменить сеттинг на листе. Строковый
+ * вариант: маска-логотип и надпись «The Witcher» / «Fate Core» в одну строку,
+ * высотой с заголовок. Нажатие открывает панель вариантов.
  */
 export const SettingEmblem: React.FC<SettingEmblemProps> = ({ setting, onSelect }) => {
   const baseUrl = import.meta.env.BASE_URL || '/';
@@ -66,26 +66,20 @@ export const SettingEmblem: React.FC<SettingEmblemProps> = ({ setting, onSelect 
         aria-expanded={isOpen}
         aria-label={`Сеттинг: ${currentName}. Сменить сеттинг`}
         onClick={() => setIsOpen((prev) => !prev)}
-        className="group flex cursor-pointer flex-col items-center gap-2 transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-gold-light"
+        className="group inline-flex cursor-pointer items-center justify-center gap-2 transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-gold-light"
       >
-        <span className="flex items-center justify-center gap-3">
-          <span className="h-px w-10 bg-gold-dim" aria-hidden="true" />
-          <span
-            role="img"
-            aria-label={isWitcher ? 'Ведьмак' : 'Fate Core System'}
-            className={`block shrink-0 bg-gold ${isWitcher ? 'size-10' : 'h-8 w-24'}`}
-            style={logoMask(`${baseUrl}${isWitcher ? 'wolf-head.svg' : 'fate-core-logo.svg'}`)}
-          />
-          <span className="h-px w-10 bg-gold-dim" aria-hidden="true" />
-        </span>
+        <span
+          role="img"
+          aria-label={isWitcher ? 'Ведьмак' : 'Fate Core System'}
+          className={`block shrink-0 bg-gold ${isWitcher ? 'size-5' : 'h-5 w-16'}`}
+          style={logoMask(`${baseUrl}${isWitcher ? 'wolf-head.svg' : 'fate-core-logo.svg'}`)}
+        />
 
-        <span className="select-none text-center leading-none">
-          <span className="block font-fantasy text-xs uppercase tracking-[0.4em] text-gold-light">
-            {isWitcher ? 'The' : 'Fate'}
-          </span>
-          <span className="mt-1 block font-fantasy text-sm uppercase tracking-[0.18em] text-gold-light">
-            {isWitcher ? 'Witcher' : 'Core'}
-          </span>
+        <span
+          data-kit="setting-wordmark"
+          className="whitespace-nowrap font-fantasy text-sm leading-none tracking-wide text-gold [font-variant-caps:small-caps]"
+        >
+          {isWitcher ? 'The Witcher' : 'Fate Core'}
         </span>
       </button>
 

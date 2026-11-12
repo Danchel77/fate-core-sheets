@@ -121,14 +121,16 @@ export const SkillsPyramid: React.FC<SkillsPyramidProps> = ({
 
           return (
             <div key={level} data-kit="sheet-skill-level" className="table-row">
-              <div className="table-cell whitespace-nowrap border-t border-line py-1.5 pr-3 align-middle">
-                <span className="block font-fantasy text-base leading-tight tabular-nums text-gold-light">
-                  {rating}
+              <div className="table-cell whitespace-nowrap border-t border-line py-px pr-3 align-middle">
+                <span className="flex items-baseline gap-1.5 whitespace-nowrap">
+                  <span className="font-fantasy text-base leading-none tabular-nums text-gold-light">
+                    {rating}
+                  </span>
+                  <span className="text-xs leading-none text-text-muted">{titleRu}</span>
                 </span>
-                <span className="block text-xs leading-tight text-text-muted">{titleRu}</span>
               </div>
 
-              <div className="table-cell border-t border-line py-1.5 align-middle">
+              <div className="table-cell border-t border-line py-px align-middle">
                 <div className="flex flex-wrap items-center gap-1">
                   {Array.from({ length: count }).map((_, slotIndex) => {
                     const currentSkillId = currentSkills[slotIndex] || '';
@@ -139,7 +141,7 @@ export const SkillsPyramid: React.FC<SkillsPyramidProps> = ({
                         <div
                           key={slotIndex}
                           data-kit="sheet-skill-slot"
-                          className="group inline-flex min-h-[28px] max-w-full items-center gap-1 border border-line bg-ink-raised px-2 py-1 font-fantasy text-sm text-text transition-colors duration-150 hover:border-gold-dim focus-within:border-gold-dim"
+                          className="group inline-flex min-h-[28px] max-w-full items-center gap-1 border border-line bg-ink-raised px-2 py-0.5 font-fantasy text-sm text-text transition-colors duration-150 hover:border-gold-dim focus-within:border-gold-dim"
                         >
                           <span className="min-w-0 break-words" title={skillDef.description}>
                             {skillDef.nameRu}
@@ -165,7 +167,7 @@ export const SkillsPyramid: React.FC<SkillsPyramidProps> = ({
                           setActivePicker({ level, slotIndex });
                           setSearchQuery('');
                         }}
-                        className="inline-flex min-h-[28px] cursor-pointer items-center justify-center gap-1 border border-dashed border-line px-2 py-1 text-xs text-text-muted transition-colors duration-150 hover:border-gold-dim hover:text-gold-light focus:outline-none focus-visible:border-gold-dim focus-visible:text-gold-light"
+                        className="inline-flex min-h-[28px] cursor-pointer items-center justify-center gap-1 border border-dashed border-line px-2 py-0.5 text-xs text-text-muted transition-colors duration-150 hover:border-gold-dim hover:text-gold-light focus:outline-none focus-visible:border-gold-dim focus-visible:text-gold-light"
                       >
                         <Plus className="size-3" strokeWidth={1.5} />
                         <span>Выбрать</span>

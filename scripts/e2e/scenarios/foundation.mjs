@@ -135,14 +135,14 @@ export default {
       })()`
     },
     {
-      name: 'F3: block-panel',
+      name: 'F3: block-unfilled',
       expr: `(() => {
         const blocks = Array.from(document.querySelectorAll("[data-kit=sheet-block]"));
         if (blocks.length < 2) return false;
         return blocks.every((block) => {
           const cs = getComputedStyle(block);
-          return cs.backgroundColor === "rgb(20, 20, 20)"
-            && cs.borderTopColor === "rgb(41, 35, 25)";
+          return cs.backgroundColor === "rgba(0, 0, 0, 0)"
+            && cs.borderStyle === "none";
         });
       })()`
     },

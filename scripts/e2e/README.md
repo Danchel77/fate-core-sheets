@@ -36,12 +36,14 @@ node scripts/e2e/verify.mjs --scenario=review
 смотреть на экраны. Он открывает витрину `/?mock=1&view=kit` и проверяет
 двадцать четыре утверждения `F1`–`F24`:
 
-- цвета `body`, ленты `[data-ribbon]`, подложки блока `[data-kit=sheet-block]`
-  (`panel` `rgb(20, 20, 20)` + граница `line` `rgb(41, 35, 25)`), подписей
+- цвета `body`, ленты `[data-ribbon]`, блока `[data-kit=sheet-block]`
+  (без заливки: `backgroundColor` прозрачный и `borderStyle: none` — блок
+  отделяется лентой и воздухом, а не подложкой; см. DESIGN.md §3), подписей
   `[data-kit=field-label]`, кнопок `[data-btn]`, клеток `[data-stress-box]`,
   строк `[data-kit=stat-row]`, полосы `[data-kit=bar]`, поля `[data-kit=input]`
   и вкладок `[data-kit=filter-tab]`; угловых скобок (`[data-frame]`/
   `[data-corner]`) в проекте больше нет — компонент удалён 2026-11-12;
+  подложку `panel` сохраняют только модальные окна (`F16`);
 - инвентарь токенов `DESIGN.md` §1 (`F13`): для каждого класса создаётся `div`,
   читается `getComputedStyle`, элемент удаляется. Если токена нет в
   `tailwind.config.js`, класс не сгенерирован и цвет будет `rgba(0, 0, 0, 0)`;
@@ -115,6 +117,44 @@ npm run build
 node scripts/e2e/capture.mjs --scenario=shell --width=1440 --height=900
 node scripts/e2e/capture.mjs --scenario=shell --width=390 --height=844
 node scripts/e2e/verify.mjs --scenario=shell --allowed=src/components/common/Header.tsx,src/App.tsx,scripts/e2e/scenarios/shell.mjs,scripts/e2e/README.md
+```
+
+## Лист персонажа (`sheet`)
+
+Сценарий открывает изолированный лист `/?mock=1&view=sheet` (без шапки и подвала)
+и гоняется на двух ширинах: `--width=1440 --height=900` и `--width=390 --height=844`.
+Снимок и кропы зон — в `scripts/e2e/shots/`, отчёт — `scripts/e2e/reports/sheet.json`.
+
+Раскладка — мастер-деталь (DESIGN.md §4): слева плашка персонажа, очки судьбы,
+стресс и последствия; справа навыки на всю ширину, под ним две подколонки
+«Трюки»/«Аспекты», внизу заметки на всю ширину. Блоки без заливки и без рамки —
+отделяются лентой и воздухом.
+
+- `S3: two-zones` — ровно две зоны `[data-zone]`: `left` и `right`;
+- `S4: zone-order` — на ширине ≥1024 `left` левее `right`, на узком — выше;
+- `S5: blocks-unfilled` — у `[data-kit=sheet-block]` прозрачный фон,
+  `borderStyle: none` и лента внутри;
+- `S6: portrait-size` — портрет `260×320` с допуском `4px` на ≥1024
+  и не выше `224px` на узком экране;
+- `S36: sheet-fits` — при ширине ≥1024 высота документа не больше высоты окна
+  плюс `2px`. Плотность строк правится отдельным шагом: если утверждение
+  красное, в сыром выводе `capture.mjs` есть строка `window.__sheetFit`
+  с `innerHeight` и `scrollHeight`, а блоки растягивать нельзя;
+- `S42: refresh-control` — у `[data-kit=sheet-refresh]` в `aria-label`
+  «Восстановление» и нет старого слова;
+- `S43: character-plate` — `[data-kit=character-plate]` с золотой рамкой
+  `rgb(152, 120, 73)`, внутри портрет и имя;
+- `S44: wordmark-one-line` — `[data-kit=setting-wordmark]` высотой не больше
+  `24px` и `white-space: nowrap`;
+- `S45: term-restore` — в левой зоне есть «Восстановление» и нет «Обновление»
+  и «Освежение».
+
+```bash
+npm run build
+node scripts/e2e/capture.mjs --scenario=foundation
+node scripts/e2e/capture.mjs --scenario=sheet --width=1440 --height=900
+node scripts/e2e/capture.mjs --scenario=sheet --width=390 --height=844
+node scripts/e2e/verify.mjs --scenario=sheet --allowed=src/components/sheet/SheetBlock.tsx,src/components/sheet/CharacterSheet.tsx,src/components/sheet/SettingEmblem.tsx,src/components/sheet/RefreshControl.tsx,src/components/common/UiKit.tsx,scripts/e2e/scenarios/foundation.mjs,scripts/e2e/scenarios/sheet.mjs,scripts/e2e/README.md
 ```
 
 ## Новый сценарий

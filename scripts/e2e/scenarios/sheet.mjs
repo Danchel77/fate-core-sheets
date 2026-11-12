@@ -1,7 +1,7 @@
 export default {
   name: 'sheet',
   url: '/?mock=1&view=sheet',
-  regions: ['[data-zone="left"]', '[data-zone="center"]', '[data-zone="right"]'],
+  regions: ['[data-kit="character-plate"]', '[data-zone="left"]', '[data-zone="right"]'],
   steps: [
     { waitFor: 'document.readyState === "complete"', timeout: 15000 },
     {
@@ -246,7 +246,6 @@ export default {
       eval: `(() => {
         const trigger = document.querySelector('[data-kit="setting-button"]');
         if (!trigger) return false;
-        trigger.focus();
         trigger.click();
         return true;
       })()`
@@ -280,6 +279,26 @@ export default {
         return true;
       })()`
     },
+    {
+      // Снимок без фокус-ринга: в покое плашка должна читаться страницей, а не
+      // формой. Фокус-ринг остаётся в CSS (`focus-visible`) и виден при Tab.
+      eval: `(() => {
+        if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
+        return true;
+      })()`
+    },
+    {
+      // Числа для S36 в сыром выводе: если лист не влезает в экран, в отчёте
+      // будет точная высота документа, а не только упавшее утверждение.
+      eval: `(() => {
+        window.__sheetFit = {
+          innerWidth: window.innerWidth,
+          innerHeight: window.innerHeight,
+          scrollHeight: document.documentElement.scrollHeight
+        };
+        return JSON.stringify(window.__sheetFit);
+      })()`
+    },
     { shot: { out: 'scripts/e2e/shots/sheet.png' } }
   ],
   asserts: [
@@ -292,8 +311,13 @@ export default {
       expr: `getComputedStyle(document.body).backgroundColor === 'rgb(0, 0, 0)'`
     },
     {
-      name: 'S3: three-zones',
-      expr: `document.querySelectorAll('[data-zone]').length === 3`
+      name: 'S3: two-zones',
+      expr: `(() => {
+        const zones = Array.from(document.querySelectorAll('[data-zone]'));
+        return zones.length === 2
+          && !!document.querySelector('[data-zone="left"]')
+          && !!document.querySelector('[data-zone="right"]');
+      })()`
     },
     {
       name: 'S4: zone-order',
@@ -303,30 +327,27 @@ export default {
           return el ? el.getBoundingClientRect() : null;
         };
         const left = box('left');
-        const center = box('center');
         const right = box('right');
-        if (!left || !center || !right) return false;
-        if (window.innerWidth >= 1024) {
-          return left.left < center.left && center.left < right.left;
-        }
-        return left.top < center.top && center.top < right.top;
+        if (!left || !right) return false;
+        if (window.innerWidth >= 1024) return left.left < right.left;
+        return left.top < right.top;
       })()`
     },
     {
-      name: 'S5: blocks-panel',
+      name: 'S5: blocks-unfilled',
       expr: `(() => {
         const blocks = Array.from(document.querySelectorAll('[data-kit="sheet-block"]'));
         if (blocks.length < 6) return false;
-        const panels = blocks.every((block) => {
+        const unfilled = blocks.every((block) => {
           const cs = getComputedStyle(block);
           return (
-            cs.backgroundColor === 'rgb(20, 20, 20)' &&
-            cs.borderColor === 'rgb(41, 35, 25)' &&
+            cs.backgroundColor === 'rgba(0, 0, 0, 0)' &&
+            cs.borderStyle === 'none' &&
             !!block.querySelector('[data-ribbon]')
           );
         });
         const legacy = document.querySelectorAll('[data-frame], [data-corner]').length;
-        return panels && legacy === 0;
+        return unfilled && legacy === 0;
       })()`
     },
     {
@@ -336,12 +357,7 @@ export default {
         if (!portrait) return false;
         const rect = portrait.getBoundingClientRect();
         if (window.innerWidth >= 1024) {
-          return (
-            rect.width >= 260 &&
-            rect.width <= 300 &&
-            rect.height >= 330 &&
-            rect.height <= 380
-          );
+          return Math.abs(rect.width - 240) <= 4 && Math.abs(rect.height - 300) <= 4;
         }
         return rect.height > 0 && rect.height <= 224;
       })()`
@@ -516,52 +532,6 @@ export default {
       expr: `document.querySelectorAll('[data-kit="sheet-skill-slot"]').length === 10`
     },
     {
-      name: 'S18: center-sharp',
-      expr: `(() => {
-        const root = document.querySelector('[data-zone="center"]');
-        if (!root) return false;
-        return Array.from(root.querySelectorAll('*')).every((el) => {
-          const className = typeof el.className === 'string' ? el.className : '';
-          if (!className.trim()) return true;
-          return getComputedStyle(el).borderRadius === '0px';
-        });
-      })()`
-    },
-    {
-      name: 'S19: center-font-min',
-      expr: `(() => {
-        const root = document.querySelector('[data-zone="center"]');
-        if (!root) return false;
-        return Array.from(root.querySelectorAll('*')).every((el) => {
-          if (!el.textContent || el.textContent.trim().length === 0) return true;
-          return parseFloat(getComputedStyle(el).fontSize) >= 12;
-        });
-      })()`
-    },
-    {
-      name: 'S20: center-no-slate',
-      expr: `(() => {
-        const root = document.querySelector('[data-zone="center"]');
-        if (!root) return false;
-        const forbidden = 'rgb(100, 116, 139)';
-        const nodes = [root, ...Array.from(root.querySelectorAll('*'))];
-        return nodes.every((el) => {
-          const className = typeof el.className === 'string' ? el.className : '';
-          if (className.includes('slate-')) return false;
-          const style = getComputedStyle(el);
-          const colors = [
-            style.color,
-            style.backgroundColor,
-            style.borderTopColor,
-            style.borderRightColor,
-            style.borderBottomColor,
-            style.borderLeftColor
-          ];
-          return colors.every((color) => color !== forbidden);
-        });
-      })()`
-    },
-    {
       name: 'S21: stunt-rows',
       expr: `(() => {
         const rows = Array.from(document.querySelectorAll('[data-kit="sheet-stunt"]'));
@@ -637,20 +607,16 @@ export default {
       name: 'S26: notes',
       expr: `(() => {
         const notes = Array.from(document.querySelectorAll('[data-kit="sheet-notes"]'));
-        if (notes.length !== 2) return false;
-        const styled = notes.every((el) => {
-          const style = getComputedStyle(el);
-          return (
-            style.backgroundColor === 'rgb(13, 13, 13)' &&
-            style.borderColor === 'rgb(41, 35, 25)'
-          );
-        });
-        const titles = notes.map((el) => {
-          const block = el.closest('[data-kit="sheet-block"]');
-          const ribbon = block ? block.querySelector('[data-ribbon]') : null;
-          return ribbon ? ribbon.textContent.trim() : '';
-        });
-        return styled && titles[0] === 'Заметки' && titles[1] === 'Дополнительно';
+        if (notes.length !== 1) return false;
+        const style = getComputedStyle(notes[0]);
+        const block = notes[0].closest('[data-kit="sheet-block"]');
+        const ribbon = block ? block.querySelector('[data-ribbon]') : null;
+        return (
+          style.backgroundColor === 'rgb(13, 13, 13)' &&
+          style.borderTopColor === 'rgb(41, 35, 25)' &&
+          !!ribbon &&
+          ribbon.textContent.trim() === 'Заметки'
+        );
       })()`
     },
     {
@@ -754,29 +720,11 @@ export default {
       })()`
     },
     {
-      name: 'S36: columns-balanced',
+      name: 'S36: sheet-fits',
       expr: `(() => {
         if (window.innerWidth < 1024) return true;
-        const box = (name) => {
-          const el = document.querySelector('[data-zone="' + name + '"]');
-          return el ? el.getBoundingClientRect() : null;
-        };
-        const left = box('left');
-        const right = box('right');
-        if (!left || !right) return false;
-        return Math.abs(left.bottom - right.bottom) <= 24;
-      })()`
-    },
-    {
-      name: 'S37: notes-grow',
-      expr: `(() => {
-        if (window.innerWidth < 1024) return true;
-        // После перестановки блоков самая высокая колонка — левая: её заметки стоят
-        // на своём минимуме, а растягивается заметка правой (более короткой) колонки.
-        const notes = Array.from(document.querySelectorAll('[data-kit="sheet-notes"]'));
-        if (notes.length !== 2) return false;
-        const heights = notes.map((el) => el.getBoundingClientRect().height);
-        return heights.every((height) => height >= 160) && heights.some((height) => height > 160);
+        const fit = window.__sheetFit;
+        return !!fit && fit.scrollHeight <= fit.innerHeight + 2;
       })()`
     },
     {
@@ -827,12 +775,47 @@ export default {
       })()`
     },
     {
-      name: 'S42: refresh-word',
+      name: 'S42: refresh-control',
+      expr: `(() => {
+        const left = document.querySelector('[data-zone="left"]');
+        if (!left) return false;
+        const trigger = left.querySelector('[data-kit="sheet-refresh"]');
+        if (!trigger) return false;
+        const label = trigger.getAttribute('aria-label') || '';
+        return label.includes('Восстановление') && !label.includes('Обновление');
+      })()`
+    },
+    {
+      name: 'S43: character-plate',
+      expr: `(() => {
+        const plate = document.querySelector('[data-kit="character-plate"]');
+        if (!plate) return false;
+        const portrait = plate.querySelector('[data-kit="sheet-portrait"]');
+        const name = plate.querySelector('[data-kit="character-name"]');
+        if (!portrait || !name) return false;
+        const value = name instanceof HTMLInputElement ? name.value : (name.textContent || '');
+        return (
+          value.trim().length > 0 &&
+          getComputedStyle(plate).borderTopColor === 'rgb(152, 120, 73)'
+        );
+      })()`
+    },
+    {
+      name: 'S44: wordmark-one-line',
+      expr: `(() => {
+        const mark = document.querySelector('[data-kit="setting-wordmark"]');
+        if (!mark) return false;
+        const cs = getComputedStyle(mark);
+        return mark.getBoundingClientRect().height <= 24 && cs.whiteSpace === 'nowrap';
+      })()`
+    },
+    {
+      name: 'S45: term-restore',
       expr: `(() => {
         const left = document.querySelector('[data-zone="left"]');
         if (!left) return false;
         const text = left.textContent || '';
-        return text.includes('Обновление') && !/освежение/i.test(text);
+        return text.includes('Восстановление') && !text.includes('Обновление') && !/освежение/i.test(text);
       })()`
     }
   ]

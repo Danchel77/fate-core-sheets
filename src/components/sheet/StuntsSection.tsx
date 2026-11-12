@@ -74,8 +74,8 @@ export const StuntsSection: React.FC<StuntsSectionProps> = ({
       <div
         className={
           showHeader
-            ? 'mb-2 flex flex-wrap items-center justify-between gap-x-3 gap-y-1 border-b border-line pb-2'
-            : 'mb-2 flex justify-end'
+            ? 'mb-1.5 flex flex-wrap items-center justify-between gap-x-3 gap-y-1 border-b border-line pb-1.5'
+            : 'mb-1.5 flex justify-end'
         }
       >
         {showHeader && (
@@ -106,7 +106,7 @@ export const StuntsSection: React.FC<StuntsSectionProps> = ({
             <div
               key={stunt.id || `stunt_${index}`}
               data-kit="sheet-stunt"
-              className={`group grid grid-cols-[1.5rem_minmax(0,1fr)_auto] items-start gap-2 py-2 ${
+              className={`group grid grid-cols-[1.5rem_minmax(0,1fr)_auto] items-start gap-2 py-1 ${
                 isEmpty ? 'border-b border-dashed border-line' : 'border-b border-line'
               }`}
             >
@@ -129,7 +129,7 @@ export const StuntsSection: React.FC<StuntsSectionProps> = ({
                     handleUpdateStunt(index, { description: event.target.value })
                   }
                   placeholder="Что даёт этот трюк..."
-                  className="mt-1 w-full resize-none bg-transparent font-sans text-sm leading-relaxed text-text-muted placeholder:text-text-muted [field-sizing:content] focus:outline-none focus-visible:ring-1 focus-visible:ring-gold"
+                  className="mt-0.5 w-full resize-none bg-transparent font-sans text-sm leading-snug text-text-muted placeholder:text-text-muted [field-sizing:content] focus:outline-none focus-visible:ring-1 focus-visible:ring-gold"
                 />
               </div>
 

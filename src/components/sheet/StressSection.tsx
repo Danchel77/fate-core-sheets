@@ -48,9 +48,9 @@ export const StressSection: React.FC<StressSectionProps> = ({ character, onChang
     <div className="flex flex-col gap-1.5">
       {/* Дорожки стоят в двух колонках: подпись и навык держим двумя строками,
           чтобы клетки обеих дорожек начинались на одном уровне. */}
-      <div className="flex flex-col">
+      <div className="flex flex-col [&_label]:leading-none">
         <FieldLabel>{label}</FieldLabel>
-        <span className="font-sans text-xs tabular-nums text-text-muted">
+        <span className="font-sans text-xs leading-none tabular-nums text-text-muted">
           {skillLabel} {rating > 0 ? `+${rating}` : '0'}
         </span>
       </div>

@@ -37,7 +37,7 @@ export const ConsequencesSection: React.FC<ConsequencesSectionProps> = ({
         <div
           key={consequence.key}
           data-kit="sheet-consequence"
-          className="grid grid-cols-[2.5rem_6rem_minmax(0,1fr)] items-center gap-2 border-b border-line py-1.5 last:border-b-0"
+          className="grid grid-cols-[2.5rem_6rem_minmax(0,1fr)] items-center gap-2 border-b border-line py-0 last:border-b-0"
         >
           <span className="text-right font-sans text-xs tabular-nums text-gold-light">
             −{consequence.value}

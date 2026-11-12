@@ -99,7 +99,7 @@ export const AspectsSection: React.FC<AspectsSectionProps> = ({
             <div
               key={slot.key}
               data-kit="sheet-aspect"
-              className="group flex flex-col gap-1 py-2 first:pt-0 last:pb-0"
+              className="group flex flex-col gap-1 py-1.5 first:pt-0 last:pb-0"
             >
               <div className="flex items-start justify-between gap-2">
                 <FieldLabel>{slot.label}</FieldLabel>
@@ -120,7 +120,7 @@ export const AspectsSection: React.FC<AspectsSectionProps> = ({
                 value={value}
                 onChange={(e) => handleAspectChange(slot.key, e.target.value)}
                 placeholder={slot.placeholder}
-                className="w-full resize-none border-b border-line bg-transparent pb-1 font-sans text-sm leading-relaxed text-text placeholder:text-text-muted transition-colors duration-150 [field-sizing:content] focus:outline-none focus-visible:border-gold"
+                className="w-full resize-none border-b border-line bg-transparent pb-0.5 font-sans text-sm leading-snug text-text placeholder:text-text-muted transition-colors duration-150 [field-sizing:content] focus:outline-none focus-visible:border-gold"
               />
             </div>
           );

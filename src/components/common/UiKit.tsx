@@ -47,7 +47,7 @@ export const UiKit: React.FC = () => {
         <header className="pb-6">
           <h1 className="font-fantasy text-2xl tracking-wide text-gold">UI Kit</h1>
           <p className="pt-2 text-sm text-text-muted">
-            Общие элементы системы Fate: ленты, блоки на подложке, подписи, таблица, стресс,
+            Общие элементы системы Fate: ленты, блоки без заливки, подписи, таблица, стресс,
             полоса, кнопки, вкладки и поле ввода.
           </p>
         </header>
