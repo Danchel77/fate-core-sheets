@@ -94,7 +94,10 @@ export const StuntsSection: React.FC<StuntsSectionProps> = ({
         </button>
       </div>
 
-      <div className="flex flex-col">
+      <div
+        data-kit="sheet-stunt-list"
+        className="flex max-h-[260px] flex-col overflow-y-auto [scrollbar-width:thin] [&::-webkit-scrollbar-thumb]:bg-gold-dim [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar]:w-1"
+      >
         {character.stunts.length === 0 && (
           <p className="py-2 text-sm text-text-muted">Трюков пока нет.</p>
         )}
@@ -106,7 +109,7 @@ export const StuntsSection: React.FC<StuntsSectionProps> = ({
             <div
               key={stunt.id || `stunt_${index}`}
               data-kit="sheet-stunt"
-              className={`group grid grid-cols-[1.5rem_minmax(0,1fr)_auto] items-start gap-2 py-1 ${
+              className={`group grid shrink-0 grid-cols-[1.5rem_minmax(0,1fr)_auto] items-start gap-2 py-1 ${
                 isEmpty ? 'border-b border-dashed border-line' : 'border-b border-line'
               }`}
             >

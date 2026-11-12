@@ -26,7 +26,7 @@ export const NotesSection: React.FC<NotesSectionProps> = ({
         value={character[field] || ''}
         onChange={(event) => onChange({ ...character, [field]: event.target.value })}
         placeholder={field === 'notes' ? 'Заметки о персонаже...' : 'Дополнительные заметки...'}
-        className="min-h-[160px] w-full flex-1 resize-y border border-line bg-ink-raised p-2 font-sans text-sm leading-relaxed text-text placeholder:text-text-muted transition-colors duration-150 focus:outline-none focus-visible:border-gold"
+        className="h-full min-h-[160px] w-full flex-1 resize-y overflow-y-auto border border-line bg-ink-raised p-2 font-sans text-sm leading-relaxed text-text placeholder:text-text-muted transition-colors duration-150 focus:outline-none focus-visible:border-gold"
       />
     </section>
   );

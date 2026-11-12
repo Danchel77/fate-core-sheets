@@ -139,7 +139,7 @@ export const CharacterSheet: React.FC = () => {
                     updateChar({ ...activeCharacter, name: event.target.value })
                   }
                   placeholder="Имя персонажа..."
-                  className="w-full min-w-0 bg-transparent text-center font-fantasy text-2xl tracking-wide text-text placeholder:text-text-muted [font-variant-caps:small-caps] focus:outline-none focus-visible:ring-2 focus-visible:ring-gold"
+                  className="w-full min-w-0 whitespace-nowrap bg-transparent text-center font-fantasy text-2xl tracking-wide text-text placeholder:text-text-muted [font-variant-caps:small-caps] focus:outline-none focus-visible:ring-2 focus-visible:ring-gold"
                 />
 
                 <textarea
@@ -151,7 +151,7 @@ export const CharacterSheet: React.FC = () => {
                     updateChar({ ...activeCharacter, description: event.target.value })
                   }
                   placeholder="Краткое описание, раса, принадлежность или титул..."
-                  className="max-h-[4.5rem] w-full resize-none overflow-y-auto bg-transparent text-center font-sans text-sm leading-snug text-text-muted placeholder:text-text-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-gold"
+                  className="max-h-[58px] w-full resize-none overflow-y-auto bg-transparent text-center font-sans text-sm leading-snug text-text-muted placeholder:text-text-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-gold"
                 />
               </div>
             </div>
@@ -226,7 +226,10 @@ export const CharacterSheet: React.FC = () => {
             </SheetBlock>
           </div>
 
-          <SheetBlock title="Заметки">
+          <SheetBlock
+            title="Заметки"
+            className="lg:flex-1 lg:min-h-[120px] lg:[&>div:last-child]:min-h-0 lg:[&>div:last-child]:flex-1"
+          >
             <NotesSection character={activeCharacter} onChange={updateChar} field="notes" />
           </SheetBlock>
         </div>

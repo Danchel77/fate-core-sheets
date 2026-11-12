@@ -10,6 +10,275 @@ export default {
     },
     { wait: 500 },
     {
+      // Исходные данные мока и геометрия до крайних состояний: всё, что ниже,
+      // временно портит персонажа и обязано вернуть его как было.
+      eval: `(() => {
+        localStorage.setItem('e2e_pool_backup', localStorage.getItem('fate_characters_pool') || '');
+        const list = document.querySelector('[data-kit="sheet-stunt-list"]');
+        const block = list.closest('[data-kit="sheet-block"]');
+        const plate = document.querySelector('[data-kit="character-plate"]');
+        const portrait = document.querySelector('[data-kit="sheet-portrait"]');
+        const name = document.querySelector('[data-kit="character-name"]');
+        const desc = document.querySelector('[data-kit="character-description"]');
+        const pr = portrait.getBoundingClientRect();
+        window.__noAvatarBefore = {
+          w: pr.width,
+          h: pr.height,
+          plateH: plate.getBoundingClientRect().height
+        };
+        window.__stuntsScroll = {
+          rowsBefore: document.querySelectorAll('[data-kit="sheet-stunt"]').length,
+          listHBefore: Math.round(list.getBoundingClientRect().height),
+          blockHBefore: Math.round(block.getBoundingClientRect().height),
+          pageBefore: document.documentElement.scrollHeight,
+          maxH: parseFloat(getComputedStyle(list).maxHeight)
+        };
+        window.__longName = {
+          nameBefore: name.value,
+          descBefore: desc.value,
+          plateHBefore: plate.getBoundingClientRect().height
+        };
+        const levels = document.querySelectorAll('[data-kit="sheet-skill-level"]').length;
+        const right = document.querySelector('[data-zone="right"]').getBoundingClientRect();
+        localStorage.setItem('e2e_skillcap', JSON.stringify({
+          capBefore: null,
+          rowsBefore: levels,
+          rightWBefore: right.width
+        }));
+        return JSON.stringify({
+          stunts: window.__stuntsScroll,
+          name: window.__longName.nameBefore,
+          levels,
+          rightW: right.width
+        });
+      })()`
+    },
+    {
+      eval: `(() => {
+        document.querySelector('[data-kit="stunt-add"]').click();
+        return true;
+      })()`
+    },
+    { wait: 250 },
+    {
+      eval: `(() => {
+        document.querySelector('[data-kit="stunt-add"]').click();
+        return true;
+      })()`
+    },
+    { wait: 250 },
+    { waitFor: 'document.querySelectorAll("[data-kit=sheet-stunt]").length === 5', timeout: 5000 },
+    {
+      // Пять трюков: список ограничен max-h и скроллится внутри блока.
+      eval: `(() => {
+        const list = document.querySelector('[data-kit="sheet-stunt-list"]');
+        const block = list.closest('[data-kit="sheet-block"]');
+        Object.assign(window.__stuntsScroll, {
+          rows5: document.querySelectorAll('[data-kit="sheet-stunt"]').length,
+          listH: Math.round(list.getBoundingClientRect().height),
+          scrollH: list.scrollHeight,
+          clientH: list.clientHeight,
+          blockH5: Math.round(block.getBoundingClientRect().height),
+          page5: document.documentElement.scrollHeight
+        });
+        return JSON.stringify(window.__stuntsScroll);
+      })()`
+    },
+    {
+      eval: `(() => {
+        const rows = document.querySelectorAll('[data-kit="sheet-stunt"]');
+        const last = rows[rows.length - 1];
+        const remove = last.querySelector('button[aria-label="Удалить пустой трюк"]');
+        if (!remove) return false;
+        remove.click();
+        return true;
+      })()`
+    },
+    { wait: 250 },
+    {
+      eval: `(() => {
+        const rows = document.querySelectorAll('[data-kit="sheet-stunt"]');
+        const last = rows[rows.length - 1];
+        const remove = last.querySelector('button[aria-label="Удалить пустой трюк"]');
+        if (!remove) return false;
+        remove.click();
+        return true;
+      })()`
+    },
+    { wait: 250 },
+    { waitFor: 'document.querySelectorAll("[data-kit=sheet-stunt]").length === 3', timeout: 5000 },
+    {
+      eval: `(() => {
+        const list = document.querySelector('[data-kit="sheet-stunt-list"]');
+        const block = list.closest('[data-kit="sheet-block"]');
+        Object.assign(window.__stuntsScroll, {
+          rowsAfter: document.querySelectorAll('[data-kit="sheet-stunt"]').length,
+          blockHAfter: Math.round(block.getBoundingClientRect().height),
+          pageAfter: document.documentElement.scrollHeight
+        });
+        localStorage.setItem('e2e_stunts', JSON.stringify(window.__stuntsScroll));
+        return JSON.stringify(window.__stuntsScroll);
+      })()`
+    },
+    {
+      // Длинные имя и описание: имя остаётся одной строкой, описание — три.
+      eval: `(() => {
+        const name = document.querySelector('[data-kit="character-name"]');
+        const desc = document.querySelector('[data-kit="character-description"]');
+        const setValue = (el, value) => {
+          const proto = el instanceof HTMLTextAreaElement
+            ? HTMLTextAreaElement.prototype
+            : HTMLInputElement.prototype;
+          Object.getOwnPropertyDescriptor(proto, 'value').set.call(el, value);
+          el.dispatchEvent(new Event('input', { bubbles: true }));
+        };
+        setValue(name, 'Геральт из Ривии, Белый Волк, Гроза Чудовищ Севера, Мастер Меча');
+        setValue(desc, 'Длинное описание персонажа. '.repeat(16));
+        return true;
+      })()`
+    },
+    { wait: 250 },
+    {
+      eval: `(() => {
+        const name = document.querySelector('[data-kit="character-name"]');
+        const desc = document.querySelector('[data-kit="character-description"]');
+        const plate = document.querySelector('[data-kit="character-plate"]');
+        const descStyle = getComputedStyle(desc);
+        Object.assign(window.__longName, {
+          docScrollW: document.documentElement.scrollWidth,
+          innerW: window.innerWidth,
+          plateHAfter: plate.getBoundingClientRect().height,
+          nameH: name.getBoundingClientRect().height,
+          titleFull: name.getAttribute('title') === name.value,
+          descH: desc.getBoundingClientRect().height,
+          descScrollH: desc.scrollHeight,
+          descClientH: desc.clientHeight,
+          descLineH: parseFloat(descStyle.lineHeight)
+        });
+        localStorage.setItem('e2e_longname', JSON.stringify(window.__longName));
+        return JSON.stringify(window.__longName);
+      })()`
+    },
+    {
+      eval: `(() => {
+        const name = document.querySelector('[data-kit="character-name"]');
+        const desc = document.querySelector('[data-kit="character-description"]');
+        const setValue = (el, value) => {
+          const proto = el instanceof HTMLTextAreaElement
+            ? HTMLTextAreaElement.prototype
+            : HTMLInputElement.prototype;
+          Object.getOwnPropertyDescriptor(proto, 'value').set.call(el, value);
+          el.dispatchEvent(new Event('input', { bubbles: true }));
+        };
+        setValue(name, window.__longName.nameBefore);
+        setValue(desc, window.__longName.descBefore);
+        return true;
+      })()`
+    },
+    { wait: 250 },
+    {
+      eval: `(() => {
+        const portrait = document.querySelector('[data-kit="sheet-portrait"]');
+        if (!portrait) return false;
+        portrait.click();
+        return true;
+      })()`
+    },
+    { waitFor: `!!document.querySelector('[data-kit=modal][data-modal-level="1"]')`, timeout: 5000 },
+    { wait: 200 },
+    {
+      eval: `(() => {
+        const remove = Array.from(document.querySelectorAll('[data-kit="modal"] button')).find(
+          (button) => button.textContent.trim() === 'Удалить портрет'
+        );
+        if (!remove) return false;
+        remove.click();
+        return true;
+      })()`
+    },
+    { wait: 300 },
+    { waitFor: `!document.querySelector('[data-kit=modal][data-modal-level="1"]')`, timeout: 5000 },
+    {
+      // Без портрета рамка на месте: те же ширина/высота, иконка и подпись.
+      eval: `(() => {
+        const portrait = document.querySelector('[data-kit="sheet-portrait"]');
+        const plate = document.querySelector('[data-kit="character-plate"]');
+        const rect = portrait.getBoundingClientRect();
+        const facts = {
+          hasImg: !!portrait.querySelector('img'),
+          hasLabel: (portrait.textContent || '').includes('Портрет'),
+          w: rect.width,
+          h: rect.height,
+          plateH: plate.getBoundingClientRect().height,
+          wBefore: window.__noAvatarBefore.w,
+          hBefore: window.__noAvatarBefore.h,
+          plateHBefore: window.__noAvatarBefore.plateH
+        };
+        localStorage.setItem('e2e_noavatar', JSON.stringify(facts));
+        return JSON.stringify(facts);
+      })()`
+    },
+    {
+      // skillCap: 6 в моке + перезагрузка без mock=1, чтобы приложение
+      // подняло персонажа из localStorage с новым потолком.
+      eval: `(() => {
+        const pool = JSON.parse(localStorage.getItem('fate_characters_pool') || '[]');
+        if (!pool.length) return false;
+        const facts = JSON.parse(localStorage.getItem('e2e_skillcap') || '{}');
+        facts.capBefore = pool[0].skillCap;
+        localStorage.setItem('e2e_skillcap', JSON.stringify(facts));
+        pool[0].skillCap = 6;
+        localStorage.setItem('fate_characters_pool', JSON.stringify(pool));
+        location.href = '/?view=sheet';
+        return true;
+      })()`
+    },
+    { wait: 900 },
+    {
+      waitFor: 'document.querySelectorAll("[data-kit=sheet-block]").length >= 6',
+      timeout: 15000
+    },
+    { waitFor: 'document.querySelectorAll("[data-kit=sheet-skill-level]").length === 6', timeout: 5000 },
+    {
+      eval: `(() => {
+        const facts = JSON.parse(localStorage.getItem('e2e_skillcap') || '{}');
+        const right = document.querySelector('[data-zone="right"]');
+        const left = document.querySelector('[data-zone="left"]');
+        facts.rowsAfter = document.querySelectorAll('[data-kit="sheet-skill-level"]').length;
+        facts.rightWAfter = right.getBoundingClientRect().width;
+        facts.leftXAfter = Math.round(left.getBoundingClientRect().x);
+        facts.pageAfter = document.documentElement.scrollHeight;
+        localStorage.setItem('e2e_skillcap', JSON.stringify(facts));
+        return JSON.stringify(facts);
+      })()`
+    },
+    {
+      // Вернуть мок и штатную страницу листа для остальных проверок.
+      eval: `(() => {
+        localStorage.setItem('fate_characters_pool', localStorage.getItem('e2e_pool_backup') || '');
+        location.href = '/?mock=1&view=sheet';
+        return true;
+      })()`
+    },
+    { wait: 900 },
+    {
+      waitFor: 'document.querySelectorAll("[data-kit=sheet-block]").length >= 6',
+      timeout: 15000
+    },
+    { waitFor: 'document.querySelectorAll("[data-kit=sheet-stunt]").length === 3', timeout: 5000 },
+    {
+      eval: `(() => {
+        const name = document.querySelector('[data-kit="character-name"]');
+        const portrait = document.querySelector('[data-kit="sheet-portrait"]');
+        return JSON.stringify({
+          name: name ? name.value : null,
+          avatar: !!(portrait && portrait.querySelector('img')),
+          stunts: document.querySelectorAll('[data-kit="sheet-stunt"]').length,
+          levels: document.querySelectorAll('[data-kit="sheet-skill-level"]').length
+        });
+      })()`
+    },
+    {
       eval: `(() => {
         const trigger = document.querySelector('[data-kit="sheet-refresh"]');
         if (!trigger) return false;
@@ -816,6 +1085,86 @@ export default {
         if (!left) return false;
         const text = left.textContent || '';
         return text.includes('Восстановление') && !text.includes('Обновление') && !/освежение/i.test(text);
+      })()`
+    },
+    {
+      name: 'S46: stunts-scroll',
+      expr: `(() => {
+        let facts = null;
+        try {
+          facts = JSON.parse(localStorage.getItem('e2e_stunts') || 'null');
+        } catch (error) {
+          return false;
+        }
+        if (!facts) return false;
+        return (
+          Number.isFinite(facts.maxH) &&
+          facts.rows5 === 5 &&
+          facts.rowsAfter === 3 &&
+          facts.listH <= facts.maxH + 1 &&
+          facts.scrollH > facts.clientH
+        );
+      })()`
+    },
+    {
+      // имя одной строкой, описание — ровно три, плашка не выросла,
+      // документ не получил горизонтального скролла.
+      name: 'S47: long-name',
+      expr: `(() => {
+        let facts = null;
+        try {
+          facts = JSON.parse(localStorage.getItem('e2e_longname') || 'null');
+        } catch (error) {
+          return false;
+        }
+        if (!facts) return false;
+        const descriptionThreeLines =
+          facts.descH <= facts.descLineH * 3 + 1 &&
+          facts.descScrollH > facts.descClientH;
+        return (
+          facts.docScrollW <= facts.innerW &&
+          Math.abs(facts.plateHAfter - facts.plateHBefore) <= 2 &&
+          facts.nameH <= 40 &&
+          facts.titleFull === true &&
+          descriptionThreeLines
+        );
+      })()`
+    },
+    {
+      name: 'S48: no-avatar',
+      expr: `(() => {
+        let facts = null;
+        try {
+          facts = JSON.parse(localStorage.getItem('e2e_noavatar') || 'null');
+        } catch (error) {
+          return false;
+        }
+        if (!facts) return false;
+        return (
+          facts.hasImg === false &&
+          facts.hasLabel === true &&
+          Math.abs(facts.w - facts.wBefore) <= 2 &&
+          Math.abs(facts.h - facts.hBefore) <= 2 &&
+          Math.abs(facts.plateH - facts.plateHBefore) <= 2
+        );
+      })()`
+    },
+    {
+      name: 'S49: skill-cap',
+      expr: `(() => {
+        let facts = null;
+        try {
+          facts = JSON.parse(localStorage.getItem('e2e_skillcap') || 'null');
+        } catch (error) {
+          return false;
+        }
+        if (!facts) return false;
+        return (
+          facts.capBefore === 4 &&
+          facts.rowsBefore === 4 &&
+          facts.rowsAfter === 6 &&
+          Math.abs(facts.rightWAfter - facts.rightWBefore) <= 1
+        );
       })()`
     }
   ]
