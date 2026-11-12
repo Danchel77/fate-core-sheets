@@ -11,9 +11,10 @@ interface RulesTooltipProps {
  * Кликабельная сноска к термину Fate Core.
  * Подчёркивание — сплошное; иконки-вопросики не используются.
  *
- * Типографика панели намеренно совпадает с поповером восстановления:
- * Inter (font-sans), text-xs, заголовок text-slate-200, пояснение text-slate-300.
- * font-sans обязателен — триггер может быть обёрнут в font-fantasy.
+ * Язык панели — DESIGN.md §7 и поповер восстановления (RefreshControl):
+ * тёмная плашка ink-raised с золотой рамкой, заголовок Cinzel капителью,
+ * тело Inter text-xs. font-sans обязателен — триггер может быть обёрнут
+ * в font-fantasy, а панель должна остаться Inter.
  */
 export const RulesTooltip: React.FC<RulesTooltipProps> = ({
   label,
@@ -49,10 +50,11 @@ export const RulesTooltip: React.FC<RulesTooltipProps> = ({
     <span ref={rootRef} className={`relative inline-flex items-center ${className}`}>
       <button
         type="button"
+        data-kit="tooltip-trigger"
         onClick={() => setIsOpen((prev) => !prev)}
         aria-expanded={isOpen}
         aria-describedby={isOpen ? tooltipId : undefined}
-        className="cursor-pointer text-left underline decoration-gold-dim underline-offset-4 transition hover:text-gold-light hover:decoration-gold-light focus:outline-none focus-visible:ring-2 focus-visible:ring-gold"
+        className="cursor-pointer text-left underline decoration-gold-dim underline-offset-4 transition-colors duration-150 hover:text-gold-light hover:decoration-gold-light focus:outline-none focus-visible:ring-2 focus-visible:ring-gold-light"
       >
         {label}
       </button>
@@ -60,11 +62,14 @@ export const RulesTooltip: React.FC<RulesTooltipProps> = ({
       {isOpen && (
         <span
           id={tooltipId}
+          data-kit="tooltip-panel"
           role="tooltip"
-          className="absolute left-0 top-full z-50 mt-2 w-72 rounded-xl border border-[#2A3444] bg-[#0B0E14] p-3 font-sans text-xs font-normal normal-case leading-relaxed tracking-normal text-slate-300 shadow-2xl print:hidden"
+          className="absolute left-0 top-full z-50 mt-2 w-72 max-w-[calc(100vw-2rem)] rounded-none border border-gold bg-ink-raised p-3 text-left font-sans text-xs font-normal normal-case leading-relaxed tracking-normal text-text print:hidden"
         >
-          <span className="mb-1 block font-medium text-slate-200">{title}</span>
-          <span className="block">{text}</span>
+          <span className="mb-1 block font-fantasy text-sm text-gold-light [font-variant-caps:small-caps]">
+            {title}
+          </span>
+          <span className="block font-sans text-xs leading-relaxed text-text">{text}</span>
         </span>
       )}
     </span>

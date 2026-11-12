@@ -187,6 +187,61 @@ export default {
         return true;
       })()`
     },
+    {
+      eval: `(() => {
+        const trigger = document.querySelector('[data-kit="tooltip-trigger"]');
+        if (!trigger) return false;
+        trigger.focus();
+        trigger.click();
+        return true;
+      })()`
+    },
+    { waitFor: '!!document.querySelector("[data-kit=tooltip-panel]")', timeout: 5000 },
+    { wait: 200 },
+    { shot: { out: 'scripts/e2e/shots/sheet-tooltip-open.png' } },
+    {
+      eval: `(() => {
+        const panel = document.querySelector('[data-kit="tooltip-panel"]');
+        const trigger = document.querySelector('[data-kit="tooltip-trigger"]');
+        if (!panel || !trigger) {
+          window.__tooltip = null;
+          return true;
+        }
+        const panelStyle = getComputedStyle(panel);
+        const rect = panel.getBoundingClientRect();
+        const title = panel.children[0];
+        const body = panel.children[1];
+        const titleStyle = title ? getComputedStyle(title) : null;
+        const bodyStyle = body ? getComputedStyle(body) : null;
+        window.__tooltip = {
+          exists: true,
+          border: panelStyle.borderColor,
+          background: panelStyle.backgroundColor,
+          radius: panelStyle.borderRadius,
+          left: rect.left,
+          right: rect.right,
+          innerWidth: window.innerWidth,
+          expanded: trigger.getAttribute('aria-expanded'),
+          titleFont: titleStyle ? titleStyle.fontFamily : '',
+          bodyFont: bodyStyle ? bodyStyle.fontFamily : '',
+          bodySize: bodyStyle ? parseFloat(bodyStyle.fontSize) : 0
+        };
+        return true;
+      })()`
+    },
+    {
+      eval: `(() => {
+        document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+        return true;
+      })()`
+    },
+    { wait: 200 },
+    {
+      eval: `(() => {
+        window.__tooltipClosed = !document.querySelector('[data-kit="tooltip-panel"]');
+        return true;
+      })()`
+    },
     { shot: { out: 'scripts/e2e/shots/sheet.png' } }
   ],
   asserts: [
@@ -582,6 +637,38 @@ export default {
           facts.badDim === false
         );
       })()`
+    },
+    {
+      name: 'S32: tooltip-open',
+      expr: `(() => {
+        const facts = window.__tooltip;
+        return (
+          !!facts &&
+          facts.exists === true &&
+          facts.border === 'rgb(152, 120, 73)' &&
+          facts.background === 'rgb(13, 13, 13)' &&
+          facts.radius === '0px' &&
+          facts.left >= 0 &&
+          facts.right <= facts.innerWidth &&
+          facts.expanded === 'true'
+        );
+      })()`
+    },
+    {
+      name: 'S33: tooltip-type',
+      expr: `(() => {
+        const facts = window.__tooltip;
+        if (!facts) return false;
+        return (
+          facts.titleFont.includes('Cinzel') &&
+          (facts.bodyFont.includes('Inter') || facts.bodyFont.includes('sans-serif')) &&
+          facts.bodySize >= 12
+        );
+      })()`
+    },
+    {
+      name: 'S34: tooltip-escape',
+      expr: `window.__tooltipClosed === true`
     }
   ]
 };
