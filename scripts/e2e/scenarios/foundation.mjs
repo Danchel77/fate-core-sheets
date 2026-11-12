@@ -126,15 +126,10 @@ export default {
         const el = document.querySelector("[data-ribbon]");
         if (!el) return false;
         const cs = getComputedStyle(el);
-        const bg = cs.backgroundColor;
-        // Подложка полупрозрачная: alpha ≤ 0.3, тон полосы, а не брусок.
-        const alpha = bg.startsWith("rgba(")
-          ? parseFloat(bg.slice(bg.lastIndexOf(",") + 1))
-          : 1;
+        // Плашка panel #141414, текст #e8e8e8: никакой цветной подложки.
         const rect = el.getBoundingClientRect();
-        return bg.startsWith("rgba(152, 120, 73")
-          && alpha <= 0.3
-          && cs.color === "rgb(166, 131, 84)"
+        return cs.backgroundColor === "rgb(20, 20, 20)"
+          && cs.color === "rgb(232, 232, 232)"
           && cs.fontFamily.includes("Cinzel")
           && cs.textAlign === "center"
           && cs.fontSize === "14px"

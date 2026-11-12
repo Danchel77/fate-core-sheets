@@ -14,7 +14,7 @@ export default {
     },
     {
       name: 'A2: ribbon',
-      expr: '(() => { const r = document.querySelector("[data-ribbon]"); if (!r) return false; const bg = getComputedStyle(r).backgroundColor; if (!bg.startsWith("rgba(152, 120, 73")) return false; const alpha = parseFloat(bg.slice(bg.lastIndexOf(",") + 1)); return alpha >= 0.15 && alpha <= 0.3 && getComputedStyle(r).fontFamily.includes("Cinzel"); })()'
+      expr: '(() => { const r = document.querySelector("[data-ribbon]"); if (!r) return false; return getComputedStyle(r).backgroundColor === "rgb(20, 20, 20)" && getComputedStyle(r).fontFamily.includes("Cinzel"); })()'
     },
     {
       name: 'A3: cards-panel',

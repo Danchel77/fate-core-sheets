@@ -24,6 +24,7 @@ export const RefreshControl: React.FC<RefreshControlProps> = ({
   onChangeBase,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [panelOffset, setPanelOffset] = useState(0);
   const rootRef = useRef<HTMLSpanElement>(null);
 
   const base = Math.min(MAX_BASE, Math.max(MIN_BASE, baseRefresh || MIN_BASE));
@@ -49,6 +50,29 @@ export const RefreshControl: React.FC<RefreshControlProps> = ({
     };
   }, [isOpen]);
 
+  // Панель растёт от левого края числа. На узком экране она не помещается
+  // справа, поэтому заранее сдвигаем её внутрь вьюпорта — до первой отрисовки,
+  // иначе браузер успеет расширить макет под её ширину.
+  const togglePanel = () => {
+    if (isOpen) {
+      setIsOpen(false);
+      return;
+    }
+
+    const root = rootRef.current;
+    if (root) {
+      const margin = 8;
+      const viewport = document.documentElement.clientWidth || window.innerWidth;
+      const panelWidth = Math.min(260, viewport - margin * 2);
+      const rect = root.getBoundingClientRect();
+      const offset = Math.min(0, viewport - margin - panelWidth - rect.left);
+      setPanelOffset(Math.max(offset, margin - rect.left));
+    } else {
+      setPanelOffset(0);
+    }
+    setIsOpen(true);
+  };
+
   const changeBase = (next: number) => {
     onChangeBase(Math.min(MAX_BASE, Math.max(MIN_BASE, next)));
   };
@@ -58,7 +82,7 @@ export const RefreshControl: React.FC<RefreshControlProps> = ({
       <button
         type="button"
         data-kit="sheet-refresh"
-        onClick={() => setIsOpen((prev) => !prev)}
+        onClick={togglePanel}
         aria-expanded={isOpen}
         aria-haspopup="dialog"
         aria-label={`Восстановление: ${refresh}. Изменить базовое значение`}
@@ -72,7 +96,8 @@ export const RefreshControl: React.FC<RefreshControlProps> = ({
           data-kit="sheet-refresh-panel"
           role="dialog"
           aria-label="Восстановление"
-          className="absolute right-0 top-full z-50 mt-2 w-[260px] max-w-[calc(100vw-2rem)] border border-gold bg-ink-raised p-3 text-left font-sans text-xs normal-case text-text print:hidden"
+          style={panelOffset !== 0 ? { left: `${panelOffset}px` } : undefined}
+          className="absolute left-0 top-full z-50 mt-2 w-[260px] max-w-[calc(100vw-2rem)] border border-gold bg-ink-raised p-3 text-left font-sans text-xs normal-case text-text print:hidden"
         >
           <div className="mb-2 flex items-center justify-between gap-2">
             <span className="font-fantasy text-sm text-gold-light [font-variant-caps:small-caps]">

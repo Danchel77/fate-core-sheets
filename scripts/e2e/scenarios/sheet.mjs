@@ -1,7 +1,7 @@
 export default {
   name: 'sheet',
   url: '/?mock=1&view=sheet',
-  regions: ['[data-kit="character-identity"]', '[data-zone="center"]', '[data-zone="right"]'],
+  regions: ['[data-zone="left"]', '[data-zone="right"]'],
   steps: [
     { waitFor: 'document.readyState === "complete"', timeout: 15000 },
     {
@@ -619,6 +619,34 @@ export default {
         return JSON.stringify(window.__sheetFit);
       })()`
     },
+    {
+      // Открываем панель у левого края числа, снимаем размеры и закрываем:
+      // утверждение S58 проверит, что она не вылезла за экран.
+      eval: `(() => {
+        const trigger = document.querySelector('[data-kit="sheet-refresh"]');
+        if (!trigger) return false;
+        trigger.click();
+        return true;
+      })()`
+    },
+    { waitFor: '!!document.querySelector("[data-kit=sheet-refresh-panel]")', timeout: 5000 },
+    { wait: 150 },
+    {
+      eval: `(() => {
+        const panel = document.querySelector('[data-kit="sheet-refresh-panel"]');
+        if (!panel) return false;
+        const rect = panel.getBoundingClientRect();
+        window.__refreshPanel = {
+          left: rect.left,
+          right: rect.right,
+          viewport: window.innerWidth
+        };
+        const trigger = document.querySelector('[data-kit="sheet-refresh"]');
+        if (trigger) trigger.click();
+        return JSON.stringify(window.__refreshPanel);
+      })()`
+    },
+    { wait: 150 },
     { shot: { out: 'scripts/e2e/shots/sheet.png' } }
   ],
   asserts: [
@@ -631,15 +659,17 @@ export default {
       expr: `getComputedStyle(document.body).backgroundColor === 'rgb(0, 0, 0)'`
     },
     {
-      // Три колонки строго одинаковой ширины: ровно три зоны, разброс ≤8px.
-      name: 'S3: three-equal',
+      // Мастер-деталь: ровно две зоны, слева 380px, справа не меньше двух таких.
+      name: 'S3: master-detail',
       expr: `(() => {
         const zones = Array.from(document.querySelectorAll('[data-zone]'));
-        if (zones.length !== 3) return false;
+        if (zones.length !== 2) return false;
         const names = zones.map((zone) => zone.getAttribute('data-zone')).sort().join(',');
-        if (names !== 'center,left,right') return false;
-        const widths = zones.map((zone) => zone.getBoundingClientRect().width);
-        return Math.max(...widths) - Math.min(...widths) <= 8;
+        if (names !== 'left,right') return false;
+        if (window.innerWidth < 1024) return true;
+        const left = document.querySelector('[data-zone="left"]').getBoundingClientRect();
+        const right = document.querySelector('[data-zone="right"]').getBoundingClientRect();
+        return left.width >= 360 && left.width <= 400 && right.width >= left.width * 2;
       })()`
     },
     {
@@ -650,13 +680,10 @@ export default {
           return el ? el.getBoundingClientRect() : null;
         };
         const left = box('left');
-        const center = box('center');
         const right = box('right');
-        if (!left || !center || !right) return false;
-        if (window.innerWidth >= 1024) {
-          return left.left < center.left && center.left < right.left;
-        }
-        return left.top < center.top && center.top < right.top;
+        if (!left || !right) return false;
+        if (window.innerWidth >= 1024) return left.left < right.left;
+        return left.top < right.top;
       })()`
     },
     {
@@ -677,29 +704,31 @@ export default {
       })()`
     },
     {
-      // Рамка только у портрета: img 240×300 в рамке 1px; у блока имени и
-      // описания ни рамки, ни заливки.
-      name: 'S6: portrait-frame',
+      // Портрет 300×360: рамка вплотную к изображению, вокруг нет паспарту.
+      name: 'S6: portrait-tight',
       expr: `(() => {
-        const frame = document.querySelector('[data-kit="portrait-frame"]');
-        const identity = document.querySelector('[data-kit="character-identity"]');
-        if (!frame || !identity) return false;
-        const img = frame.querySelector('img');
+        const img = document.querySelector('[data-kit="portrait-image"]');
         if (!img) return false;
         const rect = img.getBoundingClientRect();
-        const frameStyle = getComputedStyle(frame);
-        const identityStyle = getComputedStyle(identity);
+        const style = getComputedStyle(img);
+        const sheet = document.querySelector('#printable-character-sheet');
+        let node = img.parentElement;
+        let padded = false;
         const sides = ['Top', 'Right', 'Bottom', 'Left'];
-        const noBorder = sides.every(
-          (side) => parseFloat(identityStyle['border' + side + 'Width']) === 0
-        );
+        while (node && node !== sheet) {
+          const cs = getComputedStyle(node);
+          if (sides.some((side) => parseFloat(cs['padding' + side]) > 0)) {
+            padded = true;
+            break;
+          }
+          node = node.parentElement;
+        }
         return (
-          rect.width >= 234 && rect.width <= 246 &&
-          rect.height >= 294 && rect.height <= 306 &&
-          frameStyle.borderTopWidth === '1px' &&
-          frameStyle.borderTopColor === 'rgb(152, 120, 73)' &&
-          noBorder &&
-          identityStyle.backgroundColor === 'rgba(0, 0, 0, 0)'
+          rect.width >= 294 && rect.width <= 306 &&
+          rect.height >= 354 && rect.height <= 366 &&
+          style.borderTopWidth === '1px' &&
+          style.borderTopColor === 'rgb(152, 120, 73)' &&
+          !padded
         );
       })()`
     },
@@ -723,7 +752,8 @@ export default {
         const nodes = [root, ...Array.from(root.querySelectorAll('*'))];
         return nodes.every((el) => {
           const className = typeof el.className === 'string' ? el.className : '';
-          if (className.includes('slate-')) return false;
+          const tokens = className.split(/\s+/).filter(Boolean);
+          if (tokens.some((token) => token.startsWith('slate-'))) return false;
           const style = getComputedStyle(el);
           const colors = [
             style.color,
@@ -774,7 +804,8 @@ export default {
         const nodes = [root, ...Array.from(root.querySelectorAll('*'))];
         return nodes.every((el) => {
           const className = typeof el.className === 'string' ? el.className : '';
-          if (className.includes('slate-')) return false;
+          const tokens = className.split(/\s+/).filter(Boolean);
+          if (tokens.some((token) => token.startsWith('slate-'))) return false;
           const style = getComputedStyle(el);
           const colors = [
             style.color,
@@ -892,7 +923,8 @@ export default {
         const nodes = [root, ...Array.from(root.querySelectorAll('*'))];
         return nodes.every((el) => {
           const className = typeof el.className === 'string' ? el.className : '';
-          if (className.includes('slate-')) return false;
+          const tokens = className.split(/\s+/).filter(Boolean);
+          if (tokens.some((token) => token.startsWith('slate-'))) return false;
           const style = getComputedStyle(el);
           const colors = [
             style.color,
@@ -1060,7 +1092,7 @@ export default {
         if (!sheet) return false;
         return (
           sheet.querySelectorAll('select').length === 0 &&
-          !!document.querySelector('[data-zone="center"] [data-kit="setting-button"]')
+          !!document.querySelector('[data-zone="right"] [data-kit="setting-button"]')
         );
       })()`
     },
@@ -1190,30 +1222,28 @@ export default {
       })()`
     },
     {
-      // Имя стоит над портретом: низ имени выше верха рамки.
-      name: 'S50: name-above-portrait',
+      // Имя — заголовок внутри ленты, а не голый текст над портретом.
+      name: 'S50: name-in-ribbon',
       expr: `(() => {
         const name = document.querySelector('[data-kit="character-name"]');
-        const frame = document.querySelector('[data-kit="portrait-frame"]');
-        if (!name || !frame) return false;
-        const nameRect = name.getBoundingClientRect();
-        const frameRect = frame.getBoundingClientRect();
-        return nameRect.bottom <= frameRect.top + 0.5;
+        return !!name && !!name.closest('[data-ribbon]');
       })()`
     },
     {
-      // Имя по левому краю: не по центру и совпадает с левым краем рамки.
-      name: 'S51: name-left',
+      // Имя по центру ленты и занимает её ширину.
+      name: 'S51: name-in-ribbon-center',
       expr: `(() => {
         const name = document.querySelector('[data-kit="character-name"]');
-        const frame = document.querySelector('[data-kit="portrait-frame"]');
-        if (!name || !frame) return false;
+        const ribbon = name ? name.closest('[data-ribbon]') : null;
+        if (!name || !ribbon) return false;
         const style = getComputedStyle(name);
         const nameRect = name.getBoundingClientRect();
-        const frameRect = frame.getBoundingClientRect();
+        const ribbonRect = ribbon.getBoundingClientRect();
         return (
-          style.textAlign !== 'center' &&
-          Math.abs(nameRect.left - frameRect.left) <= 2
+          style.textAlign === 'center' &&
+          Math.abs(nameRect.width - ribbonRect.width) <= 2 &&
+          nameRect.top >= ribbonRect.top - 0.5 &&
+          nameRect.bottom <= ribbonRect.bottom + 0.5
         );
       })()`
     },
@@ -1226,8 +1256,8 @@ export default {
         const sized = cells.every((cell) => {
           const rect = cell.getBoundingClientRect();
           return (
-            rect.width >= 88 && rect.width <= 96 &&
-            rect.height >= 24 && rect.height <= 32
+            rect.width >= 106 && rect.width <= 114 &&
+            rect.height >= 26 && rect.height <= 34
           );
         });
         if (!sized) return false;
@@ -1288,15 +1318,47 @@ export default {
       })()`
     },
     {
-      // Ни один блок не растянут на всю ширину листа (на десктопе ≤40%).
+      // Ниже «Навыков» блоки стоят парами: ни один не шире половины правой зоны.
       name: 'S55: no-wide-blocks',
       expr: `(() => {
         if (window.innerWidth < 1024) return true;
-        const sheet = document.querySelector('#printable-character-sheet');
-        const blocks = Array.from(document.querySelectorAll('[data-kit="sheet-block"]'));
-        if (!sheet || blocks.length < 6) return false;
-        const width = sheet.getBoundingClientRect().width;
-        return blocks.every((block) => block.getBoundingClientRect().width <= width * 0.4);
+        const right = document.querySelector('[data-zone="right"]');
+        if (!right) return false;
+        const rightW = right.getBoundingClientRect().width;
+        const blocks = Array.from(right.querySelectorAll('[data-kit="sheet-block"]'));
+        const skills = blocks.find((block) => {
+          const ribbon = block.querySelector('[data-ribbon]');
+          return !!ribbon && ribbon.textContent.trim() === 'Навыки';
+        });
+        if (!skills || blocks.length < 5) return false;
+        const skillsBottom = skills.getBoundingClientRect().bottom;
+        const below = blocks.filter(
+          (block) => block !== skills && block.getBoundingClientRect().top >= skillsBottom - 1
+        );
+        return below.length >= 4 && below.every(
+          (block) => block.getBoundingClientRect().width <= rightW * 0.5
+        );
+      })()`
+    },
+    {
+      // «Восстановление» и число стоят рядом, число и жетоны — на одной строке.
+      name: 'S57: fate-inline',
+      expr: `(() => {
+        const fate = document.querySelector('[data-kit="sheet-fate"]');
+        if (!fate) return false;
+        const label = fate.querySelector('[data-kit="fate-label"]');
+        const number = fate.querySelector('[data-kit="sheet-refresh"]');
+        const tokens = Array.from(fate.querySelectorAll('[data-kit="sheet-fate-token"]'));
+        if (!label || !number || tokens.length === 0) return false;
+        const labelRect = label.getBoundingClientRect();
+        const numberRect = number.getBoundingClientRect();
+        const tokenRect = tokens[0].getBoundingClientRect();
+        const gap = numberRect.left - labelRect.right;
+        return (
+          gap >= 0 &&
+          gap <= 40 &&
+          Math.abs(numberRect.top - tokenRect.top) <= 6
+        );
       })()`
     },
     {
@@ -1311,6 +1373,15 @@ export default {
           !text.includes('Тёмное фэнтези') &&
           left.querySelectorAll('[data-kit="setting-wordmark"]').length === 0
         );
+      })()`
+    },
+    {
+      // Поповер «Восстановление» открыт и закрыт в шагах; здесь проверяем
+      // снятые размеры: он обязан целиком помещаться в экран, включая 390.
+      name: 'S58: refresh-panel-inside',
+      expr: `(() => {
+        const box = window.__refreshPanel;
+        return !!box && box.left >= 0 && box.right <= box.viewport;
       })()`
     }
   ]

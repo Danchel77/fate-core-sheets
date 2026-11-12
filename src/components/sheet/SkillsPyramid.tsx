@@ -102,23 +102,14 @@ export const SkillsPyramid: React.FC<SkillsPyramidProps> = ({ character, onChang
 
   return (
     <section className="relative">
-      <div className="mt-[32px] flex flex-col gap-1">
-        {rows.map(({ level, rating, titleRu, count }, rowIndex) => {
+      <div className="mt-4 flex flex-col gap-1.5 pt-[92px] lg:pt-0">
+        {rows.map(({ level, rating, titleRu, count }) => {
           const currentSkills = character.skills[level] || [];
-          // На телефоне крупный знак системы занимает правый верхний угол:
-          // первые две ступени оставляют его пустым, нижние идут на всю ширину.
-          const inLogoBand = rowIndex < 2;
 
           return (
-            <div
-              key={level}
-              data-kit="skill-level"
-              className={`flex min-w-0 items-center ${
-                inLogoBand ? 'pr-[150px] lg:pr-0' : ''
-              }`}
-            >
-              {/* Подпись уровня: +4 и «Отлично» двумя строками по 13px в 52px. */}
-              <div className="flex w-[52px] shrink-0 flex-col justify-center">
+            <div key={level} data-kit="skill-level" className="flex min-w-0 items-center">
+              {/* Подпись уровня: +4 и «Отлично» двумя строками по 13px в 60px. */}
+              <div className="flex w-[60px] shrink-0 flex-col justify-center">
                 <span className="font-fantasy text-[12px] leading-[13px] tabular-nums text-gold-light">
                   {rating}
                 </span>
@@ -127,7 +118,7 @@ export const SkillsPyramid: React.FC<SkillsPyramidProps> = ({ character, onChang
                 </span>
               </div>
 
-              <div className="flex min-w-0 flex-wrap items-center gap-1">
+              <div className="flex min-w-0 flex-wrap items-center gap-1.5">
                 {Array.from({ length: count }).map((_, slotIndex) => {
                   const currentSkillId = currentSkills[slotIndex] || '';
                   const skillDef = availableSkills.find((skill) => skill.id === currentSkillId);
@@ -139,10 +130,10 @@ export const SkillsPyramid: React.FC<SkillsPyramidProps> = ({ character, onChang
                         data-kit="skill-cell"
                         data-slot="filled"
                         tabIndex={-1}
-                        className="group relative flex h-[28px] w-[96px] shrink-0 items-center border border-line bg-panel pl-[4px] pr-0 outline-none transition-colors duration-150 hover:border-gold-dim"
+                        className="group relative flex h-[30px] w-[110px] shrink-0 items-center border border-line bg-panel pl-1.5 pr-0 outline-none transition-colors duration-150 hover:border-gold-dim"
                       >
                         <span
-                          className="min-w-0 flex-1 overflow-hidden whitespace-nowrap font-sans text-xs leading-none text-text"
+                          className="min-w-0 flex-1 whitespace-nowrap font-sans text-xs leading-none text-text"
                           title={skillDef.nameRu}
                         >
                           {skillDef.nameRu}
@@ -171,7 +162,7 @@ export const SkillsPyramid: React.FC<SkillsPyramidProps> = ({ character, onChang
                         setActivePicker({ level, slotIndex });
                         setSearchQuery('');
                       }}
-                      className="h-[28px] w-[96px] shrink-0 cursor-pointer border border-dashed border-line transition-colors duration-150 hover:border-gold-dim focus:outline-none focus-visible:border-gold-dim"
+                      className="h-[30px] w-[110px] shrink-0 cursor-pointer border border-dashed border-line transition-colors duration-150 hover:border-gold-dim focus:outline-none focus-visible:border-gold-dim"
                     />
                   );
                 })}

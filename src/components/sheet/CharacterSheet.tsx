@@ -12,6 +12,7 @@ import { SheetBlock } from './SheetBlock';
 import { SkillsPyramid } from './SkillsPyramid';
 import { StressSection } from './StressSection';
 import { StuntsSection } from './StuntsSection';
+import { SectionRibbon } from '../common/SectionRibbon';
 import { SettingsModal } from '../common/SettingsModal';
 import { countRealStunts, getFatePointCircles } from '../../utils/fateMath';
 
@@ -89,48 +90,49 @@ export const CharacterSheet: React.FC = () => {
     <div className="mx-auto max-w-[1440px] px-6 pb-8 pt-6">
       <div
         id="printable-character-sheet"
-        className="grid grid-cols-1 gap-6 lg:grid-cols-3"
+        className="grid grid-cols-1 gap-6 lg:grid-cols-[380px_minmax(0,1fr)]"
       >
-        {/* Левая зона: имя, портрет в рамке, описание, затем три блока правил. */}
+        {/* Мастер-колонка: имя в ленте, портрет без паспарту, описание,
+            затем восстановление, стресс и последствия. */}
         <div data-zone="left" className="flex min-w-0 flex-col gap-4">
           <header data-kit="sheet-header" className="min-w-0">
             <div data-kit="character-identity" className="flex min-w-0 flex-col gap-3">
-              <input
-                data-kit="character-name"
-                type="text"
-                value={activeCharacter.name}
-                title={activeCharacter.name}
-                onChange={(event) => updateChar({ ...activeCharacter, name: event.target.value })}
-                placeholder="Имя персонажа..."
-                className="w-full min-w-0 whitespace-nowrap bg-transparent p-0 text-left font-fantasy text-[32px] leading-[38px] tracking-wide text-text placeholder:text-text-muted [font-variant-caps:small-caps] focus:outline-none focus-visible:ring-2 focus-visible:ring-gold"
-              />
+              <SectionRibbon>
+                <input
+                  data-kit="character-name"
+                  type="text"
+                  value={activeCharacter.name}
+                  title={activeCharacter.name}
+                  onChange={(event) => updateChar({ ...activeCharacter, name: event.target.value })}
+                  placeholder="Имя персонажа..."
+                  className="w-full min-w-0 cursor-text border-none bg-transparent p-0 text-center font-fantasy text-base leading-tight tracking-wide text-text placeholder:text-text-muted [font-variant-caps:small-caps] focus:outline-none focus-visible:underline focus-visible:decoration-gold focus-visible:underline-offset-2"
+                />
+              </SectionRibbon>
 
-              {/* Рамка — только у изображения портрета; у имени и описания её нет. */}
-              <div
-                data-kit="portrait-frame"
-                className="flex w-[272px] items-center justify-center border border-gold p-1.5"
-              >
+              {/* Рамка — только у изображения: ни паспарту, ни подложки. */}
+              <div data-kit="portrait-frame" className="w-[300px] p-0">
                 <button
                   data-kit="sheet-portrait"
                   type="button"
                   onClick={() => setIsPortraitOpen(true)}
                   aria-label="Изменить портрет"
-                  className="group relative block h-[300px] w-[240px] shrink-0 cursor-pointer overflow-hidden bg-ink-frame transition-colors duration-150 hover:bg-ink-raised focus:outline-none focus-visible:ring-2 focus-visible:ring-gold"
+                  className="group relative block h-[360px] w-[300px] shrink-0 cursor-pointer overflow-hidden bg-ink-frame p-0 transition-colors duration-150 hover:bg-ink-raised focus:outline-none focus-visible:ring-2 focus-visible:ring-gold"
                 >
-                  <span
-                    aria-hidden="true"
-                    className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-text-muted transition-colors duration-150 group-hover:text-gold"
-                  >
-                    <Shield className="size-5" strokeWidth={1.5} />
-                    <span className="font-sans text-xs uppercase tracking-wider">Портрет</span>
-                  </span>
-
-                  {activeCharacter.avatar && (
+                  {activeCharacter.avatar ? (
                     <img
+                      data-kit="portrait-image"
                       src={activeCharacter.avatar}
                       alt={activeCharacter.name}
-                      className="relative h-full w-full object-cover object-center"
+                      className="block h-[360px] w-[300px] border border-gold object-cover object-center"
                     />
+                  ) : (
+                    <span
+                      aria-hidden="true"
+                      className="absolute inset-0 flex flex-col items-center justify-center gap-2 border border-gold text-text-muted transition-colors duration-150 group-hover:text-gold"
+                    >
+                      <Shield className="size-5" strokeWidth={1.5} />
+                      <span className="font-sans text-xs uppercase tracking-wider">Портрет</span>
+                    </span>
                   )}
 
                   <span className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 bg-ink/75 font-sans text-xs uppercase tracking-wider text-text opacity-0 transition-opacity duration-150 group-hover:opacity-100 group-focus-visible:opacity-100">
@@ -155,15 +157,19 @@ export const CharacterSheet: React.FC = () => {
           </header>
 
           <SheetBlock title="Восстановление">
-            <div data-kit="sheet-fate" className="flex flex-col gap-1">
-              <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
-                <RulesTooltip
-                  label="Как считается"
-                  title="Восстановление"
-                  text="Сколько очков судьбы вы получаете в начале каждой сессии. База — 3; каждый трюк сверх трёх снижает это число на один."
-                  className="font-sans text-xs uppercase tracking-wider text-text-muted"
-                />
+            <div data-kit="sheet-fate" className="flex min-w-0 flex-wrap items-center">
+              <RulesTooltip
+                label="Как считается"
+                title="Восстановление"
+                text="Сколько очков судьбы вы получаете в начале каждой сессии. База — 3; каждый трюк сверх трёх снижает это число на один."
+                className="mr-2 shrink-0 font-sans text-xs text-text-muted"
+              />
 
+              {/* Подпись и число стоят вплотную, жетоны — сразу справа от числа. */}
+              <span data-kit="fate-label" className="font-sans text-xs leading-none text-text">
+                Восстановление
+              </span>
+              <span className="ml-2 inline-flex [&_[data-kit=sheet-refresh]]:leading-none">
                 <RefreshControl
                   baseRefresh={activeCharacter.baseRefresh ?? 3}
                   refresh={activeCharacter.refresh}
@@ -171,9 +177,9 @@ export const CharacterSheet: React.FC = () => {
                   freeStunts={activeCharacter.freeStunts ?? 3}
                   onChangeBase={(value) => updateChar({ ...activeCharacter, baseRefresh: value })}
                 />
-              </div>
+              </span>
 
-              <div className="flex items-center gap-1" aria-hidden="true">
+              <div className="ml-2 flex items-center gap-1" aria-hidden="true">
                 {Array.from({ length: Math.min(5, circles.total) }).map((_, index) => (
                   <span
                     key={index}
@@ -198,8 +204,8 @@ export const CharacterSheet: React.FC = () => {
           </SheetBlock>
         </div>
 
-        {/* Средняя зона: навыки с крупным знаком системы в углу, ниже трюки. */}
-        <div data-zone="center" className="flex min-w-0 flex-col gap-4">
+        {/* Детальная область: навыки во всю ширину, ниже пары равных колонок. */}
+        <div data-zone="right" className="flex min-w-0 flex-col gap-4">
           <SheetBlock title="Навыки" className="relative">
             <SettingEmblem
               setting={activeCharacter.setting}
@@ -209,33 +215,34 @@ export const CharacterSheet: React.FC = () => {
             <SkillsPyramid character={activeCharacter} onChange={updateChar} />
           </SheetBlock>
 
-          <SheetBlock title="Трюки">
-            <StuntsSection
-              character={activeCharacter}
-              onChange={updateChar}
-              onOpenApiKeySettings={() => setIsSettingsOpen(true)}
-              showHeader={false}
-            />
-          </SheetBlock>
-        </div>
+          <div className="grid min-w-0 gap-4 lg:grid-cols-2">
+            <SheetBlock title="Трюки">
+              <StuntsSection
+                character={activeCharacter}
+                onChange={updateChar}
+                onOpenApiKeySettings={() => setIsSettingsOpen(true)}
+                showHeader={false}
+              />
+            </SheetBlock>
 
-        {/* Правая зона: аспекты и два отдельных блока заметок. */}
-        <div data-zone="right" className="flex min-w-0 flex-col gap-4">
-          <SheetBlock title="Аспекты">
-            <AspectsSection
-              character={activeCharacter}
-              onChange={updateChar}
-              onOpenApiKeySettings={() => setIsSettingsOpen(true)}
-            />
-          </SheetBlock>
+            <SheetBlock title="Аспекты">
+              <AspectsSection
+                character={activeCharacter}
+                onChange={updateChar}
+                onOpenApiKeySettings={() => setIsSettingsOpen(true)}
+              />
+            </SheetBlock>
+          </div>
 
-          <SheetBlock title="Заметки">
-            <NotesSection character={activeCharacter} onChange={updateChar} field="notes" />
-          </SheetBlock>
+          <div className="grid min-w-0 gap-4 lg:grid-cols-2">
+            <SheetBlock title="Заметки">
+              <NotesSection character={activeCharacter} onChange={updateChar} field="notes" />
+            </SheetBlock>
 
-          <SheetBlock title="Дополнительно">
-            <NotesSection character={activeCharacter} onChange={updateChar} field="notesExtra" />
-          </SheetBlock>
+            <SheetBlock title="Дополнительно">
+              <NotesSection character={activeCharacter} onChange={updateChar} field="notesExtra" />
+            </SheetBlock>
+          </div>
         </div>
       </div>
 
