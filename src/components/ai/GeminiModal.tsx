@@ -1,8 +1,13 @@
-import React, { useState } from 'react';
-import { Sparkles, X, Check, Loader2, AlertCircle, RefreshCw } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Sparkles, Check, Loader2, AlertCircle, RefreshCw } from 'lucide-react';
 import { askGeminiForAspect, askGeminiForStunt, GeminiSuggestion } from '../../services/gemini';
 import { Character } from '../../types/character';
 import { getLocalGeminiApiKey } from '../../services/storage';
+import { Button } from '../common/Button';
+import { FieldLabel } from '../common/FieldLabel';
+import { Input } from '../common/Input';
+import { Modal } from '../common/Modal';
+import { SettingsModal } from '../common/SettingsModal';
 
 interface GeminiModalProps {
   isOpen: boolean;
@@ -23,20 +28,28 @@ export const GeminiModal: React.FC<GeminiModalProps> = ({
   skillName = '',
   character,
   onSelectSuggestion,
-  onOpenApiKeySettings,
 }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [suggestions, setSuggestions] = useState<GeminiSuggestion[]>([]);
   const [notes, setNotes] = useState('');
+  const [settingsOpen, setSettingsOpen] = useState(false);
+
+  // Демо-режим (?mock=1) работает без ключа: сборка с VITE_GEMINI_API_KEY не
+  // должна делать демонстрационный лист зависимым от сети и внешней квоты.
+  const isDemoMode =
+    typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('mock') === '1';
+  const hasApiKey = !isDemoMode && Boolean(getLocalGeminiApiKey());
+
+  useEffect(() => {
+    if (!isOpen) setSettingsOpen(false);
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
-  const hasApiKey = Boolean(getLocalGeminiApiKey());
-
   const handleGenerate = async () => {
     if (!hasApiKey) {
-      onOpenApiKeySettings();
+      setSettingsOpen(true);
       return;
     }
 
@@ -81,132 +94,113 @@ export const GeminiModal: React.FC<GeminiModalProps> = ({
     : `ИИ-генератор трюка (${skillName || 'Трюк'})`;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-      <div className="bg-[#161B22] border border-[#2E3440] rounded-2xl max-w-xl w-full p-6 shadow-2xl relative">
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 text-slate-400 hover:text-white transition"
-        >
-          <X className="w-5 h-5" />
-        </button>
-
-        <div className="flex items-center gap-3 mb-4">
-          <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-500">
-            <Sparkles className="w-5 h-5" />
+    <>
+      <Modal
+        isOpen={isOpen}
+        onClose={onClose}
+        title="Gemini"
+        level={1}
+        maxWidthClass="max-w-xl"
+        footer={
+          <Button variant="secondary" onClick={onClose}>
+            Закрыть
+          </Button>
+        }
+      >
+        <div className="flex flex-col gap-4">
+          <div className="flex items-start gap-3">
+            <span className="flex size-9 shrink-0 items-center justify-center border border-gold-dim bg-ink-raised text-gold">
+              <Sparkles className="size-4" strokeWidth={1.5} aria-hidden="true" />
+            </span>
+            <div className="min-w-0">
+              <h3 className="font-fantasy text-lg text-gold-light">{titleText}</h3>
+              <p className="font-sans text-xs text-text-muted">
+                Генерация вариантов с учётом сеттинга и правил Fate Core
+              </p>
+            </div>
           </div>
-          <div>
-            <h3 className="font-fantasy font-bold text-lg text-amber-400">
-              {titleText}
-            </h3>
-            <p className="text-xs text-slate-400">
-              Генерация вариантов с учётом сеттинга и правил Fate Core
-            </p>
+
+          <div className="flex flex-col gap-1.5">
+            <FieldLabel>Ваши пожелания или детали идеи (необязательно)</FieldLabel>
+            <Input
+              type="text"
+              value={notes}
+              onChange={(event) => setNotes(event.target.value)}
+              placeholder="Например: бывший ведьмак Школы Кота, циничный, любит деньги..."
+            />
           </div>
-        </div>
 
-        {/* Optional notes input */}
-        <div className="mb-4">
-          <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">
-            Ваши пожелания или детали идеи (необязательно)
-          </label>
-          <input
-            type="text"
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-            placeholder="Например: бывший ведьмак Школы Кота, циничный, любит деньги..."
-            className="w-full bg-[#0B0E14] border border-[#2E3440] rounded-lg px-3.5 py-2 text-sm text-white focus:outline-none focus:border-amber-500 transition"
-          />
-        </div>
+          {suggestions.length === 0 && !loading ? (
+            <div className="border border-dashed border-line bg-ink-raised/40 p-4 text-center">
+              <p className="mx-auto mb-3 max-w-sm font-sans text-xs leading-relaxed text-text-muted">
+                Нажмите кнопку ниже, и Gemini 3.5 предложит 3 выразительных варианта с пояснениями.
+              </p>
+              <Button onClick={handleGenerate} className="mx-auto flex items-center gap-2">
+                <Sparkles className="size-4" strokeWidth={1.5} aria-hidden="true" />
+                Сгенерировать 3 варианта
+              </Button>
+            </div>
+          ) : null}
 
-        {/* Generate Trigger */}
-        {suggestions.length === 0 && !loading && (
-          <div className="text-center py-6 border border-[#2E3440] border-dashed rounded-xl mb-4 bg-[#0B0E14]/40">
-            <p className="text-xs text-slate-400 mb-4 max-w-sm mx-auto">
-              Нажмите кнопку ниже, и Gemini 3.5 предложит 3 выразительных варианта с пояснениями.
-            </p>
-            <button
-              onClick={handleGenerate}
-              className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-black font-semibold text-sm shadow-lg shadow-amber-900/30 transition flex items-center gap-2 mx-auto"
-            >
-              <Sparkles className="w-4 h-4 stroke-[2.5]" />
-              Сгенерировать 3 варианта
-            </button>
-          </div>
-        )}
+          {loading ? (
+            <div className="py-8 text-center">
+              <Loader2 className="mx-auto mb-3 size-8 animate-spin text-gold" strokeWidth={1.5} aria-hidden="true" />
+              <p className="font-fantasy text-sm text-gold-light">Совет старейшин формулирует судьбу...</p>
+              <p className="mt-1 font-sans text-xs text-text-muted">
+                Ожидание ответа от Gemini Flash-lite (~1-2 сек)
+              </p>
+            </div>
+          ) : null}
 
-        {/* Loading state */}
-        {loading && (
-          <div className="py-12 text-center">
-            <Loader2 className="w-8 h-8 text-amber-500 animate-spin mx-auto mb-3" />
-            <p className="text-sm font-fantasy text-amber-300">
-              Совет старейшин формулирует судьбу...
-            </p>
-            <p className="text-xs text-slate-500 mt-1">Ожидание ответа от Gemini Flash-lite (~1-2 сек)</p>
-          </div>
-        )}
-
-        {/* Error message */}
-        {error && (
-          <div className="p-3 bg-red-950/50 border border-red-500/50 rounded-xl flex items-center gap-3 text-red-300 text-xs mb-4">
-            <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />
-            <div className="flex-1">{error}</div>
-            <button
-              onClick={onOpenApiKeySettings}
-              className="underline text-red-200 hover:text-white"
-            >
-              Настроить
-            </button>
-          </div>
-        )}
-
-        {/* Suggestions List */}
-        {suggestions.length > 0 && !loading && (
-          <div className="space-y-3 mb-4 max-h-[360px] overflow-y-auto pr-1">
-            {suggestions.map((item, idx) => (
-              <div
-                key={idx}
-                className="p-3.5 rounded-xl bg-[#0B0E14] border border-[#2E3440] hover:border-amber-500/70 transition group flex flex-col justify-between"
+          {error ? (
+            <div className="flex items-center gap-3 border border-danger bg-wine p-3 font-sans text-xs text-danger">
+              <AlertCircle className="size-4 shrink-0" strokeWidth={1.5} aria-hidden="true" />
+              <div className="flex-1">{error}</div>
+              <Button
+                variant="secondary"
+                onClick={() => setSettingsOpen(true)}
+                className="shrink-0 !border-danger !px-2 !py-1 !text-danger"
               >
-                <div>
-                  <h4 className="font-fantasy font-bold text-sm text-amber-300 group-hover:text-amber-200">
-                    «{item.title}»
-                  </h4>
-                  <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                Настроить
+              </Button>
+            </div>
+          ) : null}
+
+          {suggestions.length > 0 && !loading ? (
+            <div className="flex max-h-[360px] flex-col gap-2 overflow-y-auto pr-1">
+              {suggestions.map((item, idx) => (
+                <div key={idx} className="flex flex-col border border-line bg-ink-raised p-3">
+                  <h4 className="font-fantasy text-sm text-gold-light">«{item.title}»</h4>
+                  <p className="mt-1 font-sans text-xs leading-relaxed text-text-muted">
                     {item.description}
                   </p>
+                  <Button
+                    onClick={() => {
+                      onSelectSuggestion(item.title, item.description);
+                      onClose();
+                    }}
+                    className="mt-2 flex items-center gap-1.5 self-end !px-3 !py-1 !text-xs"
+                  >
+                    <Check className="size-3.5" strokeWidth={1.5} aria-hidden="true" />
+                    Применить
+                  </Button>
                 </div>
-                <button
-                  onClick={() => {
-                    onSelectSuggestion(item.title, item.description);
-                    onClose();
-                  }}
-                  className="mt-3 self-end px-3 py-1 rounded-lg bg-amber-500/10 hover:bg-amber-500 border border-amber-500/30 hover:border-amber-500 text-amber-400 hover:text-black font-semibold text-xs flex items-center gap-1.5 transition"
-                >
-                  <Check className="w-3.5 h-3.5" />
-                  Применить
-                </button>
-              </div>
-            ))}
+              ))}
 
-            <button
-              onClick={handleGenerate}
-              className="w-full py-2 border border-[#2E3440] hover:border-slate-600 rounded-lg text-xs text-slate-400 hover:text-white flex items-center justify-center gap-1.5 transition"
-            >
-              <RefreshCw className="w-3.5 h-3.5" />
-              Сгенерировать другие варианты
-            </button>
-          </div>
-        )}
-
-        <div className="flex justify-end pt-2">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 text-xs text-slate-400 hover:text-white transition"
-          >
-            Закрыть
-          </button>
+              <Button
+                variant="secondary"
+                onClick={handleGenerate}
+                className="flex w-full items-center justify-center gap-1.5"
+              >
+                <RefreshCw className="size-3.5" strokeWidth={1.5} aria-hidden="true" />
+                Сгенерировать другие варианты
+              </Button>
+            </div>
+          ) : null}
         </div>
-      </div>
-    </div>
+      </Modal>
+
+      <SettingsModal isOpen={settingsOpen} onClose={() => setSettingsOpen(false)} level={2} />
+    </>
   );
 };

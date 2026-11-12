@@ -40,6 +40,153 @@ export default {
         return true;
       })()`
     },
+    {
+      eval: `(() => {
+        const trigger = document.querySelector('[data-kit="sheet-portrait"]');
+        if (!trigger) return false;
+        trigger.focus();
+        trigger.click();
+        return true;
+      })()`
+    },
+    { waitFor: `!!document.querySelector('[data-kit=modal][data-modal-level="1"]')`, timeout: 5000 },
+    { wait: 200 },
+    { shot: { out: 'scripts/e2e/shots/sheet-portrait-modal.png' } },
+    {
+      eval: `(() => {
+        const modals = document.querySelectorAll('[data-kit="modal"]');
+        const modal = document.querySelector('[data-kit=modal][data-modal-level="1"]');
+        const panel = modal ? modal.querySelector('[data-kit="modal-panel"]') : null;
+        const style = panel ? getComputedStyle(panel) : null;
+        window.__portraitModal = {
+          count: modals.length,
+          exists: !!modal,
+          background: style ? style.backgroundColor : null,
+          radius: style ? style.borderRadius : null,
+          ribbon: !!(panel && panel.querySelector('[data-ribbon]'))
+        };
+        return true;
+      })()`
+    },
+    {
+      eval: `(() => {
+        const close = document.querySelector('[data-kit="modal-close"]');
+        if (!close) return false;
+        close.focus();
+        close.click();
+        return true;
+      })()`
+    },
+    { wait: 200 },
+    {
+      eval: `(() => {
+        const trigger = document.querySelector('[aria-label="Помощь Gemini: Концепция"]');
+        if (!trigger) return false;
+        trigger.focus();
+        trigger.click();
+        return true;
+      })()`
+    },
+    { waitFor: `!!document.querySelector('[data-kit=modal][data-modal-level="1"]')`, timeout: 5000 },
+    { wait: 200 },
+    {
+      eval: `(() => {
+        const generate = Array.from(document.querySelectorAll('button')).find(
+          (button) => button.textContent.trim() === 'Сгенерировать 3 варианта'
+        );
+        if (!generate) return false;
+        generate.focus();
+        generate.click();
+        return true;
+      })()`
+    },
+    { waitFor: `!!document.querySelector('[data-kit=modal][data-modal-level="2"]')`, timeout: 5000 },
+    { wait: 250 },
+    { shot: { out: 'scripts/e2e/shots/sheet-gemini-nested.png' } },
+    {
+      eval: `(() => {
+        const first = document.querySelector('[data-kit=modal][data-modal-level="1"]');
+        const second = document.querySelector('[data-kit=modal][data-modal-level="2"]');
+        const panel = second ? second.querySelector('[data-kit="modal-panel"]') : null;
+        const style = panel ? getComputedStyle(panel) : null;
+        window.__geminiNested = {
+          level1: !!first,
+          level2: !!second,
+          transform: style ? style.transform : null
+        };
+        return true;
+      })()`
+    },
+    {
+      eval: `(() => {
+        document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+        return true;
+      })()`
+    },
+    { wait: 200 },
+    {
+      eval: `(() => {
+        window.__escapeTop = {
+          level2Closed: !document.querySelector('[data-kit=modal][data-modal-level="2"]'),
+          level1Open: !!document.querySelector('[data-kit=modal][data-modal-level="1"]')
+        };
+        return true;
+      })()`
+    },
+    { shot: { out: 'scripts/e2e/shots/sheet-gemini.png' } },
+    {
+      eval: `(() => {
+        const panel = document.querySelector('[data-kit=modal][data-modal-level="1"] [data-kit="modal-panel"]');
+        if (!panel) {
+          window.__modalLegacy = null;
+          return true;
+        }
+        const nodes = [panel, ...Array.from(panel.querySelectorAll('*'))];
+        let badClass = false;
+        let badRadius = false;
+        let badDim = false;
+        for (const el of nodes) {
+          const className = typeof el.className === 'string' ? el.className : '';
+          const tokens = className.split(' ').filter(Boolean);
+          const hasSlate = tokens.some(
+            (token) =>
+              token.startsWith('slate-') ||
+              token.includes(':slate-') ||
+              token.includes('-slate-')
+          );
+          const hasRounded = tokens.some(
+            (token) => token.startsWith('rounded') && token !== 'rounded-none'
+          );
+          if (hasSlate || hasRounded || className.includes('backdrop-blur')) badClass = true;
+          if (getComputedStyle(el).borderRadius !== '0px') badRadius = true;
+          const bg = getComputedStyle(el).backgroundColor;
+          if (
+            bg.startsWith('rgba(0, 0, 0,') &&
+            Math.abs(parseFloat(bg.slice(bg.lastIndexOf(',') + 1)) - 0.8) < 0.01
+          ) {
+            badDim = true;
+          }
+        }
+        window.__modalLegacy = { badClass, badRadius, badDim };
+        return true;
+      })()`
+    },
+    {
+      eval: `(() => {
+        const close = document.querySelector('[data-kit="modal-close"]');
+        if (!close) return false;
+        close.focus();
+        close.click();
+        return true;
+      })()`
+    },
+    { wait: 300 },
+    {
+      eval: `(() => {
+        window.__modalsClosed = document.querySelectorAll('[data-kit="modal"]').length === 0;
+        return true;
+      })()`
+    },
     { shot: { out: 'scripts/e2e/shots/sheet.png' } }
   ],
   asserts: [
@@ -379,6 +526,61 @@ export default {
           return ribbon ? ribbon.textContent.trim() : '';
         });
         return styled && titles[0] === 'Заметки' && titles[1] === 'Дополнительно';
+      })()`
+    },
+    {
+      name: 'S27: portrait-modal',
+      expr: `(() => {
+        const facts = window.__portraitModal;
+        return (
+          !!facts &&
+          facts.count === 1 &&
+          facts.exists === true &&
+          facts.background === 'rgb(0, 0, 0)' &&
+          facts.radius === '0px' &&
+          facts.ribbon === true
+        );
+      })()`
+    },
+    {
+      name: 'S28: gemini-nested',
+      expr: `(() => {
+        const facts = window.__geminiNested;
+        if (!facts || facts.level1 !== true || facts.level2 !== true) return false;
+        const transform = facts.transform || '';
+        if (!transform.startsWith('matrix(')) return false;
+        const parts = transform
+          .slice(transform.indexOf('(') + 1, transform.lastIndexOf(')'))
+          .split(',')
+          .map((value) => parseFloat(value.trim()));
+        return (
+          parts.length === 6 &&
+          Math.abs(parts[4] - 24) < 0.5 &&
+          Math.abs(parts[5] - 24) < 0.5
+        );
+      })()`
+    },
+    {
+      name: 'S29: escape-top',
+      expr: `(() => {
+        const facts = window.__escapeTop;
+        return !!facts && facts.level2Closed === true && facts.level1Open === true;
+      })()`
+    },
+    {
+      name: 'S30: modals-closed',
+      expr: `window.__modalsClosed === true`
+    },
+    {
+      name: 'S31: no-legacy-in-modals',
+      expr: `(() => {
+        const facts = window.__modalLegacy;
+        return (
+          !!facts &&
+          facts.badClass === false &&
+          facts.badRadius === false &&
+          facts.badDim === false
+        );
       })()`
     }
   ]

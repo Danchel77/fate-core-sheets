@@ -1,13 +1,19 @@
 import React, { useEffect, useState } from 'react';
-import { Check, ExternalLink, Key, Settings, Sparkles, X } from 'lucide-react';
+import { Check, ExternalLink, Sparkles } from 'lucide-react';
 import { getLocalGeminiApiKey, setLocalGeminiApiKey } from '../../services/storage';
+import { Button } from './Button';
+import { FieldLabel } from './FieldLabel';
+import { Input } from './Input';
+import { Modal } from './Modal';
 
 interface SettingsModalProps {
   isOpen: boolean;
   onClose: () => void;
+  /** 1 — обычное окно, 2 — вложенное поверх окна Gemini. */
+  level?: 1 | 2;
 }
 
-export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
+export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, level = 1 }) => {
   const [key, setKey] = useState('');
   const [saved, setSaved] = useState(false);
 
@@ -17,25 +23,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
       setSaved(false);
     }
   }, [isOpen]);
-
-  useEffect(() => {
-    if (!isOpen) return;
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') onClose();
-    };
-
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    document.addEventListener('keydown', handleKeyDown);
-
-    return () => {
-      document.body.style.overflow = previousOverflow;
-      document.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [isOpen, onClose]);
-
-  if (!isOpen) return null;
 
   const handleSave = () => {
     setLocalGeminiApiKey(key.trim());
@@ -47,117 +34,71 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
   };
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm"
-      onPointerDown={(event) => {
-        if (event.target === event.currentTarget) onClose();
-      }}
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title="Настройки"
+      level={level}
+      maxWidthClass="max-w-lg"
+      footer={
+        <>
+          <Button variant="secondary" onClick={onClose}>
+            Отмена
+          </Button>
+          <Button onClick={handleSave} className="flex items-center gap-2">
+            {saved ? (
+              <>
+                <Check className="size-3.5" strokeWidth={1.5} aria-hidden="true" />
+                Сохранено
+              </>
+            ) : (
+              'Сохранить'
+            )}
+          </Button>
+        </>
+      }
     >
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="settings-title"
-        className="w-full max-w-lg overflow-hidden rounded-xl border border-[#2A3444] bg-[#10141C] shadow-2xl"
-      >
-        <div className="flex items-center justify-between border-b border-[#202734] px-5 py-4">
-          <div className="flex items-center gap-2.5">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#2A3444] bg-[#161C26] text-slate-300">
-              <Settings className="h-4 w-4" />
-            </span>
-            <div>
-              <h2 id="settings-title" className="font-fantasy text-lg font-semibold text-white">
-                Настройки
-              </h2>
-              <p className="text-[11px] text-slate-500">Параметры листа и ИИ-помощника</p>
-            </div>
-          </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="cursor-pointer rounded-lg p-1.5 text-slate-500 transition hover:bg-[#1A202C] hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400/40"
-            aria-label="Закрыть настройки"
-          >
-            <X className="h-4 w-4" />
-          </button>
+      <div className="flex flex-col gap-4">
+        <p className="font-sans text-xs text-text-muted">Параметры листа и ИИ-помощника</p>
+
+        <div className="flex flex-wrap items-center gap-2 border-b border-line pb-2">
+          <span className="font-sans text-xs uppercase tracking-wider text-gold-light">Gemini AI</span>
+          <span className="font-sans text-xs text-text-muted">Аспекты, трюки и подсказки</span>
         </div>
 
-        <div className="p-5">
-          <div className="mb-5 flex items-center gap-2 border-b border-[#202734] pb-3">
-            <span className="rounded-md border border-[#2A3444] bg-[#161C26] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-300">
-              Gemini AI
-            </span>
-            <span className="text-[11px] text-slate-500">Аспекты, трюки и подсказки</span>
-          </div>
+        <div className="flex flex-col gap-1">
+          <h3 className="flex items-center gap-2 font-fantasy text-lg text-text">
+            <Sparkles className="size-4 text-gold" strokeWidth={1.5} aria-hidden="true" />
+            Ключ Google AI Studio
+          </h3>
+          <p className="font-sans text-xs leading-relaxed text-text-muted">
+            Ключ нужен для генерации аспектов и трюков. Он сохраняется только в этом браузере и не
+            отправляется на сервер проекта.
+          </p>
+        </div>
 
-          <div className="flex items-start gap-2.5">
-            <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[#2A3444] bg-[#161C26] text-slate-400">
-              <Sparkles className="h-4 w-4" />
-            </span>
-            <div>
-              <h3 className="text-sm font-semibold text-slate-200">Ключ Google AI Studio</h3>
-              <p className="mt-1 text-xs leading-relaxed text-slate-400">
-                Ключ нужен для генерации аспектов и трюков. Он сохраняется только в этом браузере
-                и не отправляется на сервер проекта.
-              </p>
-            </div>
-          </div>
-
-          <div className="mt-4">
-            <label
-              htmlFor="gemini-key"
-              className="mb-1.5 block text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500"
-            >
-              API-ключ
-            </label>
-            <div className="relative">
-              <Key className="absolute left-3 top-2.5 h-4 w-4 text-slate-500" />
-              <input
-                id="gemini-key"
-                type="password"
-                value={key}
-                onChange={(event) => setKey(event.target.value)}
-                placeholder="AIzaSy..."
-                autoComplete="off"
-                spellCheck={false}
-                className="w-full rounded-lg border border-[#2A3444] bg-[#0B0E14] py-2 pl-9 pr-3 text-sm text-slate-100 placeholder-slate-600 transition focus:border-slate-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400/30"
-              />
-            </div>
-            <a
-              href="https://aistudio.google.com/app/apikey"
-              target="_blank"
-              rel="noreferrer"
-              className="mt-2 inline-flex items-center gap-1 text-[11px] text-slate-400 underline decoration-slate-600 underline-offset-2 transition hover:text-slate-200"
-            >
-              Получить ключ в Google AI Studio
-              <ExternalLink className="h-3 w-3" />
-            </a>
-          </div>
-
-          <div className="mt-6 flex items-center justify-end gap-3">
-            <button
-              type="button"
-              onClick={onClose}
-              className="cursor-pointer rounded-lg px-3 py-2 text-xs text-slate-400 transition hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400/40"
-            >
-              Отмена
-            </button>
-            <button
-              type="button"
-              onClick={handleSave}
-              className="flex cursor-pointer items-center gap-1.5 rounded-lg border border-[#B9C9DC] bg-[#B9C9DC] px-4 py-2 text-xs font-semibold text-[#0B0E14] transition hover:border-[#CAD8E8] hover:bg-[#CAD8E8] focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-300"
-            >
-              {saved ? (
-                <>
-                  <Check className="h-3.5 w-3.5" />
-                  Сохранено
-                </>
-              ) : (
-                'Сохранить'
-              )}
-            </button>
-          </div>
+        <div className="flex flex-col gap-1.5">
+          <FieldLabel>API-ключ</FieldLabel>
+          <Input
+            id="gemini-key"
+            type="password"
+            value={key}
+            onChange={(event) => setKey(event.target.value)}
+            placeholder="AIzaSy..."
+            autoComplete="off"
+            spellCheck={false}
+          />
+          <a
+            href="https://aistudio.google.com/app/apikey"
+            target="_blank"
+            rel="noreferrer"
+            className="mt-1 inline-flex items-center gap-1 font-sans text-xs text-gold-light underline decoration-gold-dim underline-offset-2 transition-colors duration-150 hover:text-gold"
+          >
+            Получить ключ в Google AI Studio
+            <ExternalLink className="size-3" strokeWidth={1.5} aria-hidden="true" />
+          </a>
         </div>
       </div>
-    </div>
+    </Modal>
   );
 };

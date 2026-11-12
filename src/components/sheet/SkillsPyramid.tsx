@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
-import { Plus, X, Search } from 'lucide-react';
+import { Plus, X } from 'lucide-react';
 import { Character } from '../../types/character';
 import { SETTING_PRESETS } from '../../config/presets';
+import { FieldLabel } from '../common/FieldLabel';
+import { Input } from '../common/Input';
+import { Modal } from '../common/Modal';
 
 type SkillLevel = 6 | 5 | 4 | 3 | 2 | 1;
 
@@ -176,36 +179,33 @@ export const SkillsPyramid: React.FC<SkillsPyramidProps> = ({
         })}
       </div>
 
-      {activePicker && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-lg space-y-4 rounded-2xl border border-[#2A3444] bg-[#121721] p-5 shadow-2xl">
-            <div className="flex items-center justify-between border-b border-[#1C212B] pb-3">
-              <h3 className="font-fantasy text-base font-bold text-slate-100">
-                Навык для уровня +{activePicker.level}
-              </h3>
-              <button
-                type="button"
-                onClick={() => setActivePicker(null)}
-                className="cursor-pointer rounded-lg p-1 text-slate-400 transition hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400/40"
-                aria-label="Закрыть"
-              >
-                <X className="h-5 w-5" />
-              </button>
+      <Modal
+        isOpen={activePicker !== null}
+        onClose={() => {
+          setActivePicker(null);
+          setSearchQuery('');
+        }}
+        title="Выбор навыка"
+        maxWidthClass="max-w-lg"
+      >
+        {activePicker ? (
+          <div className="flex flex-col gap-3">
+            <div>
+              <FieldLabel>Навык для уровня +{activePicker.level}</FieldLabel>
+              <p className="mt-1 font-sans text-xs text-text-muted">
+                Выберите навык из пресета сеттинга. Уже занятые навыки недоступны.
+              </p>
             </div>
 
-            <div className="relative">
-              <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-500" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(event) => setSearchQuery(event.target.value)}
-                placeholder="Поиск по названию или описанию..."
-                className="w-full rounded-xl border border-[#1C212B] bg-[#0B0E14] py-2 pl-9 pr-3 text-xs text-slate-200 placeholder-slate-500 focus:border-slate-600 focus:outline-none"
-                autoFocus
-              />
-            </div>
+            <Input
+              type="text"
+              value={searchQuery}
+              onChange={(event) => setSearchQuery(event.target.value)}
+              placeholder="Поиск по названию или описанию..."
+              autoFocus
+            />
 
-            <div className="max-h-64 space-y-1.5 overflow-y-auto pr-1">
+            <div className="flex max-h-64 flex-col gap-1.5 overflow-y-auto pr-1">
               {filteredSkills.map((skill) => {
                 const isAssigned = assignedSkillIds.has(skill.id);
 
@@ -215,23 +215,23 @@ export const SkillsPyramid: React.FC<SkillsPyramidProps> = ({
                     type="button"
                     disabled={isAssigned}
                     onClick={() => handleSetSkill(activePicker.level, activePicker.slotIndex, skill.id)}
-                    className={`flex w-full items-start justify-between gap-3 rounded-xl border p-2.5 text-left transition ${
+                    className={`flex w-full items-start justify-between gap-3 border p-2.5 text-left transition-colors duration-150 focus:outline-none focus-visible:border-gold ${
                       isAssigned
-                        ? 'cursor-not-allowed border-[#1C212B] bg-[#0B0E14]/40 opacity-40'
-                        : 'cursor-pointer border-[#1C212B] bg-[#0B0E14] hover:border-slate-600 hover:bg-[#161B22]'
+                        ? 'cursor-not-allowed border-line bg-ink-frame opacity-40'
+                        : 'cursor-pointer border-line bg-ink-raised hover:border-gold-dim'
                     }`}
                   >
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs font-semibold text-slate-200">{skill.nameRu}</span>
-                        <span className="text-[10px] text-slate-500">({skill.nameEn})</span>
-                        {isAssigned && (
-                          <span className="rounded bg-slate-800 px-1.5 py-0.5 text-[9px] text-slate-400">
+                    <div className="min-w-0">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="font-sans text-sm text-text">{skill.nameRu}</span>
+                        <span className="font-sans text-xs text-text-muted">({skill.nameEn})</span>
+                        {isAssigned ? (
+                          <span className="border border-line px-1.5 py-0.5 font-sans text-xs text-text-muted">
                             Уже выбран
                           </span>
-                        )}
+                        ) : null}
                       </div>
-                      <p className="mt-0.5 text-[11px] leading-snug text-slate-400">
+                      <p className="mt-0.5 font-sans text-xs leading-snug text-text-muted">
                         {skill.description}
                       </p>
                     </div>
@@ -239,15 +239,15 @@ export const SkillsPyramid: React.FC<SkillsPyramidProps> = ({
                 );
               })}
 
-              {filteredSkills.length === 0 && (
-                <div className="py-6 text-center text-xs text-slate-500">
+              {filteredSkills.length === 0 ? (
+                <div className="py-6 text-center font-sans text-xs text-text-muted">
                   Ничего не найдено по запросу «{searchQuery}»
                 </div>
-              )}
+              ) : null}
             </div>
           </div>
-        </div>
-      )}
+        ) : null}
+      </Modal>
     </section>
   );
 };
