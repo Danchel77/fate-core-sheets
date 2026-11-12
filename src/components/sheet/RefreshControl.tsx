@@ -61,7 +61,7 @@ export const RefreshControl: React.FC<RefreshControlProps> = ({
         onClick={() => setIsOpen((prev) => !prev)}
         aria-expanded={isOpen}
         aria-haspopup="dialog"
-        aria-label={`Освежение: ${refresh}. Изменить базовое значение`}
+        aria-label={`Обновление: ${refresh}. Изменить базовое значение`}
         className="cursor-pointer font-fantasy text-base tabular-nums text-text transition-colors duration-150 hover:text-gold-light focus:outline-none focus-visible:ring-2 focus-visible:ring-gold-light focus-visible:ring-offset-2 focus-visible:ring-offset-ink"
       >
         {refresh}
@@ -71,12 +71,12 @@ export const RefreshControl: React.FC<RefreshControlProps> = ({
         <div
           data-kit="sheet-refresh-panel"
           role="dialog"
-          aria-label="Освежение"
+          aria-label="Обновление"
           className="absolute right-0 top-full z-50 mt-2 w-[260px] max-w-[calc(100vw-2rem)] border border-gold bg-ink-raised p-3 text-left font-sans text-xs normal-case text-text print:hidden"
         >
           <div className="mb-2 flex items-center justify-between gap-2">
             <span className="font-fantasy text-sm text-gold-light [font-variant-caps:small-caps]">
-              Освежение
+              Обновление
             </span>
             <button
               type="button"

@@ -463,10 +463,30 @@ export default {
         const tokens = Array.from(
           document.querySelectorAll('[data-kit="sheet-fate"] [data-kit="sheet-fate-token"]')
         );
-        return tokens.length === 5 && tokens.every((token) => {
-          const rect = token.getBoundingClientRect();
-          return rect.width === 16 && getComputedStyle(token).borderRadius === '0px';
+        if (tokens.length !== 5) return false;
+        const round = tokens.every((token) => {
+          const style = getComputedStyle(token);
+          const radius = style.borderRadius;
+          return (
+            (radius === '50%' || parseFloat(radius) >= 14) &&
+            style.backgroundColor === 'rgba(0, 0, 0, 0)'
+          );
         });
+        if (!round) return false;
+        const available = tokens.filter(
+          (token) => getComputedStyle(token).borderTopStyle === 'solid'
+        );
+        const spent = tokens.filter(
+          (token) => getComputedStyle(token).borderTopStyle === 'dashed'
+        );
+        return (
+          available.length >= 1 &&
+          spent.length >= 1 &&
+          available.length + spent.length === tokens.length &&
+          available.every(
+            (token) => getComputedStyle(token).borderTopColor === 'rgb(152, 120, 73)'
+          )
+        );
       })()`
     },
     {
@@ -793,6 +813,26 @@ export default {
         const p = portrait.getBoundingClientRect();
         const z = zone.getBoundingClientRect();
         return Math.abs(p.left + p.width / 2 - (z.left + z.width / 2)) <= 4;
+      })()`
+    },
+    {
+      name: 'S41: no-english',
+      expr: `(() => {
+        const sheet = document.querySelector('#printable-character-sheet');
+        if (!sheet) return false;
+        const text = (sheet.textContent || '').toLowerCase();
+        return ['high concept', 'trouble', 'past', 'bond', 'goal'].every(
+          (word) => !text.includes(word)
+        );
+      })()`
+    },
+    {
+      name: 'S42: refresh-word',
+      expr: `(() => {
+        const left = document.querySelector('[data-zone="left"]');
+        if (!left) return false;
+        const text = left.textContent || '';
+        return text.includes('Обновление') && !/освежение/i.test(text);
       })()`
     }
   ]

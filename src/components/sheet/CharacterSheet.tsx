@@ -152,9 +152,9 @@ export const CharacterSheet: React.FC = () => {
             <div data-kit="sheet-fate" className="flex flex-col gap-3">
               <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
                 <RulesTooltip
-                  label="Освежение"
-                  title="Освежение"
-                  text="Сколько очков судьбы вы получаете в начале каждой сессии. Базовое значение — 3; каждый трюк сверх трёх снижает его на 1."
+                  label="Обновление"
+                  title="Обновление"
+                  text="Сколько очков судьбы вы получаете в начале каждой сессии. База — 3; каждый трюк сверх трёх отнимает по одному."
                   className="font-sans text-xs uppercase tracking-wider text-text-muted"
                 />
 
@@ -172,8 +172,10 @@ export const CharacterSheet: React.FC = () => {
                   <span
                     key={index}
                     data-kit="sheet-fate-token"
-                    className={`size-4 border border-gold ${
-                      index < circles.solid ? 'bg-gold' : 'bg-ink'
+                    className={`size-3.5 shrink-0 rounded-full bg-transparent ${
+                      index < circles.solid
+                        ? 'border border-gold'
+                        : 'border border-dashed border-gold-dim'
                     }`}
                   />
                 ))}

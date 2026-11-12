@@ -49,7 +49,6 @@ export const AspectsSection: React.FC<AspectsSectionProps> = ({
     key: AspectKey;
     kind: AspectKind;
     label: string;
-    sublabel: string;
     placeholder: string;
     suggestions: string[];
   }> = [
@@ -57,7 +56,6 @@ export const AspectsSection: React.FC<AspectsSectionProps> = ({
       key: 'high_concept',
       kind: 'high_concept',
       label: 'Концепция',
-      sublabel: 'High Concept',
       placeholder: 'Кем является персонаж в мире...',
       suggestions: settingPreset.defaultAspectSuggestions.highConcept,
     },
@@ -65,7 +63,6 @@ export const AspectsSection: React.FC<AspectsSectionProps> = ({
       key: 'trouble',
       kind: 'trouble',
       label: 'Проблема',
-      sublabel: 'Trouble',
       placeholder: 'Что постоянно усложняет жизнь...',
       suggestions: settingPreset.defaultAspectSuggestions.trouble,
     },
@@ -73,7 +70,6 @@ export const AspectsSection: React.FC<AspectsSectionProps> = ({
       key: 'aspect_3',
       kind: 'other',
       label: 'Прошлое',
-      sublabel: 'Past',
       placeholder: 'Откуда он пришёл, что его сформировало...',
       suggestions: settingPreset.defaultAspectSuggestions.others,
     },
@@ -81,7 +77,6 @@ export const AspectsSection: React.FC<AspectsSectionProps> = ({
       key: 'aspect_4',
       kind: 'other',
       label: 'Связь',
-      sublabel: 'Bond',
       placeholder: 'Кто или что держит его в этом мире...',
       suggestions: settingPreset.defaultAspectSuggestions.others,
     },
@@ -89,7 +84,6 @@ export const AspectsSection: React.FC<AspectsSectionProps> = ({
       key: 'aspect_5',
       kind: 'other',
       label: 'Цель',
-      sublabel: 'Goal',
       placeholder: 'Чего он добивается сейчас...',
       suggestions: settingPreset.defaultAspectSuggestions.others,
     },
@@ -108,10 +102,7 @@ export const AspectsSection: React.FC<AspectsSectionProps> = ({
               className="group flex flex-col gap-1 py-2 first:pt-0 last:pb-0"
             >
               <div className="flex items-start justify-between gap-2">
-                <div className="flex flex-col">
-                  <FieldLabel>{slot.label}</FieldLabel>
-                  <span className="font-sans text-xs text-text-muted">{slot.sublabel}</span>
-                </div>
+                <FieldLabel>{slot.label}</FieldLabel>
 
                 <button
                   type="button"

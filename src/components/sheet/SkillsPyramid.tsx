@@ -224,7 +224,6 @@ export const SkillsPyramid: React.FC<SkillsPyramidProps> = ({
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
                         <span className="font-sans text-sm text-text">{skill.nameRu}</span>
-                        <span className="font-sans text-xs text-text-muted">({skill.nameEn})</span>
                         {isAssigned ? (
                           <span className="border border-line px-1.5 py-0.5 font-sans text-xs text-text-muted">
                             Уже выбран
