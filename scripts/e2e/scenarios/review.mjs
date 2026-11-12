@@ -28,12 +28,12 @@ export default {
       waitFor: 'document.title === "review:done" || document.title.startsWith("review:error:")',
       timeout: 120000,
     },
-    { shot: { out: 'scripts/e2e/shots/review.png' } },
+    { shot: {} },
   ],
   asserts: [
     { name: 'driver-ok', expr: '!document.title.includes(":error:")' },
-    { name: 'summary-visible', expr: 'document.body.textContent.includes("Итог")' },
-    { name: 'no-next-buttons', expr: '!document.body.textContent.includes("Далее")' },
+    { name: 'summary-visible', expr: 'window.__t.visibleText().includes("Итог")' },
+    { name: 'no-next-buttons', expr: '!window.__t.visibleText().includes("Далее")' },
     {
       name: 'four-edit-links',
       expr:
@@ -41,11 +41,11 @@ export default {
     },
     {
       name: 'name-on-review',
-      expr: 'document.body.textContent.includes("Лето из Скеллиге")',
+      expr: 'window.__t.visibleText().includes("Лето из Скеллиге")',
     },
     {
       name: 'stunt-phrase-on-review',
-      expr: 'document.body.textContent.includes("Кошмарный удар")',
+      expr: 'window.__t.visibleText().includes("Кошмарный удар")',
     },
   ],
 };

@@ -28,7 +28,7 @@ export default {
       timeout: 120000,
     },
     { wait: 500 },
-    { shot: { out: 'scripts/e2e/shots/shell-full.png' } },
+    { shot: {} },
   ],
   asserts: [
     { name: 'driver-ok', expr: '!document.title.includes(":error:")' },

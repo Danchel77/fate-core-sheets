@@ -1,23 +1,10 @@
 {
   "scenario": "create-flow",
-  "elapsedMs": 5119,
-  "ok": true,
-  "assertions": [
-    {
-      "name": "driver-ok",
-      "ok": true
-    },
-    {
-      "name": "sheet-opened",
-      "ok": true
-    },
-    {
-      "name": "stunt-on-sheet",
-      "ok": true
-    },
-    {
-      "name": "name-on-sheet",
-      "ok": true
-    }
-  ]
+  "png": "/home/deck/HarnessProjects/Fate/scripts/e2e/shots/create-flow-1440-2026-11-120553.png",
+  "capturedAt": "2026-11-12T05:53:41.286Z",
+  "distBuiltAt": "2026-11-12T05:45:27.967Z",
+  "consoleErrors": 0,
+  "failedAsserts": [],
+  "lint": null,
+  "ok": true
 }

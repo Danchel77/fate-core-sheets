@@ -20,7 +20,7 @@ export default {
         `
         __t.run('create-flow', async () => {
           const t = window.__t;
-          const text = () => document.body.textContent || '';
+          const text = () => t.visibleText();
           await fillWizard(t, { stopAt: 'review' });
           t.click('Создать персонажа');
           await t.until(() => text().includes('Восстановление'), 12000, 'лист персонажа');
@@ -32,7 +32,7 @@ export default {
       `,
     },
     { waitFor: 'document.title === "create-flow:done" || document.title.startsWith("create-flow:error:")', timeout: 120000 },
-    { shot: { out: 'scripts/e2e/shots/create-flow.png' } },
+    { shot: {} },
   ],
   asserts: [
     { name: 'driver-ok', expr: '!document.title.includes(":error:")' },
@@ -40,7 +40,7 @@ export default {
     { name: 'stunt-on-sheet', expr: 'window.__facts.stuntOnSheet === true' },
     {
       name: 'name-on-sheet',
-      expr: 'document.body.textContent.includes("Лето из Скеллиге")',
+      expr: 'window.__t.visibleText().includes("Лето из Скеллиге")',
     },
   ],
 };

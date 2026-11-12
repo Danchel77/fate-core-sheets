@@ -1,3 +1,7 @@
+/**
+ * УСТАРЕЛ: используй scripts/e2e/capture.mjs
+ */
+console.error('УСТАРЕЛ: используй scripts/e2e/capture.mjs');
 const fs = require('fs');
 const path = require('path');
 const http = require('http');

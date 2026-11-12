@@ -69,6 +69,30 @@ window.__t = (() => {
     return Boolean(button) && !button.disabled;
   };
 
+  const isVisible = (el) => {
+    if (!el) return false;
+    const r = el.getBoundingClientRect();
+    if (r.width <= 0 || r.height <= 0) return false;
+    const cs = getComputedStyle(el);
+    if (cs.display === 'none' || cs.visibility === 'hidden') return false;
+    return true;
+  };
+
+  const visibleText = () => {
+    const all = document.querySelectorAll('*');
+    const texts = [];
+    for (const el of all) {
+      if (isVisible(el)) {
+        for (const child of el.childNodes) {
+          if (child.nodeType === Node.TEXT_NODE && child.textContent.trim()) {
+            texts.push(child.textContent.trim());
+          }
+        }
+      }
+    }
+    return texts.join(' ');
+  };
+
   const run = (name, task) => {
     document.title = name + ':run';
     Promise.resolve()
@@ -83,6 +107,6 @@ window.__t = (() => {
       );
   };
 
-  return { sleep, click, findBtn, until, setValue, enabled, placed, run };
+  return { sleep, click, findBtn, until, setValue, enabled, placed, isVisible, visibleText, run };
 })();
 `;

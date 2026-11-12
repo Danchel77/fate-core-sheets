@@ -1,59 +1,49 @@
-# AGENTS.md — универсальные правила для любого агента
+# AGENTS.md — правила для любой роли
 
-Этот файл читают все: и оркестратор, и исполнители. Здесь только то, что верно для любой роли.
-Правила конкретной роли лежат отдельно — см. раздел «Кто ты».
+Роль задаётся заданием. Не названа — ничего не меняй, работай на чтение и спроси.
+
+* «исполнитель» → прочитай `docs/agents/executor.md`, `docs/agents/product.md`, `docs/design/DESIGN.md`.
+* «оркестратор» → прочитай `docs/agents/orchestrator.md`, `docs/agents/product.md`, `docs/design/DESIGN.md`.
 
 ## Стек и команды
 
-React 19 + Vite 6 + TypeScript strict + Tailwind 3.4, иконки lucide-react.
-Шрифты: Cinzel (`font-fantasy`), Inter (`font-sans`).
+React 19 + Vite 6 + TypeScript strict + Tailwind 3.4, иконки lucide-react. Шрифты: Cinzel (`font-fantasy`), Inter (`font-sans`).
 
 | Команда | Что делает |
 |---|---|
-| `npm run dev` | локальный сервер Vite, только для ручной проверки |
-| `npm run build` | сборка в `dist`, обязательна перед любым снимком |
-| `npm run preview` | просмотр продакшен-сборки |
 | `npm run typecheck` | `tsc --noEmit` |
-
-Не оставляй запущенные `dev`/`preview`: они держат порт и мешают следующему запуску.
+| `npm run build` | сборка в `dist`, нужна перед любым снимком |
+| `node scripts/e2e/capture.mjs --scenario=<имя> [--width=1440 --height=1100]` | снимок всего документа + отчёт (формат — `scripts/e2e/README.md`) |
+| `node scripts/e2e/verify.mjs --scenario=<имя> --allowed=<файлы через запятую>` | механическая проверка отчёта и диффа |
+| `scripts/screenshot.cjs` | **устарел**, не использовать: снимки только через `capture.mjs` |
+| `npm run dev` / `npm run preview` | только для ручной проверки; не оставляй запущенными |
 
 ## Жёсткие правила
 
-* **Право менять файлы даёт только явный список файлов в задании.** Нет списка — работаешь только на чтение. Это относится ко всем, включая оркестратора.
-* **Никаких секретов в коде и отчётах.** Ключи только через `import.meta.env`.
-* **Git-коммиты и пуш — только по прямой просьбе человека.**
-* **Заглушки запрещены.** Код, который «делает вид» (пропуск шагов, `process.exit(0)` без работы, отчёт `ok:true` без прогона), считается провалом задания, а не компромиссом.
-* **Не оставляй мусор:** временные скрипты и снимки — в `scripts/`, отчёты — в `scripts/e2e/reports/`, снимки сценариев — в `scripts/e2e/shots/`.
+* Менять файлы можно только из списка в задании. Нет списка — только чтение.
+* Секреты — только через `import.meta.env`, никогда в коде и отчётах.
+* Git-коммиты и пуш — только по прямой просьбе человека.
+* Заглушки запрещены: код или отчёт, которые делают вид, что работают, — провал задания.
+* Временные скрипты — в `scripts/`, отчёты — `scripts/e2e/reports/`, снимки — `scripts/e2e/shots/`.
 
-## Стандарты кода
+## Принятие работы
 
-* Каждый компонент, сервис и утилита — в своём файле. Никаких «всё-в-одном».
-* TypeScript strict, никаких `any`, все сущности Fate типизированы.
-* ES Modules, деструктуризация, имена на английском, комментарии к сложной логике Fate — на русском.
+Проверяет не тот, кто писал. Оркестратор сам перезапускает сборку и снимок и смотрит **свой** PNG. Исполнитель тоже осматривает снимок по шаблону из `executor.md`, но принимается только то, что снял и осмотрел оркестратор. Подробности — в `docs/agents/orchestrator.md`.
 
 ## Структура
 
-* `src/components/dashboard/` — каталог персонажей.
-* `src/components/sheet/` — интерактивный лист персонажа.
-* `src/components/creator/` — мастер создания (шаги в `creator/steps/`, подшаги в своих папках).
-* `src/components/common/` — переиспользуемые элементы интерфейса.
-* `src/services/` — интеграции (Firebase, Gemini, картинки, PDF).
-* `src/context/` — состояние (AuthContext, CharacterContext).
-* `src/types/` — интерфейсы, `src/config/` — пресеты и конфигурация шагов.
-* `scripts/e2e/` — сценарные проверки интерфейса (`capture.mjs`, `scenarios/`, `README.md`).
-
-## Кто ты
-
-Роль задаётся заданием, а не этим файлом.
-
-* В задании сказано «исполнитель» → первым делом прочитай `docs/agents/executor.md` и `docs/agents/product.md`.
-* Ты оркестратор сессии → прочитай `docs/agents/orchestrator.md` и `docs/agents/product.md`.
-* Роль не названа или непонятна → ничего не меняй, работай на чтение и спроси.
-
-`docs/agents/product.md` — продуктовые правила Fate Core (пирамида навыков, трюки, аспекты, восстановление). Их нужно знать обеим ролям.
+* `src/components/dashboard/` — каталог персонажей
+* `src/components/sheet/` — лист персонажа
+* `src/components/creator/` — мастер создания (`steps/`, подшаги в своих папках)
+* `src/components/common/` — общие элементы (SectionRibbon, CornerFrame и т.д., см. DESIGN.md)
+* `src/services/` — Firebase, Gemini, картинки, PDF
+* `src/context/` — AuthContext, CharacterContext
+* `src/types/`, `src/config/` — типы, пресеты
+* `scripts/e2e/` — сценарии, `capture.mjs`, `verify.mjs`
 
 ## Ссылки
 
-* Продуктовое видение — [PROJECT_VISION.md](PROJECT_VISION.md).
-* Правила системы Fate Core — [fate_core_rules.md](fate_core_rules.md).
-* Визуальные правила — скилл `ui-design`.
+* Видение: `PROJECT_VISION.md`
+* Продуктовые правила Fate: `docs/agents/product.md`
+* Дизайн и референс: `docs/design/DESIGN.md`, `docs/design/reference.png`
+* Правила системы: `fate_core_rules.md`

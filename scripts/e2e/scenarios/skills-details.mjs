@@ -21,7 +21,7 @@ export default {
         `
         __t.run('skills-details', async () => {
           const t = window.__t;
-          const text = () => document.body.textContent || '';
+          const text = () => t.visibleText();
           await fillWizard(t, { stopAt: 'skills' });
           t.click('Подробнее о навыке Атлетика');
           await t.until(() => text().includes('Преодоление —'), 8000, 'детали навыка');
@@ -34,11 +34,11 @@ export default {
         'document.title === "skills-details:done" || document.title.startsWith("skills-details:error:")',
       timeout: 90000,
     },
-    { shot: { out: 'scripts/e2e/shots/skills-details.png' } },
+    { shot: {} },
   ],
   asserts: [
     { name: 'driver-ok', expr: '!document.title.includes(":error:")' },
     { name: 'details-open', expr: 'window.__facts && window.__facts.detailsOpen === true' },
-    { name: 'action-hint-overcome', expr: 'document.body.textContent.includes("Действовать, когда исход неочевиден")' },
+    { name: 'action-hint-overcome', expr: 'window.__t.visibleText().includes("Действовать, когда исход неочевиден")' },
   ],
 };

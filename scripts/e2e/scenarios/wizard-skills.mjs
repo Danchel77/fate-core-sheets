@@ -22,7 +22,7 @@ export default {
         `
         __t.run('wizard-skills', async () => {
           const t = window.__t;
-          const text = () => document.body.textContent || '';
+          const text = () => t.visibleText();
           await fillWizard(t, { stopAt: 'skills' });
 
           window.__facts = {
@@ -33,14 +33,14 @@ export default {
       `,
     },
     { waitFor: 'document.title === "wizard-skills:done" || document.title.startsWith("wizard-skills:error:")', timeout: 90000 },
-    { shot: { out: 'scripts/e2e/shots/wizard-skills-empty.png' } },
+    { shot: {} },
     {
       eval:
         HELPERS +
         `
         __t.run('wizard-skills-fill', async () => {
           const t = window.__t;
-          const text = () => document.body.textContent || '';
+          const text = () => t.visibleText();
           for (const skill of ['Атлетика', 'Ближний бой', 'Стрельба', 'Скрытность']) {
             t.click(skill);
             await t.until(() => t.placed(skill), 6000, 'размещение ' + skill);
@@ -53,11 +53,11 @@ export default {
       `,
     },
     { waitFor: 'document.title === "wizard-skills-fill:done" || document.title.startsWith("wizard-skills-fill:error:")', timeout: 60000 },
-    { shot: { out: 'scripts/e2e/shots/wizard-skills-level2.png' } },
+    { shot: {} },
   ],
   asserts: [
     { name: 'driver-ok', expr: '!document.title.includes(":error:")' },
-    { name: 'skills-step-visible', expr: 'document.body.textContent.includes("Каталог навыков")' },
+    { name: 'skills-step-visible', expr: 'window.__t.visibleText().includes("Каталог навыков")' },
     { name: 'three-locked-initially', expr: 'window.__facts.locksEmpty === 3' },
     { name: 'four-slots-empty-counter', expr: 'window.__facts.emptyCounter === true' },
     { name: 'two-locked-after-four', expr: 'window.__facts.locksAfterFour === 2' },

@@ -31,7 +31,7 @@ export default {
         `
         __t.run('stunts-gemini-stub', async () => {
           const t = window.__t;
-          const text = () => document.body.textContent || '';
+          const text = () => t.visibleText();
           await fillWizard(t, { stopAt: 'stunts' });
           await t.until(() => !!document.querySelector('[aria-label="Паттерн трюка"]'), 8000, 'пикер паттернов');
 
@@ -49,7 +49,7 @@ export default {
           t.click('Оценить');
           await t.until(() => text().includes('/10') && text().includes('Сильные места'), 12000, 'оценка Gemini');
           window.__facts = {
-            score: document.body.textContent.replace(/\s+/g,'').includes('7/10'),
+            score: t.visibleText().includes('7/10'),
             strengths: text().includes('Сильные места'),
             improvements: text().includes('Что улучшить'),
           };
@@ -59,7 +59,7 @@ export default {
     { waitFor: 'document.title === "stunts-gemini-stub:done" || document.title.startsWith("stunts-gemini-stub:error:")', timeout: 120000 },
     { eval: "document.getElementById('stunts').scrollIntoView({ block: 'start' })" },
     { wait: 700 },
-    { shot: { out: 'scripts/e2e/shots/stunts-gemini-stub.png' } },
+    { shot: {} },
   ],
   asserts: [
     { name: 'driver-ok', expr: '!document.title.includes(":error:")' },
@@ -68,7 +68,7 @@ export default {
     { name: 'improvements-rendered', expr: 'window.__facts.improvements === true' },
     {
       name: 'pattern-tag-rendered',
-      expr: 'document.body.textContent.includes("БОНУС +2") || document.body.textContent.includes("Бонус +2")',
+      expr: 'window.__t.visibleText().includes("БОНУС +2") || window.__t.visibleText().includes("Бонус +2")',
     },
   ],
 };

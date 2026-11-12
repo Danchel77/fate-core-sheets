@@ -1,11 +1,5 @@
 /**
  * Снятие интерактивных скриншотов листа через Chrome DevTools Protocol.
- * Обычный scripts/screenshot.cjs не умеет кликать по элементам, поэтому для
- * проверки тултипов и поповеров используется этот скрипт.
- *
- * Примеры:
- *   node scripts/interactive-shot.cjs --out=scripts/tooltip.png --click="ОЧКИ СУДЬБЫ"
- *   node scripts/interactive-shot.cjs --out=scripts/block.png --clip=700,100,680,230
  */
 const fs = require('fs');
 const path = require('path');
@@ -30,7 +24,7 @@ const height = Number(getArg('height', '1000'));
 const urlPath = getArg('url', '/?mock=1&view=sheet');
 const out = path.resolve(process.cwd(), getArg('out', 'scripts/interactive.png'));
 const clickText = getArg('click', null);
-const clip = getArg('clip', null);
+const clipArg = getArg('clip', null);
 const scroll = Number(getArg('scroll', '0'));
 const settle = Number(getArg('wait', '600'));
 const timeBudget = Number(getArg('load-wait', '2500'));
@@ -42,9 +36,12 @@ const MIME = {
   '.css': 'text/css; charset=utf-8',
   '.svg': 'image/svg+xml',
   '.png': 'image/png',
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
   '.json': 'application/json; charset=utf-8',
   '.woff2': 'font/woff2',
 };
+
 const distDir = path.resolve(__dirname, '../dist');
 
 const server = http.createServer((req, res) => {
@@ -65,7 +62,6 @@ const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 server.listen(0, '127.0.0.1', async () => {
   const port = server.address().port;
   const target = `http://127.0.0.1:${port}${urlPath}`;
-  // Уникальный профиль на запуск: параллельные снимки не мешают друг другу.
   const profile = path.join(distDir, `../.cdp-profile-${process.pid}`);
   const debugPort = 9300 + Math.floor(Math.random() * 500);
 
@@ -113,8 +109,28 @@ server.listen(0, '127.0.0.1', async () => {
 
   let msgId = 0;
   const pending = new Map();
+  const consoleErrors = [];
+
   ws.onmessage = (event) => {
     const msg = JSON.parse(event.data);
+    if (msg.method === 'Runtime.exceptionThrown') {
+      const text =
+        msg.params?.exceptionDetails?.text ||
+        msg.params?.exceptionDetails?.exception?.description ||
+        'exception';
+      consoleErrors.push(String(text).replace(/\s+/g, ' ').trim());
+    }
+    if (msg.method === 'Runtime.consoleAPICalled' && msg.params?.type === 'error') {
+      const argsText = (msg.params.args || [])
+        .map((a) => (typeof a.value === 'string' ? a.value : JSON.stringify(a.value)))
+        .join(' ');
+      consoleErrors.push(argsText.replace(/\s+/g, ' ').trim());
+    }
+    if (msg.method === 'Log.entryAdded' && msg.params?.entry?.level === 'error') {
+      const text = msg.params.entry.text || '';
+      consoleErrors.push(String(text).replace(/\s+/g, ' ').trim());
+    }
+
     if (msg.id && pending.has(msg.id)) {
       const { resolve, reject } = pending.get(msg.id);
       pending.delete(msg.id);
@@ -122,6 +138,7 @@ server.listen(0, '127.0.0.1', async () => {
       else resolve(msg.result);
     }
   };
+
   const send = (method, params = {}) =>
     new Promise((resolve, reject) => {
       const id = ++msgId;
@@ -129,9 +146,12 @@ server.listen(0, '127.0.0.1', async () => {
       ws.send(JSON.stringify({ id, method, params }));
     });
 
+  let hasError = false;
+
   try {
     await send('Page.enable');
     await send('Runtime.enable');
+    await send('Log.enable');
     await send('Emulation.setDeviceMetricsOverride', {
       width,
       height,
@@ -139,7 +159,6 @@ server.listen(0, '127.0.0.1', async () => {
       mobile: width < 600,
     });
     await send('Page.navigate', { url: target });
-    // Ждём загрузку шрифтов и данных мока; virtual-time-budget несовместим с CDP.
     await sleep(timeBudget + settle);
 
     if (evalExpr) {
@@ -159,7 +178,7 @@ server.listen(0, '127.0.0.1', async () => {
       const clicked = await send('Runtime.evaluate', {
         returnByValue: true,
         expression: `(() => {
-          const norm = (s) => s.replace(/\\s+/g, ' ').trim().toLowerCase();
+          const norm = (s) => (s || '').replace(/\\s+/g, ' ').trim().toLowerCase();
           const want = ${JSON.stringify(String(text).toLowerCase())};
           const buttons = [...document.querySelectorAll('button')];
           const el = buttons.find((b) => norm(b.textContent) === want)
@@ -173,20 +192,72 @@ server.listen(0, '127.0.0.1', async () => {
       await sleep(settle);
     };
 
-    const capture = async (targetPath, clipValue) => {
+    const capture = async (targetPath, clipValue, regions) => {
       let clipBox;
       if (clipValue) {
-        const [x, y, w, h] = String(clipValue).split(',').map(Number);
-        clipBox = { x, y, width: w, height: h, scale: 1 };
+        if (typeof clipValue === 'string') {
+          const [x, y, w, h] = clipValue.split(',').map(Number);
+          clipBox = { x, y, width: w, height: h, scale: 1 };
+        } else if (typeof clipValue === 'object') {
+          clipBox = { scale: 1, ...clipValue };
+        }
+      } else {
+        const metrics = await send('Page.getLayoutMetrics');
+        const contentSize = metrics.cssContentSize || metrics.contentSize;
+        clipBox = {
+          x: 0,
+          y: 0,
+          width: Math.round(contentSize.width),
+          height: Math.min(Math.round(contentSize.height), 6000),
+          scale: 1,
+        };
       }
+
       const shot = await send('Page.captureScreenshot', {
         format: 'png',
-        captureBeyondViewport: Boolean(clipBox),
+        captureBeyondViewport: true,
         ...(clipBox ? { clip: clipBox } : {}),
       });
+
       const file = path.resolve(process.cwd(), targetPath);
+      fs.mkdirSync(path.dirname(file), { recursive: true });
       fs.writeFileSync(file, Buffer.from(shot.data, 'base64'));
       console.log(`[cdp] Saved: ${file} (${fs.statSync(file).size} bytes)`);
+
+      if (regions && Array.isArray(regions)) {
+        for (let i = 0; i < regions.length; i++) {
+          const sel = regions[i];
+          const rectRes = await send('Runtime.evaluate', {
+            expression: `(() => {
+              const el = document.querySelector(${JSON.stringify(sel)});
+              if (!el) return null;
+              const r = el.getBoundingClientRect();
+              return { x: r.x + window.scrollX, y: r.y + window.scrollY, width: r.width, height: r.height };
+            })()`,
+            returnByValue: true,
+          });
+          const r = rectRes?.result?.value;
+          if (!r || r.width <= 0 || r.height <= 0) {
+            console.log(`[cdp] region-missing: ${sel}`);
+            continue;
+          }
+          const rClip = {
+            x: Math.round(r.x),
+            y: Math.round(r.y),
+            width: Math.round(r.width),
+            height: Math.round(r.height),
+            scale: 1,
+          };
+          const rShot = await send('Page.captureScreenshot', {
+            format: 'png',
+            captureBeyondViewport: true,
+            clip: rClip,
+          });
+          const rFile = file.replace(/\.png$/, `-r${i}.png`);
+          fs.writeFileSync(rFile, Buffer.from(rShot.data, 'base64'));
+          console.log(`[cdp] Saved region ${sel}: ${rFile}`);
+        }
+      }
     };
 
     const stepsRaw = getArg('steps', null);
@@ -223,33 +294,39 @@ server.listen(0, '127.0.0.1', async () => {
             await sleep(100);
           }
           if (!ok) {
-            console.error(`[cdp] waitFor timeout: ${step.waitFor}`);
-            process.exit(1);
+            throw new Error(`[cdp] waitFor timeout: ${step.waitFor}`);
           }
           console.log(`[cdp] waitFor ok: ${step.waitFor}`);
         }
         if (step.click) await clickByText(step.click);
         if (step.wait) await sleep(step.wait);
-        if (step.shot) await capture(step.shot.out, step.shot.clip);
+        if (step.shot) await capture(step.shot.out || out, step.shot.clip, step.shot.regions);
       }
     } else {
       if (clickText) await clickByText(clickText);
-      await capture(getArg('out', 'scripts/interactive.png'), clip);
+      await capture(out, clipArg, null);
     }
+
+    console.log(
+      `[cdp] console-errors: ${consoleErrors.length}${
+        consoleErrors.length > 0 ? ' ' + consoleErrors.slice(0, 5).join(' | ') : ''
+      }`
+    );
+  } catch (err) {
+    hasError = true;
+    console.error(err.message);
   } finally {
     try {
       ws.close();
-    } catch {
-      /* соединение уже закрыто */
-    }
+    } catch {}
     chrome.kill();
     server.close();
-    // Chrome отпускает файлы профиля не мгновенно, поэтому чистим с повторами.
     await sleep(200);
     try {
       fs.rmSync(profile, { recursive: true, force: true, maxRetries: 10, retryDelay: 120 });
-    } catch {
-      /* профиль остался в каталоге сборки — не повод ронять прогон */
+    } catch {}
+    if (hasError) {
+      process.exit(1);
     }
   }
 });

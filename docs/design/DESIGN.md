@@ -1,0 +1,124 @@
+# Дизайн-система Fate Core Sheets
+
+Референс: `docs/design/reference.png` (скриншот игрового интерфейса, автор Pavel Turchin, 2020).
+Берём **язык**: чёрный фон, золотые ленты-заголовки, угловые рамки, капитель в заголовках, плотные таблицы с мелкими подписями.
+Не берём **ассеты**: портреты, иконки, орнамент нарисованы автором. Всё делаем в CSS/SVG. Содержимое — Fate, а не D&D (характеристики STR/CON, заклинания, классы не переносим).
+
+Это заменяет общий скилл `ui-design` для этого проекта. Если они расходятся — прав этот файл.
+
+## 1. Токены
+
+Цвета измерены по референсу, отмечено «своё» — выбрано нами. Добавить в `tailwind.config` и больше нигде цвета не задавать.
+
+| Токен | Hex | Для чего |
+|---|---|---|
+| `ink` | `#000000` | фон страницы |
+| `ink-raised` | `#0d0d0d` | поле ввода, ячейка таблицы |
+| `ink-frame` | `#1a1a1a` | рамка портрета, неактивные кнопки |
+| `line` | `#292319` | тонкие разделители, границы блоков |
+| `gold` | `#987849` | ленты-заголовки, рамки, основная кнопка |
+| `gold-light` | `#a68354` | hover, заполнение полос, активные метки |
+| `gold-dim` | `#775e39` | только декор (углы, линии). **Не для текста**: контраст ниже 4.5 |
+| `wine` | `#37242c` | верхняя панель, активная вкладка, hover вторичной кнопки |
+| `text` | `#e8e8e8` | основной текст |
+| `text-muted` | `#a8a090` | подписи, вторичный текст (своё) |
+| `danger` | `#b0493f` | ошибка, тяжёлое последствие (своё) |
+| `warn` | `#c9a227` | предупреждение (своё) |
+
+
+Конфиг (`tailwind.config`, секция `theme.extend`): если файл `.js` или `.ts`, определи по репозиторию.
+
+```js
+colors: {
+  ink: { DEFAULT: '#000000', raised: '#0d0d0d', frame: '#1a1a1a' },
+  line: '#292319',
+  gold: { DEFAULT: '#987849', light: '#a68354', dim: '#775e39' },
+  wine: '#37242c',
+  text: { DEFAULT: '#e8e8e8', muted: '#a8a090' },
+  danger: '#b0493f',
+  warn: '#c9a227',
+},
+```
+
+Классы получаются такие: `bg-ink`, `bg-ink-raised`, `border-line`, `bg-gold`, `text-gold-light`, `border-gold-dim`, `bg-wine`, `text-text`, `text-text-muted`.
+
+Текст на золотой ленте — `ink`. Больше цветов не вводить.
+
+Фон страницы — чистый `ink`, без градиентов и текстур. Углы **острые**: `rounded-none` (максимум `rounded-sm`).
+
+## 2. Типографика
+
+| Роль | Классы |
+|---|---|
+| Имя персонажа | `font-fantasy text-3xl text-text tracking-wide [font-variant-caps:small-caps]` |
+| Заголовок на ленте | `font-fantasy text-xl text-ink [font-variant-caps:small-caps] tracking-wide` |
+| Значение / название навыка | `font-fantasy text-base text-text` |
+| Подпись поля | `font-sans text-xs uppercase tracking-wider text-text-muted` |
+| Обычный текст | `font-sans text-sm text-text` |
+| Числа | всегда добавляй `tabular-nums` |
+
+Минимальный размер текста **12px** (`text-xs`). Мельче нельзя, это проверяет `capture.mjs`.
+
+## 3. Компоненты (`src/components/common/`)
+
+Каждый в своём файле. Нет компонента — создай по рецепту. Для проверок в сценариях компонент ставит data-атрибут на корневой элемент: `data-ribbon` (SectionRibbon), `data-frame` (CornerFrame, каждая угловая скобка внутри — `data-corner`), `data-stress-box`, `data-btn`.
+
+**SectionRibbon** — заголовок секции. Золотая лента на всю ширину блока:
+`relative bg-gold text-ink font-fantasy text-xl text-center py-2 [clip-path:polygon(0_50%,14px_0,calc(100%-14px)_0,100%_50%,calc(100%-14px)_100%,14px_100%)]`.
+Под лентой содержимое секции без собственной рамки.
+
+**CornerFrame** — рамка из четырёх угловых скобок вместо сплошной границы. Контейнер `relative p-3`, внутри четыре `span` `absolute size-3.5 border-gold-dim`: левый верх `top-0 left-0 border-t border-l`, правый верх `top-0 right-0 border-t border-r`, левый низ `bottom-0 left-0 border-b border-l`, правый низ `bottom-0 right-0 border-b border-r`. Для аспектов, ступеней пирамиды, карточек трюков.
+
+**FieldLabel + Value** — пара «подпись сверху, значение снизу» (подпись: `text-xs uppercase …`, значение: `font-fantasy`).
+
+**StatTable** — таблица строк. Строка `flex items-center justify-between border-b border-line py-1.5`, слева название (`font-fantasy text-text`), справа число (`tabular-nums text-gold-light`). Для навыков в списке.
+
+**StressBox** — клетка стресса: `size-7 border border-gold bg-ink`, отмеченная `bg-gold`, подпись номера внутри `text-xs tabular-nums`. Hover `border-gold-light`.
+
+**Bar** — полоса (например счётчик слотов): трек `h-1 bg-ink border border-gold-dim`, заполнение `h-full bg-gold-light`.
+
+**Button**
+* основная: `bg-gold text-ink font-fantasy px-4 py-2 hover:bg-gold-light focus-visible:ring-2 focus-visible:ring-gold-light focus-visible:ring-offset-2 focus-visible:ring-offset-ink transition-colors duration-150`;
+* вторичная: `border border-gold text-gold-light px-4 py-2 hover:bg-wine focus-visible:ring-2 focus-visible:ring-gold-light transition-colors duration-150`;
+* неактивная: `bg-ink-frame text-text-muted cursor-not-allowed`.
+
+**Tabs** (верхняя навигация): текст `font-fantasy uppercase tracking-wider`, неактивная `text-text-muted`, активная `text-text bg-wine`, под активной линия `border-b border-gold`.
+
+**Input**: `bg-ink-raised border border-line text-text placeholder:text-text-muted px-3 py-2 focus-visible:border-gold focus-visible:ring-1 focus-visible:ring-gold`.
+
+## 4. Раскладка листа персонажа
+
+Десктоп 1440px, три колонки: `grid grid-cols-[360px_1fr_400px] gap-6`, контейнер `max-w-[1440px] mx-auto px-6`. Мобильный (ниже 1024px): одна колонка в порядке 1 → 2 → 3, без горизонтального скролла.
+
+| Колонка | Содержимое (в референсе → у нас) |
+|---|---|
+| Левая | имя, портрет, описание, Освежение и жетоны Fate; секция «Стресс» (физический и ментальный); секция «Последствия» (−2, −4, −6) |
+| Центральная | секция «Аспекты» (пять полей, порядок из `product.md`); секция «Навыки» с пирамидой |
+| Правая | секция «Трюки» с готовыми строками и стоимостью восстановления |
+
+Каждая секция = `SectionRibbon` + содержимое. Вложенность одна: ленточный блок → элементы. Карточка в карточке запрещена, группируй отступами `gap-3` и разделителями `border-line`.
+
+## 5. Правила
+
+* Контраст текста ≥ 4.5:1, подписи тоже.
+* Интерактив: hover, `focus-visible`, `transition 150ms`.
+* Иконки только `lucide-react`, `size-4` или `size-5`, `strokeWidth={1.5}`.
+* Длинный пользовательский текст: `truncate` или `line-clamp-N` и `title` с полным текстом.
+* Рамки и ленты — единый стиль на всех экранах: каталог, мастер и лист выглядят одной системой.
+* Скругления, тени и градиенты не использовать. Глубина — только ступенями `ink` → `ink-raised` → `ink-frame` и границами `line`.
+* Состояния всех блоков — по `product.md`.
+
+## 6. Чек-лист приёмки (для оркестратора)
+
+Отвечать по пунктам: да / нет / не вижу.
+
+1. Фон страницы чёрный, без градиентов.
+2. Каждая секция начинается золотой лентой с заголовком шрифтом Cinzel.
+3. Рамки в стиле угловых скобок, везде одинаковые.
+4. Подписи полей мелкие, заглавными, приглушённые; значения — Cinzel.
+5. Числа выровнены столбцом.
+6. Нет карточек внутри карточек.
+7. Нет обрезанного текста («Пр…»), ничего не наезжает.
+8. Пустые состояния оформлены, а не пустые прямоугольники.
+9. На 390px одна колонка, нет горизонтального скролла.
+10. Общее впечатление рядом с `reference.png`: тот же язык (чёрное, золото, строгие рамки), а не светлая SaaS-панель.

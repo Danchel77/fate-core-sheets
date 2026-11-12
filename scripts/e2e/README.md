@@ -1,57 +1,41 @@
 # E2E-сценарии мастера персонажа
 
 Сценарии гоняют собранный `dist` в headless Chrome: проходят мастер, заполняют
-поля, кликают кнопки и проверяют состояние через утверждения. Снимок — побочный
-продукт, а не доказательство: провал утверждения роняет прогон.
+поля, кликают кнопки и проверяют состояние через утверждения.
 
 ## Запуск
 
 ```bash
-npm run build                       # сценарии работают по dist, не по dev-серверу
-node scripts/e2e/capture.mjs --scenario=review
-node scripts/e2e/capture.mjs --scenario=wizard-skills
-node scripts/e2e/capture.mjs --scenario=create-flow
-node scripts/e2e/capture.mjs --scenario=stunts-gemini-stub
+npm run build                       # сценарии работают по dist
+node scripts/e2e/capture.mjs --scenario=review [--width=1440]
+node scripts/e2e/verify.mjs --scenario=review
 ```
 
-Коды выхода: `0` — все утверждения верны, `1` — провал сценария или утверждения,
-`2` — прогон дольше `--total-timeout` (по умолчанию 150 с).
+Коды выхода `capture.mjs`: `0` — успех, `1` — провал, `2` — таймаут, `3` — `dist` устарел.
 
-Результаты: `scripts/e2e/reports/<сценарий>.json` и `scripts/e2e/shots/*.png`.
+## Результаты
 
-## Как устроено
+- `scripts/e2e/reports/<сценарий>.json`: полный отчёт (png, sha256, консоль, failedAsserts, lint).
+- `scripts/e2e/shots/<сценарий>-<ширина>-<дата>.png`: снимок всего документа.
+- Автопроверки (`lint`): clippedText, smallFont, lowContrast, offscreen, overlap, horizontalScroll, hardcodedColors.
 
-`capture.mjs` не содержит кода браузера. Он собирает шаги сценария, добавляет
-финальный `eval` с утверждениями, запускает `scripts/interactive-shot.cjs`
-и разбирает его вывод. Браузер, сервер над `dist`, шаги `click`/`waitFor`/`shot`
-живут в `interactive-shot.cjs` и одинаковы для всех сценариев.
+## Процесс
 
-Внутристраничный драйвер (`lib/wizard-src.mjs`) проходит мастер до нужного шага.
-Он не ждёт фиксированных пауз: каждый переход подтверждается появлением
-следующего экрана или разблокировкой кнопки «Далее». Прогресс пишется в
-`document.title`:
+`capture.mjs` проверяет свежесть `dist`, запускает `interactive-shot.cjs` для снимков и логов, а затем добавляет `lint`-проверки.
+`verify.mjs` механически проверяет корректность отчёта, SHA-256 PNG, свежесть `distBuiltAt`, `git diff` и отсутствие запрещённых логов в `src/`.
 
-- `<name>:run` — драйвер работает;
-- `<name>:done` — дошёл до конца;
-- `<name>:error:<текст>` — упал, текст показывает, на каком ожидании.
-
-Наблюдения, которые нельзя перепроверить после прогона (например, число
-заблокированных ступеней до заполнения пирамиды), драйвер складывает в
-`window.__facts`, а утверждения читают их оттуда.
+Для проверки вёрстки используй `verify.mjs` после `capture.mjs`.
 
 ## Новый сценарий
 
-`scenarios/<имя>.mjs` экспортирует по умолчанию:
+`scenarios/<имя>.mjs` экспортирует:
 
 ```js
 export default {
-  name: 'имя',
-  steps: [ /* шаги interactive-shot */ ],
-  asserts: [ { name: 'что-проверяем', expr: 'JS-выражение, вернувшее boolean' } ],
+  steps: [ { shot: { clip: null } }, { waitFor: '...' } ],
+  asserts: [ { name: 'проверка', expr: '...' } ],
+  regions: ['#selector1', '#selector2']
 };
 ```
 
-Правила: подмену сети делай через `window.fetch` внутри сценария, а не через
-переменные окружения; утверждение не должно зависеть от порядка кнопок;
-`driver-ok` (`!document.title.includes(':error:')`) ставь первым — иначе провал
-драйвера превратится в непонятный таймаут утверждений.
+Используй `window.__t.visibleText()` для проверки текста.

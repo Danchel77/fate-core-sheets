@@ -41,7 +41,7 @@ export default {
         'document.title === "mobile-shell:done" || document.title.startsWith("mobile-shell:error:")',
       timeout: 60000,
     },
-    { shot: { out: 'scripts/e2e/shots/mobile-shell.png' } },
+    { shot: {} },
   ],
   asserts: [
     { name: 'driver-ok', expr: '!document.title.includes(":error:")' },
