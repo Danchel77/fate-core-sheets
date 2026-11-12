@@ -105,69 +105,71 @@ export const SkillsPyramid: React.FC<SkillsPyramidProps> = ({
   return (
     <section className="relative">
       {showHeader && (
-        <div className="mb-2 border-b border-[#1C212B] pb-2.5">
-          <h2 className="font-fantasy text-xs font-bold uppercase tracking-[0.14em] text-slate-300">
+        <div className="mb-2 border-b border-line pb-2.5">
+          <h2 className="font-fantasy text-xs font-bold uppercase tracking-[0.14em] text-text-muted">
             Навыки
           </h2>
         </div>
       )}
 
-      <div>
+      <div className="table w-full border-collapse">
         {rows.map(({ level, rating, titleRu, count }) => {
           const currentSkills = character.skills[level] || [];
 
           return (
-            <div
-              key={level}
-              className="flex items-center gap-3 border-t border-[#1A202B] py-2.5 first:border-t-0 first:pt-0"
-            >
-              <div className="flex w-[72px] shrink-0 flex-col items-start justify-center sm:w-[82px]">
-                <span className="font-mono text-[12px] font-bold text-slate-400">{rating}</span>
-                <span className="text-[10px] leading-tight text-slate-500">{titleRu}</span>
+            <div key={level} data-kit="sheet-skill-level" className="table-row">
+              <div className="table-cell whitespace-nowrap border-t border-line py-1.5 pr-3 align-middle">
+                <span className="block font-fantasy text-base leading-tight tabular-nums text-gold-light">
+                  {rating}
+                </span>
+                <span className="block text-xs leading-tight text-text-muted">{titleRu}</span>
               </div>
 
-              <div className="flex min-w-0 flex-1 flex-wrap items-center gap-1">
-                {Array.from({ length: count }).map((_, slotIndex) => {
-                  const currentSkillId = currentSkills[slotIndex] || '';
-                  const skillDef = availableSkills.find((skill) => skill.id === currentSkillId);
+              <div className="table-cell border-t border-line py-1.5 align-middle">
+                <div className="flex flex-wrap items-center gap-1">
+                  {Array.from({ length: count }).map((_, slotIndex) => {
+                    const currentSkillId = currentSkills[slotIndex] || '';
+                    const skillDef = availableSkills.find((skill) => skill.id === currentSkillId);
 
-                  if (skillDef) {
-                    return (
-                      <div
-                        key={slotIndex}
-                        className="group inline-flex min-h-[32px] max-w-full items-center gap-1 rounded-md border border-[#2A3444] bg-[#161C26] px-2 text-[11px] leading-tight text-slate-200 transition hover:border-slate-500 focus-within:border-slate-500"
-                      >
-                        <span className="min-w-0 break-words" title={skillDef.description}>
-                          {skillDef.nameRu}
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveSkill(level, slotIndex)}
-                          className="ml-0.5 shrink-0 cursor-pointer rounded p-0.5 text-slate-600 opacity-0 transition hover:text-rose-300 focus:outline-none focus-visible:opacity-100 group-hover:opacity-100 group-focus-within:opacity-100"
-                          title="Очистить слот"
-                          aria-label={`Убрать навык ${skillDef.nameRu}`}
+                    if (skillDef) {
+                      return (
+                        <div
+                          key={slotIndex}
+                          data-kit="sheet-skill-slot"
+                          className="group inline-flex min-h-[28px] max-w-full items-center gap-1 border border-line bg-ink-raised px-2 py-1 font-fantasy text-sm text-text transition-colors duration-150 hover:border-gold-dim focus-within:border-gold-dim"
                         >
-                          <X className="h-3 w-3" />
-                        </button>
-                      </div>
-                    );
-                  }
+                          <span className="min-w-0 break-words" title={skillDef.description}>
+                            {skillDef.nameRu}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveSkill(level, slotIndex)}
+                            className="ml-0.5 shrink-0 cursor-pointer text-text-muted opacity-0 transition-colors duration-150 hover:text-danger focus:outline-none focus-visible:opacity-100 group-hover:opacity-100 group-focus-within:opacity-100"
+                            title="Очистить слот"
+                            aria-label={`Убрать навык ${skillDef.nameRu}`}
+                          >
+                            <X className="size-3" strokeWidth={1.5} />
+                          </button>
+                        </div>
+                      );
+                    }
 
-                  return (
-                    <button
-                      key={slotIndex}
-                      type="button"
-                      onClick={() => {
-                        setActivePicker({ level, slotIndex });
-                        setSearchQuery('');
-                      }}
-                      className="inline-flex min-h-[32px] cursor-pointer items-center justify-center gap-1 rounded-md border border-dashed border-[#2A3444] px-2 text-[10px] text-slate-500 transition hover:border-slate-500 hover:text-slate-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400/40"
-                    >
-                      <Plus className="h-3 w-3" />
-                      <span>Выбрать</span>
-                    </button>
-                  );
-                })}
+                    return (
+                      <button
+                        key={slotIndex}
+                        type="button"
+                        onClick={() => {
+                          setActivePicker({ level, slotIndex });
+                          setSearchQuery('');
+                        }}
+                        className="inline-flex min-h-[28px] cursor-pointer items-center justify-center gap-1 border border-dashed border-line px-2 py-1 text-xs text-text-muted transition-colors duration-150 hover:border-gold-dim hover:text-gold-light focus:outline-none focus-visible:border-gold-dim focus-visible:text-gold-light"
+                      >
+                        <Plus className="size-3" strokeWidth={1.5} />
+                        <span>Выбрать</span>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             </div>
           );

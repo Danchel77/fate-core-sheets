@@ -130,7 +130,7 @@ export default {
     },
     {
       name: 'S9: no-dup-titles',
-      expr: `document.querySelectorAll('[data-zone=left] h2, [data-zone=left] h3').length === 0`
+      expr: `document.querySelectorAll('[data-zone] h2, [data-zone] h3').length === 0`
     },
     {
       name: 'S10: stress-boxes',
@@ -227,6 +227,79 @@ export default {
           open.border === 'rgb(152, 120, 73)' &&
           open.background === 'rgb(13, 13, 13)' &&
           closed === true;
+      })()`
+    },
+    {
+      name: 'S16: skill-levels',
+      expr: `(() => {
+        const levels = Array.from(document.querySelectorAll('[data-kit="sheet-skill-level"]'));
+        return (
+          levels.length === 4 &&
+          levels.every((level) => level.querySelectorAll('[data-kit="sheet-skill-slot"]').length >= 1)
+        );
+      })()`
+    },
+    {
+      name: 'S17: skill-slots',
+      expr: `document.querySelectorAll('[data-kit="sheet-skill-slot"]').length === 10`
+    },
+    {
+      name: 'S18: center-sharp',
+      expr: `(() => {
+        const root = document.querySelector('[data-zone="center"]');
+        if (!root) return false;
+        return Array.from(root.querySelectorAll('*')).every((el) => {
+          const className = typeof el.className === 'string' ? el.className : '';
+          if (!className.trim()) return true;
+          return getComputedStyle(el).borderRadius === '0px';
+        });
+      })()`
+    },
+    {
+      name: 'S19: center-font-min',
+      expr: `(() => {
+        const root = document.querySelector('[data-zone="center"]');
+        if (!root) return false;
+        return Array.from(root.querySelectorAll('*')).every((el) => {
+          if (!el.textContent || el.textContent.trim().length === 0) return true;
+          return parseFloat(getComputedStyle(el).fontSize) >= 12;
+        });
+      })()`
+    },
+    {
+      name: 'S20: center-no-slate',
+      expr: `(() => {
+        const root = document.querySelector('[data-zone="center"]');
+        if (!root) return false;
+        const forbidden = 'rgb(100, 116, 139)';
+        const nodes = [root, ...Array.from(root.querySelectorAll('*'))];
+        return nodes.every((el) => {
+          const className = typeof el.className === 'string' ? el.className : '';
+          if (className.includes('slate-')) return false;
+          const style = getComputedStyle(el);
+          const colors = [
+            style.color,
+            style.backgroundColor,
+            style.borderTopColor,
+            style.borderRightColor,
+            style.borderBottomColor,
+            style.borderLeftColor
+          ];
+          return colors.every((color) => color !== forbidden);
+        });
+      })()`
+    },
+    {
+      name: 'S21: stunt-rows',
+      expr: `(() => {
+        const rows = Array.from(document.querySelectorAll('[data-kit="sheet-stunt"]'));
+        return (
+          rows.length === 3 &&
+          rows.every((row) => {
+            const style = getComputedStyle(row);
+            return style.backgroundColor === 'rgba(0, 0, 0, 0)' && style.borderRadius === '0px';
+          })
+        );
       })()`
     }
   ]

@@ -208,7 +208,7 @@ export const CharacterSheet: React.FC = () => {
         {/* Центральная зона: навыки и трюки. */}
         <div data-zone="center" className="flex min-w-0 flex-col gap-6">
           <SheetBlock title="Навыки">
-            <SkillsPyramid character={activeCharacter} onChange={updateChar} />
+            <SkillsPyramid character={activeCharacter} onChange={updateChar} showHeader={false} />
           </SheetBlock>
 
           <SheetBlock title="Трюки">
@@ -216,6 +216,7 @@ export const CharacterSheet: React.FC = () => {
               character={activeCharacter}
               onChange={updateChar}
               onOpenApiKeySettings={() => setIsSettingsOpen(true)}
+              showHeader={false}
             />
           </SheetBlock>
         </div>
