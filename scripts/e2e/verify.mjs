@@ -27,6 +27,90 @@ const allowedList = allowedArg
 
 const failures = [];
 
+// 0. Гейт фундамента. Проверяем его первым: остальные проверки экрана ничего
+// не стоят, если токены не сгенерированы и общие компоненты разошлись с DESIGN.md.
+// Сценарий foundation сам себя не проверяет, иначе получится рекурсия.
+const FOUNDATION_SCENARIO = 'foundation';
+const foundationReportPath = path.join(
+  ROOT,
+  'scripts/e2e/reports',
+  `${FOUNDATION_SCENARIO}.json`
+);
+
+const newestMtime = (target) => {
+  if (!fs.existsSync(target)) return 0;
+  const stat = fs.statSync(target);
+  if (!stat.isDirectory()) return stat.mtimeMs;
+  let max = stat.mtimeMs;
+  for (const entry of fs.readdirSync(target, { withFileTypes: true })) {
+    const m = newestMtime(path.join(target, entry.name));
+    if (m > max) max = m;
+  }
+  return max;
+};
+
+if (scenarioName !== FOUNDATION_SCENARIO) {
+  if (!fs.existsSync(foundationReportPath)) {
+    failures.push(
+      `Фундамент не проверен: нет отчёта ${foundationReportPath}. Сначала выполни: node scripts/e2e/capture.mjs --scenario=foundation`
+    );
+  } else {
+    let foundationReport = null;
+    try {
+      foundationReport = JSON.parse(fs.readFileSync(foundationReportPath, 'utf8'));
+    } catch (err) {
+      failures.push(`Отчёт фундамента не читается: ${err.message}`);
+    }
+
+    if (foundationReport) {
+      const failedAsserts = Array.isArray(foundationReport.failedAsserts)
+        ? foundationReport.failedAsserts
+        : [];
+      const lintIssues = [];
+      if (foundationReport.lint && typeof foundationReport.lint === 'object') {
+        for (const [key, val] of Object.entries(foundationReport.lint)) {
+          if (Array.isArray(val) && val.length > 0) {
+            lintIssues.push(`${key} (${val.length} шт.)`);
+          }
+        }
+      }
+
+      if (
+        foundationReport.ok !== true ||
+        failedAsserts.length > 0 ||
+        lintIssues.length > 0
+      ) {
+        const reasons = [];
+        if (failedAsserts.length > 0) {
+          reasons.push(`провалены ассерты: ${failedAsserts.join(', ')}`);
+        }
+        if (lintIssues.length > 0) {
+          reasons.push(`lint не пуст: ${lintIssues.join('; ')}`);
+        }
+        if (reasons.length === 0) {
+          reasons.push('в отчёте ok: false');
+        }
+        failures.push(
+          `Фундамент не на месте — ${reasons.join('; ')}. Почини tailwind.config.js или компонент из src/components/common/ и пересобери.`
+        );
+      }
+
+      const distBuiltMs = new Date(foundationReport.distBuiltAt).getTime();
+      let newestSourceMs = 0;
+      for (const candidate of ['src', 'tailwind.config.js', 'index.html']) {
+        newestSourceMs = Math.max(newestSourceMs, newestMtime(path.join(ROOT, candidate)));
+      }
+      if (!Number.isFinite(distBuiltMs) || distBuiltMs < newestSourceMs) {
+        failures.push(
+          `Фундамент проверен на устаревшей сборке: distBuiltAt (${foundationReport.distBuiltAt}) старее ${new Date(
+            newestSourceMs
+          ).toISOString()}. Пересобери и повтори node scripts/e2e/capture.mjs --scenario=foundation`
+        );
+      }
+    }
+  }
+}
+
 // 1. Отчёт есть, ok: true, утверждений >= 1, lint пуст
 const reportPath = path.join(ROOT, 'scripts/e2e/reports', `${scenarioName}.json`);
 const scenarioPath = path.join(ROOT, 'scripts/e2e/scenarios', `${scenarioName}.mjs`);

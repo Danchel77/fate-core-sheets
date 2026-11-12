@@ -88,9 +88,9 @@ const out = path.join(SHOTS_DIR, `${baseShotName}.png`);
 import { LINT_SRC } from './lib/lint-src.mjs';
 
 const assertions = Array.isArray(scenario.asserts) ? scenario.asserts : [];
-const assertsExpression = `JSON.stringify([${assertions
+const assertsExpression = `[${assertions
   .map((item) => `{name:${JSON.stringify(item.name)},ok:!!(${item.expr})}`)
-  .join(',')}])`;
+  .join(',')}]`;
 
 const steps = [...scenario.steps];
 let shotCount = 0;
@@ -209,6 +209,7 @@ child.on('close', (code) => {
     capturedAt: new Date().toISOString(),
     distBuiltAt: new Date(distMtime).toISOString(),
     consoleErrors,
+    asserts: parsedAsserts || [],
     failedAsserts,
     lint,
     ok,
