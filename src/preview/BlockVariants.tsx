@@ -1,21 +1,14 @@
+import { AspectBlock, type AspectVariant } from '../components/AspectBlock';
 import { CharacterBlock } from '../components/CharacterBlock';
-import type { HeaderVariant } from '../components/BlockHeader';
+import { demoCharacter } from '../data/demoCharacter';
 import '../styles/sheet.css';
 import '../styles/character-block.css';
+import '../styles/aspect-block.css';
 
-const VARIANTS: { id: HeaderVariant; caption: string }[] = [
-  {
-    id: 'caps',
-    caption: 'Вариант A — капители: орнамент в натуральной пропорции, отбит линейкой',
-  },
-  {
-    id: 'lozenge',
-    caption: 'Вариант B — ромбы: острые навершия на концах плашки',
-  },
-  {
-    id: 'bevel',
-    caption: 'Вариант C — скосы: срезанные углы и золотая кромка по срезу',
-  },
+const VARIANTS: { id: AspectVariant; caption: string }[] = [
+  { id: 'rows', caption: 'Вариант A — книжные строки: подпись слева, текст справа, разделители' },
+  { id: 'cards', caption: 'Вариант B — карточки: каждое поле в своей рамке' },
+  { id: 'print', caption: 'Вариант C — печатные строки: подпись над линией, как в бланке' },
 ];
 
 function Placeholder({ title, lines }: { title: string; lines: number }) {
@@ -29,14 +22,14 @@ function Placeholder({ title, lines }: { title: string; lines: number }) {
   );
 }
 
-function Spread({ variant, caption }: { variant: HeaderVariant; caption: string }) {
+function Spread({ variant, caption }: { variant: AspectVariant; caption: string }) {
   return (
     <div className="variant">
       <p className="variant__caption">{caption}</p>
       <div className="book">
         <div className="page page--left">
-          <CharacterBlock variant={variant} nameStyle="smallcaps" />
-          <Placeholder title="Аспекты" lines={5} />
+          <CharacterBlock variant="lozenge" nameStyle="smallcaps" />
+          <AspectBlock variant={variant} aspects={demoCharacter.aspects} />
         </div>
         <div className="page page--right">
           <Placeholder title="Навыки" lines={5} />
@@ -49,15 +42,15 @@ function Spread({ variant, caption }: { variant: HeaderVariant; caption: string 
   );
 }
 
-/** Концы плашки: три варианта при неизменных стиле, размере и имени. */
+/** Блок «Аспекты» в реальном масштабе: три варианта, поля редактируются. */
 export default function BlockVariants() {
   return (
     <main className="variants-page">
       <header className="variants-head">
-        <h1>Концы плашки — три варианта</h1>
+        <h1>Аспекты — три варианта</h1>
         <p>
-          Имя стало жирнее, размер прежний. Стиль и высота плашки не менялись — различаются
-          только концы. Масштаб 1:1.
+          Все поля редактируются прямо на листе: кликните по тексту. Кнопка «?» рядом с
+          подписью раскрывает совет по этому аспекту. Масштаб 1:1.
         </p>
       </header>
 

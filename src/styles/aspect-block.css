@@ -1,0 +1,145 @@
+/* Блок «Аспекты»: пять редактируемых полей с подсказками. */
+
+.ablock {
+  color: var(--text-ink-primary);
+}
+
+.ablock__list {
+  display: flex;
+  flex-direction: column;
+}
+
+.aspect {
+  position: relative;
+  min-width: 0;
+}
+
+.aspect__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.aspect__label {
+  font-family: var(--font-body);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--accent-gold-ink);
+}
+
+.aspect__help {
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: 1px solid color-mix(in srgb, var(--accent-gold) 60%, transparent);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--text-ink-muted);
+  font-family: var(--font-body);
+  font-size: 0.625rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.aspect__help:hover,
+.aspect__help[aria-expanded='true'] {
+  background: color-mix(in srgb, var(--accent-gold) 22%, transparent);
+  color: var(--text-ink-primary);
+}
+
+.aspect__help:focus-visible {
+  outline: 2px solid var(--accent-gold-deep);
+  outline-offset: 2px;
+}
+
+.aspect__text {
+  display: block;
+  width: 100%;
+  min-height: 22px;
+  margin: 0;
+  padding: 2px 0;
+  border: 0;
+  background: transparent;
+  color: var(--text-ink-primary);
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  line-height: var(--lh-body);
+  resize: none;
+  overflow: hidden;
+}
+
+.aspect__text::placeholder {
+  color: color-mix(in srgb, var(--text-ink-muted) 62%, transparent);
+  font-style: italic;
+}
+
+.aspect__text:focus {
+  outline: none;
+  background: color-mix(in srgb, var(--accent-gold) 8%, transparent);
+}
+
+.aspect__hint {
+  margin: 2px 0 0;
+  font-size: 0.75rem;
+  font-style: italic;
+  line-height: 1.4;
+  color: var(--text-ink-muted);
+}
+
+/* вариант A: книжные строки */
+
+.ablock--rows .aspect {
+  display: grid;
+  grid-template-columns: 186px minmax(0, 1fr);
+  column-gap: 14px;
+  padding: 7px 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--accent-gold) 32%, transparent);
+}
+
+.ablock--rows .aspect__head {
+  align-items: flex-start;
+  flex-wrap: nowrap;
+  padding-top: 2px;
+}
+
+.ablock--rows .aspect__label {
+  letter-spacing: 0.1em;
+}
+
+.ablock--rows .aspect__hint {
+  grid-column: 2;
+}
+
+/* вариант B: карточки */
+
+.ablock--cards .ablock__list {
+  gap: 7px;
+}
+
+.ablock--cards .aspect {
+  padding: 7px 10px 8px;
+  border: 1px solid color-mix(in srgb, var(--accent-gold) 40%, transparent);
+  background: color-mix(in srgb, var(--bg-parchment) 55%, transparent);
+}
+
+.ablock--cards .aspect__label {
+  font-size: 0.625rem;
+}
+
+/* вариант C: печатные строки */
+
+.ablock--print .aspect {
+  padding: 6px 0 5px;
+}
+
+.ablock--print .aspect__label {
+  font-size: 0.625rem;
+  letter-spacing: 0.16em;
+}
+
+.ablock--print .aspect__text {
+  border-bottom: 1px solid color-mix(in srgb, var(--text-ink-primary) 28%, transparent);
+  padding-bottom: 3px;
+}
