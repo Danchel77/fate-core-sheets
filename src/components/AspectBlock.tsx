@@ -1,12 +1,16 @@
 import { useEffect, useRef, useState } from 'react';
 import type { Aspect } from '../data/demoCharacter';
 import { BlockHeader } from './BlockHeader';
+import { HintWord, type HintVariant } from './HintWord';
 
 const HINTS: Record<string, string> = {
-  'Концепция': 'Профессия плюс яркая черта. Должна и помогать, и мешать: «Ведьмак, который не берёт денег с бедных».',
+  'Концепция':
+    'Профессия плюс яркая черта. Должна и помогать, и мешать: «Ведьмак, который не берёт денег с бедных».',
   'Проблема': 'То, что постоянно втягивает героя в неприятности. Мешает жить, но не парализует.',
-  'Первое приключение': 'Случай, с которого началась история героя. Даёт ему связь с миром и повод в него вернуться.',
-  'Переплетение судеб': 'Связь с другим героем: дружба, долг, соперничество. Можно взять дважды.',
+  'Первое приключение':
+    'Случай, с которого началась история героя. Даёт ему связь с миром и повод в него вернуться.',
+  'Переплетение судеб':
+    'Связь с другим героем: дружба, долг, соперничество. Можно взять дважды.',
 };
 
 const PLACEHOLDERS: Record<string, string> = {
@@ -21,10 +25,9 @@ type AutoTextareaProps = {
   onChange: (value: string) => void;
   placeholder?: string;
   label: string;
-  className?: string;
 };
 
-function AutoTextarea({ value, onChange, placeholder, label, className }: AutoTextareaProps) {
+function AutoTextarea({ value, onChange, placeholder, label }: AutoTextareaProps) {
   const ref = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
@@ -37,7 +40,7 @@ function AutoTextarea({ value, onChange, placeholder, label, className }: AutoTe
   return (
     <textarea
       ref={ref}
-      className={className}
+      className="aspect__text"
       value={value}
       rows={1}
       aria-label={label}
@@ -47,48 +50,37 @@ function AutoTextarea({ value, onChange, placeholder, label, className }: AutoTe
   );
 }
 
-export type AspectVariant = 'rows' | 'cards' | 'print';
-
 type Props = {
-  variant: AspectVariant;
   aspects: Aspect[];
+  hintVariant: HintVariant;
 };
 
-/** Блок «Аспекты»: пять редактируемых карточек с подсказками. */
-export function AspectBlock({ variant, aspects }: Props) {
+/** Блок «Аспекты»: подписи-подсказки сверху, редактируемый текст на линии. */
+export function AspectBlock({ aspects, hintVariant }: Props) {
   const [values, setValues] = useState(aspects.map((aspect) => aspect.text));
-  const [openHint, setOpenHint] = useState<number | null>(null);
 
   const setValue = (index: number, text: string) => {
     setValues((prev) => prev.map((item, i) => (i === index ? text : item)));
   };
 
   return (
-    <section className={`ablock ablock--${variant}`}>
+    <section className="ablock">
       <BlockHeader variant="lozenge" title="Аспекты" />
       <div className="ablock__list">
         {aspects.map((aspect, index) => (
           <div className="aspect" key={`${aspect.label}-${index}`}>
-            <div className="aspect__head">
-              <span className="aspect__label">{aspect.label}</span>
-              <button
-                type="button"
-                className="aspect__help"
-                aria-expanded={openHint === index}
-                aria-label={`Подсказка: ${aspect.label}`}
-                onClick={() => setOpenHint(openHint === index ? null : index)}
-              >
-                ?
-              </button>
-            </div>
-            <AutoTextarea
-              className="aspect__text"
-              label={aspect.label}
-              value={values[index]}
-              placeholder={PLACEHOLDERS[aspect.label]}
-              onChange={(text) => setValue(index, text)}
+            <HintWord
+              variant={hintVariant}
+              title={aspect.label}
+              text={HINTS[aspect.label] ?? ''}
+              id={`${hintVariant}-aspect-hint-${index}`}
             />
-            {openHint === index && <p className="aspect__hint">{HINTS[aspect.label]}</p>}
+            <AutoTextarea
+              value={values[index]}
+              onChange={(text) => setValue(index, text)}
+              placeholder={PLACEHOLDERS[aspect.label]}
+              label={aspect.label}
+            />
           </div>
         ))}
       </div>

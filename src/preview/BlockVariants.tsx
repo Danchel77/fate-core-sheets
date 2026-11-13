@@ -1,14 +1,16 @@
-import { AspectBlock, type AspectVariant } from '../components/AspectBlock';
+import { AspectBlock } from '../components/AspectBlock';
 import { CharacterBlock } from '../components/CharacterBlock';
+import type { HintVariant } from '../components/HintWord';
 import { demoCharacter } from '../data/demoCharacter';
 import '../styles/sheet.css';
 import '../styles/character-block.css';
 import '../styles/aspect-block.css';
+import '../styles/hint.css';
 
-const VARIANTS: { id: AspectVariant; caption: string }[] = [
-  { id: 'rows', caption: 'Вариант A — книжные строки: подпись слева, текст справа, разделители' },
-  { id: 'cards', caption: 'Вариант B — карточки: каждое поле в своей рамке' },
-  { id: 'print', caption: 'Вариант C — печатные строки: подпись над линией, как в бланке' },
+const VARIANTS: { id: HintVariant; caption: string }[] = [
+  { id: 'cartouche', caption: 'Вариант A — картуш: сплошная линия с затуханием, плашка с двойной рамкой' },
+  { id: 'plate', caption: 'Вариант B — уголки: пунктир с затуханием, карточка с уголками' },
+  { id: 'bookmark', caption: 'Вариант C — закладка: тонкая золотая линия, карточка с тёмной полосой' },
 ];
 
 function Placeholder({ title, lines }: { title: string; lines: number }) {
@@ -22,14 +24,14 @@ function Placeholder({ title, lines }: { title: string; lines: number }) {
   );
 }
 
-function Spread({ variant, caption }: { variant: AspectVariant; caption: string }) {
+function Spread({ variant, caption }: { variant: HintVariant; caption: string }) {
   return (
     <div className="variant">
       <p className="variant__caption">{caption}</p>
       <div className="book">
         <div className="page page--left">
           <CharacterBlock variant="lozenge" nameStyle="smallcaps" />
-          <AspectBlock variant={variant} aspects={demoCharacter.aspects} />
+          <AspectBlock aspects={demoCharacter.aspects} hintVariant={variant} />
         </div>
         <div className="page page--right">
           <Placeholder title="Навыки" lines={5} />
@@ -42,15 +44,15 @@ function Spread({ variant, caption }: { variant: AspectVariant; caption: string 
   );
 }
 
-/** Блок «Аспекты» в реальном масштабе: три варианта, поля редактируются. */
+/** Блок «Аспекты»: подсказки в словах, три варианта тултипов. */
 export default function BlockVariants() {
   return (
     <main className="variants-page">
       <header className="variants-head">
-        <h1>Аспекты — три варианта</h1>
+        <h1>Аспекты — подсказки</h1>
         <p>
-          Все поля редактируются прямо на листе: кликните по тексту. Кнопка «?» рядом с
-          подписью раскрывает совет по этому аспекту. Масштаб 1:1.
+          Пять полей переписаны по замечаниям: подпись сверху, текст на линии, отступ от
+          края. Подсказка открывается нажатием на подпись (или наведением) и появляется плашкой под строкой. Масштаб 1:1.
         </p>
       </header>
 
