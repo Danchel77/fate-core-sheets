@@ -34,6 +34,13 @@
   --border-width: 1px;
 
   /* Размеры интерфейса */
+  /* Временные серые для скелета макета — удаляются после выбора палитры */
+  --wf-bg: #ffffff;
+  --wf-ink: #111111;
+  --wf-line: #b8b8b8;
+  --wf-fill: #f2f2f2;
+  --wf-muted: #8a8a8a;
+
   --touch-target: 44px;
   --content-width: 72rem;
   --transition-fast: 120ms ease;

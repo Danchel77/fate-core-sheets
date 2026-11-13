@@ -1,0 +1,109 @@
+.wf-page {
+  max-width: var(--content-width);
+  margin: 0 auto;
+  padding: var(--space-5) var(--space-4) var(--space-7);
+}
+
+.wf-note h1 {
+  font-size: var(--step-2);
+  margin-bottom: var(--space-2);
+}
+
+.wf-note p {
+  max-width: 60ch;
+}
+
+.wf-sheet {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1300 / 934;
+  background: var(--wf-bg);
+  border: var(--border-width) solid var(--wf-line);
+  overflow: hidden;
+}
+
+.wf-bar,
+.wf-field,
+.wf-area,
+.wf-cell,
+.wf-stress,
+.wf-logo,
+.wf-skill-label {
+  position: absolute;
+  box-sizing: border-box;
+}
+
+.wf-bar {
+  display: flex;
+  align-items: center;
+  padding: 0 0.6em;
+  background: var(--wf-ink);
+  color: var(--wf-bg);
+  font-size: clamp(6px, 0.85vw, 12px);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.wf-bar small {
+  margin-left: 0.4em;
+  font-size: 0.85em;
+  font-weight: 400;
+  opacity: 0.85;
+  text-transform: none;
+}
+
+.wf-field,
+.wf-area {
+  display: flex;
+  align-items: flex-start;
+  padding: 0.35em 0.5em;
+  border: var(--border-width) solid var(--wf-line);
+  color: var(--wf-muted);
+  font-size: clamp(6px, 0.8vw, 11px);
+}
+
+.wf-area {
+  align-items: center;
+  justify-content: center;
+  background: var(--wf-fill);
+}
+
+.wf-skill-label {
+  display: flex;
+  align-items: center;
+  color: var(--wf-muted);
+  font-size: clamp(6px, 0.8vw, 11px);
+}
+
+.wf-cell {
+  border: var(--border-width) solid var(--wf-line);
+}
+
+.wf-stress {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: var(--border-width) solid var(--wf-line);
+  color: var(--wf-muted);
+  font-size: clamp(6px, 0.8vw, 11px);
+}
+
+.wf-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: var(--border-width) dashed var(--wf-line);
+  color: var(--wf-muted);
+  font-family: var(--font-display);
+  font-size: clamp(12px, 2.4vw, 34px);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.wf-caption {
+  margin-top: var(--space-4);
+  color: var(--wf-muted);
+  font-size: var(--step--1);
+}
