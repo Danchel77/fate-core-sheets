@@ -1,0 +1,314 @@
+/* Блок «Персонаж»: три трактовки заголовка и жетоны судьбы. */
+
+.blocks-page {
+  min-height: 100vh;
+  padding: clamp(24px, 4vw, 56px) 20px 80px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(32px, 4vw, 52px);
+  background: var(--bg-table);
+}
+
+.blocks-head {
+  text-align: center;
+  color: var(--table-ink);
+}
+
+.blocks-head h1 {
+  margin: 0 0 6px;
+  font-family: var(--font-heading);
+  font-size: clamp(1.7rem, 3vw, 2.2rem);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.blocks-head p {
+  margin: 0;
+  font-size: 0.9375rem;
+  color: color-mix(in srgb, var(--table-ink) 68%, transparent);
+}
+
+.blocks-item {
+  width: min(880px, 100%);
+}
+
+.blocks-caption {
+  margin: 0 0 10px 4px;
+  font-size: 0.75rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--table-ink) 74%, transparent);
+}
+
+/* ---------- карточка блока ---------- */
+
+.cblock {
+  padding: 20px 26px 26px;
+  border: 1px solid color-mix(in srgb, var(--accent-gold) 62%, transparent);
+  background: var(--bg-parchment);
+  color: var(--text-ink-primary);
+  box-shadow:
+    0 18px 44px color-mix(in srgb, black 52%, transparent),
+    0 3px 10px color-mix(in srgb, black 30%, transparent);
+}
+
+.cblock__body {
+  display: grid;
+  grid-template-columns: 248px minmax(0, 1fr);
+  gap: clamp(20px, 3vw, 32px);
+  align-items: start;
+}
+
+.cblock__portrait {
+  width: 100%;
+}
+
+.cblock__name {
+  margin: 0 0 16px;
+  font-family: var(--font-heading);
+  font-size: clamp(1.6rem, 3.2vw, 2.15rem);
+  font-weight: 600;
+  line-height: 1.05;
+  letter-spacing: 0.01em;
+}
+
+.cblock__desc {
+  margin: 18px 0 0;
+  max-width: 48ch;
+  font-size: var(--text-body);
+  line-height: var(--lh-body);
+  color: var(--text-ink-muted);
+}
+
+/* ---------- заголовки ---------- */
+
+.bh {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.bh__title {
+  font-family: var(--font-body);
+  font-size: 0.9375rem;
+  font-weight: 700;
+  letter-spacing: 0.17em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--text-ink-primary);
+}
+
+/* вариант 1: картуш с углами */
+
+.bh--cartouche {
+  position: relative;
+  padding: 9px 44px;
+  border-top: 1px solid var(--accent-gold);
+  border-bottom: 1px solid var(--accent-gold);
+  box-shadow:
+    inset 0 4px 0 -3px var(--accent-gold),
+    inset 0 -4px 0 -3px var(--accent-gold);
+}
+
+.bh__corner {
+  position: absolute;
+  width: 34px;
+  height: 29px;
+  background-color: var(--accent-gold-deep);
+  mask-repeat: no-repeat;
+  mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-size: 100% 100%;
+  opacity: 0.85;
+}
+
+.bh__corner--tl {
+  top: 2px;
+  left: 6px;
+  transform: scaleY(-1);
+}
+
+.bh__corner--tr {
+  top: 2px;
+  right: 6px;
+  transform: scale(-1, -1);
+}
+
+.bh__corner--br {
+  bottom: 2px;
+  right: 6px;
+  transform: scaleX(-1);
+}
+
+.bh__corner--bl {
+  bottom: 2px;
+  left: 6px;
+}
+
+/* вариант 2: линейка с ромбами */
+
+.bh--fleuron {
+  gap: 12px;
+}
+
+.bh__rule {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--accent-gold) 75%, transparent)
+  );
+}
+
+.bh__rule--end {
+  transform: scaleX(-1);
+}
+
+.bh__gem {
+  flex: none;
+  width: 6px;
+  height: 6px;
+  background: var(--accent-gold-deep);
+  transform: rotate(45deg);
+}
+
+/* вариант 3: бронзовая плашка */
+
+.bh--plaque {
+  width: fit-content;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 10px 34px;
+  border: 1px solid color-mix(in srgb, #e2c184 72%, transparent);
+  background: linear-gradient(175deg, #8b6631 0%, #6b4a22 55%, #7d5a29 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 238, 200, 0.35),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.4),
+    0 2px 4px rgba(0, 0, 0, 0.28);
+}
+
+.bh--plaque .bh__title {
+  font-size: 1rem;
+  color: var(--band-ink);
+  letter-spacing: 0.2em;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.4);
+}
+
+.bh--plaque .bh__title::before,
+.bh--plaque .bh__title::after {
+  content: '';
+  display: inline-block;
+  width: 4px;
+  height: 4px;
+  margin: 0 14px 3px;
+  background: color-mix(in srgb, var(--band-ink) 80%, transparent);
+  transform: rotate(45deg);
+}
+
+/* ---------- жетоны судьбы ---------- */
+
+.fp {
+  padding: 10px 0 12px;
+  border-top: 1px solid color-mix(in srgb, var(--accent-gold) 42%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--accent-gold) 42%, transparent);
+}
+
+.fp__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.fp__label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.fp__refresh {
+  font-size: 0.8125rem;
+  letter-spacing: 0.03em;
+  color: var(--text-ink-muted);
+}
+
+.fp__refresh b {
+  margin-left: 3px;
+  font-size: 1rem;
+  color: var(--text-ink-primary);
+}
+
+.fp__row {
+  display: flex;
+  gap: 10px;
+  margin-top: 11px;
+}
+
+.fp__coin {
+  position: relative;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid color-mix(in srgb, var(--accent-gold-deep) 78%, transparent);
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+  transition:
+    transform 0.12s ease,
+    background 0.12s ease;
+}
+
+.fp__coin::after {
+  content: '';
+  position: absolute;
+  inset: 5px;
+  border: 1px dashed color-mix(in srgb, var(--accent-gold) 52%, transparent);
+  border-radius: 50%;
+}
+
+.fp__coin:hover {
+  transform: translateY(-1px);
+}
+
+.fp__coin:focus-visible {
+  outline: 2px solid var(--accent-gold-deep);
+  outline-offset: 3px;
+}
+
+.fp__coin.is-filled {
+  border-color: #6b4a20;
+  background: radial-gradient(circle at 35% 28%, #d8b06a, #8a6524 68%, #6b4a20 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 240, 205, 0.5),
+    0 1px 2px rgba(0, 0, 0, 0.25);
+}
+
+.fp__coin.is-filled::after {
+  border: 1px solid rgba(255, 240, 205, 0.38);
+}
+
+/* ---------- адаптив ---------- */
+
+@media (max-width: 720px) {
+  .cblock__body {
+    grid-template-columns: 1fr;
+  }
+
+  .cblock__portrait {
+    width: 200px;
+  }
+
+  .bh--cartouche {
+    padding: 9px 20px;
+  }
+
+  .bh__corner {
+    width: 18px;
+    height: 16px;
+  }
+}
