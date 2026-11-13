@@ -11,12 +11,9 @@
   text-align: center;
 }
 
-.smp-head h1 {
-  font-size: var(--step-3);
-}
-
 .smp-head p {
   color: color-mix(in srgb, var(--smp-room-ink) 72%, transparent);
+  font-size: var(--text-body);
 }
 
 .smp-grid {
@@ -36,13 +33,13 @@
 
 .smp-item h2 {
   margin: var(--space-4) 0 var(--space-1);
-  font-size: var(--step-1);
+  font-size: var(--text-lead);
 }
 
 .smp-item > p {
   max-width: 32ch;
   color: color-mix(in srgb, var(--smp-room-ink) 68%, transparent);
-  font-size: var(--step--1);
+  font-size: var(--text-caption);
 }
 
 .smp-card {
@@ -82,27 +79,6 @@
   z-index: 1;
 }
 
-.smp-inner::before,
-.smp-inner::after {
-  content: '';
-  position: absolute;
-  z-index: 2;
-  width: 9px;
-  height: 9px;
-  background: var(--ornament);
-  transform: rotate(45deg);
-}
-
-.smp-inner::before {
-  top: -6px;
-  left: -6px;
-}
-
-.smp-inner::after {
-  right: -6px;
-  bottom: -6px;
-}
-
 .smp-card--a1 {
   --page: var(--smp-a1-page);
   --ink: var(--smp-a1-ink);
@@ -137,52 +113,85 @@
 }
 
 .smp-band {
-  margin: 0;
   padding: 6px 10px;
   background: var(--band);
   color: var(--band-ink);
-  font-family: var(--font-display);
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.16em;
   text-align: center;
-  text-transform: uppercase;
 }
 
 .smp-portrait {
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 64%;
+  position: relative;
+  width: 72%;
   aspect-ratio: 3 / 4;
-  margin: 6px auto 2px;
-  border: 1px solid var(--accent);
-  background: color-mix(in srgb, var(--ink) 7%, transparent);
-  color: var(--muted);
-  font-size: 12px;
+  margin: 8px auto 2px;
+  padding: 18px;
+  border: 1px solid var(--ornament);
+  outline: 1px solid color-mix(in srgb, var(--ornament) 50%, transparent);
+  outline-offset: 2px;
+  background: color-mix(in srgb, var(--ink) 14%, var(--page));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--page) 40%, transparent);
 }
 
 .smp-photo {
+  position: relative;
+  z-index: 2;
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
+  border: 1px solid color-mix(in srgb, var(--ornament) 75%, transparent);
+}
+
+.smp-frame {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.smp-corner {
+  position: absolute;
+  width: 46%;
+  aspect-ratio: 202.40622 / 175.67116;
+  background: var(--ornament);
+  -webkit-mask: center / contain no-repeat;
+  mask: center / contain no-repeat;
+  opacity: 0.92;
+}
+
+.smp-corner--tl {
+  top: 0;
+  left: 0;
+  transform: scaleY(-1);
+}
+
+.smp-corner--tr {
+  top: 0;
+  right: 0;
+  transform: scaleX(-1);
+}
+
+.smp-corner--br {
+  right: 0;
+  bottom: 0;
+  transform: scale(-1, -1);
+}
+
+.smp-corner--bl {
+  left: 0;
+  bottom: 0;
 }
 
 .smp-name {
   margin: 8px 0 0;
-  font-family: var(--font-display);
-  font-size: 28px;
-  font-weight: 700;
-  line-height: 1.15;
+  text-align: center;
 }
 
 .smp-concept {
   margin: 2px 0 0;
   color: var(--muted);
-  font-size: 14px;
   font-style: italic;
+  text-align: center;
 }
 
 .smp-aspect {
@@ -190,8 +199,6 @@
   padding: 8px 10px;
   border-left: 3px solid var(--accent);
   background: color-mix(in srgb, var(--paper-tint) 60%, transparent);
-  font-size: 14px;
-  line-height: 1.45;
   text-align: left;
 }
 
@@ -199,7 +206,6 @@
   margin: 8px 0 0;
   padding: 0;
   list-style: none;
-  font-size: 14px;
 }
 
 .smp-skills li {
@@ -217,14 +223,14 @@
 .smp-foot {
   margin: 8px 0 0;
   color: var(--muted);
-  font-size: 13px;
+  text-align: center;
 }
 
 .smp-credits {
   max-width: 62ch;
   margin: var(--space-7) auto 0;
   color: color-mix(in srgb, var(--smp-room-ink) 55%, transparent);
-  font-size: var(--step--1);
+  font-size: var(--text-caption);
   text-align: center;
 }
 

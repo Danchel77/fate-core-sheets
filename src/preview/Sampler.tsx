@@ -6,24 +6,39 @@ import './sampler.css';
 
 const PAPER = `${import.meta.env.BASE_URL}assets/textures/parchment-soft.jpg`;
 const PORTRAIT = `${import.meta.env.BASE_URL}assets/portraits/geralt.jpg`;
+const CORNER = `${import.meta.env.BASE_URL}assets/frames/ornament-corner.svg`;
 
 const VARIANTS = [
   {
     id: 'a1' as const,
     title: 'Золото',
-    note: 'Бумага, золотые линии, тёмно-красные ленты. Текущий вариант, но с приглушённой текстурой и крупнее текст.',
+    note: 'Выбранный вариант: бумага, золотые линии, тёмно-красные ленты.',
   },
   {
     id: 'a2' as const,
     title: 'Багрянец',
-    note: 'Больше тёмно-красного: рамки и ленты багряные, золото только тонкой линией.',
+    note: 'Рамки и ленты багряные, золото только тонкой линией.',
   },
   {
     id: 'a3' as const,
     title: 'Чернила',
-    note: 'Строгий: рамки и ленты почти чёрные, золото — только уголки. Меньше «фэнтези-позолоты».',
+    note: 'Почти чёрные рамки и ленты, золото только на уголках.',
   },
 ];
+
+function Corners() {
+  return (
+    <span className="smp-frame" aria-hidden="true">
+      {(['tl', 'tr', 'br', 'bl'] as const).map((corner) => (
+        <i
+          key={corner}
+          className={`smp-corner smp-corner--${corner}`}
+          style={{ maskImage: `url(${CORNER})`, WebkitMaskImage: `url(${CORNER})` }}
+        />
+      ))}
+    </span>
+  );
+}
 
 function Card({ id }: { id: 'a1' | 'a2' | 'a3' }) {
   return (
@@ -33,14 +48,15 @@ function Card({ id }: { id: 'a1' | 'a2' | 'a3' }) {
         style={{ backgroundImage: `url(${PAPER})` }}
       >
         <span className="smp-wash" aria-hidden="true" />
-        <p className="smp-band">Персонаж</p>
+        <p className="smp-band type-label">Персонаж</p>
         <div className="smp-portrait">
           <img className="smp-photo" src={PORTRAIT} alt="Портрет персонажа" />
+          <Corners />
         </div>
-        <h3 className="smp-name">Геральт из Ривии</h3>
-        <p className="smp-concept">Ведьмак · охотник на чудовищ</p>
-        <p className="smp-aspect">Проблема: «Меня все ненавидят»</p>
-        <ul className="smp-skills">
+        <h3 className="smp-name type-display">Геральт из Ривии</h3>
+        <p className="smp-concept type-meta">Ведьмак · охотник на чудовищ</p>
+        <p className="smp-aspect type-body">Проблема: «Меня все ненавидят»</p>
+        <ul className="smp-skills type-body">
           <li>
             <span>Драка</span>
             <b>+4</b>
@@ -54,7 +70,7 @@ function Card({ id }: { id: 'a1' | 'a2' | 'a3' }) {
             <b>+2</b>
           </li>
         </ul>
-        <p className="smp-foot">Обновление 3 · Жетоны судьбы 3</p>
+        <p className="smp-foot type-meta">Обновление 3 · Жетоны судьбы 3</p>
       </div>
     </article>
   );
@@ -64,11 +80,11 @@ export default function Sampler() {
   return (
     <div className="smp-room">
       <header className="smp-head">
-        <h1>Пробник стиля · второй заход</h1>
+        <h1>Пробник стиля · третий заход</h1>
         <p>
-          Направление «пергамент и золото» оставил, но убрал шум бумаги, затемнил
-          текст и увеличил кегль. Ниже три варианта цвета — выберите, какой
-          читается лучше всего.
+          Убрал кружевные размеры шрифтов: теперь четыре готовых стиля текста.
+          Лента «Персонаж» стала жирной, у портрета — гравированная рамка
+          с углами из старой книги.
         </p>
       </header>
 
@@ -83,8 +99,8 @@ export default function Sampler() {
       </div>
 
       <p className="smp-credits">
-        Текстуры: OpenGameArt (CC0), ambientCG (CC0). Шрифты: Cormorant
-        Garamond и PT Serif (OFL).
+        Текстуры: OpenGameArt (CC0), ambientCG (CC0). Орнамент: S. H. Redmond,
+        public domain. Шрифты: Cormorant Garamond и PT Serif (OFL).
       </p>
     </div>
   );

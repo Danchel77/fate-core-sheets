@@ -14,6 +14,12 @@
 | `textures/parchment-weave.jpg` | Luke.RUSTLTD | https://opengameart.org/content/large-parchment-texture | CC0 |
 | `textures/leather.jpg` | ambientCG | https://ambientcg.com/view?id=Leather037 | CC0 |
 
+## Орнаменты
+
+| Файл | Автор | Источник | Лицензия |
+|---|---|---|---|
+| `frames/ornament-corner.svg` | S. H. Redmond | https://commons.wikimedia.org/wiki/File:Ornamental_corner_by_S._H._Redmond_01.svg | Public domain |
+
 ## Портреты (только для пробника, не для продакшена)
 
 | Файл | Автор | Источник | Лицензия |

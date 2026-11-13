@@ -9,6 +9,14 @@
   --font-display: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
   --font-body: 'PT Serif', Georgia, 'Times New Roman', serif;
 
+  /* Типографика: ровно четыре размера, новые не добавлять */
+  --text-caption: 0.8125rem; /* 13px — подписи, метки, сноски */
+  --text-body: 0.9375rem;    /* 15px — основной текст */
+  --text-lead: 1.125rem;     /* 18px — подзаголовки */
+  --text-display: 1.75rem;   /* 28px — имя персонажа, крупные заголовки */
+  --lh-tight: 1.15;
+  --lh-body: 1.45;
+
   /* Размеры текста */
   --step--1: 0.875rem;
   --step-0: 1rem;
