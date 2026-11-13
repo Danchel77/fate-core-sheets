@@ -1,17 +1,19 @@
 import { demoCharacter } from '../data/demoCharacter';
 import { BlockHeader, type HeaderVariant } from './BlockHeader';
 import { FatePoints } from './FatePoints';
+import type { HintVariant } from './Hint';
 import { PortraitPlate } from './PortraitPlate';
 
 export type NameStyle = 'smallcaps' | 'prata' | 'playfair';
 
 type Props = {
   variant: HeaderVariant;
+  hintVariant: HintVariant;
   nameStyle?: NameStyle;
 };
 
 /** Блок «Персонаж»: портрет слева, имя, жетоны судьбы и описание справа. */
-export function CharacterBlock({ variant, nameStyle = 'smallcaps' }: Props) {
+export function CharacterBlock({ variant, hintVariant, nameStyle = 'smallcaps' }: Props) {
   const c = demoCharacter;
 
   return (
@@ -23,7 +25,7 @@ export function CharacterBlock({ variant, nameStyle = 'smallcaps' }: Props) {
         </div>
         <div className="cblock__main">
           <h2 className={`cblock__name cblock__name--${nameStyle}`}>{c.name}</h2>
-          <FatePoints initial={c.fatePoints} refresh={c.refresh} />
+          <FatePoints initial={c.fatePoints} refresh={c.refresh} hintVariant={hintVariant} />
           <p className="cblock__desc">{c.description}</p>
         </div>
       </div>

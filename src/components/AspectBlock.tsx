@@ -1,16 +1,17 @@
 import { useEffect, useRef, useState } from 'react';
 import type { Aspect } from '../data/demoCharacter';
 import { BlockHeader } from './BlockHeader';
-import { HintPanel, HintWord, type HintVariant } from './HintWord';
+import { Hint, type HintVariant } from './Hint';
 
 const HINTS: Record<string, string> = {
   'Концепция':
-    'Профессия плюс яркая черта. Должна и помогать, и мешать: «Ведьмак, который не берёт денег с бедных».',
-  'Проблема': 'То, что постоянно втягивает героя в неприятности. Мешает жить, но не парализует.',
+    'Одна фраза о том, кто герой и чем живёт. Судьба станет и опорой, и ловушкой.',
+  'Проблема':
+    'То, что вечно тянет героя в неприятности: клятва, долг, дурная привычка или старый враг.',
   'Первое приключение':
-    'Случай, с которого началась история героя. Даёт ему связь с миром и повод в него вернуться.',
+    'С чего началась история. Даёт герою корни, связи и повод снова отправиться в путь.',
   'Переплетение судеб':
-    'Связь с другим героем: дружба, долг, соперничество. Можно взять дважды.',
+    'Узы с другим героем: долг, дружба, соперничество. Судьба связывает крепче клятвы.',
 };
 
 const PLACEHOLDERS: Record<string, string> = {
@@ -58,7 +59,6 @@ type Props = {
 /** Блок «Аспекты»: подписи-подсказки сверху, редактируемый текст на линии. */
 export function AspectBlock({ aspects, hintVariant }: Props) {
   const [values, setValues] = useState(aspects.map((aspect) => aspect.text));
-  const [openHint, setOpenHint] = useState<number | null>(null);
 
   const setValue = (index: number, text: string) => {
     setValues((prev) => prev.map((item, i) => (i === index ? text : item)));
@@ -68,35 +68,23 @@ export function AspectBlock({ aspects, hintVariant }: Props) {
     <section className="ablock">
       <BlockHeader variant="lozenge" title="Аспекты" />
       <div className="ablock__list">
-        {aspects.map((aspect, index) => {
-          const open = openHint === index;
-          const panelId = `${hintVariant}-aspect-hint-${index}`;
-          return (
-            <div className={`aspect${open ? ' aspect--open' : ''}`} key={`${aspect.label}-${index}`}>
-              <HintWord
-                variant={hintVariant}
-                title={aspect.label}
-                open={open}
-                controls={panelId}
-                onToggle={() => setOpenHint(open ? null : index)}
-              />
-              <AutoTextarea
-                value={values[index]}
-                onChange={(text) => setValue(index, text)}
-                placeholder={PLACEHOLDERS[aspect.label]}
-                label={aspect.label}
-              />
-              {open && (
-                <HintPanel
-                  id={panelId}
-                  variant={hintVariant}
-                  title={aspect.label}
-                  text={HINTS[aspect.label] ?? ''}
-                />
-              )}
-            </div>
-          );
-        })}
+        {aspects.map((aspect, index) => (
+          <div className="aspect" key={`${aspect.label}-${index}`}>
+            <Hint
+              variant={hintVariant}
+              title={aspect.label}
+              text={HINTS[aspect.label] ?? ''}
+            >
+              {aspect.label}
+            </Hint>
+            <AutoTextarea
+              value={values[index]}
+              onChange={(text) => setValue(index, text)}
+              placeholder={PLACEHOLDERS[aspect.label]}
+              label={aspect.label}
+            />
+          </div>
+        ))}
       </div>
     </section>
   );

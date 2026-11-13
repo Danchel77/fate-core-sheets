@@ -1,6 +1,6 @@
 import { AspectBlock } from '../components/AspectBlock';
 import { CharacterBlock } from '../components/CharacterBlock';
-import type { HintVariant } from '../components/HintWord';
+import type { HintVariant } from '../components/Hint';
 import { demoCharacter } from '../data/demoCharacter';
 import '../styles/sheet.css';
 import '../styles/character-block.css';
@@ -8,9 +8,9 @@ import '../styles/aspect-block.css';
 import '../styles/hint.css';
 
 const VARIANTS: { id: HintVariant; caption: string }[] = [
-  { id: 'cartouche', caption: 'Вариант A — картуш: сплошная линия с затуханием, плашка с двойной рамкой' },
-  { id: 'plate', caption: 'Вариант B — уголки: пунктир с затуханием, карточка с уголками' },
-  { id: 'bookmark', caption: 'Вариант C — закладка: тонкая золотая линия, карточка с тёмной полосой' },
+  { id: 'pointer', caption: 'Вариант A — с ромбом: плашка над словом, указатель снизу' },
+  { id: 'float', caption: 'Вариант B — парящая: плашка над словом без указателя, мягкая тень' },
+  { id: 'side', caption: 'Вариант C — сбоку: плашка справа от слова, указатель слева' },
 ];
 
 function Placeholder({ title, lines }: { title: string; lines: number }) {
@@ -30,7 +30,7 @@ function Spread({ variant, caption }: { variant: HintVariant; caption: string })
       <p className="variant__caption">{caption}</p>
       <div className="book">
         <div className="page page--left">
-          <CharacterBlock variant="lozenge" nameStyle="smallcaps" />
+          <CharacterBlock variant="lozenge" hintVariant={variant} nameStyle="smallcaps" />
           <AspectBlock aspects={demoCharacter.aspects} hintVariant={variant} />
         </div>
         <div className="page page--right">
@@ -44,16 +44,15 @@ function Spread({ variant, caption }: { variant: HintVariant; caption: string })
   );
 }
 
-/** Блок «Аспекты»: подсказки в словах, три варианта тултипов. */
+/** Подсказки: три способа всплывания, плашка в стиле листа. */
 export default function BlockVariants() {
   return (
     <main className="variants-page">
       <header className="variants-head">
-        <h1>Аспекты — подсказки</h1>
+        <h1>Подсказки — всплывающие плашки</h1>
         <p>
-          Пять полей переписаны по замечаниям: подпись сверху, текст на линии, отступ от
-          края. Подсказка открывается нажатием на подпись и раскрывается плашкой прямо под
-          строкой — соседние поля не перекрываются. Масштаб 1:1.
+          Плашка всплывает поверх листа и закрывается сама: клик мимо, Escape или прокрутка.
+          Подсказки есть у аспектов, у жетонов судьбы и у обновления. Масштаб 1:1.
         </p>
       </header>
 
