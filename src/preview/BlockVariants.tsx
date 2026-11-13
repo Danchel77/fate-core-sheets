@@ -4,7 +4,7 @@ import '../styles/character-block.css';
 
 const VARIANTS: { id: HeaderVariant; caption: string }[] = [
   { id: 'cartouche', caption: 'Вариант 1 — картуш: рамка с гравированными углами' },
-  { id: 'fleuron', caption: 'Вариант 2 — флерон: гравюра под заголовком' },
+  { id: 'fleuron', caption: 'Вариант 2 — линейка с ромбами' },
   { id: 'plaque', caption: 'Вариант 3 — бронзовая плашка' },
 ];
 
