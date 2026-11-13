@@ -1,62 +1,57 @@
-/* Блок «Персонаж»: три трактовки заголовка и жетоны судьбы. */
+/* Блок «Персонаж» в реальном масштабе листа + три трактовки заголовка. */
 
-.blocks-page {
+.variants-page {
   min-height: 100vh;
-  padding: clamp(24px, 4vw, 56px) 20px 80px;
+  padding: clamp(20px, 3vw, 44px) 16px 70px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: clamp(32px, 4vw, 52px);
+  gap: clamp(28px, 3.4vw, 44px);
   background: var(--bg-table);
 }
 
-.blocks-head {
+.variants-head {
+  max-width: 760px;
   text-align: center;
   color: var(--table-ink);
 }
 
-.blocks-head h1 {
-  margin: 0 0 6px;
+.variants-head h1 {
+  margin: 0 0 8px;
   font-family: var(--font-heading);
-  font-size: clamp(1.7rem, 3vw, 2.2rem);
+  font-size: clamp(1.5rem, 2.6vw, 1.95rem);
   font-weight: 600;
-  letter-spacing: 0.02em;
 }
 
-.blocks-head p {
+.variants-head p {
   margin: 0;
-  font-size: 0.9375rem;
-  color: color-mix(in srgb, var(--table-ink) 68%, transparent);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: color-mix(in srgb, var(--table-ink) 66%, transparent);
 }
 
-.blocks-item {
-  width: min(880px, 100%);
+.variant {
+  width: min(1180px, 100%);
 }
 
-.blocks-caption {
+.variant__caption {
   margin: 0 0 10px 4px;
-  font-size: 0.75rem;
+  font-size: 0.6875rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: color-mix(in srgb, var(--table-ink) 74%, transparent);
 }
 
-/* ---------- карточка блока ---------- */
+/* ---------- блок ---------- */
 
 .cblock {
-  padding: 20px 26px 26px;
-  border: 1px solid color-mix(in srgb, var(--accent-gold) 62%, transparent);
-  background: var(--bg-parchment);
   color: var(--text-ink-primary);
-  box-shadow:
-    0 18px 44px color-mix(in srgb, black 52%, transparent),
-    0 3px 10px color-mix(in srgb, black 30%, transparent);
 }
 
 .cblock__body {
   display: grid;
-  grid-template-columns: 248px minmax(0, 1fr);
-  gap: clamp(20px, 3vw, 32px);
+  grid-template-columns: 186px minmax(0, 1fr);
+  gap: 18px;
   align-items: start;
 }
 
@@ -65,17 +60,16 @@
 }
 
 .cblock__name {
-  margin: 0 0 16px;
+  margin: 0 0 12px;
   font-family: var(--font-heading);
-  font-size: clamp(1.6rem, 3.2vw, 2.15rem);
+  font-size: 1.7rem;
   font-weight: 600;
   line-height: 1.05;
   letter-spacing: 0.01em;
 }
 
 .cblock__desc {
-  margin: 18px 0 0;
-  max-width: 48ch;
+  margin: 12px 0 0;
   font-size: var(--text-body);
   line-height: var(--lh-body);
   color: var(--text-ink-muted);
@@ -87,36 +81,57 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 14px;
-  margin-bottom: 20px;
+  gap: 12px;
+  margin-bottom: 14px;
 }
 
 .bh__title {
+  position: relative;
+  z-index: 2;
   font-family: var(--font-body);
-  font-size: 0.9375rem;
+  font-size: 0.8125rem;
   font-weight: 700;
-  letter-spacing: 0.17em;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
   white-space: nowrap;
-  color: var(--text-ink-primary);
+  color: var(--accent-gold-ink);
 }
 
-/* вариант 1: картуш с углами */
+/* вариант 1: вставка с текстурой */
 
 .bh--cartouche {
   position: relative;
-  padding: 9px 44px;
-  border-top: 1px solid var(--accent-gold);
-  border-bottom: 1px solid var(--accent-gold);
+  padding: 9px 16px;
+  background-color: color-mix(in srgb, var(--bg-parchment) 84%, #c2a26a 16%);
+  border: 1px solid color-mix(in srgb, var(--accent-gold-deep) 72%, transparent);
   box-shadow:
-    inset 0 4px 0 -3px var(--accent-gold),
-    inset 0 -4px 0 -3px var(--accent-gold);
+    inset 0 1px 0 rgba(255, 255, 255, 0.45),
+    0 1px 2px rgba(70, 48, 18, 0.16);
+}
+
+.bh__texture {
+  position: absolute;
+  inset: 0;
+  background-position: center;
+  background-size: 280px auto;
+  opacity: 0.16;
+  mix-blend-mode: multiply;
+  pointer-events: none;
+}
+
+.bh--cartouche::after {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  border: 1px solid color-mix(in srgb, var(--accent-gold) 55%, transparent);
+  pointer-events: none;
 }
 
 .bh__corner {
   position: absolute;
-  width: 34px;
-  height: 29px;
+  z-index: 3;
+  width: 26px;
+  height: 22px;
   background-color: var(--accent-gold-deep);
   mask-repeat: no-repeat;
   mask-size: 100% 100%;
@@ -126,41 +141,66 @@
 }
 
 .bh__corner--tl {
-  top: 2px;
-  left: 6px;
+  top: 4px;
+  left: 5px;
   transform: scaleY(-1);
 }
 
 .bh__corner--tr {
-  top: 2px;
-  right: 6px;
+  top: 4px;
+  right: 5px;
   transform: scale(-1, -1);
 }
 
 .bh__corner--br {
-  bottom: 2px;
-  right: 6px;
+  bottom: 4px;
+  right: 5px;
   transform: scaleX(-1);
 }
 
 .bh__corner--bl {
-  bottom: 2px;
-  left: 6px;
+  bottom: 4px;
+  left: 5px;
 }
 
-/* вариант 2: линейка с ромбами */
+/* вариант 2: тиснение */
 
-.bh--fleuron {
+.bh--emboss {
+  position: relative;
+  padding: 9px 16px;
+  background-color: color-mix(in srgb, var(--bg-parchment) 90%, #b8985f 10%);
+  border: 1px solid color-mix(in srgb, #b39a6d 62%, transparent);
+  box-shadow:
+    inset 0 2px 7px rgba(80, 55, 20, 0.3),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.55);
+}
+
+
+.bh--emboss .bh__title::before,
+.bh--emboss .bh__title::after {
+  content: '';
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  margin: 0 12px 2px;
+  background: var(--accent-gold-deep);
+  transform: rotate(45deg);
+}
+
+/* вариант 3: линейка */
+
+.bh--rule {
   gap: 12px;
 }
 
 .bh__rule {
   flex: 1;
-  height: 1px;
+  height: 2px;
   background: linear-gradient(
     90deg,
     transparent,
-    color-mix(in srgb, var(--accent-gold) 75%, transparent)
+    color-mix(in srgb, var(--accent-gold) 70%, transparent) 45%,
+    var(--accent-gold-deep)
   );
 }
 
@@ -170,89 +210,56 @@
 
 .bh__gem {
   flex: none;
-  width: 6px;
-  height: 6px;
+  width: 7px;
+  height: 7px;
   background: var(--accent-gold-deep);
-  transform: rotate(45deg);
-}
-
-/* вариант 3: бронзовая плашка */
-
-.bh--plaque {
-  width: fit-content;
-  margin-left: auto;
-  margin-right: auto;
-  padding: 10px 34px;
-  border: 1px solid color-mix(in srgb, #e2c184 72%, transparent);
-  background: linear-gradient(175deg, #8b6631 0%, #6b4a22 55%, #7d5a29 100%);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 238, 200, 0.35),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.4),
-    0 2px 4px rgba(0, 0, 0, 0.28);
-}
-
-.bh--plaque .bh__title {
-  font-size: 1rem;
-  color: var(--band-ink);
-  letter-spacing: 0.2em;
-  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.4);
-}
-
-.bh--plaque .bh__title::before,
-.bh--plaque .bh__title::after {
-  content: '';
-  display: inline-block;
-  width: 4px;
-  height: 4px;
-  margin: 0 14px 3px;
-  background: color-mix(in srgb, var(--band-ink) 80%, transparent);
   transform: rotate(45deg);
 }
 
 /* ---------- жетоны судьбы ---------- */
 
 .fp {
-  padding: 10px 0 12px;
-  border-top: 1px solid color-mix(in srgb, var(--accent-gold) 42%, transparent);
-  border-bottom: 1px solid color-mix(in srgb, var(--accent-gold) 42%, transparent);
+  padding: 8px 0 10px;
+  border-top: 1px solid color-mix(in srgb, var(--accent-gold) 40%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--accent-gold) 40%, transparent);
 }
 
 .fp__head {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  gap: 14px;
+  gap: 12px;
 }
 
 .fp__label {
-  font-size: 0.75rem;
+  font-size: 0.6875rem;
   font-weight: 700;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 
 .fp__refresh {
-  font-size: 0.8125rem;
+  font-size: 0.75rem;
   letter-spacing: 0.03em;
   color: var(--text-ink-muted);
 }
 
 .fp__refresh b {
   margin-left: 3px;
-  font-size: 1rem;
+  font-size: 0.9375rem;
   color: var(--text-ink-primary);
 }
 
 .fp__row {
   display: flex;
-  gap: 10px;
-  margin-top: 11px;
+  gap: 8px;
+  margin-top: 9px;
 }
 
 .fp__coin {
   position: relative;
-  width: 28px;
-  height: 28px;
+  width: 26px;
+  height: 26px;
   padding: 0;
   border: 1px solid color-mix(in srgb, var(--accent-gold-deep) 78%, transparent);
   border-radius: 50%;
@@ -292,7 +299,30 @@
   border: 1px solid rgba(255, 240, 205, 0.38);
 }
 
-/* ---------- адаптив ---------- */
+/* ---------- заглушки будущих блоков ---------- */
+
+.ph {
+  padding: 12px 14px;
+  border: 1px dashed color-mix(in srgb, var(--accent-gold) 42%, transparent);
+}
+
+.ph__title {
+  margin-bottom: 8px;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--text-ink-muted) 85%, transparent);
+}
+
+.ph__line {
+  height: 7px;
+  margin: 6px 0;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--text-ink-primary) 7%, transparent);
+}
+
+/* ---------- узкие экраны ---------- */
 
 @media (max-width: 720px) {
   .cblock__body {
@@ -300,15 +330,11 @@
   }
 
   .cblock__portrait {
-    width: 200px;
-  }
-
-  .bh--cartouche {
-    padding: 9px 20px;
+    width: 168px;
   }
 
   .bh__corner {
     width: 18px;
-    height: 16px;
+    height: 15px;
   }
 }

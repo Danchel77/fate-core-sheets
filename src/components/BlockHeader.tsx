@@ -1,20 +1,21 @@
 const BASE = import.meta.env.BASE_URL;
 const CORNER = `${BASE}assets/frames/ornament-corner.svg`;
+const TEXTURE = `${BASE}assets/textures/parchment-soft.jpg`;
 
 const CORNERS = ['tl', 'tr', 'br', 'bl'] as const;
 
-export type HeaderVariant = 'cartouche' | 'fleuron' | 'plaque';
+export type HeaderVariant = 'cartouche' | 'emboss' | 'rule';
 
 type Props = {
   variant: HeaderVariant;
   title: string;
 };
 
-/** Заголовок блока листа: три трактовки — рамка, флерон, бронзовая плашка. */
+/** Заголовок блока листа: три трактовки — вставка, тиснение, линейка. */
 export function BlockHeader({ variant, title }: Props) {
-  if (variant === 'fleuron') {
+  if (variant === 'rule') {
     return (
-      <div className="bh bh--fleuron">
+      <div className="bh bh--rule">
         <span className="bh__rule" aria-hidden="true" />
         <i className="bh__gem" aria-hidden="true" />
         <span className="bh__title">{title}</span>
@@ -24,9 +25,14 @@ export function BlockHeader({ variant, title }: Props) {
     );
   }
 
-  if (variant === 'plaque') {
+  if (variant === 'emboss') {
     return (
-      <div className="bh bh--plaque">
+      <div className="bh bh--emboss">
+        <span
+          className="bh__texture"
+          aria-hidden="true"
+          style={{ backgroundImage: `url(${TEXTURE})` }}
+        />
         <span className="bh__title">{title}</span>
       </div>
     );
@@ -34,6 +40,11 @@ export function BlockHeader({ variant, title }: Props) {
 
   return (
     <div className="bh bh--cartouche">
+      <span
+        className="bh__texture"
+        aria-hidden="true"
+        style={{ backgroundImage: `url(${TEXTURE})` }}
+      />
       {CORNERS.map((corner) => (
         <i
           key={corner}
