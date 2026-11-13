@@ -1,8 +1,13 @@
 import Wireframe from './preview/Wireframe';
+import WebSheet from './preview/WebSheet';
 
 export default function App() {
   if (window.location.hash === '#wireframe') {
     return <Wireframe />;
+  }
+
+  if (window.location.hash === '#websheet') {
+    return <WebSheet />;
   }
 
   return (
