@@ -1,20 +1,19 @@
-import { CharacterBlock } from '../components/CharacterBlock';
-import type { HeaderVariant } from '../components/BlockHeader';
+import { CharacterBlock, type NameStyle } from '../components/CharacterBlock';
 import '../styles/sheet.css';
 import '../styles/character-block.css';
 
-const VARIANTS: { id: HeaderVariant; caption: string }[] = [
+const VARIANTS: { id: NameStyle; caption: string }[] = [
   {
-    id: 'cartouche',
-    caption: 'Вариант 1 — вставка: текстурированная заливка, двойная рамка, углы',
+    id: 'smallcaps',
+    caption: 'Вариант A — капитель Cormorant SC, тёмные чернила',
   },
   {
-    id: 'emboss',
-    caption: 'Вариант 2 — тиснение: заливка с внутренней тенью, ромбы по краям',
+    id: 'prata',
+    caption: 'Вариант B — Prata, плотная антиква, тёплый коричневый',
   },
   {
-    id: 'rule',
-    caption: 'Вариант 3 — линейка: золотой заголовок и плотные линии',
+    id: 'playfair',
+    caption: 'Вариант C — Playfair Display, курсив, бронза',
   },
 ];
 
@@ -29,13 +28,13 @@ function Placeholder({ title, lines }: { title: string; lines: number }) {
   );
 }
 
-function Spread({ variant, caption }: { variant: HeaderVariant; caption: string }) {
+function Spread({ nameStyle, caption }: { nameStyle: NameStyle; caption: string }) {
   return (
     <div className="variant">
       <p className="variant__caption">{caption}</p>
       <div className="book">
         <div className="page page--left">
-          <CharacterBlock variant={variant} />
+          <CharacterBlock variant="cartouche" nameStyle={nameStyle} />
           <Placeholder title="Аспекты" lines={5} />
         </div>
         <div className="page page--right">
@@ -49,20 +48,20 @@ function Spread({ variant, caption }: { variant: HeaderVariant; caption: string 
   );
 }
 
-/** Блок «Персонаж» в реальном масштабе листа: три трактовки заголовка. */
+/** Блок «Персонаж»: выбранный заголовок, облегчённая рамка и три начертания имени. */
 export default function BlockVariants() {
   return (
     <main className="variants-page">
       <header className="variants-head">
-        <h1>Блок «Персонаж» в реальном масштабе</h1>
+        <h1>Имя персонажа — три варианта</h1>
         <p>
-          Один пиксель = один пиксель будущего листа. Серое — будущие блоки, они ещё не
-          сделаны. Кружки жетонов кликабельные.
+          Плашка заголовка стала ниже, рамка портрета — в том же стиле: светлая текстура,
+          тонкая двойная рамка, приглушённые уголки. Различается только имя. Масштаб 1:1.
         </p>
       </header>
 
       {VARIANTS.map(({ id, caption }) => (
-        <Spread key={id} variant={id} caption={caption} />
+        <Spread key={id} nameStyle={id} caption={caption} />
       ))}
     </main>
   );

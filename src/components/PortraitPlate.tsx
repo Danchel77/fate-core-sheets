@@ -1,5 +1,6 @@
 const BASE = import.meta.env.BASE_URL;
 const CORNER = `${BASE}assets/frames/ornament-corner.svg`;
+const TEXTURE = `${BASE}assets/textures/parchment-soft.jpg`;
 
 const CORNERS = ['tl', 'tr', 'br', 'bl'] as const;
 
@@ -12,6 +13,11 @@ type Props = {
 export function PortraitPlate({ src, alt }: Props) {
   return (
     <div className="plate">
+      <span
+        className="plate__texture"
+        aria-hidden="true"
+        style={{ backgroundImage: `url(${TEXTURE})` }}
+      />
       <img className="plate__photo" src={src} alt={alt} />
       <span className="plate__corners" aria-hidden="true">
         {CORNERS.map((corner) => (

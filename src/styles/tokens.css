@@ -60,6 +60,10 @@
   --accent-gold-ink: #6b4b1e;
   --accent-crimson: #4a2318;
   --band-ink: #f8eed9;
+  --font-name-sc: 'Cormorant SC', 'Cormorant Garamond', serif;
+  --font-name-prata: 'Prata', 'Cormorant Garamond', serif;
+  --font-name-playfair: 'Playfair Display', 'Cormorant Garamond', serif;
+  --text-ink-warm: #3b1d12;
   --font-heading: var(--font-display);
 
   --touch-target: 44px;
