@@ -5,7 +5,7 @@ import '@fontsource/pt-serif/cyrillic-700.css';
 import './sampler.css';
 
 const TEXTURES = {
-  a: `${import.meta.env.BASE_URL}assets/textures/parchment.jpg`,
+  a: `${import.meta.env.BASE_URL}assets/textures/parchment-soft.jpg`,
   b: `${import.meta.env.BASE_URL}assets/textures/leather.jpg`,
   c: `${import.meta.env.BASE_URL}assets/textures/parchment-weave.jpg`,
 };

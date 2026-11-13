@@ -9,6 +9,7 @@
 | Файл | Автор | Источник | Лицензия |
 |---|---|---|---|
 | `textures/parchment.jpg` | VWolfdog | https://opengameart.org/content/parchement-textures | CC0 |
+| `textures/parchment-soft.jpg` (производная от parchment.jpg) | VWolfdog | https://opengameart.org/content/parchement-textures | CC0 |
 | `textures/parchment-warm.jpg` | VWolfdog | https://opengameart.org/content/parchement-textures | CC0 |
 | `textures/parchment-weave.jpg` | Luke.RUSTLTD | https://opengameart.org/content/large-parchment-texture | CC0 |
 | `textures/leather.jpg` | ambientCG | https://ambientcg.com/view?id=Leather037 | CC0 |
