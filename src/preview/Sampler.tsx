@@ -5,6 +5,7 @@ import '@fontsource/pt-serif/cyrillic-700.css';
 import './sampler.css';
 
 const PAPER = `${import.meta.env.BASE_URL}assets/textures/parchment-soft.jpg`;
+const PORTRAIT = `${import.meta.env.BASE_URL}assets/portraits/geralt.jpg`;
 
 const VARIANTS = [
   {
@@ -34,7 +35,7 @@ function Card({ id }: { id: 'a1' | 'a2' | 'a3' }) {
         <span className="smp-wash" aria-hidden="true" />
         <p className="smp-band">Персонаж</p>
         <div className="smp-portrait">
-          <span>портрет 3:4</span>
+          <img className="smp-photo" src={PORTRAIT} alt="Портрет персонажа" />
         </div>
         <h3 className="smp-name">Геральт из Ривии</h3>
         <p className="smp-concept">Ведьмак · охотник на чудовищ</p>

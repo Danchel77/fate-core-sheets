@@ -150,6 +150,7 @@
 }
 
 .smp-portrait {
+  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -160,6 +161,13 @@
   background: color-mix(in srgb, var(--ink) 7%, transparent);
   color: var(--muted);
   font-size: 12px;
+}
+
+.smp-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .smp-name {
