@@ -4,37 +4,34 @@ import '@fontsource/pt-serif/cyrillic-400.css';
 import '@fontsource/pt-serif/cyrillic-700.css';
 import './sampler.css';
 
-const TEXTURES = {
-  a: `${import.meta.env.BASE_URL}assets/textures/parchment-soft.jpg`,
-  b: `${import.meta.env.BASE_URL}assets/textures/leather.jpg`,
-  c: `${import.meta.env.BASE_URL}assets/textures/parchment-weave.jpg`,
-};
+const PAPER = `${import.meta.env.BASE_URL}assets/textures/parchment-soft.jpg`;
 
 const VARIANTS = [
   {
-    id: 'a' as const,
-    title: 'Пергамент и золото',
-    note: 'Тёплый пергамент, золотая рамка, тёмно-красные ленты. Ближе всего к референсу.',
+    id: 'a1' as const,
+    title: 'Золото',
+    note: 'Бумага, золотые линии, тёмно-красные ленты. Текущий вариант, но с приглушённой текстурой и крупнее текст.',
   },
   {
-    id: 'b' as const,
-    title: 'Кожа и бронза',
-    note: 'Тёмная кожаная страница, бронзовые линии, светлый текст. Дороже и мрачнее.',
+    id: 'a2' as const,
+    title: 'Багрянец',
+    note: 'Больше тёмно-красного: рамки и ленты багряные, золото только тонкой линией.',
   },
   {
-    id: 'c' as const,
-    title: 'Пепел и сталь',
-    note: 'Светлый пергамент, графитовые ленты, стальные линии. Спокойнее и строже.',
+    id: 'a3' as const,
+    title: 'Чернила',
+    note: 'Строгий: рамки и ленты почти чёрные, золото — только уголки. Меньше «фэнтези-позолоты».',
   },
 ];
 
-function Card({ id }: { id: 'a' | 'b' | 'c' }) {
+function Card({ id }: { id: 'a1' | 'a2' | 'a3' }) {
   return (
     <article className={`smp-card smp-card--${id}`}>
       <div
         className="smp-inner"
-        style={{ backgroundImage: `url(${TEXTURES[id]})` }}
+        style={{ backgroundImage: `url(${PAPER})` }}
       >
+        <span className="smp-wash" aria-hidden="true" />
         <p className="smp-band">Персонаж</p>
         <div className="smp-portrait">
           <span>портрет 3:4</span>
@@ -66,10 +63,11 @@ export default function Sampler() {
   return (
     <div className="smp-room">
       <header className="smp-head">
-        <h1>Пробник стиля</h1>
+        <h1>Пробник стиля · второй заход</h1>
         <p>
-          Одна и та же карточка персонажа в трёх вариантах, на настоящих
-          текстурах и шрифтах. Выберите направление — по нему соберу весь лист.
+          Направление «пергамент и золото» оставил, но убрал шум бумаги, затемнил
+          текст и увеличил кегль. Ниже три варианта цвета — выберите, какой
+          читается лучше всего.
         </p>
       </header>
 

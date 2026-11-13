@@ -45,26 +45,29 @@
   --smp-room: #221f1a;
   --smp-room-ink: #e8ddc7;
 
-  --smp-a-page: #f4e9d4;
-  --smp-a-ink: #241a12;
-  --smp-a-muted: #56452f;
-  --smp-a-accent: #8a6524;
-  --smp-a-band: #4a2318;
-  --smp-a-band-ink: #f8eed9;
+  --smp-a1-page: #f5ead6;
+  --smp-a1-ink: #1f160f;
+  --smp-a1-muted: #4a3a26;
+  --smp-a1-accent: #8a6524;
+  --smp-a1-ornament: #a07b3a;
+  --smp-a1-band: #4a2318;
+  --smp-a1-band-ink: #f8eed9;
 
-  --smp-b-page: #3b2a1e;
-  --smp-b-ink: #f0e2c8;
-  --smp-b-muted: #c9b28d;
-  --smp-b-accent: #c08a4a;
-  --smp-b-band: #6b4526;
-  --smp-b-band-ink: #fbeed6;
+  --smp-a2-page: #f5ead6;
+  --smp-a2-ink: #1f160f;
+  --smp-a2-muted: #4a3a26;
+  --smp-a2-accent: #7a2318;
+  --smp-a2-ornament: #a07b3a;
+  --smp-a2-band: #5e1d14;
+  --smp-a2-band-ink: #f7e8d3;
 
-  --smp-c-page: #e8e2d5;
-  --smp-c-ink: #242629;
-  --smp-c-muted: #5f646b;
-  --smp-c-accent: #7b838d;
-  --smp-c-band: #3c4248;
-  --smp-c-band-ink: #eef0f2;
+  --smp-a3-page: #f5ead6;
+  --smp-a3-ink: #1f160f;
+  --smp-a3-muted: #4a3a26;
+  --smp-a3-accent: #3a3126;
+  --smp-a3-ornament: #8a6524;
+  --smp-a3-band: #2b241b;
+  --smp-a3-band-ink: #f2e8d5;
 
   --touch-target: 44px;
   --content-width: 72rem;
