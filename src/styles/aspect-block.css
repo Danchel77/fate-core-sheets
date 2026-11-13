@@ -4,15 +4,20 @@
 
 .ablock__list {
   padding-top: 2px;
+  border-left: 3px solid var(--accent-gold-deep);
 }
 
-.aspect {
+.arow {
   position: relative;
   padding: 7px 10px 5px 14px;
   border-bottom: 1px solid color-mix(in srgb, var(--accent-gold) 32%, transparent);
 }
 
-.aspect .hint__word {
+.arow--last-anchor {
+  border-bottom: 0;
+}
+
+.arow .hint__word {
   font-family: var(--font-body);
   font-size: 0.6875rem;
   font-weight: 700;
@@ -21,7 +26,7 @@
   color: var(--accent-gold-ink);
 }
 
-.aspect__text {
+.arow__text {
   display: block;
   width: 100%;
   margin-top: 2px;
@@ -36,17 +41,17 @@
   color: var(--text-ink-primary);
 }
 
-.aspect--free .aspect__text {
+.arow--free .arow__text {
   margin-top: 0;
 }
 
-.aspect__text:focus {
+.arow__text:focus {
   outline: none;
   background: color-mix(in srgb, var(--accent-gold) 9%, transparent);
   border-radius: 3px;
 }
 
-.aspect__text::placeholder {
+.arow__text::placeholder {
   color: color-mix(in srgb, var(--text-ink-muted) 55%, transparent);
 }
 
@@ -55,7 +60,7 @@
 .ablock__divider {
   position: relative;
   height: 13px;
-  margin: 5px 10px 5px 14px;
+  margin: 6px 10px 6px 14px;
 }
 
 .ablock__divider::before,
@@ -145,11 +150,11 @@
 
 /* marks — списки с ромбами (приём принят на заметку для будущих списков). */
 
-.ablock--marks .aspect--free {
+.ablock--marks .arow--free {
   padding-left: 22px;
 }
 
-.aspect__mark {
+.arow__mark {
   position: absolute;
   left: 7px;
   top: 14px;

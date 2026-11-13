@@ -47,7 +47,7 @@ function AutoTextarea({ value, onChange, placeholder, label }: AutoTextareaProps
   return (
     <textarea
       ref={ref}
-      className="aspect__text"
+      className="arow__text"
       value={value}
       rows={1}
       aria-label={label}
@@ -73,13 +73,19 @@ export function AspectBlock({ aspects, hintVariant, variant }: Props) {
 
   const anchors = aspects.slice(0, 2);
   const free = aspects.slice(2);
+  const hasDivider = variant !== 'marks';
 
   return (
     <section className={`ablock ablock--${variant}`}>
       <BlockHeader variant="lozenge" title="Аспекты" />
       <div className="ablock__list">
         {anchors.map((aspect, index) => (
-          <div className="aspect aspect--anchor" key={`${aspect.label}-${index}`}>
+          <div
+            className={`arow arow--anchor${
+              hasDivider && index === anchors.length - 1 ? ' arow--last-anchor' : ''
+            }`}
+            key={`${aspect.label}-${index}`}
+          >
             <Hint
               variant={hintVariant}
               title={aspect.label}
@@ -96,7 +102,7 @@ export function AspectBlock({ aspects, hintVariant, variant }: Props) {
           </div>
         ))}
 
-        {variant !== 'marks' && (
+        {hasDivider && (
           <div className="ablock__divider" aria-hidden="true">
             <span />
           </div>
@@ -104,8 +110,8 @@ export function AspectBlock({ aspects, hintVariant, variant }: Props) {
 
         <div className="ablock__free">
           {free.map((_, index) => (
-            <div className="aspect aspect--free" key={`free-${index}`}>
-              {variant === 'marks' && <span className="aspect__mark" aria-hidden="true" />}
+            <div className="arow arow--free" key={`free-${index}`}>
+              {variant === 'marks' && <span className="arow__mark" aria-hidden="true" />}
               <AutoTextarea
                 value={values[index + 2]}
                 onChange={(text) => setValue(index + 2, text)}
