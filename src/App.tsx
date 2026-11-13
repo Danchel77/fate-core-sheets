@@ -1,5 +1,6 @@
 import Wireframe from './preview/Wireframe';
 import WebSheet from './preview/WebSheet';
+import Sampler from './preview/Sampler';
 
 export default function App() {
   if (window.location.hash === '#wireframe') {
@@ -8,6 +9,10 @@ export default function App() {
 
   if (window.location.hash === '#websheet') {
     return <WebSheet />;
+  }
+
+  if (window.location.hash === '#sampler') {
+    return <Sampler />;
   }
 
   return (

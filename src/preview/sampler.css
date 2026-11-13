@@ -1,0 +1,209 @@
+.smp-room {
+  min-height: 100vh;
+  padding: var(--space-6) var(--space-4) var(--space-8);
+  background: var(--smp-room);
+  color: var(--smp-room-ink);
+}
+
+.smp-head {
+  max-width: 62ch;
+  margin: 0 auto var(--space-6);
+  text-align: center;
+}
+
+.smp-head h1 {
+  font-size: var(--step-3);
+}
+
+.smp-head p {
+  color: color-mix(in srgb, var(--smp-room-ink) 70%, transparent);
+}
+
+.smp-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-6);
+  max-width: 1080px;
+  margin: 0 auto;
+}
+
+.smp-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.smp-item h2 {
+  margin: var(--space-4) 0 var(--space-1);
+  font-size: var(--step-1);
+}
+
+.smp-item p {
+  max-width: 30ch;
+  color: color-mix(in srgb, var(--smp-room-ink) 65%, transparent);
+  font-size: var(--step--1);
+}
+
+.smp-card {
+  width: 100%;
+  max-width: 320px;
+  padding: 10px;
+  border-radius: var(--radius-sm);
+  box-shadow: 0 12px 30px color-mix(in srgb, var(--smp-room) 70%, transparent);
+}
+
+.smp-inner {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px 14px 12px;
+  border: 2px solid var(--accent);
+  outline: 1px solid color-mix(in srgb, var(--accent) 55%, transparent);
+  outline-offset: 3px;
+  background-color: var(--page);
+  background-size: cover;
+  background-position: center;
+  color: var(--ink);
+  box-shadow: inset 0 0 40px
+    color-mix(in srgb, var(--ink) 22%, transparent);
+}
+
+.smp-inner::before,
+.smp-inner::after {
+  content: '';
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  background: var(--accent);
+  transform: rotate(45deg);
+}
+
+.smp-inner::before {
+  top: -6px;
+  left: -6px;
+}
+
+.smp-inner::after {
+  right: -6px;
+  bottom: -6px;
+}
+
+.smp-card--a {
+  --page: var(--smp-a-page);
+  --ink: var(--smp-a-ink);
+  --muted: var(--smp-a-muted);
+  --accent: var(--smp-a-accent);
+  --band: var(--smp-a-band);
+  --band-ink: var(--smp-a-band-ink);
+}
+
+.smp-card--b {
+  --page: var(--smp-b-page);
+  --ink: var(--smp-b-ink);
+  --muted: var(--smp-b-muted);
+  --accent: var(--smp-b-accent);
+  --band: var(--smp-b-band);
+  --band-ink: var(--smp-b-band-ink);
+}
+
+.smp-card--c {
+  --page: var(--smp-c-page);
+  --ink: var(--smp-c-ink);
+  --muted: var(--smp-c-muted);
+  --accent: var(--smp-c-accent);
+  --band: var(--smp-c-band);
+  --band-ink: var(--smp-c-band-ink);
+}
+
+.smp-band {
+  margin: 0;
+  padding: 5px 10px;
+  background: var(--band);
+  color: var(--band-ink);
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.smp-portrait {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 3 / 4;
+  max-height: 150px;
+  margin: 4px auto 0;
+  width: 72%;
+  border: 1px solid var(--accent);
+  background: color-mix(in srgb, var(--ink) 8%, transparent);
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.smp-name {
+  margin: 6px 0 0;
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.smp-concept {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  font-style: italic;
+}
+
+.smp-aspect {
+  margin: 4px 0 0;
+  padding: 6px 8px;
+  border-left: 3px solid var(--accent);
+  background: color-mix(in srgb, var(--ink) 6%, transparent);
+  font-size: 12px;
+  text-align: left;
+}
+
+.smp-skills {
+  margin: 4px 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 12px;
+}
+
+.smp-skills li {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 3px 2px;
+  border-bottom: 1px dotted color-mix(in srgb, var(--ink) 30%, transparent);
+}
+
+.smp-skills b {
+  font-variant-numeric: tabular-nums;
+}
+
+.smp-foot {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.smp-credits {
+  max-width: 62ch;
+  margin: var(--space-7) auto 0;
+  color: color-mix(in srgb, var(--smp-room-ink) 55%, transparent);
+  font-size: var(--step--1);
+  text-align: center;
+}
+
+@media (max-width: 900px) {
+  .smp-grid {
+    grid-template-columns: 1fr;
+    max-width: 360px;
+  }
+}

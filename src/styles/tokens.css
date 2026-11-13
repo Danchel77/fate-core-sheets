@@ -6,8 +6,8 @@
 
 :root {
   /* Шрифты */
-  --font-display: Georgia, 'Times New Roman', serif;
-  --font-body: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-display: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+  --font-body: 'PT Serif', Georgia, 'Times New Roman', serif;
 
   /* Размеры текста */
   --step--1: 0.875rem;
@@ -40,6 +40,31 @@
   --wf-line: #b8b8b8;
   --wf-fill: #f2f2f2;
   --wf-muted: #8a8a8a;
+
+  /* Временная палитра пробника стиля — удалить после выбора варианта */
+  --smp-room: #221f1a;
+  --smp-room-ink: #e8ddc7;
+
+  --smp-a-page: #efe0c4;
+  --smp-a-ink: #2e2117;
+  --smp-a-muted: #6b5943;
+  --smp-a-accent: #a8823c;
+  --smp-a-band: #5d2f24;
+  --smp-a-band-ink: #f4e7cc;
+
+  --smp-b-page: #3b2a1e;
+  --smp-b-ink: #f0e2c8;
+  --smp-b-muted: #c9b28d;
+  --smp-b-accent: #c08a4a;
+  --smp-b-band: #6b4526;
+  --smp-b-band-ink: #fbeed6;
+
+  --smp-c-page: #e8e2d5;
+  --smp-c-ink: #242629;
+  --smp-c-muted: #5f646b;
+  --smp-c-accent: #7b838d;
+  --smp-c-band: #3c4248;
+  --smp-c-band-ink: #eef0f2;
 
   --touch-target: 44px;
   --content-width: 72rem;
