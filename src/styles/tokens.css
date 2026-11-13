@@ -49,33 +49,17 @@
   --wf-fill: #f2f2f2;
   --wf-muted: #8a8a8a;
 
-  /* Временная палитра пробника стиля — удалить после выбора варианта */
-  --smp-room: #221f1a;
-  --smp-room-ink: #e8ddc7;
-
-  --smp-a1-page: #f5ead6;
-  --smp-a1-ink: #1f160f;
-  --smp-a1-muted: #4a3a26;
-  --smp-a1-accent: #8a6524;
-  --smp-a1-ornament: #a07b3a;
-  --smp-a1-band: #4a2318;
-  --smp-a1-band-ink: #f8eed9;
-
-  --smp-a2-page: #f5ead6;
-  --smp-a2-ink: #1f160f;
-  --smp-a2-muted: #4a3a26;
-  --smp-a2-accent: #7a2318;
-  --smp-a2-ornament: #a07b3a;
-  --smp-a2-band: #5e1d14;
-  --smp-a2-band-ink: #f7e8d3;
-
-  --smp-a3-page: #f5ead6;
-  --smp-a3-ink: #1f160f;
-  --smp-a3-muted: #4a3a26;
-  --smp-a3-accent: #3a3126;
-  --smp-a3-ornament: #8a6524;
-  --smp-a3-band: #2b241b;
-  --smp-a3-band-ink: #f2e8d5;
+  /* Утверждённая палитра веб-листа (Phase 2, вариант «Золото» + бронзовое паспарту) */
+  --bg-table: #221f1a;
+  --table-ink: #e8ddc7;
+  --bg-parchment: #f5ead6;
+  --text-ink-primary: #1f160f;
+  --text-ink-muted: #4a3a26;
+  --accent-gold: #a07b3a;
+  --accent-gold-deep: #8a6524;
+  --accent-crimson: #4a2318;
+  --band-ink: #f8eed9;
+  --font-heading: var(--font-display);
 
   --touch-target: 44px;
   --content-width: 72rem;
