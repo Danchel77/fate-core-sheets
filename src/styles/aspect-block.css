@@ -1,4 +1,6 @@
-/* Блок «Аспекты»: подпись сверху, текст на линии; подсказка — в самом слове. */
+/* Блок «Аспекты»: один блок, два якоря с подписями и три свободные строки.
+   Варианты разделителя внутри блока: strong / double / gap.
+   marks — приём списков с ромбами (заготовка для будущих списков). */
 
 .ablock__list {
   padding-top: 2px;
@@ -34,6 +36,10 @@
   color: var(--text-ink-primary);
 }
 
+.aspect--free .aspect__text {
+  margin-top: 0;
+}
+
 .aspect__text:focus {
   outline: none;
   background: color-mix(in srgb, var(--accent-gold) 9%, transparent);
@@ -42,4 +48,113 @@
 
 .aspect__text::placeholder {
   color: color-mix(in srgb, var(--text-ink-muted) 55%, transparent);
+}
+
+/* Разделитель внутри блока: ярче обычных строк, с ромбом по центру. */
+
+.ablock__divider {
+  position: relative;
+  height: 13px;
+  margin: 5px 10px 5px 14px;
+}
+
+.ablock__divider::before,
+.ablock__divider::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+}
+
+.ablock__divider span {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 7px;
+  height: 7px;
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+
+/* A. Яркая линия: одна плотная линия, ромб лежит на ней. */
+
+.ablock--strong .ablock__divider::before {
+  left: 0;
+  right: 0;
+  height: 2px;
+  margin-top: -1px;
+  background: color-mix(in srgb, var(--accent-gold-deep) 80%, transparent);
+}
+
+.ablock--strong .ablock__divider span {
+  background: color-mix(in srgb, var(--accent-gold-deep) 94%, transparent);
+}
+
+/* B. Двойная линия: две параллельные линии, ромб поверх обеих. */
+
+.ablock--double .ablock__divider {
+  height: 17px;
+}
+
+.ablock--double .ablock__divider::before {
+  left: 0;
+  right: 0;
+  top: 4px;
+  height: 1px;
+  background: color-mix(in srgb, var(--accent-gold) 55%, transparent);
+}
+
+.ablock--double .ablock__divider::after {
+  left: 0;
+  right: 0;
+  top: auto;
+  bottom: 4px;
+  height: 1px;
+  background: color-mix(in srgb, var(--accent-gold-deep) 65%, transparent);
+}
+
+.ablock--double .ablock__divider span {
+  background: color-mix(in srgb, var(--accent-gold-deep) 92%, transparent);
+}
+
+/* C. Разрыв: линия расходится к краям, ромб висит в разрыве. */
+
+.ablock--gap .ablock__divider::before {
+  left: 0;
+  width: calc(50% - 20px);
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--accent-gold-deep) 72%, transparent)
+  );
+}
+
+.ablock--gap .ablock__divider::after {
+  right: 0;
+  width: calc(50% - 20px);
+  height: 1px;
+  background: linear-gradient(
+    270deg,
+    transparent,
+    color-mix(in srgb, var(--accent-gold-deep) 72%, transparent)
+  );
+}
+
+.ablock--gap .ablock__divider span {
+  background: color-mix(in srgb, var(--accent-gold-deep) 94%, transparent);
+}
+
+/* marks — списки с ромбами (приём принят на заметку для будущих списков). */
+
+.ablock--marks .aspect--free {
+  padding-left: 22px;
+}
+
+.aspect__mark {
+  position: absolute;
+  left: 7px;
+  top: 14px;
+  width: 5px;
+  height: 5px;
+  transform: rotate(45deg);
+  background: color-mix(in srgb, var(--accent-gold-deep) 62%, transparent);
 }
