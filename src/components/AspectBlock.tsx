@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { Aspect } from '../data/demoCharacter';
 import { BlockHeader } from './BlockHeader';
-import { HintWord, type HintVariant } from './HintWord';
+import { HintPanel, HintWord, type HintVariant } from './HintWord';
 
 const HINTS: Record<string, string> = {
   'Концепция':
@@ -58,6 +58,7 @@ type Props = {
 /** Блок «Аспекты»: подписи-подсказки сверху, редактируемый текст на линии. */
 export function AspectBlock({ aspects, hintVariant }: Props) {
   const [values, setValues] = useState(aspects.map((aspect) => aspect.text));
+  const [openHint, setOpenHint] = useState<number | null>(null);
 
   const setValue = (index: number, text: string) => {
     setValues((prev) => prev.map((item, i) => (i === index ? text : item)));
@@ -67,22 +68,35 @@ export function AspectBlock({ aspects, hintVariant }: Props) {
     <section className="ablock">
       <BlockHeader variant="lozenge" title="Аспекты" />
       <div className="ablock__list">
-        {aspects.map((aspect, index) => (
-          <div className="aspect" key={`${aspect.label}-${index}`}>
-            <HintWord
-              variant={hintVariant}
-              title={aspect.label}
-              text={HINTS[aspect.label] ?? ''}
-              id={`${hintVariant}-aspect-hint-${index}`}
-            />
-            <AutoTextarea
-              value={values[index]}
-              onChange={(text) => setValue(index, text)}
-              placeholder={PLACEHOLDERS[aspect.label]}
-              label={aspect.label}
-            />
-          </div>
-        ))}
+        {aspects.map((aspect, index) => {
+          const open = openHint === index;
+          const panelId = `${hintVariant}-aspect-hint-${index}`;
+          return (
+            <div className={`aspect${open ? ' aspect--open' : ''}`} key={`${aspect.label}-${index}`}>
+              <HintWord
+                variant={hintVariant}
+                title={aspect.label}
+                open={open}
+                controls={panelId}
+                onToggle={() => setOpenHint(open ? null : index)}
+              />
+              <AutoTextarea
+                value={values[index]}
+                onChange={(text) => setValue(index, text)}
+                placeholder={PLACEHOLDERS[aspect.label]}
+                label={aspect.label}
+              />
+              {open && (
+                <HintPanel
+                  id={panelId}
+                  variant={hintVariant}
+                  title={aspect.label}
+                  text={HINTS[aspect.label] ?? ''}
+                />
+              )}
+            </div>
+          );
+        })}
       </div>
     </section>
   );

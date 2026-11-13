@@ -1,4 +1,4 @@
-/* Слово с подсказкой: три способа подчёркивания и три тултипа. */
+/* Слово-подсказка и плашка: три способа подчёркивания и три вида плашки. */
 
 .hint {
   display: inline-block;
@@ -57,7 +57,13 @@
 
 .hint--bookmark .hint__word::after {
   height: 1px;
-  background: linear-gradient(90deg, transparent, var(--accent-gold) 22%, var(--accent-gold) 78%, transparent);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--accent-gold) 22%,
+    var(--accent-gold) 78%,
+    transparent
+  );
 }
 
 .hint__word:hover::after,
@@ -73,39 +79,31 @@
   outline-offset: 4px;
 }
 
-/* тултип: общее */
+/* плашка: общее */
 
-.hint__pop {
-  position: absolute;
-  z-index: 40;
-  left: 14px;
-  right: 10px;
+.hint-panel {
+  position: relative;
   display: block;
-  width: auto;
-  max-width: none;
-  padding: 8px 12px 10px;
+  margin: 8px 0 3px;
+  padding: 7px 12px 9px;
   background-color: var(--bg-parchment);
   color: var(--text-ink-primary);
-  text-align: left;
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(3px);
-  transition:
-    opacity 0.12s ease,
-    transform 0.12s ease,
-    visibility 0.12s;
-  pointer-events: none;
+  animation: hint-in 0.14s ease-out;
 }
 
-.hint:hover .hint__pop,
-.hint:focus-within .hint__pop,
-.hint.is-open .hint__pop {
-  opacity: 1;
-  visibility: visible;
-  transform: translateY(0);
+@keyframes hint-in {
+  from {
+    opacity: 0;
+    transform: translateY(-3px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-.hint__texture {
+.hint-panel__texture {
   position: absolute;
   inset: 0;
   z-index: 0;
@@ -116,11 +114,11 @@
   pointer-events: none;
 }
 
-.hint__title {
+.hint-panel__title {
   position: relative;
   z-index: 2;
   display: block;
-  margin-bottom: 3px;
+  margin-bottom: 2px;
   font-family: var(--font-body);
   font-size: 0.6875rem;
   font-weight: 700;
@@ -129,26 +127,24 @@
   color: var(--accent-gold-ink);
 }
 
-.hint__text {
+.hint-panel__text {
   position: relative;
   z-index: 2;
   display: block;
+  max-width: 44ch;
   font-family: var(--font-body);
   font-size: 0.75rem;
   line-height: 1.45;
   color: var(--text-ink-muted);
 }
 
-/* тултип 1: картуш сверху */
+/* плашка 1: картуш */
 
-.hint--cartouche .hint__pop {
-  top: calc(100% + 6px);
-  bottom: auto;
+.hint-panel--cartouche {
   border: 1px solid color-mix(in srgb, var(--accent-gold-deep) 65%, transparent);
-  box-shadow: 0 5px 14px rgba(40, 28, 10, 0.26);
 }
 
-.hint--cartouche .hint__pop::after {
+.hint-panel--cartouche::after {
   content: '';
   position: absolute;
   inset: 3px;
@@ -156,18 +152,14 @@
   pointer-events: none;
 }
 
+/* плашка 2: карточка с уголками */
 
-
-/* тултип 2: карточка с уголками снизу */
-
-.hint--plate .hint__pop {
-  top: calc(100% + 6px);
-  bottom: auto;
+.hint-panel--plate {
+  padding: 8px 16px 10px;
   border: 1px solid color-mix(in srgb, var(--accent-gold-deep) 55%, transparent);
-  box-shadow: 0 5px 14px rgba(40, 28, 10, 0.22);
 }
 
-.hint--plate .hint__pop::after {
+.hint-panel--plate::after {
   content: '';
   position: absolute;
   inset: 3px;
@@ -175,7 +167,7 @@
   pointer-events: none;
 }
 
-.hint__corner {
+.hint-panel__corner {
   position: absolute;
   z-index: 3;
   width: 18px;
@@ -186,39 +178,33 @@
   mask: center / contain no-repeat;
 }
 
-.hint__corner--tl {
+.hint-panel__corner--tl {
   top: 2px;
   left: 2px;
   transform: scaleY(-1);
 }
 
-.hint__corner--tr {
+.hint-panel__corner--tr {
   top: 2px;
   right: 2px;
   transform: scale(-1, -1);
 }
 
-.hint__corner--br {
+.hint-panel__corner--br {
   right: 2px;
   bottom: 2px;
   transform: scaleX(-1);
 }
 
-.hint__corner--bl {
+.hint-panel__corner--bl {
   left: 2px;
   bottom: 2px;
 }
 
-/* тултип 3: закладка сбоку */
+/* плашка 3: закладка с тёмной полосой */
 
-.hint--bookmark .hint__pop {
-  top: calc(100% + 6px);
-  bottom: auto;
-  padding-left: 12px;
+.hint-panel--bookmark {
+  padding-left: 14px;
   border-left: 3px solid var(--accent-crimson);
-  box-shadow: 0 4px 12px rgba(40, 28, 10, 0.2);
-}
-
-.hint--bookmark .hint__title {
-  letter-spacing: 0.09em;
+  background-color: color-mix(in srgb, var(--accent-crimson) 7%, var(--bg-parchment));
 }
