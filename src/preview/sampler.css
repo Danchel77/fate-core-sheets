@@ -90,28 +90,6 @@
   --paper-tint: var(--smp-a1-page);
 }
 
-.smp-card--a2 {
-  --page: var(--smp-a2-page);
-  --ink: var(--smp-a2-ink);
-  --muted: var(--smp-a2-muted);
-  --accent: var(--smp-a2-accent);
-  --ornament: var(--smp-a2-ornament);
-  --band: var(--smp-a2-band);
-  --band-ink: var(--smp-a2-band-ink);
-  --paper-tint: var(--smp-a2-page);
-}
-
-.smp-card--a3 {
-  --page: var(--smp-a3-page);
-  --ink: var(--smp-a3-ink);
-  --muted: var(--smp-a3-muted);
-  --accent: var(--smp-a3-accent);
-  --ornament: var(--smp-a3-ornament);
-  --band: var(--smp-a3-band);
-  --band-ink: var(--smp-a3-band-ink);
-  --paper-tint: var(--smp-a3-page);
-}
-
 .smp-band {
   padding: 6px 10px;
   background: var(--band);
@@ -119,17 +97,14 @@
   text-align: center;
 }
 
+/* ---------- паспарту: общая геометрия ---------- */
+
 .smp-portrait {
   position: relative;
   width: 72%;
   aspect-ratio: 3 / 4;
   margin: 8px auto 2px;
   padding: 18px;
-  border: 1px solid var(--ornament);
-  outline: 1px solid color-mix(in srgb, var(--ornament) 50%, transparent);
-  outline-offset: 2px;
-  background: color-mix(in srgb, var(--ink) 14%, var(--page));
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--page) 40%, transparent);
 }
 
 .smp-photo {
@@ -139,7 +114,6 @@
   height: 100%;
   object-fit: cover;
   display: block;
-  border: 1px solid color-mix(in srgb, var(--ornament) 75%, transparent);
 }
 
 .smp-frame {
@@ -153,10 +127,8 @@
   position: absolute;
   width: 46%;
   aspect-ratio: 202.40622 / 175.67116;
-  background: var(--ornament);
   -webkit-mask: center / contain no-repeat;
   mask: center / contain no-repeat;
-  opacity: 0.92;
 }
 
 .smp-corner--tl {
@@ -181,6 +153,89 @@
   left: 0;
   bottom: 0;
 }
+
+/* ---------- V1: кожа и золото ---------- */
+
+.smp-portrait--v1 {
+  background:
+    linear-gradient(
+      color-mix(in srgb, var(--ink) 38%, transparent),
+      color-mix(in srgb, var(--ink) 22%, transparent)
+    ),
+    var(--leather) center / cover;
+  border: 1px solid color-mix(in srgb, var(--ornament) 55%, black);
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--ornament) 45%, transparent),
+    inset 0 2px 9px color-mix(in srgb, black 45%, transparent),
+    0 2px 6px color-mix(in srgb, var(--ink) 30%, transparent);
+}
+
+.smp-portrait--v1 .smp-photo {
+  border: 1px solid color-mix(in srgb, var(--ornament) 70%, black);
+}
+
+.smp-portrait--v1 .smp-corner {
+  background: var(--ornament);
+  opacity: 0.95;
+  filter: drop-shadow(0 1px 1px color-mix(in srgb, black 60%, transparent));
+}
+
+/* ---------- V2: тиснение ---------- */
+
+.smp-portrait--v2 {
+  background: color-mix(in srgb, var(--page) 84%, var(--ink));
+  border: 1px solid color-mix(in srgb, var(--ornament) 40%, transparent);
+  box-shadow:
+    inset 0 0 0 4px color-mix(in srgb, var(--page) 72%, transparent),
+    inset 0 0 0 5px color-mix(in srgb, var(--ornament) 40%, transparent),
+    inset 0 3px 8px color-mix(in srgb, var(--ink) 20%, transparent);
+}
+
+.smp-portrait--v2 .smp-photo {
+  border: 1px solid color-mix(in srgb, var(--ink) 30%, transparent);
+}
+
+.smp-portrait--v2 .smp-corner {
+  background: color-mix(in srgb, var(--page) 62%, var(--ink));
+  opacity: 0.9;
+  filter:
+    drop-shadow(0 1px 0 color-mix(in srgb, white 60%, transparent))
+    drop-shadow(0 -1px 0 color-mix(in srgb, var(--ink) 50%, transparent));
+}
+
+/* ---------- V3: бронза ---------- */
+
+.smp-portrait--v3 {
+  background: linear-gradient(
+    145deg,
+    color-mix(in srgb, var(--ornament) 50%, white) 0%,
+    var(--ornament) 34%,
+    color-mix(in srgb, var(--ornament) 72%, black) 62%,
+    color-mix(in srgb, var(--ornament) 35%, white) 100%
+  );
+  border: 1px solid color-mix(in srgb, var(--ornament) 62%, black);
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, white 35%, transparent),
+    0 2px 5px color-mix(in srgb, var(--ink) 30%, transparent);
+}
+
+.smp-portrait--v3 .smp-photo {
+  border: 1px solid color-mix(in srgb, var(--ink) 45%, transparent);
+  box-shadow: 0 1px 4px color-mix(in srgb, black 45%, transparent);
+}
+
+.smp-portrait--v3 .smp-corner {
+  background: linear-gradient(
+    140deg,
+    color-mix(in srgb, var(--ornament) 55%, black),
+    color-mix(in srgb, var(--ornament) 85%, black) 40%,
+    color-mix(in srgb, var(--ornament) 40%, black) 72%,
+    color-mix(in srgb, var(--ornament) 72%, black)
+  );
+  filter: drop-shadow(0 1px 1px color-mix(in srgb, black 60%, transparent));
+}
+
+/* ---------- текст карточки ---------- */
 
 .smp-name {
   margin: 8px 0 0;

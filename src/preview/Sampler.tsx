@@ -3,26 +3,29 @@ import '@fontsource/cormorant-garamond/cyrillic-700.css';
 import '@fontsource/pt-serif/cyrillic-400.css';
 import '@fontsource/pt-serif/cyrillic-700.css';
 import './sampler.css';
+import type { CSSProperties } from 'react';
 
-const PAPER = `${import.meta.env.BASE_URL}assets/textures/parchment-soft.jpg`;
-const PORTRAIT = `${import.meta.env.BASE_URL}assets/portraits/geralt.jpg`;
-const CORNER = `${import.meta.env.BASE_URL}assets/frames/ornament-corner.svg`;
+const BASE = import.meta.env.BASE_URL;
+const PAPER = `${BASE}assets/textures/parchment-soft.jpg`;
+const LEATHER = `${BASE}assets/textures/leather.jpg`;
+const PORTRAIT = `${BASE}assets/portraits/geralt.jpg`;
+const CORNER = `${BASE}assets/frames/ornament-corner.svg`;
 
 const VARIANTS = [
   {
-    id: 'a1' as const,
-    title: 'Золото',
-    note: 'Выбранный вариант: бумага, золотые линии, тёмно-красные ленты.',
+    id: 'v1' as const,
+    title: 'Кожа и золото',
+    note: 'Паспарту залито тёмной кожей, как переплёт книги. Уголки золотом, читаются на тёмном.',
   },
   {
-    id: 'a2' as const,
-    title: 'Багрянец',
-    note: 'Рамки и ленты багряные, золото только тонкой линией.',
+    id: 'v2' as const,
+    title: 'Тиснение',
+    note: 'Та же бумага, но уголки выдавлены без краски — в тон паспарту, тенями.',
   },
   {
-    id: 'a3' as const,
-    title: 'Чернила',
-    note: 'Почти чёрные рамки и ленты, золото только на уголках.',
+    id: 'v3' as const,
+    title: 'Бронза',
+    note: 'Паспарту залито металлом с блеском, уголки литые с тенью.',
   },
 ];
 
@@ -40,16 +43,18 @@ function Corners() {
   );
 }
 
-function Card({ id }: { id: 'a1' | 'a2' | 'a3' }) {
+function Card({ id }: { id: 'v1' | 'v2' | 'v3' }) {
+  const style = {
+    backgroundImage: `url(${PAPER})`,
+    '--leather': `url(${LEATHER})`,
+  } as CSSProperties;
+
   return (
-    <article className={`smp-card smp-card--${id}`}>
-      <div
-        className="smp-inner"
-        style={{ backgroundImage: `url(${PAPER})` }}
-      >
+    <article className="smp-card smp-card--a1">
+      <div className="smp-inner" style={style}>
         <span className="smp-wash" aria-hidden="true" />
         <p className="smp-band type-label">Персонаж</p>
-        <div className="smp-portrait">
+        <div className={`smp-portrait smp-portrait--${id}`}>
           <img className="smp-photo" src={PORTRAIT} alt="Портрет персонажа" />
           <Corners />
         </div>
@@ -80,11 +85,11 @@ export default function Sampler() {
   return (
     <div className="smp-room">
       <header className="smp-head">
-        <h1>Пробник стиля · третий заход</h1>
+        <h1>Паспарту · три варианта</h1>
         <p>
-          Убрал кружевные размеры шрифтов: теперь четыре готовых стиля текста.
-          Лента «Персонаж» стала жирной, у портрета — гравированная рамка
-          с углами из старой книги.
+          Всё остальное зафиксировано: та же бумага, тот же золотой цвет, та же
+          лента. Меняется только паспарту вокруг портрета — три способа дать
+          ему заливку и объём.
         </p>
       </header>
 
