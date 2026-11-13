@@ -4,14 +4,35 @@ const TEXTURE = `${BASE}assets/textures/parchment-soft.jpg`;
 
 const CORNERS = ['tl', 'tr', 'br', 'bl'] as const;
 
-export type HeaderVariant = 'cartouche' | 'emboss' | 'rule';
+export type HeaderVariant =
+  | 'caps'
+  | 'lozenge'
+  | 'bevel'
+  | 'cartouche'
+  | 'emboss'
+  | 'rule';
 
 type Props = {
   variant: HeaderVariant;
   title: string;
 };
 
-/** Заголовок блока листа: три трактовки — вставка, тиснение, линейка. */
+function Texture() {
+  return (
+    <span
+      className="bh__texture"
+      aria-hidden="true"
+      style={{ backgroundImage: `url(${TEXTURE})` }}
+    />
+  );
+}
+
+const cornerMask = {
+  maskImage: `url(${CORNER})`,
+  WebkitMaskImage: `url(${CORNER})`,
+};
+
+/** Заголовок блока листа: одна плашка, разные концы. */
 export function BlockHeader({ variant, title }: Props) {
   if (variant === 'rule') {
     return (
@@ -28,11 +49,46 @@ export function BlockHeader({ variant, title }: Props) {
   if (variant === 'emboss') {
     return (
       <div className="bh bh--emboss">
-        <span
-          className="bh__texture"
-          aria-hidden="true"
-          style={{ backgroundImage: `url(${TEXTURE})` }}
-        />
+        <Texture />
+        <span className="bh__title">{title}</span>
+      </div>
+    );
+  }
+
+  if (variant === 'bevel') {
+    return (
+      <div className="bh bh--bevel">
+        <span className="bh__fill" aria-hidden="true">
+          <Texture />
+        </span>
+        <span className="bh__title">{title}</span>
+      </div>
+    );
+  }
+
+  if (variant === 'lozenge') {
+    return (
+      <div className="bh bh--lozenge">
+        <Texture />
+        <i className="bh__lozenge bh__lozenge--l" aria-hidden="true" />
+        <i className="bh__lozenge bh__lozenge--r" aria-hidden="true" />
+        <span className="bh__title">{title}</span>
+      </div>
+    );
+  }
+
+  if (variant === 'caps') {
+    return (
+      <div className="bh bh--caps">
+        <Texture />
+        <span className="bh__cap bh__cap--l" aria-hidden="true">
+          <i className="bh__cap-line" />
+          <i className="bh__cap-orn" style={cornerMask} />
+        </span>
+        <span className="bh__cap bh__cap--r" aria-hidden="true">
+          <i className="bh__cap-line" />
+          <i className="bh__cap-orn" style={cornerMask} />
+        </span>
         <span className="bh__title">{title}</span>
       </div>
     );
@@ -40,20 +96,13 @@ export function BlockHeader({ variant, title }: Props) {
 
   return (
     <div className="bh bh--cartouche">
-      <span
-        className="bh__texture"
-        aria-hidden="true"
-        style={{ backgroundImage: `url(${TEXTURE})` }}
-      />
+      <Texture />
       {CORNERS.map((corner) => (
         <i
           key={corner}
           className={`bh__corner bh__corner--${corner}`}
           aria-hidden="true"
-          style={{
-            maskImage: `url(${CORNER})`,
-            WebkitMaskImage: `url(${CORNER})`,
-          }}
+          style={cornerMask}
         />
       ))}
       <span className="bh__title">{title}</span>

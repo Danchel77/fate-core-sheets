@@ -1,19 +1,20 @@
-import { CharacterBlock, type NameStyle } from '../components/CharacterBlock';
+import { CharacterBlock } from '../components/CharacterBlock';
+import type { HeaderVariant } from '../components/BlockHeader';
 import '../styles/sheet.css';
 import '../styles/character-block.css';
 
-const VARIANTS: { id: NameStyle; caption: string }[] = [
+const VARIANTS: { id: HeaderVariant; caption: string }[] = [
   {
-    id: 'smallcaps',
-    caption: 'Вариант A — капитель Cormorant SC, тёмные чернила',
+    id: 'caps',
+    caption: 'Вариант A — капители: орнамент в натуральной пропорции, отбит линейкой',
   },
   {
-    id: 'prata',
-    caption: 'Вариант B — Prata, плотная антиква, тёплый коричневый',
+    id: 'lozenge',
+    caption: 'Вариант B — ромбы: острые навершия на концах плашки',
   },
   {
-    id: 'playfair',
-    caption: 'Вариант C — Playfair Display, курсив, бронза',
+    id: 'bevel',
+    caption: 'Вариант C — скосы: срезанные углы и золотая кромка по срезу',
   },
 ];
 
@@ -28,13 +29,13 @@ function Placeholder({ title, lines }: { title: string; lines: number }) {
   );
 }
 
-function Spread({ nameStyle, caption }: { nameStyle: NameStyle; caption: string }) {
+function Spread({ variant, caption }: { variant: HeaderVariant; caption: string }) {
   return (
     <div className="variant">
       <p className="variant__caption">{caption}</p>
       <div className="book">
         <div className="page page--left">
-          <CharacterBlock variant="cartouche" nameStyle={nameStyle} />
+          <CharacterBlock variant={variant} nameStyle="smallcaps" />
           <Placeholder title="Аспекты" lines={5} />
         </div>
         <div className="page page--right">
@@ -48,20 +49,20 @@ function Spread({ nameStyle, caption }: { nameStyle: NameStyle; caption: string 
   );
 }
 
-/** Блок «Персонаж»: выбранный заголовок, облегчённая рамка и три начертания имени. */
+/** Концы плашки: три варианта при неизменных стиле, размере и имени. */
 export default function BlockVariants() {
   return (
     <main className="variants-page">
       <header className="variants-head">
-        <h1>Имя персонажа — три варианта</h1>
+        <h1>Концы плашки — три варианта</h1>
         <p>
-          Плашка заголовка стала ниже, рамка портрета — в том же стиле: светлая текстура,
-          тонкая двойная рамка, приглушённые уголки. Различается только имя. Масштаб 1:1.
+          Имя стало жирнее, размер прежний. Стиль и высота плашки не менялись — различаются
+          только концы. Масштаб 1:1.
         </p>
       </header>
 
       {VARIANTS.map(({ id, caption }) => (
-        <Spread key={id} nameStyle={id} caption={caption} />
+        <Spread key={id} variant={id} caption={caption} />
       ))}
     </main>
   );
