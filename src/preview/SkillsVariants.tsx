@@ -1,11 +1,11 @@
 import { AspectBlock } from '../components/AspectBlock';
 import { CharacterBlock } from '../components/CharacterBlock';
-import { SkillsBlock } from '../components/SkillsBlock';
-import { advancedCharacter, demoCharacter, overflowCharacter, type Character } from '../data/demoCharacter';
+import { SkillsEditor, type EditorRow, type SkillsEditorVariant } from '../components/SkillsEditor';
+import { overflowCharacter, type Character } from '../data/demoCharacter';
 import '../styles/sheet.css';
 import '../styles/character-block.css';
 import '../styles/aspect-block.css';
-import '../styles/skills-block.css';
+import '../styles/skills-editor.css';
 import '../styles/hint.css';
 
 function Placeholder({ title, lines }: { title: string; lines: number }) {
@@ -19,14 +19,34 @@ function Placeholder({ title, lines }: { title: string; lines: number }) {
   );
 }
 
+const ROWS: EditorRow[] = overflowCharacter.ladder.map((row) => ({
+  value: row.value,
+  skills: row.skills.map((name) => ({ name, paid: 0 })),
+}));
+
+const VARIANTS: { id: SkillsEditorVariant; caption: string }[] = [
+  {
+    id: 1,
+    caption: 'Вариант 1 — «Медальон»: круглый счётчик, квадратный «+», стрелка глифом',
+  },
+  {
+    id: 2,
+    caption: 'Вариант 2 — «Тиснение»: пилюля уровня, круглая «+», стрелка в кружке',
+  },
+  {
+    id: 3,
+    caption: 'Вариант 3 — «Печать»: крупная цифра с чертой, вытянутая «+», стрелка всегда видна',
+  },
+];
+
 function Spread({
   character,
+  variant,
   caption,
-  mastery,
 }: {
   character: Character;
+  variant: SkillsEditorVariant;
   caption: string;
-  mastery: number;
 }) {
   return (
     <div className="variant">
@@ -37,13 +57,7 @@ function Spread({
           <AspectBlock aspects={character.aspects} hintVariant="side" variant="strong" />
         </div>
         <div className="page page--right">
-          <SkillsBlock
-            ladder={character.ladder}
-            variant="flush"
-            hintVariant="side"
-            mastery={mastery}
-            free={0}
-          />
+          <SkillsEditor variant={variant} initial={ROWS} initialLevel={3} initialFree={1} />
           <Placeholder title="Трюки" lines={3} />
           <Placeholder title="Дополнения" lines={2} />
           <Placeholder title="Стресс и последствия" lines={2} />
@@ -53,34 +67,23 @@ function Spread({
   );
 }
 
-/** Навыки: «кладка» + поведение на предельных данных. */
+/** Навыки: три облика интерактивной пирамиды с уровнем и свободным очком. */
 export default function SkillsVariants() {
   return (
     <main className="variants-page">
       <header className="variants-head">
-        <h1>Навыки — вариант B и предельные данные</h1>
+        <h1>Навыки — интерактивная пирамида, три облика</h1>
         <p>
-          Блоки равного размера, пирамида прижата влево, названия по центру. Если навыков
-          больше четырёх — перенос на вторую строку, подпись ступени остаётся по центру
-          группы. Пустые ступени не показываются. Масштаб 1:1.
+          Уровень справа, «+» для новой ступени слева, свободное очко вложено в стрелку ↑
+          или в «+ навык». Стрелка поднимает навык на ступень (1 очко), крестик убирает
+          навык, «+» сверху открывает следующую ступень. Масштаб 1:1, состояние живёт
+          только на странице.
         </p>
       </header>
 
-      <Spread
-        character={demoCharacter}
-        mastery={20}
-        caption="Обычный герой: 20 очков, ступени +4…+1, «+5» ещё нет"
-      />
-      <Spread
-        character={overflowCharacter}
-        mastery={21}
-        caption="Переполнение: пять навыков на +1 после первой значимой вехи"
-      />
-      <Spread
-        character={advancedCharacter}
-        mastery={25}
-        caption="Продвинутый герой: планка поднята, ступень +5 появилась"
-      />
+      {VARIANTS.map(({ id, caption }) => (
+        <Spread key={id} character={overflowCharacter} variant={id} caption={caption} />
+      ))}
     </main>
   );
 }
