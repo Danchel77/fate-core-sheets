@@ -1,3 +1,5 @@
+import type { ReactNode } from 'react';
+
 const BASE = import.meta.env.BASE_URL;
 const CORNER = `${BASE}assets/frames/ornament-corner.svg`;
 const TEXTURE = `${BASE}assets/textures/parchment-soft.jpg`;
@@ -15,6 +17,8 @@ export type HeaderVariant =
 type Props = {
   variant: HeaderVariant;
   title: string;
+  /** Небольшая группа справа в плашке (уровень, кошелёк). */
+  aside?: ReactNode;
 };
 
 function Texture() {
@@ -33,7 +37,7 @@ const cornerMask = {
 };
 
 /** Заголовок блока листа: одна плашка, разные концы. */
-export function BlockHeader({ variant, title }: Props) {
+export function BlockHeader({ variant, title, aside }: Props) {
   if (variant === 'rule') {
     return (
       <div className="bh bh--rule">
@@ -73,6 +77,7 @@ export function BlockHeader({ variant, title }: Props) {
         <i className="bh__lozenge bh__lozenge--l" aria-hidden="true" />
         <i className="bh__lozenge bh__lozenge--r" aria-hidden="true" />
         <span className="bh__title">{title}</span>
+        {aside && <span className="bh__aside">{aside}</span>}
       </div>
     );
   }

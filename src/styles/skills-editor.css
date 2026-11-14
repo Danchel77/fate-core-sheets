@@ -1,266 +1,420 @@
-/* Интерактивная пирамида навыков: три облика счётчика уровня, кнопок «+» и стрелок. */
+/* Интерактивная пирамида навыков: три облика верхней строки. */
 
-.ske__top {
-  display: grid;
-  grid-template-columns: 46px 1fr;
-  align-items: start;
-  padding: 1px 0 5px;
-}
-
-.ske__top-left {
+.ske {
+  position: relative;
   display: flex;
-  justify-content: center;
-  padding-top: 8px;
+  flex-direction: column;
 }
-
-.ske__top-right {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 10px;
-  padding-top: 4px;
-}
-
-.ske__level {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-
-.ske__lv-label {
-  order: -1;
-  font-family: var(--font-body);
-  font-size: 0.5625rem;
-  font-weight: 700;
-  letter-spacing: 0.13em;
-  text-transform: uppercase;
-  color: color-mix(in srgb, var(--text-ink-muted) 82%, transparent);
-}
-
-.ske__lv-num {
-  font-family: var(--font-display);
-  font-size: 1.25rem;
-  line-height: 1;
-  font-weight: 600;
-  color: var(--accent-gold-deep);
-}
-
-.ske__lv-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 18px;
-  height: 18px;
-  padding: 0;
-  border: 1px solid color-mix(in srgb, var(--accent-gold) 55%, transparent);
-  border-radius: 50%;
-  background: transparent;
-  font-family: var(--font-body);
-  font-size: 0.75rem;
-  line-height: 1;
-  color: var(--accent-gold-deep);
-  cursor: pointer;
-}
-
-.ske__lv-btn:hover:not(:disabled) {
-  background: color-mix(in srgb, var(--accent-gold) 18%, transparent);
-}
-
-.ske__lv-btn:disabled {
-  opacity: 0.35;
-  cursor: default;
-}
-
-.ske__free {
-  font-family: var(--font-body);
-  font-size: 0.5625rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--accent-crimson);
-}
-
-/* Кнопка «+» над столбцом ступеней */
-
-.ske__addrank {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 22px;
-  height: 22px;
-  padding: 0;
-  border: 1px solid color-mix(in srgb, var(--accent-gold) 55%, transparent);
-  border-radius: 2px;
-  background: color-mix(in srgb, var(--bg-parchment) 88%, #fffdf6 12%);
-  font-family: var(--font-body);
-  font-size: 0.875rem;
-  line-height: 1;
-  color: var(--accent-gold-deep);
-  cursor: pointer;
-}
-
-.ske__addrank:hover {
-  background: color-mix(in srgb, var(--accent-gold) 16%, var(--bg-parchment));
-}
-
-/* Строки и блоки */
 
 .ske__body {
-  border-top: 1px solid color-mix(in srgb, var(--accent-gold) 16%, transparent);
-  padding-top: 2px;
+  display: flex;
+  flex-direction: column;
 }
 
 .ske__row {
   position: relative;
   display: grid;
-  grid-template-columns: 46px 1fr;
+  grid-template-columns: 46px minmax(0, 1fr);
   align-items: center;
+  gap: 0;
   padding: 5px 0;
 }
 
-.ske__row + .ske__row {
-  border-top: 1px solid color-mix(in srgb, var(--accent-gold) 13%, transparent);
+.ske__row--top {
+  grid-template-columns: 46px minmax(0, 1fr) auto;
+  padding-top: 20px;
+  padding-bottom: 7px;
 }
 
+.ske__row + .ske__row {
+  border-top: 1px solid color-mix(in srgb, var(--accent-gold) 20%, transparent);
+}
+
+/* ── Ступень ─────────────────────────────────────────────── */
+
 .ske__rank {
+  position: relative;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 1;
   text-align: center;
-  font-family: var(--font-display);
-  font-size: 1.125rem;
-  line-height: 1.1;
   color: var(--accent-gold-deep);
 }
 
+/* +/− над крайней ступенью, без отдельной строки */
+
+.ske__rankctl {
+  position: absolute;
+  top: 0;
+  display: flex;
+  gap: 2px;
+  z-index: 3;
+}
+
+.ske--v1 .ske__rankctl {
+  left: 16px;
+  flex-direction: column;
+}
+
+.ske--v2 .ske__rankctl {
+  left: 9px;
+  top: 5px;
+  flex-direction: row;
+}
+
+.ske--v3 .ske__rankctl {
+  left: 15px;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--accent-gold) 48%, transparent);
+  border-radius: 7px;
+  background: color-mix(in srgb, var(--bg-parchment) 72%, transparent);
+}
+
+.ske__rankbtn {
+  width: 14px;
+  height: 14px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid color-mix(in srgb, var(--accent-gold) 42%, transparent);
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--bg-parchment) 62%, transparent);
+  color: var(--accent-gold-deep);
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s, opacity 0.12s;
+}
+
+.ske__rankbtn:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--accent-gold) 22%, var(--bg-parchment));
+  color: var(--text-ink-primary);
+}
+
+.ske__rankbtn:disabled {
+  opacity: 0.28;
+  cursor: default;
+}
+
+.ske--v2 .ske__rankbtn {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  font-size: 10px;
+}
+
+.ske--v3 .ske__rankbtn {
+  width: 13px;
+  height: 11px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  font-size: 10px;
+}
+
+.ske--v3 .ske__rankbtn + .ske__rankbtn {
+  border-top: 1px solid color-mix(in srgb, var(--accent-gold) 34%, transparent);
+}
+
+/* ── Карточки навыков ───────────────────────────────────── */
+
 .ske__grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 2px;
 }
 
 .ske__block {
   position: relative;
+  height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 32px;
-  padding: 0 8px;
-  background: color-mix(in srgb, var(--bg-parchment) 86%, var(--accent-gold) 14%);
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent-gold) 14%, transparent);
-  font-family: var(--font-body);
-  font-size: var(--text-caption);
-  line-height: 1.15;
-  text-align: center;
-  color: var(--text-ink-primary);
-  white-space: nowrap;
+  border: 1px solid color-mix(in srgb, var(--accent-gold) 26%, transparent);
+  border-radius: 1px;
+  background: color-mix(in srgb, var(--bg-parchment) 84%, #d9c6a2 16%);
 }
 
 .ske__name {
-  transition: opacity 0.12s ease;
+  max-width: 100%;
+  padding: 0 9px;
+  font-family: var(--font-body);
+  font-size: 11.5px;
+  line-height: 1.06;
+  color: var(--text-ink-primary);
+  text-align: center;
+  overflow-wrap: anywhere;
 }
 
-.ske__block:hover .ske__name,
-.ske__block:focus-within .ske__name {
-  opacity: 0.2;
-}
-
-.ske__tools {
+.ske__del {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  display: flex;
-  align-items: center;
-  gap: 1px;
-  padding: 1px 3px;
-  border: 1px solid color-mix(in srgb, var(--accent-gold) 35%, transparent);
-  border-radius: 2px;
-  background: color-mix(in srgb, var(--bg-parchment) 96%, #fffdf6 4%);
-  box-shadow: 0 1px 3px rgba(30, 20, 8, 0.18);
-  transform: translate(-50%, -50%);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.12s ease;
-}
-
-.ske__block:hover .ske__tools,
-.ske__block:focus-within .ske__tools {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-.ske__icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 16px;
-  height: 16px;
+  top: 2px;
+  right: 2px;
+  width: 13px;
+  height: 13px;
+  display: grid;
+  place-items: center;
   padding: 0;
   border: 0;
   border-radius: 50%;
   background: transparent;
+  color: color-mix(in srgb, var(--accent-crimson) 78%, var(--text-ink-primary));
   font-family: var(--font-body);
-  font-size: 0.6875rem;
+  font-size: 13px;
   line-height: 1;
-  color: var(--accent-gold-deep);
   cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.12s, background 0.12s;
 }
 
-.ske__icon:hover:not(:disabled) {
-  background: color-mix(in srgb, var(--accent-gold) 22%, transparent);
+.ske__block:hover .ske__del,
+.ske__block:focus-within .ske__del {
+  opacity: 1;
 }
 
-.ske__icon:disabled {
-  opacity: 0.28;
-  cursor: default;
+.ske__del:hover {
+  background: color-mix(in srgb, var(--accent-crimson) 14%, transparent);
 }
 
-.ske__del {
-  color: color-mix(in srgb, var(--accent-crimson) 78%, transparent);
+.ske__up {
+  position: absolute;
+  right: 2px;
+  bottom: 1px;
+  width: 13px;
+  height: 13px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--accent-gold) 18%, transparent);
+  color: var(--accent-gold-deep);
+  font-family: var(--font-body);
+  font-size: 10px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
 }
 
-/* Заглушка «+ навык» */
+.ske__up:hover {
+  background: color-mix(in srgb, var(--accent-gold) 36%, transparent);
+  color: var(--text-ink-primary);
+}
 
 .ske__add {
-  min-height: 32px;
-  padding: 0 8px;
-  border: 1px dashed color-mix(in srgb, var(--accent-gold) 45%, transparent);
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 1px dashed color-mix(in srgb, var(--accent-gold) 52%, transparent);
+  border-radius: 2px;
   background: transparent;
+  color: color-mix(in srgb, var(--accent-gold-deep) 82%, var(--text-ink-primary));
   font-family: var(--font-body);
-  font-size: var(--text-caption);
-  color: color-mix(in srgb, var(--text-ink-muted) 78%, transparent);
+  font-size: 12px;
+  font-style: italic;
   cursor: pointer;
+  transition: background 0.12s;
 }
 
 .ske__add:hover {
   background: color-mix(in srgb, var(--accent-gold) 10%, transparent);
+}
+
+/* ── Уровень и кошелёк ──────────────────────────────────── */
+
+.ske__lvc {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 0 2px 0 10px;
+}
+
+.ske__lv-label {
+  font-family: var(--font-body);
+  font-size: 8.5px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  line-height: 1;
+  text-transform: uppercase;
+  color: var(--text-ink-muted);
+}
+
+.ske__lvn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.ske__lv-num {
+  min-width: 16px;
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 1;
+  font-variant-numeric: lining-nums;
+  font-feature-settings: 'lnum' 1;
+  text-align: center;
+  color: var(--accent-gold-deep);
+}
+
+.ske__lvstep {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  width: 12px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.12s;
+}
+
+.ske__lvn:hover .ske__lvstep,
+.ske__lvn:focus-within .ske__lvstep {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.ske__step {
+  width: 12px;
+  height: 11px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--accent-gold-deep);
+  font-family: var(--font-body);
+  font-size: 9px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.ske__step:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.ske__step:hover:not(:disabled) {
   color: var(--text-ink-primary);
 }
 
-/* Меню выбора навыка */
+/* Кошелёк — бронзовый кружок с зарезервированным слотом. */
+
+.ske__wallet {
+  width: 21px;
+  height: 21px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: radial-gradient(circle at 32% 26%, #c9a45f, #8a6524 68%, #6b4b1e);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    0 1px 2px rgba(0, 0, 0, 0.22);
+  color: var(--band-ink);
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: lining-nums;
+}
+
+.ske__wallet:empty {
+  background: transparent;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent-gold) 34%, transparent);
+}
+
+.ske__wallet--debt {
+  background: radial-gradient(circle at 32% 26%, #b9533f, #7a2318 72%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.28),
+    0 0 0 1px color-mix(in srgb, var(--accent-crimson) 65%, transparent),
+    0 1px 3px rgba(70, 12, 6, 0.35);
+  color: #f8eed9;
+}
+
+/* ── Облики ─────────────────────────────────────────────── */
+
+.ske--v2 .ske__row--top {
+  grid-template-columns: 46px minmax(0, 1fr);
+  padding-top: 12px;
+}
+
+.ske--v2 .ske__lvc {
+  gap: 5px;
+  padding: 0;
+}
+
+.ske--v2 .ske__lv-num {
+  font-size: 20px;
+}
+
+.ske--v2 .ske__wallet {
+  width: 19px;
+  height: 19px;
+  font-size: 11px;
+}
+
+/* Уровень в ленте заголовка — лёгкая тень, чтобы читался поверх текстуры. */
+
+.bh__aside {
+  position: absolute;
+  top: 50%;
+  right: 46px;
+  z-index: 3;
+  display: flex;
+  transform: translateY(-50%);
+}
+
+.ske--v3 .ske__lv-num {
+  width: 32px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border: 1px solid color-mix(in srgb, var(--accent-gold) 46%, transparent);
+  border-radius: 50%;
+  font-size: 19px;
+}
+
+.ske--v3 .ske__wallet {
+  border-radius: 3px;
+}
+
+/* ── Меню «+ навык» ──────────────────────────────────────── */
 
 .ske__menu {
   position: absolute;
-  left: 58px;
+  z-index: 12;
+  left: 52px;
   bottom: 6px;
-  z-index: 30;
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 2px;
-  max-height: 168px;
-  overflow: auto;
-  padding: 5px;
-  border: 1px solid color-mix(in srgb, var(--accent-gold) 55%, transparent);
-  background: var(--bg-parchment);
-  box-shadow: 0 10px 24px rgba(30, 20, 8, 0.28);
+  width: 300px;
+  padding: 8px;
+  border: 1px solid color-mix(in srgb, var(--accent-gold) 45%, transparent);
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--bg-parchment) 96%, #fffdf6);
+  box-shadow: 0 14px 30px rgba(28, 18, 8, 0.32);
 }
 
 .ske__menu-item {
-  padding: 4px 8px;
+  padding: 5px 6px;
   border: 0;
+  border-radius: 2px;
   background: transparent;
-  font-family: var(--font-body);
-  font-size: 0.8125rem;
-  text-align: left;
   color: var(--text-ink-primary);
+  font-family: var(--font-body);
+  font-size: 11.5px;
+  line-height: 1.15;
+  text-align: left;
   cursor: pointer;
-  white-space: nowrap;
 }
 
 .ske__menu-item:hover {
@@ -269,124 +423,19 @@
 
 .ske__menu-empty {
   grid-column: 1 / -1;
-  padding: 4px 6px;
-  font-family: var(--font-body);
-  font-size: 0.75rem;
+  padding: 4px;
   color: var(--text-ink-muted);
-}
-
-/* Вариант 1 — «Медальон»: круглый счётчик, квадратная кнопка +, стрелка-глиф. */
-
-.ske--v1 .ske__lv-num {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border: 1px solid color-mix(in srgb, var(--accent-gold) 60%, transparent);
-  border-radius: 50%;
-  background: radial-gradient(circle at 35% 28%, #fbf2df, #e8d5b0);
-  box-shadow: 0 2px 4px rgba(30, 20, 8, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.7);
-  font-size: 1.0625rem;
-}
-
-.ske--v1 .ske__lv-label {
-  display: none;
-}
-
-.ske--v1 .ske__up {
-  font-size: 0.8125rem;
-}
-
-/* Вариант 2 — «Тиснение»: пилюля, круглые кнопки, стрелка в кружке. */
-
-.ske--v2 .ske__level {
-  padding: 3px 9px 3px 11px;
-  border: 1px solid color-mix(in srgb, var(--accent-gold) 45%, transparent);
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--bg-parchment) 90%, #fffdf6 10%);
-}
-
-.ske--v2 .ske__lv-num {
-  font-size: 1.0625rem;
-}
-
-.ske--v2 .ske__lv-btn {
-  border: 0;
-  border-radius: 0;
-  font-size: 0.875rem;
-  color: color-mix(in srgb, var(--text-ink-muted) 90%, transparent);
-}
-
-.ske--v2 .ske__addrank {
-  border-radius: 50%;
-}
-
-.ske--v2 .ske__up:not(:disabled) {
-  width: 17px;
-  height: 17px;
-  border: 1px solid color-mix(in srgb, var(--accent-gold) 55%, transparent);
-  border-radius: 50%;
-  font-size: 0.625rem;
-}
-
-.ske--v2 .ske__add {
-  border-style: dotted;
-  border-width: 2px;
-  letter-spacing: 0.06em;
-}
-
-/* Вариант 3 — «Печать»: крупная цифра с чертой, длинная кнопка +, всегда видимая стрелка. */
-
-.ske--v3 .ske__level {
-  gap: 4px;
-}
-
-.ske--v3 .ske__lv-num {
-  font-size: 1.5rem;
-  padding: 0 6px 0 2px;
-  border-bottom: 1px solid color-mix(in srgb, var(--accent-gold) 55%, transparent);
-}
-
-.ske--v3 .ske__lv-btn {
-  width: 14px;
-  height: 14px;
-  border: 0;
-  font-size: 0.75rem;
-  color: color-mix(in srgb, var(--text-ink-muted) 85%, transparent);
-}
-
-.ske--v3 .ske__lv-label {
-  letter-spacing: 0.2em;
-}
-
-.ske--v3 .ske__addrank {
-  width: 16px;
-  height: 28px;
-  border-radius: 999px;
-  font-size: 0.8125rem;
-}
-
-.ske--v3 .ske__block::after {
-  content: '';
-  position: absolute;
-  top: 3px;
-  right: 3px;
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: color-mix(in srgb, var(--accent-gold) 55%, transparent);
-  transition: opacity 0.12s ease;
-}
-
-.ske--v3 .ske__block:hover::after,
-.ske--v3 .ske__block:focus-within::after {
-  opacity: 0;
-}
-
-.ske--v3 .ske__add {
-  border-style: solid;
-  border-color: transparent;
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent-gold) 30%, transparent);
+  font-family: var(--font-body);
+  font-size: 11.5px;
   font-style: italic;
+}
+
+@media (max-width: 560px) {
+  .ske__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .ske__name {
+    font-size: 11px;
+  }
 }
