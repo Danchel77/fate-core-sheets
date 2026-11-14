@@ -71,46 +71,6 @@
   color: var(--accent-gold-deep);
 }
 
-/* Кнопки ступеней живут в той же ячейке, что и «+4», и не сдвигают число. */
-.ske__rankctl {
-  position: absolute;
-  top: -2px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  flex-direction: row;
-  gap: 2px;
-  z-index: 3;
-}
-
-.ske__rankbtn {
-  width: 12px;
-  height: 12px;
-  display: grid;
-  place-items: center;
-  padding: 0;
-  border: 1px solid color-mix(in srgb, var(--ac) 48%, transparent);
-  border-radius: 2px;
-  background: color-mix(in srgb, var(--bg-parchment) 80%, transparent);
-  color: var(--ac-ink);
-  font-family: var(--font-body);
-  font-size: 10px;
-  font-weight: 700;
-  line-height: 1;
-  cursor: pointer;
-  transition: background 0.12s, color 0.12s, opacity 0.12s;
-}
-
-.ske__rankbtn:hover:not(:disabled) {
-  background: color-mix(in srgb, var(--ac-strong) 20%, var(--bg-parchment));
-  color: var(--text-ink-primary);
-}
-
-.ske__rankbtn:disabled {
-  opacity: 0.28;
-  cursor: default;
-}
-
 /* ── Карточки и слоты ──────────────────────────────────── */
 
 .ske__grid {
@@ -178,10 +138,10 @@
 
 .ske__up {
   position: absolute;
-  right: 1px;
+  right: 2px;
   bottom: 2px;
-  width: 13px;
-  height: 14px;
+  width: 14px;
+  height: 15px;
   display: grid;
   place-items: center;
   padding: 0;
@@ -200,6 +160,115 @@
 .ske__up:hover {
   color: var(--ac-ink);
   transform: translateY(-1px);
+}
+
+.ske__upico {
+  display: block;
+  width: 11px;
+  height: 14px;
+  overflow: visible;
+}
+
+.ske__upico path {
+  stroke: currentColor;
+  stroke-width: 1.15;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.ske__up:hover .ske__upico {
+  filter: drop-shadow(0 0 2px color-mix(in srgb, var(--ac-strong) 55%, transparent));
+}
+
+/* Уголок действий со ступенями: три точки, видны при наведении на блок. */
+
+.bh__aside {
+  position: absolute;
+  right: 26px;
+  top: 50%;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  transform: translateY(-50%);
+}
+
+.ske__more {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 2px;
+  padding: 3px 4px;
+  border: 0;
+  background: transparent;
+  color: var(--accent-gold-deep);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.12s, color 0.12s;
+}
+
+.ske__more i {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.ske:hover .ske__more,
+.ske:focus-within .ske__more,
+.ske__more[aria-expanded='true'] {
+  opacity: 1;
+}
+
+.ske__more:hover {
+  color: var(--accent-gold-ink);
+}
+
+.ske__rankmenu {
+  position: absolute;
+  z-index: 30;
+  top: 33px;
+  right: 132px;
+  min-width: 178px;
+  padding: 6px;
+  border: 1px solid color-mix(in srgb, var(--accent-gold-deep) 52%, transparent);
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--bg-parchment) 96%, #fffdf6);
+  box-shadow:
+    inset 0 0 0 3px color-mix(in srgb, var(--bg-parchment) 100%, transparent),
+    inset 0 0 0 4px color-mix(in srgb, var(--accent-gold) 42%, transparent),
+    0 14px 30px rgba(40, 26, 10, 0.28);
+}
+
+.ske__rankmenu-item {
+  display: block;
+  width: 100%;
+  padding: 6px 8px;
+  border: 0;
+  border-radius: 1px;
+  background: transparent;
+  color: var(--text-ink-primary);
+  font-family: var(--font-body);
+  font-size: 11.5px;
+  letter-spacing: 0.03em;
+  text-align: left;
+  cursor: pointer;
+}
+
+.ske__rankmenu-item + .ske__rankmenu-item {
+  border-top: 1px solid color-mix(in srgb, var(--accent-gold) 22%, transparent);
+}
+
+.ske__rankmenu-item:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--accent-gold) 14%, transparent);
+}
+
+.ske__rankmenu-item--danger:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--accent-crimson) 12%, transparent);
+}
+
+.ske__rankmenu-item:disabled {
+  opacity: 0.4;
+  cursor: default;
 }
 
 /* Пустой слот стартовой пирамиды. */
@@ -287,7 +356,7 @@
   flex-direction: row;
   gap: 0;
   align-self: flex-end;
-  margin: 0 0 1px 0;
+  margin: 0 0 1px 4px;
 }
 
 .ske__step {
@@ -444,4 +513,16 @@
 /* На тач-экранах нет наведения: крестик и стрелки уровня видны всегда. */
 @media (hover: none), (max-width: 560px) {
   .ske__del,
+  .ske__lvstep,
+  .ske__more {
+    opacity: 1;
+  }
+}
+
+
+/* На узком листе меню прижимается к правому краю блока. */
+@media (max-width: 560px) {
+  .ske__rankmenu {
+    right: 8px;
+  }
 }

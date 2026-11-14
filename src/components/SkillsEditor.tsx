@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { BlockHeader } from './BlockHeader';
 import '../styles/skills-editor.css';
 
@@ -35,7 +35,8 @@ type Props = {
   initialLevel?: number;
 };
 
-const MAX_RANK = 8;
+const MAX_SKILL_RANK = 6;
+const MAX_LEVEL = 99;
 const BASE_POINTS = 20;
 
 /** Ёмкость стартовой ступени: +1 — четыре слота, +4 — один. */
@@ -59,11 +60,41 @@ function buildRows(initial: InitRow[]): Row[] {
     .map((value) => ({ value, skills: [...(byValue.get(value) ?? [])] }));
 }
 
+/** Гравированная стрелка «можно поднять»: контур, без заливки. */
+function UpGlyph() {
+  return (
+    <svg className="ske__upico" viewBox="0 0 12 15" fill="none" aria-hidden="true" focusable="false">
+      <path d="M6 14V4.6" />
+      <path d="M1.7 7.4 6 2.6l4.3 4.8" />
+      <path d="M1.7 7.4c-.5 1.1-.35 2.2.35 3.1" />
+      <path d="M10.3 7.4c.5 1.1.35 2.2-.35 3.1" />
+    </svg>
+  );
+}
+
 /** Интерактивная пирамида навыков: слоты стартовой пирамиды, уровень и свободные очки. */
 export function SkillsEditor({ variant = 1, initial, initialLevel = 4 }: Props) {
   const [rows, setRows] = useState<Row[]>(() => buildRows(initial));
   const [level, setLevel] = useState(initialLevel);
   const [menuRank, setMenuRank] = useState<number | null>(null);
+  const [moreOpen, setMoreOpen] = useState(false);
+
+  useEffect(() => {
+    if (!moreOpen) return;
+    const onDown = (event: PointerEvent) => {
+      const target = event.target as HTMLElement | null;
+      if (!target?.closest('.ske__rankmenu, .ske__more')) setMoreOpen(false);
+    };
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setMoreOpen(false);
+    };
+    document.addEventListener('pointerdown', onDown);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('pointerdown', onDown);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [moreOpen]);
 
   const spent = rows.reduce((sum, row) => sum + row.value * row.skills.length, 0);
   const free = BASE_POINTS + (level - 1) - spent;
@@ -109,7 +140,7 @@ export function SkillsEditor({ variant = 1, initial, initialLevel = 4 }: Props) 
   const addRank = () => {
     setRows((prev) => {
       const top = prev[0]?.value ?? 0;
-      if (top >= MAX_RANK) return prev;
+      if (top >= MAX_SKILL_RANK) return prev;
       return [{ value: top + 1, skills: [] }, ...prev];
     });
   };
@@ -126,12 +157,61 @@ export function SkillsEditor({ variant = 1, initial, initialLevel = 4 }: Props) 
   const available = SKILL_POOL.filter((name) => !used.has(name));
 
   const top = rows[0];
-  const canRemoveRank = rows.length > 1 && top !== undefined && top.skills.length === 0;
+  const canAddRank = (top?.value ?? 0) < MAX_SKILL_RANK;
+  const canRemoveRank =
+    top !== undefined && top.value > 4 && top.skills.length === 0;
   const debtWord = Math.abs(free) === 1 ? 'очка' : 'очков';
 
   return (
     <section className={`ske ske--v${variant}`}>
-      <BlockHeader variant="lozenge" title="Навыки" />
+      <BlockHeader
+        variant="lozenge"
+        title="Навыки"
+        aside={
+          <button
+            type="button"
+            className="ske__more"
+            aria-label="Ступени: добавить или убрать"
+            aria-expanded={moreOpen}
+            aria-haspopup="menu"
+            onClick={() => setMoreOpen((open) => !open)}
+          >
+            <i />
+            <i />
+            <i />
+          </button>
+        }
+      />
+
+      {moreOpen && (
+        <div className="ske__rankmenu" role="menu">
+          <button
+            type="button"
+            role="menuitem"
+            className="ske__rankmenu-item"
+            disabled={!canAddRank}
+            onClick={() => {
+              addRank();
+              setMoreOpen(false);
+            }}
+          >
+            Добавить ступень
+          </button>
+          {canRemoveRank && (
+            <button
+              type="button"
+              role="menuitem"
+              className="ske__rankmenu-item ske__rankmenu-item--danger"
+              onClick={() => {
+                removeRank();
+                setMoreOpen(false);
+              }}
+            >
+              Убрать ступень
+            </button>
+          )}
+        </div>
+      )}
 
       <div className="ske__body">
         {rows.map((row, rowIndex) => {
@@ -143,30 +223,6 @@ export function SkillsEditor({ variant = 1, initial, initialLevel = 4 }: Props) 
           return (
             <div className={`ske__row${rowIndex === 0 ? ' ske__row--top' : ''}`} key={row.value}>
               <span className="ske__rankcell">
-                {rowIndex === 0 && (
-                  <span className="ske__rankctl">
-                    <button
-                      type="button"
-                      className="ske__rankbtn ske__rankbtn--minus"
-                      aria-label="Убрать верхнюю ступень"
-                      title="Убрать пустую верхнюю ступень"
-                      onClick={removeRank}
-                      disabled={!canRemoveRank}
-                    >
-                      −
-                    </button>
-                    <button
-                      type="button"
-                      className="ske__rankbtn ske__rankbtn--plus"
-                      aria-label="Добавить ступень"
-                      title="Добавить ступень (после крупной вехи)"
-                      onClick={addRank}
-                      disabled={row.value >= MAX_RANK}
-                    >
-                      +
-                    </button>
-                  </span>
-                )}
                 <span className="ske__rank">+{row.value}</span>
               </span>
 
@@ -191,7 +247,7 @@ export function SkillsEditor({ variant = 1, initial, initialLevel = 4 }: Props) 
                         title="Поднять на ступень (1 очко)"
                         onClick={() => raise(row.value, name)}
                       >
-                        ↑
+                        <UpGlyph />
                       </button>
                     )}
                   </span>
@@ -231,14 +287,15 @@ export function SkillsEditor({ variant = 1, initial, initialLevel = 4 }: Props) 
                 <div className="ske__lvc" aria-label={`Уровень ${level}, свободных очков ${free}`}>
                   <span className="ske__lv-line">
                     <span className="ske__lv-label">Уровень</span>
+                    <span className="ske__lvnum">{level}</span>
                     <span className="ske__lvstep">
                     <button
                       type="button"
                       className="ske__step"
                       aria-label="Повысить уровень"
                       title="Повысить уровень"
-                      disabled={level >= MAX_RANK}
-                      onClick={() => setLevel((l) => Math.min(MAX_RANK, l + 1))}
+                      disabled={level >= MAX_LEVEL}
+                      onClick={() => setLevel((l) => Math.min(MAX_LEVEL, l + 1))}
                     >
                       ↑
                     </button>
@@ -253,7 +310,6 @@ export function SkillsEditor({ variant = 1, initial, initialLevel = 4 }: Props) 
                       ↓
                     </button>
                   </span>
-                    <span className="ske__lvnum">{level}</span>
                   </span>
                   <span className={`ske__lv-free${free < 0 ? ' ske__lv-free--debt' : ''}`}>
                     {free > 0 && (
