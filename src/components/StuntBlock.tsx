@@ -1,55 +1,118 @@
+import { useCallback, useState } from 'react';
 import type { Stunt } from '../data/demoCharacter';
 import { BlockHeader } from './BlockHeader';
+import { StuntModal } from './StuntModal';
+import type { StuntModalVariant } from './StuntModal';
 import '../styles/stunt-block.css';
 
-export type StuntVariant = 'scroll' | 'cards' | 'register';
+export type { StuntModalVariant } from './StuntModal';
+
+const MAX_STUNTS = 5;
+
+type StuntItem = Stunt & { id: string };
+
+type Editor = { mode: 'new' } | { mode: 'edit'; id: string };
 
 type Props = {
   stunts: Stunt[];
-  variant?: StuntVariant;
+  modal?: StuntModalVariant;
+  baseRefresh?: number;
 };
 
+let nextId = 0;
+const makeId = () => `stunt-${nextId++}`;
+
 /**
- * Блок «Трюки»: постоянные способности героя.
- * Три варианта подачи перечня живут здесь до выбора пользователя.
+ * Блок «Трюки»: карточки героя.
+ * Карточка открывает окно правки, «+» в углу блока добавляет новый трюк.
  */
-export function StuntBlock({ stunts, variant = 'scroll' }: Props) {
+export function StuntBlock({ stunts, modal = 'plaque', baseRefresh = 3 }: Props) {
+  const [items, setItems] = useState<StuntItem[]>(() =>
+    stunts.map((stunt) => ({ ...stunt, id: makeId() })),
+  );
+  const [editor, setEditor] = useState<Editor | null>(null);
+
+  const closeEditor = useCallback(() => setEditor(null), []);
+  const atLimit = items.length >= MAX_STUNTS;
+
+  const current = editor?.mode === 'edit' ? items.find((item) => item.id === editor.id) : undefined;
+
+  const save = (value: { name: string; text: string }) => {
+    if (!editor) return;
+
+    if (editor.mode === 'new') {
+      if (items.length >= MAX_STUNTS) {
+        setEditor(null);
+        return;
+      }
+      setItems([...items, { id: makeId(), ...value }]);
+    } else {
+      setItems(items.map((item) => (item.id === editor.id ? { ...item, ...value } : item)));
+    }
+
+    setEditor(null);
+  };
+
+  const remove = () => {
+    if (!editor || editor.mode !== 'edit') return;
+    setItems(items.filter((item) => item.id !== editor.id));
+    setEditor(null);
+  };
+
   return (
-    <section className={`stk stk--${variant}`}>
-      <BlockHeader title="Трюки" />
+    <section className="stk">
+      <div className="stk__head">
+        <BlockHeader title="Трюки" />
+        <button
+          type="button"
+          className="stk__add"
+          onClick={() => setEditor({ mode: 'new' })}
+          disabled={atLimit}
+          aria-label="Добавить трюк"
+          title={atLimit ? 'Все пять трюков записаны' : 'Добавить трюк'}
+        >
+          <span aria-hidden="true">+</span>
+        </button>
+      </div>
 
-      {variant === 'scroll' && (
-        <ul className="stk__scroll">
-          {stunts.map((stunt) => (
-            <li className="stk__scroll-row" key={stunt.name}>
-              <p className="stk__scroll-text">
-                <b className="stk__scroll-name">{stunt.name}.</b> {stunt.text}
-              </p>
-            </li>
-          ))}
-        </ul>
-      )}
-
-      {variant === 'cards' && (
+      {items.length > 0 ? (
         <div className="stk__cards">
-          {stunts.map((stunt) => (
-            <article className="stk__card" key={stunt.name}>
-              <h3 className="stk__card-name">{stunt.name}</h3>
-              <p className="stk__card-text">{stunt.text}</p>
+          {items.map((item) => (
+            <article className="stk__card" key={item.id}>
+              <h3 className="stk__card-name">{item.name}</h3>
+              <p className="stk__card-text">{item.text}</p>
+              <span className="stk__card-edit" aria-hidden="true">
+                ✎
+              </span>
+              <button
+                type="button"
+                className="stk__card-hit"
+                aria-label={`Изменить трюк «${item.name}»`}
+                onClick={() => setEditor({ mode: 'edit', id: item.id })}
+              />
             </article>
           ))}
         </div>
+      ) : (
+        <p className="stk__empty">Пока пусто. Нажми «+» в углу блока, чтобы добавить трюк.</p>
       )}
 
-      {variant === 'register' && (
-        <dl className="stk__reg">
-          {stunts.map((stunt) => (
-            <div className="stk__reg-row" key={stunt.name}>
-              <dt className="stk__reg-name">{stunt.name}</dt>
-              <dd className="stk__reg-text">{stunt.text}</dd>
-            </div>
-          ))}
-        </dl>
+      {atLimit && (
+        <p className="stk__limit">Все пять трюков записаны — больше добавить нельзя.</p>
+      )}
+
+      {editor && (editor.mode === 'new' || current) && (
+        <StuntModal
+          key={editor.mode === 'edit' ? editor.id : 'new'}
+          variant={modal}
+          mode={editor.mode}
+          initial={current ? { name: current.name, text: current.text } : { name: '', text: '' }}
+          count={items.length}
+          baseRefresh={baseRefresh}
+          onSave={save}
+          onDelete={editor.mode === 'edit' ? remove : undefined}
+          onClose={closeEditor}
+        />
       )}
     </section>
   );

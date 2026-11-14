@@ -6,7 +6,8 @@
 
 /* Ширина 588 px и поле 34 px дают те же 520 px строки, что и правая
    страница книги на большом экране. Рамка рисуется снаружи, чтобы
-   не отнимать ширину у блока. */
+   не отнимать ширину у блока. Бумага — пергамент поверх текстуры,
+   как у страниц полного листа. */
 .stk-page {
   width: 100%;
   padding: clamp(20px, 2.6vw, 34px);
@@ -18,6 +19,6 @@
   outline-offset: 3px;
   box-shadow:
     inset 14px 0 18px -18px color-mix(in srgb, var(--text-ink-primary) 55%, transparent),
-    0 18px 44px color-mix(in srgb, black 52%, transparent),
-    0 3px 10px color-mix(in srgb, black 30%, transparent);
+    0 18px 44px color-mix(in srgb, var(--text-ink-primary) 52%, transparent),
+    0 3px 10px color-mix(in srgb, var(--text-ink-primary) 30%, transparent);
 }
