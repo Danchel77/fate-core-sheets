@@ -231,22 +231,7 @@ export function SkillsEditor({ variant = 1, initial, initialLevel = 4 }: Props) 
                 <div className="ske__lvc" aria-label={`Уровень ${level}, свободных очков ${free}`}>
                   <span className="ske__lv-line">
                     <span className="ske__lv-label">Уровень</span>
-                    <span className="ske__lvnum">{level}</span>
-                  </span>
-                  <span className={`ske__lv-free${free < 0 ? ' ske__lv-free--debt' : ''}`}>
-                    {free > 0 && (
-                      <>
-                        Доступно очков <b className="ske__lv-free-num">{free}</b>
-                      </>
-                    )}
-                    {free < 0 && (
-                      <>
-                        Не хватает <b className="ske__lv-free-num">{Math.abs(free)}</b> {debtWord}
-                      </>
-                    )}
-                    {free === 0 && 'Все очки вложены'}
-                  </span>
-                  <span className="ske__lvstep">
+                    <span className="ske__lvstep">
                     <button
                       type="button"
                       className="ske__step"
@@ -268,6 +253,22 @@ export function SkillsEditor({ variant = 1, initial, initialLevel = 4 }: Props) 
                       ↓
                     </button>
                   </span>
+                    <span className="ske__lvnum">{level}</span>
+                  </span>
+                  <span className={`ske__lv-free${free < 0 ? ' ske__lv-free--debt' : ''}`}>
+                    {free > 0 && (
+                      <>
+                        Доступно очков <b className="ske__lv-free-num">{free}</b>
+                      </>
+                    )}
+                    {free < 0 && (
+                      <>
+                        Не хватает <b className="ske__lv-free-num">{Math.abs(free)}</b> {debtWord}
+                      </>
+                    )}
+                    {free === 0 && 'Все очки вложены'}
+                  </span>
+                  
                 </div>
               )}
             </div>

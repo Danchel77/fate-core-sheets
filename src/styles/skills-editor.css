@@ -280,30 +280,18 @@
   color: var(--ac-ink);
 }
 
-/* Стрелки уровня — абсолютные, места не занимают; без рамки и подложки. */
+/* Стрелки уровня — вплотную к числу, без рамки и подложки. */
 
 .ske__lvstep {
-  position: absolute;
-  right: 100%;
-  top: 50%;
-  transform: translateY(-50%);
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   gap: 0;
-  margin-right: 3px;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.12s;
-}
-
-.ske__lvc:hover .ske__lvstep,
-.ske__lvc:focus-within .ske__lvstep {
-  opacity: 1;
-  pointer-events: auto;
+  align-self: flex-end;
+  margin: 0 0 1px 0;
 }
 
 .ske__step {
-  width: 17px;
+  width: 15px;
   height: 17px;
   display: grid;
   place-items: center;
@@ -456,8 +444,4 @@
 /* На тач-экранах нет наведения: крестик и стрелки уровня видны всегда. */
 @media (hover: none), (max-width: 560px) {
   .ske__del,
-  .ske__lvstep {
-    opacity: 1;
-    pointer-events: auto;
-  }
 }
