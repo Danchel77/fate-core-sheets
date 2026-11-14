@@ -1,13 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { Aspect } from '../data/demoCharacter';
 import { BlockHeader } from './BlockHeader';
-import { Hint, type HintVariant } from './Hint';
-
-/**
- * Как разделить два подписанных якоря и три свободных поля внутри ОДНОГО блока.
- * marks — приём из списков с ромбами, оставлен как заготовка для будущих списков.
- */
-export type AspectVariant = 'strong' | 'double' | 'gap' | 'marks';
+import { Hint } from './Hint';
 
 const HINTS: Record<string, string> = {
   'Концепция':
@@ -59,12 +53,10 @@ function AutoTextarea({ value, onChange, placeholder, label }: AutoTextareaProps
 
 type Props = {
   aspects: Aspect[];
-  hintVariant: HintVariant;
-  variant: AspectVariant;
 };
 
-/** Блок «Аспекты»: один блок, два якоря с подписями и три свободные строки. */
-export function AspectBlock({ aspects, hintVariant, variant }: Props) {
+/** Блок «Аспекты»: два якоря с подписями и три свободные строки. */
+export function AspectBlock({ aspects }: Props) {
   const [values, setValues] = useState(aspects.map((aspect) => aspect.text));
 
   const setValue = (index: number, text: string) => {
@@ -73,24 +65,17 @@ export function AspectBlock({ aspects, hintVariant, variant }: Props) {
 
   const anchors = aspects.slice(0, 2);
   const free = aspects.slice(2);
-  const hasDivider = variant !== 'marks';
 
   return (
-    <section className={`ablock ablock--${variant}`}>
-      <BlockHeader variant="lozenge" title="Аспекты" />
+    <section className="ablock">
+      <BlockHeader title="Аспекты" />
       <div className="ablock__list">
         {anchors.map((aspect, index) => (
           <div
-            className={`arow arow--anchor${
-              hasDivider && index === anchors.length - 1 ? ' arow--last-anchor' : ''
-            }`}
+            className={`arow arow--anchor${index === anchors.length - 1 ? ' arow--last-anchor' : ''}`}
             key={`${aspect.label}-${index}`}
           >
-            <Hint
-              variant={hintVariant}
-              title={aspect.label}
-              text={HINTS[aspect.label] ?? ''}
-            >
+            <Hint title={aspect.label} text={HINTS[aspect.label] ?? ''}>
               {aspect.label}
             </Hint>
             <AutoTextarea
@@ -102,16 +87,13 @@ export function AspectBlock({ aspects, hintVariant, variant }: Props) {
           </div>
         ))}
 
-        {hasDivider && (
-          <div className="ablock__divider" aria-hidden="true">
-            <span />
-          </div>
-        )}
+        <div className="ablock__divider" aria-hidden="true">
+          <span />
+        </div>
 
         <div className="ablock__free">
           {free.map((_, index) => (
             <div className="arow arow--free" key={`free-${index}`}>
-              {variant === 'marks' && <span className="arow__mark" aria-hidden="true" />}
               <AutoTextarea
                 value={values[index + 2]}
                 onChange={(text) => setValue(index + 2, text)}

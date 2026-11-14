@@ -49,8 +49,8 @@ export default function SkillsVariants() {
         <p className="variant__caption">Блок «Навыки», вариант 1</p>
         <div className="book">
           <div className="page page--left">
-            <CharacterBlock variant="lozenge" hintVariant="side" nameStyle="smallcaps" />
-            <AspectBlock aspects={demoCharacter.aspects} hintVariant="side" variant="strong" />
+            <CharacterBlock />
+            <AspectBlock aspects={demoCharacter.aspects} />
           </div>
           <div className="page page--right">
             <SkillsEditor initial={ROWS} initialLevel={4} />

@@ -59,12 +59,14 @@ If running automated browser checks (Playwright), verify ONLY objective layout g
 ## 5. Repository Layout
 ```
 /                     AGENTS.md, project.md, design.md, fate_core_rules.md, README.md
-/src                  приложение
+/src                  приложение (React + TS)
 /src/styles/tokens.css  единственный источник цветов и шрифтов
-/src/domain           правила Fate Core в коде (навыки, пирамида, стресс)
-/src/storage          CharacterStorage + IndexedDB-адаптер
-/public/assets        textures/ frames/ icons/ + CREDITS.md
-/docs                 заметки по этапам (не источник истины)
+/src/components       блоки листа: CharacterBlock, AspectBlock, SkillsEditor, Hint, PortraitPlate, BlockHeader
+/src/screens          SheetScreen — собранный веб-лист
+/src/preview          рабочие страницы блоков: SkillsVariants (#skills), Wireframe (#print)
+/src/data             demoCharacter.ts — демо-герой
+/public/assets        textures/ frames/ portraits/ + CREDITS.md
+/scratch              временные скрипты и скриншоты (в git не попадает)
 ```
 
 ## 6. Forbidden
@@ -73,3 +75,5 @@ If running automated browser checks (Playwright), verify ONLY objective layout g
 - Коммитить токены, ключи, `.env`, `node_modules`, `dist`, `.scratch`.
 - Молча добавлять новые `[TBD]` или принимать решения за пользователя по продуктовым вопросам.
 - Автоматически оценивать «красоту» скриптами.
+- Оставлять после проверки запущенными `vite preview` и браузер Playwright: снял скриншот — погаси процесс.
+- Делать скриншоты с `deviceScaleFactor` больше 1: показывать пользователю только 1:1, иначе масштаб на картинке не совпадает с живой страницей.

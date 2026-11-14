@@ -24,31 +24,28 @@ const MARGIN = 10;
 const GAP = 10;
 const POINTER_SIZE = 5.5;
 
-export type HintVariant = 'pointer' | 'float' | 'side';
-
-type Placement = 'top' | 'bottom' | 'left' | 'right';
+type Side = 'right' | 'left';
 
 type Pos = {
   top: number;
   left: number;
-  placement: Placement;
-  /** Смещение ромба-указателя в координатах плашки. */
+  side: Side;
+  /** Смещение ромба-указателя по вертикали в координатах плашки. */
   offset: number;
 };
 
 type Props = {
-  variant: HintVariant;
   title: string;
   text: string;
   children: ReactNode;
 };
 
 /**
- * Слово-подсказка: затухающее подчёркивание, по наведению или клику всплывает
- * плашка с тем же видом, что у заголовков листа. Плашка рендерится в портал
- * поверх страницы, поэтому не ломает вёрстку и не обрезается блоками.
+ * Слово-подсказка: затухающее подчёркивание, по наведению или клику справа
+ * всплывает плашка в духе листа. Плашка рендерится в портал поверх страницы,
+ * поэтому не ломает вёрстку и не обрезается блоками.
  */
-export function Hint({ variant, title, text, children }: Props) {
+export function Hint({ title, text, children }: Props) {
   const id = useId();
   const triggerRef = useRef<HTMLButtonElement>(null);
   const popRef = useRef<HTMLDivElement>(null);
@@ -88,57 +85,29 @@ export function Hint({ variant, title, text, children }: Props) {
     const vw = window.innerWidth;
     const vh = window.innerHeight;
 
-    let placement: Placement = variant === 'side' ? 'right' : 'top';
-    let top = 0;
-    let left = 0;
-    let offset = 0;
-
-    if (placement === 'top') {
-      top = t.top - p.height - GAP;
-      if (top < MARGIN) {
-        placement = 'bottom';
-        top = t.bottom + GAP;
-      }
-      const centered = t.left + t.width / 2 - p.width / 2;
-      const fitsLeft = t.left - 12 >= MARGIN;
-      const fitsRight = t.right - p.width + 12 <= vw - MARGIN;
-      if (centered >= MARGIN && centered + p.width <= vw - MARGIN) {
-        left = centered;
-      } else if (fitsLeft) {
-        left = t.left - 12;
-      } else if (fitsRight) {
-        left = t.right - p.width + 12;
-      } else {
-        left = centered;
-      }
-    } else {
-      left = t.right + GAP;
-      if (left + p.width > vw - MARGIN) {
-        placement = 'left';
-        left = t.left - p.width - GAP;
-      }
-      top = t.top + t.height / 2 - p.height / 2;
+    let side: Side = 'right';
+    let left = t.right + GAP;
+    if (left + p.width > vw - MARGIN) {
+      side = 'left';
+      left = t.left - p.width - GAP;
     }
+    let top = t.top + t.height / 2 - p.height / 2;
 
     left = Math.min(Math.max(MARGIN, left), vw - p.width - MARGIN);
     top = Math.min(Math.max(MARGIN, top), vh - p.height - MARGIN);
 
-    if (placement === 'top' || placement === 'bottom') {
-      offset = Math.min(
-        Math.max(16, t.left + t.width / 2 - left),
-        p.width - 16,
-      );
-    } else {
-      offset = Math.min(Math.max(16, t.top + t.height / 2 - top), p.height - 16);
-    }
+    const offset = Math.min(
+      Math.max(16, t.top + t.height / 2 - top),
+      p.height - 16,
+    );
 
     setPos({
       top: top + window.scrollY,
       left: left + window.scrollX,
-      placement,
+      side,
       offset,
     });
-  }, [open, variant]);
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;
@@ -187,12 +156,6 @@ export function Hint({ variant, title, text, children }: Props) {
     show();
   };
 
-  const pointerStyle = pos
-    ? pos.placement === 'top' || pos.placement === 'bottom'
-      ? { left: pos.offset - POINTER_SIZE }
-      : { top: pos.offset - POINTER_SIZE }
-    : undefined;
-
   return (
     <>
       <button
@@ -218,7 +181,7 @@ export function Hint({ variant, title, text, children }: Props) {
             ref={popRef}
             id={id}
             role="tooltip"
-            className={`hint-pop hint-pop--${variant} hint-pop--${pos?.placement ?? 'top'}`}
+            className={`hint-pop hint-pop--${pos?.side ?? 'right'}`}
             style={{
               top: pos?.top ?? 0,
               left: pos?.left ?? 0,
@@ -242,7 +205,11 @@ export function Hint({ variant, title, text, children }: Props) {
             ))}
             <span className="hint-pop__title">{title}</span>
             <span className="hint-pop__text">{text}</span>
-            <span className="hint-pop__pointer" aria-hidden="true" style={pointerStyle} />
+            <span
+              className="hint-pop__pointer"
+              aria-hidden="true"
+              style={pos ? { top: pos.offset - POINTER_SIZE } : undefined}
+            />
           </div>,
           document.body,
         )}

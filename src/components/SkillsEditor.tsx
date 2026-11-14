@@ -25,12 +25,10 @@ export const SKILL_POOL = [
 ] as const;
 
 export type InitRow = { value: number; skills: string[] };
-export type SkillsEditorVariant = 1 | 2 | 3;
 
 type Row = { value: number; skills: string[] };
 
 type Props = {
-  variant?: SkillsEditorVariant;
   initial: InitRow[];
   initialLevel?: number;
 };
@@ -84,7 +82,7 @@ function UpArrow() {
 }
 
 /** Интерактивная пирамида навыков: слоты стартовой пирамиды, уровень и свободные очки. */
-export function SkillsEditor({ variant = 1, initial, initialLevel = 4 }: Props) {
+export function SkillsEditor({ initial, initialLevel = 4 }: Props) {
   const [rows, setRows] = useState<Row[]>(() => buildRows(initial));
   const [level, setLevel] = useState(initialLevel);
   const [menuRank, setMenuRank] = useState<number | null>(null);
@@ -174,9 +172,8 @@ export function SkillsEditor({ variant = 1, initial, initialLevel = 4 }: Props) 
   const debtWord = Math.abs(free) === 1 ? 'очка' : 'очков';
 
   return (
-    <section className={`ske ske--v${variant}`}>
+    <section className="ske">
       <BlockHeader
-        variant="lozenge"
         title="Навыки"
         aside={
           <button

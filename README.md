@@ -2,6 +2,8 @@
 
 Веб-сервис для создания, хранения и печати листов персонажей по системе **Fate Core**: пошаговый конструктор, веб-версия листа и печатный бланк формата A4 (альбомная ориентация).
 
+Сайт: https://danchel77.github.io/fate-core-sheets/
+
 ## Документы проекта
 
 | Файл | Что внутри |
@@ -27,14 +29,27 @@ npm run build    # проверка типов + сборка
 npm run preview  # посмотреть собранную версию
 ```
 
+Сборка — только через `npm`; в репозитории нет Bun-локов.
+
+## Маршруты
+
+| Адрес | Что открывается |
+|---|---|
+| `/` | собранный веб-лист (демо-персонаж) |
+| `#skills` | рабочий блок «Навыки» (страница поблочной доводки) |
+| `#print` | скелет печатного листа A4 |
+
 ## Структура
 
 ```
-src/            приложение
-src/styles/     tokens.css, global.css
-src/domain/     правила Fate Core в коде
-src/storage/    хранение персонажей
-public/assets/  текстуры, рамки, иконки + CREDITS.md
+src/                  приложение
+src/components/       блоки листа: CharacterBlock, AspectBlock, SkillsEditor,
+                      Hint, PortraitPlate, BlockHeader
+src/screens/          SheetScreen — собранный веб-лист
+src/preview/          рабочие страницы блоков (SkillsVariants, Wireframe)
+src/data/             demoCharacter.ts — демо-герой
+src/styles/           tokens.css — единственный источник цветов и шрифтов
+public/assets/        textures/ frames/ portraits/ + CREDITS.md
 ```
 
-Сайт: https://danchel77.github.io/fate-core-sheets/
+`references/` — мудборд (в git не входит), `.scratch/` — временные скрипты и скриншоты.

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Hint, type HintVariant } from './Hint';
+import { Hint } from './Hint';
 
 const FATE_POINTS_HINT =
   'Валюта истории. Отдай жетон, чтобы воспользоваться аспектом: +2 к броску или переброс.';
@@ -8,7 +8,6 @@ const REFRESH_HINT = 'Сколько жетонов судьбы герой по
 type Props = {
   initial: number;
   refresh: number;
-  hintVariant: HintVariant;
   max?: number;
 };
 
@@ -16,7 +15,7 @@ type Props = {
  * Жетоны судьбы: кликабельные кружки + значение обновления.
  * Повторный клик по последнему заполненному снимает один жетон.
  */
-export function FatePoints({ initial, refresh, hintVariant, max = 5 }: Props) {
+export function FatePoints({ initial, refresh, max = 5 }: Props) {
   const [value, setValue] = useState(initial);
 
   const pick = (index: number) => {
@@ -27,12 +26,12 @@ export function FatePoints({ initial, refresh, hintVariant, max = 5 }: Props) {
     <div className="fp">
       <div className="fp__head">
         <span className="fp__label">
-          <Hint variant={hintVariant} title="Жетоны судьбы" text={FATE_POINTS_HINT}>
+          <Hint title="Жетоны судьбы" text={FATE_POINTS_HINT}>
             Жетоны судьбы
           </Hint>
         </span>
         <span className="fp__refresh">
-          <Hint variant={hintVariant} title="Обновление" text={REFRESH_HINT}>
+          <Hint title="Обновление" text={REFRESH_HINT}>
             Обновление
           </Hint>{' '}
           <b>{refresh}</b>

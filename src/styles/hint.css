@@ -1,4 +1,4 @@
-/* Подсказка: затухающее подчёркивание и всплывающая плашка в духе листа. */
+/* Подсказка: затухающее подчёркивание и всплывающая плашка справа. */
 
 .hint__word {
   position: relative;
@@ -51,8 +51,8 @@
   background-color: color-mix(in srgb, var(--bg-parchment) 86%, #fffdf6 14%);
   border: 1px solid color-mix(in srgb, var(--accent-gold-deep) 68%, transparent);
   box-shadow:
-    0 16px 32px rgba(30, 20, 8, 0.34),
-    0 3px 9px rgba(30, 20, 8, 0.22),
+    0 12px 26px rgba(30, 20, 8, 0.3),
+    0 2px 7px rgba(30, 20, 8, 0.2),
     inset 0 1px 0 rgba(255, 255, 255, 0.55);
   animation: hint-in 0.13s ease-out;
 }
@@ -69,22 +69,6 @@
   from {
     opacity: 0;
     transform: translateY(-4px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.hint-pop--bottom {
-  animation-name: hint-in-up;
-}
-
-@keyframes hint-in-up {
-  from {
-    opacity: 0;
-    transform: translateY(4px);
   }
 
   to {
@@ -163,33 +147,15 @@
   bottom: 3px;
 }
 
-/* ромб-указатель: виден у вариантов «pointer» и «side» */
+/* ромб-указатель на слове */
 
 .hint-pop__pointer {
   position: absolute;
   z-index: 1;
-  display: none;
   width: 11px;
   height: 11px;
   background-color: color-mix(in srgb, var(--bg-parchment) 86%, #fffdf6 14%);
   transform: rotate(45deg);
-}
-
-.hint-pop--pointer .hint-pop__pointer,
-.hint-pop--side .hint-pop__pointer {
-  display: block;
-}
-
-.hint-pop--top .hint-pop__pointer {
-  bottom: -6px;
-  border-right: 1px solid color-mix(in srgb, var(--accent-gold-deep) 68%, transparent);
-  border-bottom: 1px solid color-mix(in srgb, var(--accent-gold-deep) 68%, transparent);
-}
-
-.hint-pop--bottom .hint-pop__pointer {
-  top: -6px;
-  border-top: 1px solid color-mix(in srgb, var(--accent-gold-deep) 68%, transparent);
-  border-left: 1px solid color-mix(in srgb, var(--accent-gold-deep) 68%, transparent);
 }
 
 .hint-pop--right .hint-pop__pointer {
@@ -202,18 +168,4 @@
   right: -6px;
   border-top: 1px solid color-mix(in srgb, var(--accent-gold-deep) 68%, transparent);
   border-right: 1px solid color-mix(in srgb, var(--accent-gold-deep) 68%, transparent);
-}
-
-/* варианты всплывания */
-
-.hint-pop--float {
-  box-shadow:
-    0 22px 44px rgba(30, 20, 8, 0.4),
-    0 4px 12px rgba(30, 20, 8, 0.24);
-}
-
-.hint-pop--side {
-  box-shadow:
-    0 12px 26px rgba(30, 20, 8, 0.3),
-    0 2px 7px rgba(30, 20, 8, 0.2);
 }

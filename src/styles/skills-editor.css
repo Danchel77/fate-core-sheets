@@ -1,30 +1,12 @@
-/* Пирамида навыков: слоты стартовой пирамиды, уровень, свободные очки.
-   Три облика различаются акцентом и подачей блока уровня. */
+/* Пирамида навыков: слоты стартовой пирамиды, уровень, свободные очки. */
 
 .ske {
   position: relative;
   display: flex;
   flex-direction: column;
-}
-
-/* Акцент действия: стрелки, «+ навык», остаток очков. */
-
-.ske--v1 {
   --ac: var(--accent-gold-deep);
   --ac-strong: var(--accent-gold-action);
   --ac-ink: var(--accent-gold-ink);
-}
-
-.ske--v2 {
-  --ac: var(--accent-crimson);
-  --ac-strong: var(--accent-crimson-action);
-  --ac-ink: var(--accent-crimson-ink);
-}
-
-.ske--v3 {
-  --ac: var(--accent-moss-action);
-  --ac-strong: var(--accent-moss-action);
-  --ac-ink: var(--accent-moss-ink);
 }
 
 .ske__body {
@@ -323,7 +305,7 @@
 }
 
 .ske__lv-label {
-  transform: translateX(11.5px);
+  transform: translateX(8.5px);
   font-family: var(--font-body);
   font-size: 8.5px;
   font-weight: 700;
@@ -420,22 +402,6 @@
   letter-spacing: 0;
 }
 
-/* ── Облики блока уровня ────────────────────────────────── */
-
-.ske--v2 .ske__lvc {
-  padding-left: 10px;
-  border-left: 2px solid var(--ac);
-}
-
-.ske--v3 .ske__lvc {
-  padding: 1px 4px 3px 12px;
-  border-bottom: 1px double color-mix(in srgb, var(--ac) 55%, transparent);
-}
-
-.ske--v3 .ske__lv-label {
-  color: var(--ac-ink);
-}
-
 /* ── Меню навыков ───────────────────────────────────────── */
 
 .ske__scrim {
@@ -510,10 +476,6 @@
   .ske__name,
   .ske__slot {
     font-size: 11px;
-  }
-
-  .ske--v2 .ske__lvc {
-    padding-left: 8px;
   }
 }
 
