@@ -1,9 +1,30 @@
-/* Интерактивная пирамида навыков: три облика верхней строки. */
+/* Пирамида навыков: слоты стартовой пирамиды, уровень, свободные очки.
+   Три облика различаются акцентом и подачей блока уровня. */
 
 .ske {
   position: relative;
   display: flex;
   flex-direction: column;
+}
+
+/* Акцент действия: стрелки, «+ навык», остаток очков. */
+
+.ske--v1 {
+  --ac: var(--accent-gold-deep);
+  --ac-strong: var(--accent-gold-action);
+  --ac-ink: var(--accent-gold-ink);
+}
+
+.ske--v2 {
+  --ac: var(--accent-crimson);
+  --ac-strong: var(--accent-crimson-action);
+  --ac-ink: var(--accent-crimson-ink);
+}
+
+.ske--v3 {
+  --ac: var(--accent-moss-action);
+  --ac-strong: var(--accent-moss-action);
+  --ac-ink: var(--accent-moss-ink);
 }
 
 .ske__body {
@@ -22,18 +43,17 @@
 
 .ske__row--top {
   grid-template-columns: 46px minmax(0, 1fr) auto;
-  padding-top: 20px;
-  padding-bottom: 7px;
+  padding-top: 18px;
+  padding-bottom: 5px;
 }
 
 .ske__row + .ske__row {
   border-top: 1px solid color-mix(in srgb, var(--accent-gold) 20%, transparent);
 }
 
-/* ── Ступень ─────────────────────────────────────────────── */
+/* ── Ступень и кнопки +/− ──────────────────────────────── */
 
 .ske__rank {
-  position: relative;
   font-family: var(--font-body);
   font-size: 12px;
   font-weight: 700;
@@ -43,34 +63,14 @@
   color: var(--accent-gold-deep);
 }
 
-/* +/− над крайней ступенью, без отдельной строки */
-
 .ske__rankctl {
   position: absolute;
   top: 0;
+  left: 8px;
   display: flex;
-  gap: 2px;
-  z-index: 3;
-}
-
-.ske--v1 .ske__rankctl {
-  left: 16px;
-  flex-direction: column;
-}
-
-.ske--v2 .ske__rankctl {
-  left: 9px;
-  top: 5px;
   flex-direction: row;
-}
-
-.ske--v3 .ske__rankctl {
-  left: 15px;
-  flex-direction: column;
-  overflow: hidden;
-  border: 1px solid color-mix(in srgb, var(--accent-gold) 48%, transparent);
-  border-radius: 7px;
-  background: color-mix(in srgb, var(--bg-parchment) 72%, transparent);
+  gap: 3px;
+  z-index: 3;
 }
 
 .ske__rankbtn {
@@ -79,10 +79,10 @@
   display: grid;
   place-items: center;
   padding: 0;
-  border: 1px solid color-mix(in srgb, var(--accent-gold) 42%, transparent);
+  border: 1px solid color-mix(in srgb, var(--ac) 48%, transparent);
   border-radius: 2px;
   background: color-mix(in srgb, var(--bg-parchment) 62%, transparent);
-  color: var(--accent-gold-deep);
+  color: var(--ac-ink);
   font-family: var(--font-body);
   font-size: 11px;
   font-weight: 700;
@@ -92,7 +92,7 @@
 }
 
 .ske__rankbtn:hover:not(:disabled) {
-  background: color-mix(in srgb, var(--accent-gold) 22%, var(--bg-parchment));
+  background: color-mix(in srgb, var(--ac-strong) 20%, var(--bg-parchment));
   color: var(--text-ink-primary);
 }
 
@@ -101,32 +101,14 @@
   cursor: default;
 }
 
-.ske--v2 .ske__rankbtn {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  font-size: 10px;
-}
-
-.ske--v3 .ske__rankbtn {
-  width: 13px;
-  height: 11px;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  font-size: 10px;
-}
-
-.ske--v3 .ske__rankbtn + .ske__rankbtn {
-  border-top: 1px solid color-mix(in srgb, var(--accent-gold) 34%, transparent);
-}
-
-/* ── Карточки навыков ───────────────────────────────────── */
+/* ── Карточки и слоты ──────────────────────────────────── */
 
 .ske__grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
+  align-content: start;
   gap: 2px;
+  min-height: 36px;
 }
 
 .ske__block {
@@ -142,7 +124,7 @@
 
 .ske__name {
   max-width: 100%;
-  padding: 0 9px;
+  padding: 0 20px 0 9px;
   font-family: var(--font-body);
   font-size: 11.5px;
   line-height: 1.06;
@@ -181,59 +163,86 @@
   background: color-mix(in srgb, var(--accent-crimson) 14%, transparent);
 }
 
+/* Стрелка подъёма — яркая, всегда на виду, пока есть очко. */
+
 .ske__up {
   position: absolute;
   right: 2px;
   bottom: 1px;
-  width: 13px;
-  height: 13px;
+  width: 15px;
+  height: 15px;
   display: grid;
   place-items: center;
   padding: 0;
   border: 0;
   border-radius: 50%;
-  background: color-mix(in srgb, var(--accent-gold) 18%, transparent);
-  color: var(--accent-gold-deep);
+  background: var(--ac-strong);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, #fff 38%, transparent),
+    0 1px 2px color-mix(in srgb, var(--ac-ink) 45%, transparent);
+  color: var(--bg-parchment);
   font-family: var(--font-body);
   font-size: 10px;
+  font-weight: 700;
   line-height: 1;
   cursor: pointer;
-  transition: background 0.12s, color 0.12s;
+  transition: transform 0.12s, filter 0.12s;
 }
 
 .ske__up:hover {
-  background: color-mix(in srgb, var(--accent-gold) 36%, transparent);
-  color: var(--text-ink-primary);
+  filter: brightness(1.12);
+  transform: translateY(-1px);
 }
 
-.ske__add {
+/* Пустой слот стартовой пирамиды. */
+
+.ske__slot {
   height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 0;
-  border: 1px dashed color-mix(in srgb, var(--accent-gold) 52%, transparent);
+  border: 1px dashed color-mix(in srgb, var(--ac) 40%, transparent);
   border-radius: 2px;
   background: transparent;
-  color: color-mix(in srgb, var(--accent-gold-deep) 82%, var(--text-ink-primary));
+  color: color-mix(in srgb, var(--ac-ink) 70%, transparent);
   font-family: var(--font-body);
-  font-size: 12px;
-  font-style: italic;
+  font-size: 11.5px;
+  font-weight: 400;
+  cursor: default;
+  transition: background 0.12s, color 0.12s, border-color 0.12s;
+}
+
+.ske__slot--ready {
+  border-color: var(--ac-strong);
+  background: color-mix(in srgb, var(--ac-strong) 9%, transparent);
+  color: var(--ac-ink);
+  font-weight: 600;
   cursor: pointer;
-  transition: background 0.12s;
 }
 
-.ske__add:hover {
-  background: color-mix(in srgb, var(--accent-gold) 10%, transparent);
+.ske__slot--ready:hover {
+  background: color-mix(in srgb, var(--ac-strong) 18%, transparent);
 }
 
-/* ── Уровень и кошелёк ──────────────────────────────────── */
+/* ── Уровень: фиксированные две строки справа ───────────── */
 
 .ske__lvc {
+  justify-self: end;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 1px;
+  min-height: 36px;
+  padding-left: 12px;
+  padding-right: 4px;
+}
+
+.ske__lv-line {
   display: flex;
   align-items: center;
-  gap: 7px;
-  padding: 0 2px 0 10px;
+  gap: 6px;
 }
 
 .ske__lv-label {
@@ -244,56 +253,58 @@
   line-height: 1;
   text-transform: uppercase;
   color: var(--text-ink-muted);
+  white-space: nowrap;
 }
 
-.ske__lvn {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  gap: 2px;
-}
-
-.ske__lv-num {
-  min-width: 16px;
+.ske__lvnum {
+  min-width: 14px;
   font-family: var(--font-display);
-  font-size: 24px;
+  font-size: 21px;
   font-weight: 600;
   line-height: 1;
   font-variant-numeric: lining-nums;
   font-feature-settings: 'lnum' 1;
   text-align: center;
-  color: var(--accent-gold-deep);
+  color: var(--ac-ink);
 }
+
+/* Стрелки уровня — крупнее, слот зарезервирован. */
 
 .ske__lvstep {
   display: flex;
   flex-direction: column;
-  gap: 1px;
-  width: 12px;
+  gap: 2px;
+  width: 16px;
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.12s;
 }
 
-.ske__lvn:hover .ske__lvstep,
-.ske__lvn:focus-within .ske__lvstep {
+.ske__lvc:hover .ske__lvstep,
+.ske__lvc:focus-within .ske__lvstep {
   opacity: 1;
   pointer-events: auto;
 }
 
 .ske__step {
-  width: 12px;
-  height: 11px;
+  width: 16px;
+  height: 15px;
   display: grid;
   place-items: center;
   padding: 0;
-  border: 0;
-  background: transparent;
-  color: var(--accent-gold-deep);
+  border: 1px solid color-mix(in srgb, var(--ac) 38%, transparent);
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--bg-parchment) 55%, transparent);
+  color: var(--ac-ink);
   font-family: var(--font-body);
-  font-size: 9px;
+  font-size: 12px;
+  font-weight: 700;
   line-height: 1;
   cursor: pointer;
+}
+
+.ske__step:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--ac-strong) 18%, transparent);
 }
 
 .ske__step:disabled {
@@ -301,92 +312,51 @@
   cursor: default;
 }
 
-.ske__step:hover:not(:disabled) {
-  color: var(--text-ink-primary);
-}
+/* Вторая строка: остаток очков. Высота зарезервирована всегда. */
 
-/* Кошелёк — бронзовый кружок с зарезервированным слотом. */
-
-.ske__wallet {
-  width: 21px;
-  height: 21px;
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-  background: radial-gradient(circle at 32% 26%, #c9a45f, #8a6524 68%, #6b4b1e);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.35),
-    0 1px 2px rgba(0, 0, 0, 0.22);
-  color: var(--band-ink);
+.ske__lv-free {
+  min-height: 11px;
   font-family: var(--font-body);
-  font-size: 12px;
+  font-size: 8.5px;
   font-weight: 700;
-  line-height: 1;
-  font-variant-numeric: lining-nums;
+  letter-spacing: 0.1em;
+  line-height: 11px;
+  text-transform: uppercase;
+  color: var(--ac-strong);
+  white-space: nowrap;
 }
 
-.ske__wallet:empty {
-  background: transparent;
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent-gold) 34%, transparent);
+.ske__lv-free--debt {
+  color: var(--accent-crimson-action);
 }
 
-.ske__wallet--debt {
-  background: radial-gradient(circle at 32% 26%, #b9533f, #7a2318 72%);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.28),
-    0 0 0 1px color-mix(in srgb, var(--accent-crimson) 65%, transparent),
-    0 1px 3px rgba(70, 12, 6, 0.35);
-  color: #f8eed9;
-}
-
-/* ── Облики ─────────────────────────────────────────────── */
-
-.ske--v2 .ske__row--top {
-  grid-template-columns: 46px minmax(0, 1fr);
-  padding-top: 12px;
-}
+/* ── Облики блока уровня ────────────────────────────────── */
 
 .ske--v2 .ske__lvc {
-  gap: 5px;
+  padding-left: 10px;
+  border-left: 2px solid var(--ac);
+}
+
+.ske--v3 .ske__lvc {
+  padding: 1px 4px 3px 12px;
+  border-bottom: 1px double color-mix(in srgb, var(--ac) 55%, transparent);
+}
+
+.ske--v3 .ske__lv-label {
+  color: var(--ac-ink);
+}
+
+/* ── Меню навыков ───────────────────────────────────────── */
+
+.ske__scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 11;
   padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: default;
 }
-
-.ske--v2 .ske__lv-num {
-  font-size: 20px;
-}
-
-.ske--v2 .ske__wallet {
-  width: 19px;
-  height: 19px;
-  font-size: 11px;
-}
-
-/* Уровень в ленте заголовка — лёгкая тень, чтобы читался поверх текстуры. */
-
-.bh__aside {
-  position: absolute;
-  top: 50%;
-  right: 46px;
-  z-index: 3;
-  display: flex;
-  transform: translateY(-50%);
-}
-
-.ske--v3 .ske__lv-num {
-  width: 32px;
-  height: 30px;
-  display: grid;
-  place-items: center;
-  border: 1px solid color-mix(in srgb, var(--accent-gold) 46%, transparent);
-  border-radius: 50%;
-  font-size: 19px;
-}
-
-.ske--v3 .ske__wallet {
-  border-radius: 3px;
-}
-
-/* ── Меню «+ навык» ──────────────────────────────────────── */
 
 .ske__menu {
   position: absolute;
@@ -396,12 +366,24 @@
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 2px;
-  width: 300px;
+  width: 310px;
   padding: 8px;
-  border: 1px solid color-mix(in srgb, var(--accent-gold) 45%, transparent);
+  border: 1px solid color-mix(in srgb, var(--ac) 45%, transparent);
   border-radius: 3px;
   background: color-mix(in srgb, var(--bg-parchment) 96%, #fffdf6);
-  box-shadow: 0 14px 30px rgba(28, 18, 8, 0.32);
+  box-shadow: 0 14px 30px color-mix(in srgb, var(--ac-ink) 30%, transparent);
+}
+
+.ske__menu-cap {
+  grid-column: 1 / -1;
+  padding: 0 2px 6px;
+  border-bottom: 1px solid color-mix(in srgb, var(--ac) 30%, transparent);
+  color: var(--ac-ink);
+  font-family: var(--font-body);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
 
 .ske__menu-item {
@@ -418,7 +400,7 @@
 }
 
 .ske__menu-item:hover {
-  background: color-mix(in srgb, var(--accent-gold) 16%, transparent);
+  background: color-mix(in srgb, var(--ac-strong) 16%, transparent);
 }
 
 .ske__menu-empty {
@@ -435,7 +417,12 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .ske__name {
+  .ske__name,
+  .ske__slot {
     font-size: 11px;
+  }
+
+  .ske--v2 .ske__lvc {
+    padding-left: 8px;
   }
 }

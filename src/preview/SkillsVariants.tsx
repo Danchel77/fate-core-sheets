@@ -1,6 +1,6 @@
 import { AspectBlock } from '../components/AspectBlock';
 import { CharacterBlock } from '../components/CharacterBlock';
-import { SkillsEditor, type EditorRow, type SkillsEditorVariant } from '../components/SkillsEditor';
+import { SkillsEditor, type InitRow, type SkillsEditorVariant } from '../components/SkillsEditor';
 import { demoCharacter, type Character } from '../data/demoCharacter';
 import '../styles/sheet.css';
 import '../styles/character-block.css';
@@ -20,34 +20,28 @@ function Placeholder({ title, lines }: { title: string; lines: number }) {
 }
 
 /** Рабочая пирамида: 21 очко, уровень 4 → два свободных очка. */
-const ROWS: EditorRow[] = [
-  { value: 4, skills: [{ name: 'Драка' }] },
-  { value: 3, skills: [{ name: 'Внимательность' }, { name: 'Магия' }] },
-  { value: 2, skills: [{ name: 'Скрытность' }, { name: 'Воля' }, { name: 'Монстрология' }] },
+const ROWS: InitRow[] = [
+  { value: 4, skills: ['Драка'] },
+  { value: 3, skills: ['Внимательность', 'Магия'] },
+  { value: 2, skills: ['Скрытность', 'Воля', 'Монстрология'] },
   {
     value: 1,
-    skills: [
-      { name: 'Атлетика' },
-      { name: 'Верховая езда' },
-      { name: 'Знания' },
-      { name: 'Телосложение' },
-      { name: 'Эмпатия' },
-    ],
+    skills: ['Атлетика', 'Верховая езда', 'Знания', 'Телосложение', 'Эмпатия'],
   },
 ];
 
 const VARIANTS: { id: SkillsEditorVariant; caption: string }[] = [
   {
     id: 1,
-    caption: 'Вариант 1 — «Жёлоб»: +/− столбиком прямо над «+4», уровень в правой части верхней ступени',
+    caption: 'Вариант 1 — «Золото»: акцент янтарный, уровень простыми строками, стрелки в золотых кружках',
   },
   {
     id: 2,
-    caption: 'Вариант 2 — «Шапка»: +/− парой над «+4», уровень с кошельком в ленте заголовка',
+    caption: 'Вариант 2 — «Кармин»: акцент багряный, уровень в плашке с левой линейкой',
   },
   {
     id: 3,
-    caption: 'Вариант 3 — «Печать»: +/− одной пилюлей над «+4», номер уровня в кольце',
+    caption: 'Вариант 3 — «Мох»: акцент тёмно-зелёный, уровень в ярлыке с двойной чертой',
   },
 ];
 
@@ -78,9 +72,9 @@ export default function SkillsVariants() {
       <header className="variants-head">
         <h1>Навыки — три облика верхней строки</h1>
         <p>
-          «+» и «−» над крайней ступенью добавляют и откатывают ступень. Уровень растёт за веху и
-          приносит очко; стрелки ↑ на карточках видны всегда, пока очко есть. Крестик убирает навык
-          и возвращает его очки. Кошелёк справа показывает остаток; минус — красный. Масштаб 1:1.
+          «+» и «−» над крайней ступенью добавляют и откатывают ступень. Слоты стартовой пирамиды
+          остаются на месте: убрали навык — на его месте пустой слот «+ навык». Уровень даёт очко,
+          стрелки ↑ видны, пока очко есть. Второй строкой — остаток очков. Масштаб 1:1.
         </p>
       </header>
 
