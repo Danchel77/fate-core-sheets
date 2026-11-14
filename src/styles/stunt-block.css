@@ -1,0 +1,112 @@
+/* Блок «Трюки»: три варианта подачи перечня (до выбора пользователя). */
+
+.stk {
+  color: var(--text-ink-primary);
+}
+
+/* ── Вариант 1: перечень с ромбами ─────────────────────── */
+
+.stk__scroll {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.stk__scroll-row {
+  position: relative;
+  padding: 6px 2px 7px 22px;
+}
+
+.stk__scroll-row + .stk__scroll-row {
+  border-top: 1px solid color-mix(in srgb, var(--accent-gold) 32%, transparent);
+}
+
+.stk__scroll-row::before {
+  content: '';
+  position: absolute;
+  left: 7px;
+  top: calc(6px + 0.62em);
+  width: 5px;
+  height: 5px;
+  background: color-mix(in srgb, var(--accent-gold-deep) 62%, transparent);
+  transform: rotate(45deg);
+}
+
+.stk__scroll-text {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  line-height: var(--lh-body);
+}
+
+.stk__scroll-name {
+  font-weight: 700;
+}
+
+/* ── Вариант 2: плашки ─────────────────────────────────── */
+
+.stk__cards {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.stk__card {
+  padding: 6px 12px 8px;
+  border: 1px solid color-mix(in srgb, var(--accent-gold) 38%, transparent);
+  background: color-mix(in srgb, var(--bg-parchment) 60%, var(--band-ink) 40%);
+}
+
+.stk__card-name {
+  margin: 0 0 2px;
+  font-family: var(--font-body);
+  font-size: var(--text-caption);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  line-height: 1.25;
+  text-transform: uppercase;
+  color: var(--accent-gold-ink);
+}
+
+.stk__card-text {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  line-height: var(--lh-body);
+}
+
+/* ── Вариант 3: реестр в две колонки ───────────────────── */
+
+.stk__reg {
+  margin: 0;
+}
+
+.stk__reg-row {
+  display: grid;
+  grid-template-columns: 150px minmax(0, 1fr);
+  column-gap: 12px;
+  padding: 6px 0 7px;
+}
+
+.stk__reg-row + .stk__reg-row {
+  border-top: 1px solid color-mix(in srgb, var(--accent-gold) 28%, transparent);
+}
+
+.stk__reg-name {
+  padding: 2px 12px 0 0;
+  border-right: 1px solid color-mix(in srgb, var(--accent-gold) 30%, transparent);
+  font-family: var(--font-body);
+  font-size: var(--text-caption);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  line-height: 1.25;
+  text-transform: uppercase;
+  color: var(--accent-gold-ink);
+}
+
+.stk__reg-text {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  line-height: var(--lh-body);
+}
