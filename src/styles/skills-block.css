@@ -1,16 +1,49 @@
-/* Блок «Навыки»: отдельные блоки равного размера, сетка 4 колонки, пирамида влево. */
+/* Блок «Навыки»: блоки равного размера, пирамида влево, переполнение — переносом. */
+
+.skb__meta {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 1px 0 5px 14px;
+  font-family: var(--font-body);
+  font-size: 0.5625rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--text-ink-muted) 76%, transparent);
+}
+
+.skb__meta-value {
+  font-family: var(--font-display);
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0;
+  color: var(--text-ink-primary);
+}
+
+.skb__meta-free {
+  margin-left: auto;
+  padding-right: 2px;
+  color: color-mix(in srgb, var(--text-ink-muted) 62%, transparent);
+}
 
 .skb__row {
   display: grid;
   grid-template-columns: 46px 1fr;
   align-items: center;
-  padding: 4px 0;
+  padding: 5px 0;
+}
+
+.skb__row + .skb__row {
+  border-top: 1px solid color-mix(in srgb, var(--accent-gold) 16%, transparent);
 }
 
 .skb__rank {
   display: flex;
   flex-direction: column;
-  padding-left: 14px;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
 }
 
 .skb__value {
@@ -33,14 +66,16 @@
 .skb__block {
   display: flex;
   align-items: center;
+  justify-content: center;
   min-height: 30px;
-  padding: 0 7px;
+  padding: 0 8px;
   border: 1px solid color-mix(in srgb, var(--accent-gold) 38%, transparent);
   border-radius: 2px;
   background: color-mix(in srgb, var(--bg-parchment) 86%, #fffdf6 14%);
   font-family: var(--font-body);
   font-size: var(--text-caption);
   line-height: 1.15;
+  text-align: center;
   color: var(--text-ink-primary);
   white-space: nowrap;
 }
@@ -63,6 +98,7 @@
 .skb__row--levels .skb__rank {
   flex-direction: row;
   align-items: baseline;
+  justify-content: flex-start;
   gap: 9px;
   padding: 0 0 5px 2px;
 }

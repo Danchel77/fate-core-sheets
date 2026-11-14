@@ -1,5 +1,6 @@
 import type { LadderRow } from '../data/demoCharacter';
 import { BlockHeader } from './BlockHeader';
+import { Hint, type HintVariant } from './Hint';
 
 /** Три варианта сетки из отдельных блоков: пирамида прижата влево. */
 export type SkillsVariant = 'tiles' | 'flush' | 'levels';
@@ -16,13 +17,34 @@ const LEVEL_NAMES: Record<number, string> = {
 type Props = {
   ladder: LadderRow[];
   variant: SkillsVariant;
+  hintVariant?: HintVariant;
+  mastery?: number;
+  free?: number;
 };
 
-/** Блок «Навыки»: навыки — отдельные блоки равного размера, выровненные влево. */
-export function SkillsBlock({ ladder, variant }: Props) {
+/** Блок «Навыки»: блоки равного размера, пирамида влево, переполнение — переносом. */
+export function SkillsBlock({
+  ladder,
+  variant,
+  hintVariant = 'side',
+  mastery = 20,
+  free = 0,
+}: Props) {
   return (
     <section className={`skblock skblock--${variant}`}>
       <BlockHeader variant="lozenge" title="Навыки" />
+
+      <div className="skb__meta">
+        <Hint
+          variant={hintVariant}
+          title="Мастерство"
+          text="Сколько очков вложено в навыки. На старте — 20. После завершения сюжетной арки мастерство растёт на единицу: это очко можно вложить в новый навык или поднять уже имеющийся."
+        >
+          Мастерство
+        </Hint>
+        <span className="skb__meta-value">{mastery}</span>
+        <span className="skb__meta-free">свободно {free}</span>
+      </div>
 
       <div className="skb">
         {ladder.map((row) => (

@@ -37,7 +37,6 @@ export const demoCharacter: Character = {
     { label: 'Переплетение судеб', text: 'Йеннифэр — та, с кем нас связала судьба' },
   ],
   ladder: [
-    { value: 5, skills: [] },
     { value: 4, skills: ['Драка'] },
     { value: 3, skills: ['Внимательность', 'Магия'] },
     { value: 2, skills: ['Скрытность', 'Воля', 'Монстрология'] },
@@ -65,5 +64,28 @@ export const demoCharacter: Character = {
     { value: 2, kind: 'лёгкое' },
     { value: 4, kind: 'среднее' },
     { value: 6, kind: 'серьёзное' },
+  ],
+};
+
+/** Стресс-тест вёрстки: пять навыков на +1 (первая значимая веха). */
+export const overflowCharacter: Character = {
+  ...demoCharacter,
+  ladder: [
+    { value: 4, skills: ['Драка'] },
+    { value: 3, skills: ['Внимательность', 'Магия'] },
+    { value: 2, skills: ['Скрытность', 'Воля', 'Монстрология', 'Ремесло'] },
+    { value: 1, skills: ['Атлетика', 'Верховая езда', 'Знания', 'Телосложение', 'Эмпатия'] },
+  ],
+};
+
+/** Продвинутый герой: планка поднята, ступень +5 доступна. */
+export const advancedCharacter: Character = {
+  ...demoCharacter,
+  ladder: [
+    { value: 5, skills: ['Драка'] },
+    { value: 4, skills: ['Внимательность'] },
+    { value: 3, skills: ['Магия', 'Воля'] },
+    { value: 2, skills: ['Скрытность', 'Монстрология', 'Ремесло'] },
+    { value: 1, skills: ['Атлетика', 'Верховая езда', 'Знания', 'Эмпатия'] },
   ],
 };

@@ -1,27 +1,12 @@
 import { AspectBlock } from '../components/AspectBlock';
 import { CharacterBlock } from '../components/CharacterBlock';
-import { SkillsBlock, type SkillsVariant } from '../components/SkillsBlock';
-import { demoCharacter } from '../data/demoCharacter';
+import { SkillsBlock } from '../components/SkillsBlock';
+import { advancedCharacter, demoCharacter, overflowCharacter, type Character } from '../data/demoCharacter';
 import '../styles/sheet.css';
 import '../styles/character-block.css';
 import '../styles/aspect-block.css';
 import '../styles/skills-block.css';
 import '../styles/hint.css';
-
-const VARIANTS: { id: SkillsVariant; caption: string }[] = [
-  {
-    id: 'tiles',
-    caption: 'Вариант A — плитка: отдельные блоки с зазором, сетка из четырёх колонок',
-  },
-  {
-    id: 'flush',
-    caption: 'Вариант B — кладка: блоки вплотную, разделены тонкими швами пергамента',
-  },
-  {
-    id: 'levels',
-    caption: 'Вариант C — уровни: как A, но у ступени цифра и слово лестницы',
-  },
-];
 
 function Placeholder({ title, lines }: { title: string; lines: number }) {
   return (
@@ -34,17 +19,31 @@ function Placeholder({ title, lines }: { title: string; lines: number }) {
   );
 }
 
-function Spread({ variant, caption }: { variant: SkillsVariant; caption: string }) {
+function Spread({
+  character,
+  caption,
+  mastery,
+}: {
+  character: Character;
+  caption: string;
+  mastery: number;
+}) {
   return (
     <div className="variant">
       <p className="variant__caption">{caption}</p>
       <div className="book">
         <div className="page page--left">
           <CharacterBlock variant="lozenge" hintVariant="side" nameStyle="smallcaps" />
-          <AspectBlock aspects={demoCharacter.aspects} hintVariant="side" variant="strong" />
+          <AspectBlock aspects={character.aspects} hintVariant="side" variant="strong" />
         </div>
         <div className="page page--right">
-          <SkillsBlock ladder={demoCharacter.ladder} variant={variant} />
+          <SkillsBlock
+            ladder={character.ladder}
+            variant="flush"
+            hintVariant="side"
+            mastery={mastery}
+            free={0}
+          />
           <Placeholder title="Трюки" lines={3} />
           <Placeholder title="Дополнения" lines={2} />
           <Placeholder title="Стресс и последствия" lines={2} />
@@ -54,22 +53,34 @@ function Spread({ variant, caption }: { variant: SkillsVariant; caption: string 
   );
 }
 
-/** Навыки: лестница +5…+1 в трёх подачах, в реальном масштабе листа. */
+/** Навыки: «кладка» + поведение на предельных данных. */
 export default function SkillsVariants() {
   return (
     <main className="variants-page">
       <header className="variants-head">
-        <h1>Навыки — три варианта блока</h1>
+        <h1>Навыки — вариант B и предельные данные</h1>
         <p>
-          Навыки — отдельные блоки равного размера, пирамида прижата к левому краю.
-          Одна ступень +4, две +3, три +2, четыре +1; «+5» откроется после развития.
-          Масштаб 1:1.
+          Блоки равного размера, пирамида прижата влево, названия по центру. Если навыков
+          больше четырёх — перенос на вторую строку, подпись ступени остаётся по центру
+          группы. Пустые ступени не показываются. Масштаб 1:1.
         </p>
       </header>
 
-      {VARIANTS.map(({ id, caption }) => (
-        <Spread key={id} variant={id} caption={caption} />
-      ))}
+      <Spread
+        character={demoCharacter}
+        mastery={20}
+        caption="Обычный герой: 20 очков, ступени +4…+1, «+5» ещё нет"
+      />
+      <Spread
+        character={overflowCharacter}
+        mastery={21}
+        caption="Переполнение: пять навыков на +1 после первой значимой вехи"
+      />
+      <Spread
+        character={advancedCharacter}
+        mastery={25}
+        caption="Продвинутый герой: планка поднята, ступень +5 появилась"
+      />
     </main>
   );
 }
