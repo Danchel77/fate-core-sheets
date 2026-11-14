@@ -81,9 +81,6 @@ export function StuntBlock({ stunts, modal = 'plaque', baseRefresh = 3 }: Props)
             <article className="stk__card" key={item.id}>
               <h3 className="stk__card-name">{item.name}</h3>
               <p className="stk__card-text">{item.text}</p>
-              <span className="stk__card-edit" aria-hidden="true">
-                ✎
-              </span>
               <button
                 type="button"
                 className="stk__card-hit"

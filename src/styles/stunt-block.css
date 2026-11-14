@@ -1,4 +1,4 @@
-/* Блок «Трюки»: карточки и «+» в углу заголовка. */
+/* Блок «Трюки»: строки как в блоке аспектов и «+» в углу заголовка. */
 
 .stk {
   color: var(--text-ink-primary);
@@ -24,7 +24,7 @@
   background: color-mix(in srgb, var(--bg-parchment) 86%, var(--accent-gold) 14%);
   color: var(--accent-gold-ink);
   font-family: var(--font-body);
-  font-size: 1.0625rem;
+  font-size: var(--text-body);
   line-height: 1;
   cursor: pointer;
   transition:
@@ -57,39 +57,41 @@
   outline-offset: 2px;
 }
 
-/* ---------- карточки ---------- */
+/* ---------- строки ---------- */
 
 .stk__cards {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 0;
+  padding-top: 2px;
+  border-left: 3px solid var(--accent-gold-deep);
 }
 
 .stk__card {
   position: relative;
   min-width: 0;
-  padding: 6px 12px 8px;
-  border: 1px solid color-mix(in srgb, var(--accent-gold) 38%, transparent);
-  background: color-mix(in srgb, var(--bg-parchment) 60%, var(--band-ink) 40%);
-  transition:
-    background-color var(--transition-fast),
-    border-color var(--transition-fast);
+  padding: 7px 10px 5px 14px;
+  border-bottom: 1px solid color-mix(in srgb, var(--accent-gold) 32%, transparent);
+  background: transparent;
+  transition: background-color var(--transition-fast);
+}
+
+.stk__card:last-child {
+  border-bottom: 0;
 }
 
 .stk__card:hover {
-  border-color: color-mix(in srgb, var(--accent-gold) 66%, transparent);
-  background: color-mix(in srgb, var(--bg-parchment) 50%, var(--band-ink) 50%);
+  background: color-mix(in srgb, var(--accent-gold) 6%, transparent);
 }
 
 .stk__card:focus-within {
-  border-color: color-mix(in srgb, var(--accent-gold-deep) 62%, transparent);
+  background: color-mix(in srgb, var(--accent-gold) 8%, transparent);
 }
 
 .stk__card-name {
   margin: 0;
-  padding-right: 18px;
   font-family: var(--font-body);
-  font-size: var(--text-caption);
+  font-size: 0.6875rem;
   font-weight: 700;
   letter-spacing: 0.1em;
   line-height: 1.25;
@@ -99,39 +101,14 @@
 }
 
 .stk__card-text {
-  margin: 0;
+  margin: 2px 0 0;
   font-family: var(--font-body);
   font-size: var(--text-body);
-  line-height: var(--lh-body);
+  line-height: 1.4;
   overflow-wrap: break-word;
 }
 
-.stk__card-edit {
-  position: absolute;
-  top: 6px;
-  right: 8px;
-  z-index: 1;
-  font-family: var(--font-body);
-  font-size: var(--text-caption);
-  line-height: 1;
-  color: var(--accent-gold-deep);
-  opacity: 0.45;
-  pointer-events: none;
-  transition: opacity var(--transition-fast);
-}
-
-.stk__card:hover .stk__card-edit,
-.stk__card:focus-within .stk__card-edit {
-  opacity: 1;
-}
-
-@media (hover: none) {
-  .stk__card-edit {
-    opacity: 0.8;
-  }
-}
-
-/* прозрачный слой на всю карточку: открывает окно правки */
+/* прозрачный слой на всю строку: открывает окно правки */
 .stk__card-hit {
   position: absolute;
   inset: 0;
@@ -140,35 +117,33 @@
   height: 100%;
   padding: 0;
   border: 0;
+  border-radius: 0;
   background: transparent;
   cursor: pointer;
 }
 
 .stk__card-hit:focus-visible {
   outline: 2px solid var(--accent-gold-deep);
-  outline-offset: 2px;
+  outline-offset: -2px;
 }
 
 /* ---------- служебные строки ---------- */
 
 .stk__empty {
   margin: 0;
-  padding: 14px 16px;
-  border: 1px dashed color-mix(in srgb, var(--accent-gold) 40%, transparent);
+  padding: 12px 14px 12px 14px;
+  border-left: 3px solid var(--accent-gold-deep);
   font-family: var(--font-body);
   font-size: var(--text-caption);
   line-height: 1.4;
-  text-align: center;
   color: var(--text-ink-muted);
 }
 
 .stk__limit {
-  margin: 8px 0 0;
-  padding-top: 6px;
-  border-top: 1px solid color-mix(in srgb, var(--accent-gold) 24%, transparent);
+  margin: 6px 0 0;
+  padding-left: 17px;
   font-family: var(--font-body);
   font-size: var(--text-caption);
   line-height: 1.4;
-  text-align: right;
   color: var(--text-ink-muted);
 }

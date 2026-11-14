@@ -5,7 +5,7 @@ import '../styles/stunt-modal.css';
 
 const PAPER = `${import.meta.env.BASE_URL}assets/textures/parchment-soft.jpg`;
 
-export type StuntModalVariant = 'plaque' | 'spread' | 'scroll';
+export type StuntModalVariant = 'plaque' | 'margin' | 'ledger';
 
 type Draft = { name: string; text: string };
 
@@ -20,53 +20,69 @@ type Props = {
   onClose: () => void;
 };
 
-const TEMPLATES = [
-  {
-    n: 'I',
-    label: '+2 к навыку',
-    text: '«Потому что я …, я получаю +2 к [Навыку], когда [узкое условие]».',
+type Copy = {
+  nameLabel: string;
+  namePlaceholder: string;
+  textLabel: string;
+  textPlaceholder: string;
+  help: string;
+  example: string;
+  note: string;
+  saveLabel: string;
+};
+
+const COPY: Record<StuntModalVariant, Copy> = {
+  plaque: {
+    nameLabel: 'Название',
+    namePlaceholder: 'Например: Ведьмачьи чувства',
+    textLabel: 'Описание',
+    textPlaceholder: 'Например: +2 к Внимательности, когда выслеживаю чудовище.',
+    help: 'Коротко: одно условие и один эффект — этого достаточно.',
+    example: 'Например: «+2 к Драке, когда противник — чудовище».',
+    note: 'Первые три трюка бесплатны. Четвёртый и пятый снижают Обновление на 1.',
+    saveLabel: 'Сохранить',
   },
-  {
-    n: 'II',
-    label: 'Навык вместо навыка',
-    text: '«Потому что я …, я могу использовать [Навык А] вместо [Навыка Б], когда [условие]».',
+  margin: {
+    nameLabel: 'Имя',
+    namePlaceholder: 'Например: Два меча',
+    textLabel: 'Правило',
+    textPlaceholder: 'Потому что я ведьмак, я получаю +2 к Драке против чудовищ.',
+    help: 'Начни с «Потому что я…» — так сразу видно, откуда сила.',
+    example: 'Например: «Потому что я ведьмак, я получаю +2 к Драке против чудовищ».',
+    note: 'Три трюка входят в Обновление. Каждый следующий — минус 1.',
+    saveLabel: 'Записать',
   },
-  {
-    n: 'III',
-    label: 'Раз за сцену',
-    text: '«Раз за сцену или сессию я могу [эффект]».',
+  ledger: {
+    nameLabel: 'Название',
+    namePlaceholder: 'Например: Знак Игни',
+    textLabel: 'Когда срабатывает',
+    textPlaceholder: 'Раз за сцену я могу поджечь всё в одном секторе.',
+    help: 'Опиши, что происходит и когда. Чем короче, тем легче держать в голове.',
+    example: 'Например: «Раз за сцену я могу…».',
+    note: 'Сверх трёх трюков Обновление уменьшается на 1 за каждый.',
+    saveLabel: 'Сохранить',
   },
-] as const;
+};
 
 const ORDINAL = ['', 'первый', 'второй', 'третий', 'четвёртый', 'пятый'];
 
 const FOCUSABLE =
   'button:not([disabled]), input:not([disabled]), textarea:not([disabled]), [href], [tabindex]:not([tabindex="-1"])';
 
-/** Подтверждение удаления: живёт рядом с кнопкой, в каждом окне на своём месте. */
-function DeleteControl({
-  onDelete,
-  variant,
-}: {
-  onDelete: () => void;
-  variant: StuntModalVariant;
-}) {
+/** Подтверждение удаления: два шага, чтобы не стереть трюк случайно. */
+function DeleteControl({ onDelete }: { onDelete: () => void }) {
   const [confirming, setConfirming] = useState(false);
 
   if (!confirming) {
     return (
-      <button
-        type="button"
-        className={`sm__danger sm__danger--${variant}`}
-        onClick={() => setConfirming(true)}
-      >
+      <button type="button" className="sm__danger" onClick={() => setConfirming(true)}>
         Удалить
       </button>
     );
   }
 
   return (
-    <div className={`sm__confirm sm__confirm--${variant}`} role="group" aria-label="Удалить трюк?">
+    <div className="sm__confirm" role="group" aria-label="Удалить трюк?">
       <span className="sm__confirm-text">Удалить трюк?</span>
       <button type="button" className="sm__confirm-yes" onClick={onDelete}>
         Да
@@ -78,70 +94,37 @@ function DeleteControl({
   );
 }
 
-/** Три хода из правил: подача меняется вместе с окном. */
-function Templates({ variant }: { variant: StuntModalVariant }) {
-  if (variant === 'spread') {
-    return (
-      <ol className="sm__tpl sm__tpl--spread">
-        {TEMPLATES.map((item) => (
-          <li className="sm__tpl-item" key={item.n}>
-            <span className="sm__tpl-num" aria-hidden="true">
-              {item.n}
-            </span>
-            <div className="sm__tpl-copy">
-              <b className="sm__tpl-label">{item.label}</b>
-              <span className="sm__tpl-text">{item.text}</span>
-            </div>
-          </li>
-        ))}
-      </ol>
-    );
+function buildNote(
+  variant: StuntModalVariant,
+  mode: 'new' | 'edit',
+  countAfter: number,
+  baseRefresh: number,
+  refreshAfter: number,
+) {
+  if (countAfter <= 3) return COPY[variant].note;
+
+  if (mode === 'new') {
+    if (variant === 'plaque') {
+      return `Это ${ORDINAL[countAfter]} трюк. Обновление: ${baseRefresh} → ${refreshAfter}.`;
+    }
+    if (variant === 'margin') {
+      return `Сверх трёх: ${ORDINAL[countAfter]} трюк снизит Обновление на 1 (${baseRefresh} → ${refreshAfter}).`;
+    }
+    return `Сверх трёх: останется ${refreshAfter} Обновления.`;
   }
 
-  if (variant === 'scroll') {
-    return (
-      <div className="sm__rule">
-        <p className="sm__rule-title">Три хода</p>
-        <ol className="sm__tpl sm__tpl--scroll">
-          {TEMPLATES.map((item) => (
-            <li className="sm__tpl-item" key={item.n}>
-              <span className="sm__tpl-num" aria-hidden="true">
-                {item.n}
-              </span>
-              <div className="sm__tpl-copy">
-                <b className="sm__tpl-label">{item.label}</b>
-                <span className="sm__tpl-text">{item.text}</span>
-              </div>
-            </li>
-          ))}
-        </ol>
-        <p className="sm__example">Например: «+2 к Драке, когда противник — чудовище».</p>
-      </div>
-    );
+  if (variant === 'plaque') {
+    return `Трюк записан сверх трёх: Обновление ${refreshAfter} из ${baseRefresh}.`;
   }
-
-  return (
-    <div className="sm__templates">
-      <p className="sm__section-title">Три хода</p>
-      <ul className="sm__tpl sm__tpl--plaque">
-        {TEMPLATES.map((item) => (
-          <li className="sm__tpl-item" key={item.n}>
-            <i className="sm__tpl-mark" aria-hidden="true" />
-            <div className="sm__tpl-copy">
-              <b className="sm__tpl-label">{item.label}</b>
-              <span className="sm__tpl-text">{item.text}</span>
-            </div>
-          </li>
-        ))}
-      </ul>
-      <p className="sm__example">Например: «+2 к Драке, когда противник — чудовище».</p>
-    </div>
-  );
+  if (variant === 'margin') {
+    return `Сверх бесплатных: Обновление ${refreshAfter} из ${baseRefresh}.`;
+  }
+  return `Этот трюк сверх трёх: Обновление ${refreshAfter} из ${baseRefresh}.`;
 }
 
 /**
- * Окно трюка: три подачи одной формы.
- * Карточка и «+» блока открывают его; текст и название правятся здесь.
+ * Окно трюка: три компактные подачи одной формы.
+ * Строка блока и «+» открывают его; название и описание правятся здесь.
  */
 export function StuntModal({
   variant,
@@ -224,15 +207,8 @@ export function StuntModal({
   const countAfter = mode === 'new' ? count + 1 : count;
   const overFree = countAfter > 3;
   const refreshAfter = Math.max(1, baseRefresh - Math.max(0, countAfter - 3));
-
-  let note =
-    'Три трюка бесплатны. Четвёртый и пятый уменьшают Обновление на 1.';
-
-  if (overFree && mode === 'new') {
-    note = `Это ${ORDINAL[countAfter]} трюк: сверх трёх Обновление уменьшится на 1 (${baseRefresh} → ${refreshAfter}).`;
-  } else if (overFree) {
-    note = `Этот трюк записан сверх трёх: Обновление ${refreshAfter} из ${baseRefresh}.`;
-  }
+  const copy = COPY[variant];
+  const note = buildNote(variant, mode, countAfter, baseRefresh, refreshAfter);
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -245,17 +221,22 @@ export function StuntModal({
   };
 
   const fields = (
-    <form id={formId} className="sm__form" onSubmit={handleSubmit} noValidate>
+    <form
+      id={formId}
+      className={`sm__form sm__form--${variant}`}
+      onSubmit={handleSubmit}
+      noValidate
+    >
       <div className="sm__field">
         <label className="sm__label" htmlFor={nameId}>
-          Название
+          {copy.nameLabel}
         </label>
         <input
           id={nameId}
           className="sm__input"
           value={name}
           onChange={(event) => setName(event.target.value)}
-          placeholder="Например: Ведьмачьи чувства"
+          placeholder={copy.namePlaceholder}
           maxLength={48}
           autoComplete="off"
           required
@@ -263,47 +244,20 @@ export function StuntModal({
       </div>
       <div className="sm__field">
         <label className="sm__label" htmlFor={textId}>
-          Описание
+          {copy.textLabel}
         </label>
         <textarea
           id={textId}
           className="sm__input sm__textarea"
           value={text}
           onChange={(event) => setText(event.target.value)}
-          placeholder="Например: +2 к Внимательности, когда выслеживаю чудовище по следам."
-          rows={variant === 'spread' ? 5 : 4}
+          placeholder={copy.textPlaceholder}
+          rows={3}
           maxLength={240}
           required
         />
       </div>
     </form>
-  );
-
-  const actions = (
-    <div className="sm__actions">
-      <button type="button" className="sm__ghost" onClick={onClose}>
-        Отмена
-      </button>
-      <button type="submit" form={formId} className="sm__primary" disabled={!valid}>
-        Сохранить
-      </button>
-    </div>
-  );
-
-  const deleteControl = onDelete ? (
-    <DeleteControl onDelete={onDelete} variant={variant} />
-  ) : null;
-
-  const closeButton = (
-    <button
-      ref={closeRef}
-      type="button"
-      className="sm__close"
-      aria-label="Закрыть окно"
-      onClick={onClose}
-    >
-      <span aria-hidden="true">×</span>
-    </button>
   );
 
   const texture = (
@@ -323,106 +277,68 @@ export function StuntModal({
         aria-modal="true"
         aria-labelledby={titleId}
       >
-        {closeButton}
+        <button
+          ref={closeRef}
+          type="button"
+          className="sm__close"
+          aria-label="Закрыть окно"
+          onClick={onClose}
+        >
+          <span aria-hidden="true">×</span>
+        </button>
 
         {variant === 'plaque' && (
-          <>
-            <div className="sm__head sm__head--plaque">
-              {texture}
-              <span className="sm__head-title" id={titleId}>
-                {title}
-              </span>
-            </div>
-
-            <div className="sm__body sm__body--plaque">
-              <p className="sm__sub">Узкая способность, а не вторая профессия.</p>
-              {fields}
-              <Templates variant="plaque" />
-              <p className={`sm__note${overFree ? ' sm__note--warn' : ''}`}>{note}</p>
-            </div>
-
-            <footer className="sm__footer sm__footer--plaque">
-              <div className="sm__footer-left">
-                {deleteControl ?? <span className="sm__count">{count} из 5</span>}
-              </div>
-              {actions}
-            </footer>
-          </>
+          <div className="sm__head sm__head--plaque">
+            {texture}
+            <span className="sm__head-title" id={titleId}>
+              {title}
+            </span>
+          </div>
         )}
 
-        {variant === 'spread' && (
-          <>
-            <div className="sm__head sm__head--spread">
-              {texture}
-              <span className="sm__head-title" id={titleId}>
-                {title}
-              </span>
-            </div>
+        {variant === 'margin' && (
+          <header className="sm__head sm__head--margin">
+            <span className="sm__head-title" id={titleId}>
+              {title}
+            </span>
+          </header>
+        )}
 
-            <div className="sm__body sm__body--spread">
-              <aside className="sm__margin">
-                <p className="sm__section-title">Три хода</p>
-                <p className="sm__margin-hint">
-                  Трюк — узкая способность, а не вторая профессия.
-                </p>
-                <Templates variant="spread" />
-                <p className="sm__example">Например: «+2 к Драке, когда противник — чудовище».</p>
-              </aside>
+        {variant === 'ledger' && (
+          <header className="sm__head sm__head--ledger">
+            <h2 className="sm__display" id={titleId}>
+              {title}
+            </h2>
+            <i className="sm__ornament" aria-hidden="true" />
+          </header>
+        )}
 
-              <div className="sm__main">
-                {fields}
-                <p className="sm__main-hint">
-                  Пиши коротко: одно условие, один навык, один эффект.
-                </p>
-                <p className={`sm__note sm__note--spread${overFree ? ' sm__note--warn' : ''}`}>
-                  {note}
-                </p>
-                {deleteControl && <div className="sm__delete-row">{deleteControl}</div>}
-              </div>
-            </div>
+        <div className={`sm__body sm__body--${variant}`}>
+          {fields}
+          <p className="sm__help">
+            {copy.help}
+            <span className="sm__help-example">{copy.example}</span>
+          </p>
+          <p className={`sm__note${overFree ? ' sm__note--warn' : ''}`}>{note}</p>
+        </div>
 
-            <footer className="sm__footer sm__footer--spread">
+        <footer className={`sm__footer sm__footer--${variant}`}>
+          <div className="sm__footer-left">
+            {onDelete ? (
+              <DeleteControl onDelete={onDelete} />
+            ) : (
               <span className="sm__count">Трюков: {count} из 5</span>
-              {actions}
-            </footer>
-          </>
-        )}
-
-        {variant === 'scroll' && (
-          <>
-            <header className="sm__head sm__head--scroll">
-              <p className="sm__eyebrow">Трюки</p>
-              <h2 className="sm__display" id={titleId}>
-                {title}
-              </h2>
-              <i className="sm__ornament" aria-hidden="true" />
-            </header>
-
-            <div className="sm__body sm__body--scroll">
-              <p className="sm__sub sm__sub--scroll">
-                Узкая способность, а не вторая профессия.
-              </p>
-              <Templates variant="scroll" />
-              {fields}
-              <p className={`sm__note${overFree ? ' sm__note--warn' : ''}`}>{note}</p>
-              {deleteControl && <div className="sm__delete-row">{deleteControl}</div>}
-            </div>
-
-            <footer className="sm__footer sm__footer--scroll">
-              <button
-                type="submit"
-                form={formId}
-                className="sm__primary sm__primary--wide"
-                disabled={!valid}
-              >
-                Сохранить
-              </button>
-              <button type="button" className="sm__cancel-link" onClick={onClose}>
-                Отмена
-              </button>
-            </footer>
-          </>
-        )}
+            )}
+          </div>
+          <div className="sm__actions">
+            <button type="button" className="sm__ghost" onClick={onClose}>
+              Отмена
+            </button>
+            <button type="submit" form={formId} className="sm__primary" disabled={!valid}>
+              {copy.saveLabel}
+            </button>
+          </div>
+        </footer>
       </div>
     </div>,
     document.body,
