@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useId, useState } from 'react';
 import { BlockHeader } from './BlockHeader';
 import '../styles/skills-editor.css';
 
@@ -60,14 +60,25 @@ function buildRows(initial: InitRow[]): Row[] {
     .map((value) => ({ value, skills: [...(byValue.get(value) ?? [])] }));
 }
 
-/** Гравированная стрелка «можно поднять»: контур, без заливки. */
-function UpGlyph() {
+/** Стрелка «поднять навык»: простое древко и треугольник, золото с тиснением. */
+function UpArrow() {
+  const gid = `ske-arrow-${useId().replace(/[^a-zA-Z0-9_-]/g, '')}`;
   return (
-    <svg className="ske__upico" viewBox="0 0 12 15" fill="none" aria-hidden="true" focusable="false">
-      <path d="M6 14.4V6.9" />
-      <path d="M3.5 9.3 6 6.4l2.5 2.9" />
-      <path d="M2.5 10.9c-.35.85-.28 1.65.1 2.3" />
-      <path d="M9.5 10.9c.35.85.28 1.65-.1 2.3" />
+    <svg className="ske__upico" viewBox="0 0 16 16" width="13" height="13" aria-hidden="true" focusable="false">
+      <defs>
+        <linearGradient id={gid} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" style={{ stopColor: 'var(--arrow-gold-hi)' }} />
+          <stop offset="0.45" style={{ stopColor: 'var(--arrow-gold-mid)' }} />
+          <stop offset="1" style={{ stopColor: 'var(--arrow-gold-lo)' }} />
+        </linearGradient>
+      </defs>
+      <path
+        d="M6.2 14.35q0 .55.6.55h2.4q.6 0 .6-.55V8.55h2.6L8 2.75 3.6 8.55h2.6Z"
+        fill={`url(#${gid})`}
+        stroke="var(--arrow-edge)"
+        strokeWidth="0.55"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
@@ -163,7 +174,7 @@ export function SkillsEditor({ variant = 1, initial, initialLevel = 4 }: Props) 
   const debtWord = Math.abs(free) === 1 ? 'очка' : 'очков';
 
   return (
-    <section className={`ske ske--v${variant}${moreOpen ? ' ske--menu' : ''}`}>
+    <section className={`ske ske--v${variant}`}>
       <BlockHeader
         variant="lozenge"
         title="Навыки"
@@ -247,7 +258,7 @@ export function SkillsEditor({ variant = 1, initial, initialLevel = 4 }: Props) 
                         title="Поднять на ступень (1 очко)"
                         onClick={() => raise(row.value, name)}
                       >
-                        <UpGlyph />
+                        <UpArrow />
                       </button>
                     )}
                   </span>
@@ -323,7 +334,6 @@ export function SkillsEditor({ variant = 1, initial, initialLevel = 4 }: Props) 
                         Не хватает <b className="ske__lv-free-num">{Math.abs(free)}</b> {debtWord}
                       </>
                     )}
-                    {free === 0 && 'Все очки вложены'}
                   </span>
                   
                 </div>

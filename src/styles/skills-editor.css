@@ -138,9 +138,9 @@
 
 .ske__up {
   position: absolute;
-  right: 2px;
+  right: 3px;
   bottom: 2px;
-  width: 14px;
+  width: 15px;
   height: 15px;
   display: grid;
   place-items: center;
@@ -164,20 +164,15 @@
 
 .ske__upico {
   display: block;
-  width: 11px;
-  height: 14px;
+  width: 13px;
+  height: 13px;
   overflow: visible;
-}
-
-.ske__upico path {
-  stroke: currentColor;
-  stroke-width: 1.15;
-  stroke-linecap: round;
-  stroke-linejoin: round;
+  filter: drop-shadow(0 1px 0 color-mix(in srgb, #fffdf6 55%, transparent));
 }
 
 .ske__up:hover .ske__upico {
-  filter: drop-shadow(0 0 2px color-mix(in srgb, var(--ac-strong) 55%, transparent));
+  filter: drop-shadow(0 1px 0 color-mix(in srgb, #fffdf6 70%, transparent))
+    drop-shadow(0 0 2px color-mix(in srgb, var(--ac-strong) 45%, transparent));
 }
 
 /* Уголок действий со ступенями: три точки, видны при наведении на блок. */
@@ -202,7 +197,7 @@
   background: transparent;
   color: var(--accent-gold-deep);
   cursor: pointer;
-  opacity: 0;
+  opacity: 0.9;
   transition: opacity 0.12s, color 0.12s;
 }
 
@@ -213,8 +208,7 @@
   background: currentColor;
 }
 
-.ske:hover .ske__more,
-.ske:focus-within .ske__more,
+.ske__more:hover,
 .ske__more[aria-expanded='true'] {
   opacity: 1;
 }
@@ -226,9 +220,11 @@
 .ske__rankmenu {
   position: absolute;
   z-index: 30;
-  top: 30px;
-  right: 24px;
-  min-width: 172px;
+  top: 80px;
+  right: 0;
+  width: max-content;
+  min-width: 150px;
+  max-width: 220px;
   padding: 4px;
   border: 1px solid color-mix(in srgb, var(--accent-gold-deep) 52%, transparent);
   border-radius: 2px;
@@ -323,7 +319,7 @@
 .ske__lv-line {
   display: flex;
   align-items: flex-end;
-  gap: 6px;
+  gap: 3px;
 }
 
 .ske__lv-label {
@@ -355,17 +351,17 @@
   display: flex;
   flex-direction: column;
   gap: 0;
-  width: 12px;
+  width: 11px;
   height: 24px;
-  gap: 1px;
+  gap: 0;
   align-self: center;
-  margin: 0 2px 0 0;
+  margin: 0 1px 0 0;
   opacity: 0;
   transition: opacity 0.12s;
 }
 
 .ske__lv-line:hover .ske__lvstep,
-.ske__lvstep:focus-within {
+.ske__lv-line:has(.ske__step:focus-visible) .ske__lvstep {
   opacity: 1;
 }
 
@@ -537,11 +533,6 @@
   }
 }
 
-
-/* Меню открыто — кластер уровня временно уступает место, чтобы текст не просвечивал. */
-.ske--menu .ske__lvc {
-  visibility: hidden;
-}
 
 
 /* Заглушка слота: только крупный плюс, без подписи. */
