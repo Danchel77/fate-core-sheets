@@ -1,144 +1,86 @@
-/* Блок «Навыки»: три варианта подачи лестницы +5…+1. */
+/* Блок «Навыки»: отдельные блоки равного размера, сетка 4 колонки, пирамида влево. */
 
-.sk-grid__row {
-  display: grid;
-  grid-template-columns: 46px 1fr;
-  border-bottom: 1px solid color-mix(in srgb, var(--accent-gold) 30%, transparent);
-}
-
-.sk-grid__value {
-  padding: 7px 0 6px 14px;
-  font-family: var(--font-display);
-  font-size: 1.125rem;
-  line-height: 1.2;
-  color: var(--accent-gold-deep);
-}
-
-.sk-grid__items {
-  display: flex;
-  flex-wrap: wrap;
-  border-left: 1px solid color-mix(in srgb, var(--accent-gold) 18%, transparent);
-}
-
-.sk-grid__cell {
-  padding: 6px 11px 5px;
-  font-family: var(--font-body);
-  font-size: var(--text-body);
-  line-height: 1.3;
-  color: var(--text-ink-primary);
-  white-space: nowrap;
-}
-
-.sk-grid__cell + .sk-grid__cell {
-  border-left: 1px solid color-mix(in srgb, var(--accent-gold) 18%, transparent);
-}
-
-.sk-grid__note {
-  padding: 8px 10px 6px;
-  font-family: var(--font-body);
-  font-size: var(--text-caption);
-  color: color-mix(in srgb, var(--text-ink-muted) 75%, transparent);
-}
-
-/* Пирамида: названия навыков — чипы, выровненные по центру ступени. */
-
-.sk-pyramid__row {
+.skb__row {
   display: grid;
   grid-template-columns: 46px 1fr;
   align-items: center;
-  padding: 2px 0;
+  padding: 4px 0;
 }
 
-.sk-pyramid__value {
+.skb__rank {
+  display: flex;
+  flex-direction: column;
   padding-left: 14px;
+}
+
+.skb__value {
   font-family: var(--font-display);
   font-size: 1.125rem;
-  line-height: 1.2;
+  line-height: 1.1;
   color: var(--accent-gold-deep);
 }
 
-.sk-pyramid__chips {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-items: center;
-  gap: 9px;
-  padding: 2px 10px;
-}
-
-.sk-chip {
-  padding: 3px 10px 2px;
-  border: 1px solid color-mix(in srgb, var(--accent-gold) 44%, transparent);
-  background: color-mix(in srgb, var(--bg-parchment) 84%, #fffdf6 16%);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.4),
-    0 1px 0 rgba(60, 40, 15, 0.07);
-  font-family: var(--font-body);
-  font-size: 0.875rem;
-  line-height: 1.25;
-  color: var(--text-ink-primary);
-  white-space: nowrap;
-}
-
-.sk-chip--ghost {
-  width: 46px;
-  height: 22px;
-  border-style: dashed;
-  border-color: color-mix(in srgb, var(--accent-gold) 30%, transparent);
-  background: transparent;
-  box-shadow: none;
-}
-
-.sk-pyramid__note {
-  font-family: var(--font-body);
-  font-size: var(--text-caption);
-  color: color-mix(in srgb, var(--text-ink-muted) 65%, transparent);
-}
-
-/* Леджер: строка ступени, навыки идут списком с ромбами. */
-
-.sk-ledger__row {
+.skb__grid {
   display: grid;
-  grid-template-columns: 46px 1fr;
-  align-items: baseline;
-  padding: 5px 10px 5px 0;
-  border-bottom: 1px solid color-mix(in srgb, var(--accent-gold) 24%, transparent);
-}
-
-.sk-ledger__value {
-  padding-left: 14px;
-  font-family: var(--font-display);
-  font-size: 1.125rem;
-  line-height: 1.2;
-  color: var(--accent-gold-deep);
-}
-
-.sk-ledger__items {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 4px 18px;
-}
-
-.sk-ledger__item {
-  display: inline-flex;
-  align-items: center;
+  grid-template-columns: repeat(4, 1fr);
   gap: 7px;
-  font-family: var(--font-body);
-  font-size: var(--text-body);
-  line-height: 1.3;
-  color: var(--text-ink-primary);
 }
 
-.sk-ledger__mark {
-  width: 5px;
-  height: 5px;
-  transform: rotate(45deg);
-  background: color-mix(in srgb, var(--accent-gold-deep) 70%, transparent);
+.skblock--flush .skb__grid {
+  gap: 2px;
 }
 
-.sk-ledger__note {
+.skb__block {
+  display: flex;
+  align-items: center;
+  min-height: 30px;
+  padding: 0 7px;
+  border: 1px solid color-mix(in srgb, var(--accent-gold) 38%, transparent);
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--bg-parchment) 86%, #fffdf6 14%);
   font-family: var(--font-body);
   font-size: var(--text-caption);
-  color: color-mix(in srgb, var(--text-ink-muted) 65%, transparent);
+  line-height: 1.15;
+  color: var(--text-ink-primary);
+  white-space: nowrap;
+}
+
+.skblock--flush .skb__block {
+  min-height: 32px;
+  border: 0;
+  border-radius: 0;
+  background: color-mix(in srgb, var(--bg-parchment) 86%, var(--accent-gold) 14%);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent-gold) 14%, transparent);
+}
+
+/* Вариант «уровни»: подпись ступени — строка над блоками, блоки во всю ширину. */
+
+.skb__row--levels {
+  display: block;
+  padding: 7px 0 5px;
+}
+
+.skb__row--levels .skb__rank {
+  flex-direction: row;
+  align-items: baseline;
+  gap: 9px;
+  padding: 0 0 5px 2px;
+}
+
+.skb__row--levels .skb__value {
+  font-size: 1rem;
+}
+
+.skb__row--levels .skb__level {
+  font-family: var(--font-body);
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  line-height: 1.1;
+  color: var(--text-ink-muted);
+}
+
+.skb__row--levels .skb__block {
+  min-height: 30px;
 }

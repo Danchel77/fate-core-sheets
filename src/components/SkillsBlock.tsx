@@ -1,87 +1,51 @@
 import type { LadderRow } from '../data/demoCharacter';
 import { BlockHeader } from './BlockHeader';
 
-/** Три способа показать лестницу навыков. */
-export type SkillsVariant = 'grid' | 'pyramid' | 'ledger';
+/** Три варианта сетки из отдельных блоков: пирамида прижата влево. */
+export type SkillsVariant = 'tiles' | 'flush' | 'levels';
 
-const MAX_SLOTS = 4;
+/** Названия ступеней по официальной русской лестнице Fate Core. */
+const LEVEL_NAMES: Record<number, string> = {
+  5: 'Великолепно',
+  4: 'Отлично',
+  3: 'Хорошо',
+  2: 'Неплохо',
+  1: 'Средне',
+};
 
 type Props = {
   ladder: LadderRow[];
   variant: SkillsVariant;
 };
 
-/** Блок «Навыки»: пять ступеней +5…+1 по правилу пирамиды Fate Core. */
+/** Блок «Навыки»: навыки — отдельные блоки равного размера, выровненные влево. */
 export function SkillsBlock({ ladder, variant }: Props) {
-  const capacityOf = (value: number) => MAX_SLOTS + 1 - value;
-
   return (
     <section className={`skblock skblock--${variant}`}>
       <BlockHeader variant="lozenge" title="Навыки" />
 
-      {variant === 'grid' && (
-        <div className="sk-grid">
-          {ladder.map((row) => (
-            <div className="sk-grid__row" key={row.value}>
-              <span className="sk-grid__value">+{row.value}</span>
-              <div className="sk-grid__items">
-                {row.skills.length === 0 && (
-                  <span className="sk-grid__note">ступень открывается после развития</span>
-                )}
-                {row.skills.map((skill) => (
-                  <span className="sk-grid__cell" key={skill}>
-                    {skill}
-                  </span>
-                ))}
-              </div>
+      <div className="skb">
+        {ladder.map((row) => (
+          <div
+            className={`skb__row${variant === 'levels' ? ' skb__row--levels' : ''}`}
+            key={row.value}
+          >
+            <span className="skb__rank">
+              <span className="skb__value">+{row.value}</span>
+              {variant === 'levels' && (
+                <span className="skb__level">{LEVEL_NAMES[row.value]}</span>
+              )}
+            </span>
+            <div className="skb__grid">
+              {row.skills.map((skill) => (
+                <span className="skb__block" key={skill}>
+                  {skill}
+                </span>
+              ))}
             </div>
-          ))}
-        </div>
-      )}
-
-      {variant === 'pyramid' && (
-        <div className="sk-pyramid">
-          {ladder.map((row) => {
-            const capacity = capacityOf(row.value);
-            const ghosts = capacity - row.skills.length;
-            return (
-              <div className="sk-pyramid__row" key={row.value}>
-                <span className="sk-pyramid__value">+{row.value}</span>
-                <div className="sk-pyramid__chips">
-                  {row.skills.map((skill) => (
-                    <span className="sk-chip" key={skill}>
-                      {skill}
-                    </span>
-                  ))}
-                  {Array.from({ length: Math.max(0, ghosts) }, (_, index) => (
-                    <span className="sk-chip sk-chip--ghost" key={`ghost-${index}`} aria-hidden="true" />
-                  ))}
-                  {capacity === 0 && <span className="sk-pyramid__note">—</span>}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
-
-      {variant === 'ledger' && (
-        <div className="sk-ledger">
-          {ladder.map((row) => (
-            <div className="sk-ledger__row" key={row.value}>
-              <span className="sk-ledger__value">+{row.value}</span>
-              <div className="sk-ledger__items">
-                {row.skills.length === 0 && <span className="sk-ledger__note">—</span>}
-                {row.skills.map((skill) => (
-                  <span className="sk-ledger__item" key={skill}>
-                    <span className="sk-ledger__mark" aria-hidden="true" />
-                    {skill}
-                  </span>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+          </div>
+        ))}
+      </div>
     </section>
   );
 }
