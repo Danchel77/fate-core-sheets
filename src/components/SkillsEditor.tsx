@@ -64,10 +64,10 @@ function buildRows(initial: InitRow[]): Row[] {
 function UpGlyph() {
   return (
     <svg className="ske__upico" viewBox="0 0 12 15" fill="none" aria-hidden="true" focusable="false">
-      <path d="M6 14V4.6" />
-      <path d="M1.7 7.4 6 2.6l4.3 4.8" />
-      <path d="M1.7 7.4c-.5 1.1-.35 2.2.35 3.1" />
-      <path d="M10.3 7.4c.5 1.1.35 2.2-.35 3.1" />
+      <path d="M6 14.4V6.9" />
+      <path d="M3.5 9.3 6 6.4l2.5 2.9" />
+      <path d="M2.5 10.9c-.35.85-.28 1.65.1 2.3" />
+      <path d="M9.5 10.9c.35.85.28 1.65-.1 2.3" />
     </svg>
   );
 }
@@ -163,7 +163,7 @@ export function SkillsEditor({ variant = 1, initial, initialLevel = 4 }: Props) 
   const debtWord = Math.abs(free) === 1 ? 'очка' : 'очков';
 
   return (
-    <section className={`ske ske--v${variant}`}>
+    <section className={`ske ske--v${variant}${moreOpen ? ' ske--menu' : ''}`}>
       <BlockHeader
         variant="lozenge"
         title="Навыки"
@@ -267,7 +267,7 @@ export function SkillsEditor({ variant = 1, initial, initialLevel = 4 }: Props) 
                       }
                       onClick={() => affordable && setMenuRank(row.value)}
                     >
-                      + навык
+                      <span className="ske__slot-plus" aria-hidden="true">+</span>
                     </button>
                   );
                 })}
@@ -277,8 +277,9 @@ export function SkillsEditor({ variant = 1, initial, initialLevel = 4 }: Props) 
                     type="button"
                     className="ske__slot ske__slot--ready ske__slot--new"
                     onClick={() => setMenuRank(1)}
+                    title="Добавить навык на +1"
                   >
-                    + навык
+                    <span className="ske__slot-plus" aria-hidden="true">+</span>
                   </button>
                 )}
               </div>
@@ -287,7 +288,6 @@ export function SkillsEditor({ variant = 1, initial, initialLevel = 4 }: Props) 
                 <div className="ske__lvc" aria-label={`Уровень ${level}, свободных очков ${free}`}>
                   <span className="ske__lv-line">
                     <span className="ske__lv-label">Уровень</span>
-                    <span className="ske__lvnum">{level}</span>
                     <span className="ske__lvstep">
                     <button
                       type="button"
@@ -309,7 +309,8 @@ export function SkillsEditor({ variant = 1, initial, initialLevel = 4 }: Props) 
                     >
                       ↓
                     </button>
-                  </span>
+                    </span>
+                    <span className="ske__lvnum">{level}</span>
                   </span>
                   <span className={`ske__lv-free${free < 0 ? ' ske__lv-free--debt' : ''}`}>
                     {free > 0 && (
