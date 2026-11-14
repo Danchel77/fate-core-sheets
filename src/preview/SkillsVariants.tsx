@@ -1,7 +1,7 @@
 import { AspectBlock } from '../components/AspectBlock';
 import { CharacterBlock } from '../components/CharacterBlock';
-import { SkillsEditor, type InitRow, type SkillsEditorVariant } from '../components/SkillsEditor';
-import { demoCharacter, type Character } from '../data/demoCharacter';
+import { SkillsEditor, type InitRow } from '../components/SkillsEditor';
+import { demoCharacter } from '../data/demoCharacter';
 import '../styles/sheet.css';
 import '../styles/character-block.css';
 import '../styles/aspect-block.css';
@@ -30,57 +30,35 @@ const ROWS: InitRow[] = [
   },
 ];
 
-const VARIANTS: { id: SkillsEditorVariant; caption: string }[] = [
-  {
-    id: 1,
-    caption: 'Вариант 1 — «Золото»: акцент янтарный, уровень простыми строками, стрелки в золотых кружках',
-  },
-  {
-    id: 2,
-    caption: 'Вариант 2 — «Кармин»: акцент багряный, уровень в плашке с левой линейкой',
-  },
-  {
-    id: 3,
-    caption: 'Вариант 3 — «Мох»: акцент тёмно-зелёный, уровень в ярлыке с двойной чертой',
-  },
-];
-
-function Spread({ character, variant, caption }: { character: Character; variant: SkillsEditorVariant; caption: string }) {
-  return (
-    <div className="variant">
-      <p className="variant__caption">{caption}</p>
-      <div className="book">
-        <div className="page page--left">
-          <CharacterBlock variant="lozenge" hintVariant="side" nameStyle="smallcaps" />
-          <AspectBlock aspects={character.aspects} hintVariant="side" variant="strong" />
-        </div>
-        <div className="page page--right">
-          <SkillsEditor variant={variant} initial={ROWS} initialLevel={4} />
-          <Placeholder title="Трюки" lines={3} />
-          <Placeholder title="Дополнения" lines={2} />
-          <Placeholder title="Стресс и последствия" lines={2} />
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/** Навыки: три облика интерактивной пирамиды с уровнем и свободными очками. */
+/** Навыки: рабочий блок с уровнем, свободными очками и слотами стартовой пирамиды. */
 export default function SkillsVariants() {
   return (
     <main className="variants-page">
       <header className="variants-head">
-        <h1>Навыки — три облика верхней строки</h1>
+        <h1>Навыки — рабочий блок</h1>
         <p>
-          «+» и «−» над крайней ступенью добавляют и откатывают ступень. Слоты стартовой пирамиды
-          остаются на месте: убрали навык — на его месте пустой слот «+ навык». Уровень даёт очко,
-          стрелки ↑ видны, пока очко есть. Второй строкой — остаток очков. Масштаб 1:1.
+          «+» и «−» в ячейке крайней ступени добавляют и откатывают ступень. Пустые слоты стартовой
+          пирамиды стоят в конце ступени: убрали навык — остальные сдвинулись, а пустой слот ушёл
+          вправо. Стрелка ↑ появляется, пока есть очко. Уровень справа: стрелки ↑↓ меняют его и
+          проступают при наведении. Масштаб 1:1.
         </p>
       </header>
 
-      {VARIANTS.map(({ id, caption }) => (
-        <Spread key={id} character={demoCharacter} variant={id} caption={caption} />
-      ))}
+      <div className="variant">
+        <p className="variant__caption">Блок «Навыки», вариант 1</p>
+        <div className="book">
+          <div className="page page--left">
+            <CharacterBlock variant="lozenge" hintVariant="side" nameStyle="smallcaps" />
+            <AspectBlock aspects={demoCharacter.aspects} hintVariant="side" variant="strong" />
+          </div>
+          <div className="page page--right">
+            <SkillsEditor initial={ROWS} initialLevel={4} />
+            <Placeholder title="Трюки" lines={3} />
+            <Placeholder title="Дополнения" lines={2} />
+            <Placeholder title="Стресс и последствия" lines={2} />
+          </div>
+        </div>
+      </div>
     </main>
   );
 }

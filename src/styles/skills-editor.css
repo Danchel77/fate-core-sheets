@@ -30,6 +30,7 @@
 .ske__body {
   display: flex;
   flex-direction: column;
+  margin-top: 6px;
 }
 
 .ske__row {
@@ -42,9 +43,8 @@
 }
 
 .ske__row--top {
-  grid-template-columns: 46px minmax(0, 1fr) auto;
-  padding-top: 18px;
-  padding-bottom: 5px;
+  grid-template-columns: 46px minmax(0, 1fr);
+  padding-top: 5px;
 }
 
 .ske__row + .ske__row {
@@ -53,38 +53,48 @@
 
 /* ── Ступень и кнопки +/− ──────────────────────────────── */
 
+.ske__rankcell {
+  position: relative;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .ske__rank {
   font-family: var(--font-body);
-  font-size: 12px;
+  font-size: 15px;
   font-weight: 700;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.04em;
   line-height: 1;
   text-align: center;
   color: var(--accent-gold-deep);
 }
 
+/* Кнопки ступеней живут в той же ячейке, что и «+4», и не сдвигают число. */
 .ske__rankctl {
   position: absolute;
-  top: 0;
-  left: 8px;
+  top: -2px;
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
   flex-direction: row;
-  gap: 3px;
+  gap: 2px;
   z-index: 3;
 }
 
 .ske__rankbtn {
-  width: 14px;
-  height: 14px;
+  width: 12px;
+  height: 12px;
   display: grid;
   place-items: center;
   padding: 0;
   border: 1px solid color-mix(in srgb, var(--ac) 48%, transparent);
   border-radius: 2px;
-  background: color-mix(in srgb, var(--bg-parchment) 62%, transparent);
+  background: color-mix(in srgb, var(--bg-parchment) 80%, transparent);
   color: var(--ac-ink);
   font-family: var(--font-body);
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
   line-height: 1;
   cursor: pointer;
@@ -114,6 +124,7 @@
 .ske__block {
   position: relative;
   height: 36px;
+  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -124,13 +135,13 @@
 
 .ske__name {
   max-width: 100%;
-  padding: 0 20px 0 9px;
+  padding: 0 10px 0 3px;
   font-family: var(--font-body);
-  font-size: 11.5px;
+  font-size: 11px;
   line-height: 1.06;
   color: var(--text-ink-primary);
   text-align: center;
-  overflow-wrap: anywhere;
+  white-space: nowrap;
 }
 
 .ske__del {
@@ -163,34 +174,31 @@
   background: color-mix(in srgb, var(--accent-crimson) 14%, transparent);
 }
 
-/* Стрелка подъёма — яркая, всегда на виду, пока есть очко. */
+/* Стрелка подъёма — просто крупная стрелка без фона и рамки. */
 
 .ske__up {
   position: absolute;
-  right: 2px;
-  bottom: 1px;
-  width: 15px;
-  height: 15px;
+  right: 1px;
+  bottom: 2px;
+  width: 13px;
+  height: 14px;
   display: grid;
   place-items: center;
   padding: 0;
   border: 0;
-  border-radius: 50%;
-  background: var(--ac-strong);
-  box-shadow:
-    inset 0 1px 0 color-mix(in srgb, #fff 38%, transparent),
-    0 1px 2px color-mix(in srgb, var(--ac-ink) 45%, transparent);
-  color: var(--bg-parchment);
+  background: transparent;
+  color: var(--ac-strong);
   font-family: var(--font-body);
-  font-size: 10px;
+  font-size: 14px;
   font-weight: 700;
   line-height: 1;
   cursor: pointer;
-  transition: transform 0.12s, filter 0.12s;
+  text-shadow: 0 0 3px color-mix(in srgb, var(--bg-parchment) 90%, transparent);
+  transition: transform 0.12s, color 0.12s;
 }
 
 .ske__up:hover {
-  filter: brightness(1.12);
+  color: var(--ac-ink);
   transform: translateY(-1px);
 }
 
@@ -228,7 +236,10 @@
 /* ── Уровень: фиксированные две строки справа ───────────── */
 
 .ske__lvc {
-  justify-self: end;
+  position: absolute;
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
   display: flex;
   flex-direction: column;
   align-items: flex-end;
@@ -236,12 +247,13 @@
   gap: 1px;
   min-height: 36px;
   padding-left: 12px;
-  padding-right: 4px;
+  padding-right: 0;
+  z-index: 2;
 }
 
 .ske__lv-line {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   gap: 6px;
 }
 
@@ -268,13 +280,17 @@
   color: var(--ac-ink);
 }
 
-/* Стрелки уровня — крупнее, слот зарезервирован. */
+/* Стрелки уровня — абсолютные, места не занимают; без рамки и подложки. */
 
 .ske__lvstep {
+  position: absolute;
+  right: 100%;
+  top: 50%;
+  transform: translateY(-50%);
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  width: 16px;
+  gap: 0;
+  margin-right: 3px;
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.12s;
@@ -287,28 +303,29 @@
 }
 
 .ske__step {
-  width: 16px;
-  height: 15px;
+  width: 17px;
+  height: 17px;
   display: grid;
   place-items: center;
   padding: 0;
-  border: 1px solid color-mix(in srgb, var(--ac) 38%, transparent);
-  border-radius: 2px;
-  background: color-mix(in srgb, var(--bg-parchment) 55%, transparent);
-  color: var(--ac-ink);
+  border: 0;
+  background: transparent;
+  color: var(--ac-strong);
   font-family: var(--font-body);
-  font-size: 12px;
+  font-size: 15px;
   font-weight: 700;
   line-height: 1;
   cursor: pointer;
+  transition: color 0.12s, transform 0.12s;
 }
 
 .ske__step:hover:not(:disabled) {
-  background: color-mix(in srgb, var(--ac-strong) 18%, transparent);
+  color: var(--ac-ink);
+  transform: scale(1.12);
 }
 
 .ske__step:disabled {
-  opacity: 0.3;
+  opacity: 0.28;
   cursor: default;
 }
 
@@ -328,6 +345,14 @@
 
 .ske__lv-free--debt {
   color: var(--accent-crimson-action);
+}
+
+.ske__lv-free-num {
+  margin-left: 4px;
+  font-size: 11.5px;
+  font-weight: 700;
+  font-variant-numeric: lining-nums;
+  letter-spacing: 0;
 }
 
 /* ── Облики блока уровня ────────────────────────────────── */
@@ -424,5 +449,15 @@
 
   .ske--v2 .ske__lvc {
     padding-left: 8px;
+  }
+}
+
+
+/* На тач-экранах нет наведения: крестик и стрелки уровня видны всегда. */
+@media (hover: none), (max-width: 560px) {
+  .ske__del,
+  .ske__lvstep {
+    opacity: 1;
+    pointer-events: auto;
   }
 }
