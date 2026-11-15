@@ -11,9 +11,9 @@
 
 .ske__body {
   display: flex;
-  flex: 1;
+  flex: 0 0 auto;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: flex-start;
   margin-top: -6px;
 }
 

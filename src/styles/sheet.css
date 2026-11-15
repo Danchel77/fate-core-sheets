@@ -16,10 +16,12 @@
 }
 
 .book {
-  --row-first: 360px;
+  --page-gap: 14px;
   width: min(1560px, 100%);
   display: grid;
   grid-template-columns: 1fr 1fr;
+  grid-template-rows: repeat(3, auto);
+  row-gap: var(--page-gap);
   border: 2px solid var(--accent-gold);
   outline: 1px solid color-mix(in srgb, var(--accent-gold) 55%, transparent);
   outline-offset: 3px;
@@ -30,26 +32,32 @@
     0 4px 14px color-mix(in srgb, black 35%, transparent);
 }
 
+/* Обе страницы тянутся на все три строки книги: их ряды — общая сетка.
+   Поэтому «Стресс» и «Трюки» начинаются на одной линии, а «Аспекты»
+   и «Дополнения» — тоже, без фиксированной высоты и пустых резервов. */
 .page {
+  grid-row: 1 / -1;
   display: grid;
-  grid-template-rows: var(--row-first) auto minmax(0, 1fr);
-  gap: 14px;
+  grid-template-rows: subgrid;
+  row-gap: var(--page-gap);
   padding: clamp(20px, 2.6vw, 34px);
   background: color-mix(in srgb, var(--bg-parchment) 72%, transparent);
 }
 
-/* Верхняя строка — общий якорь: «Персонаж» и «Навыки» одной высоты. */
+/* Блоки не растягиваются: пирамида и персонаж живут своей высотой.
+   Третья строка общая: «Аспекты» и «Дополнения» заполняют её до низа. */
 .page > .cblock,
-.page > .ske {
+.page > .ske,
+.page > .str,
+.page > .stk {
   min-height: 0;
-  height: 100%;
+  align-self: start;
 }
 
-/* Нижняя строка тянется до низа страницы: за счёт неё сходятся низы. */
 .page > .ablock,
 .page > .ext {
   min-height: 0;
-  height: 100%;
+  align-self: stretch;
 }
 
 .page--left {
@@ -66,17 +74,24 @@
 @media (max-width: 920px) {
   .book {
     grid-template-columns: 1fr;
+    grid-template-rows: none;
+    row-gap: 0;
   }
 
   .page {
+    grid-row: auto;
     display: flex;
     flex-direction: column;
+    gap: var(--page-gap);
   }
 
   .page > .cblock,
   .page > .ske,
+  .page > .str,
+  .page > .stk,
   .page > .ablock,
   .page > .ext {
+    align-self: stretch;
     height: auto;
   }
 

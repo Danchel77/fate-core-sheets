@@ -17,10 +17,18 @@
 .stk__card {
   position: relative;
   min-width: 0;
-  padding: 7px 10px 5px 14px;
+  padding: 13px 10px 11px 14px;
   border-bottom: 1px solid color-mix(in srgb, var(--accent-gold) 32%, transparent);
   background: transparent;
   transition: background-color var(--transition-fast);
+}
+
+/* На узком десктопе «Стресс» становится выше; трюки добирают ту же
+   строку воздуха, чтобы «Аспекты» и «Дополнения» начинались на одной линии. */
+@media (min-width: 921px) and (max-width: 1120px) {
+  .stk__card {
+    padding: 17px 10px 15px 14px;
+  }
 }
 
 .stk__card:last-child {
