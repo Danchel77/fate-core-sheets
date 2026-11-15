@@ -48,12 +48,12 @@
   max-width: min(340px, calc(100vw - 20px));
   padding: 9px 14px 11px;
   color: var(--text-ink-primary);
-  background-color: color-mix(in srgb, var(--bg-parchment) 86%, #fffdf6 14%);
+  background-color: color-mix(in srgb, var(--bg-parchment) 86%, var(--paper-highlight) 14%);
   border: 1px solid color-mix(in srgb, var(--accent-gold-deep) 68%, transparent);
   box-shadow:
-    0 12px 26px rgba(30, 20, 8, 0.3),
-    0 2px 7px rgba(30, 20, 8, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.55);
+    0 12px 26px var(--shadow-deep),
+    0 2px 7px var(--shadow-soft),
+    inset 0 1px 0 var(--highlight-paper-strong);
   animation: hint-in 0.13s ease-out;
 }
 
@@ -154,7 +154,7 @@
   z-index: 1;
   width: 11px;
   height: 11px;
-  background-color: color-mix(in srgb, var(--bg-parchment) 86%, #fffdf6 14%);
+  background-color: color-mix(in srgb, var(--bg-parchment) 86%, var(--paper-highlight) 14%);
   transform: rotate(45deg);
 }
 

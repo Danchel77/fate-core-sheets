@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Hint } from './Hint';
 
 const FATE_POINTS_HINT =
@@ -17,6 +17,10 @@ type Props = {
  */
 export function FatePoints({ initial, refresh, max = 5 }: Props) {
   const [value, setValue] = useState(initial);
+
+  useEffect(() => {
+    setValue(initial);
+  }, [initial]);
 
   const pick = (index: number) => {
     setValue(index + 1 === value ? index : index + 1);

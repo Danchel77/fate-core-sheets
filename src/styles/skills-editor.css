@@ -81,7 +81,7 @@
   justify-content: center;
   border: 1px solid color-mix(in srgb, var(--accent-gold) 26%, transparent);
   border-radius: 1px;
-  background: color-mix(in srgb, var(--bg-parchment) 84%, #d9c6a2 16%);
+  background: color-mix(in srgb, var(--bg-parchment) 84%, var(--tint-gold-pale) 16%);
 }
 
 .ske__name {
@@ -160,11 +160,11 @@
   width: 13px;
   height: 13px;
   overflow: visible;
-  filter: drop-shadow(0 1px 0 color-mix(in srgb, #fffdf6 55%, transparent));
+  filter: drop-shadow(0 1px 0 color-mix(in srgb, var(--paper-highlight) 55%, transparent));
 }
 
 .ske__up:hover .ske__upico {
-  filter: drop-shadow(0 1px 0 color-mix(in srgb, #fffdf6 70%, transparent))
+  filter: drop-shadow(0 1px 0 color-mix(in srgb, var(--paper-highlight) 70%, transparent))
     drop-shadow(0 0 2px color-mix(in srgb, var(--ac-strong) 45%, transparent));
 }
 
@@ -384,7 +384,7 @@
   padding: 8px;
   border: 1px solid color-mix(in srgb, var(--ac) 45%, transparent);
   border-radius: 3px;
-  background: color-mix(in srgb, var(--bg-parchment) 96%, #fffdf6);
+  background: color-mix(in srgb, var(--bg-parchment) 96%, var(--paper-highlight));
   box-shadow: 0 14px 30px color-mix(in srgb, var(--ac-ink) 30%, transparent);
 }
 

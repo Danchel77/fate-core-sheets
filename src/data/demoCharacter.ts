@@ -6,7 +6,6 @@ export type LadderRow = { value: number; skills: string[] };
 
 export type Character = {
   name: string;
-  concept: string;
   description: string;
   portrait: string;
   refresh: number;
@@ -23,7 +22,6 @@ export type Character = {
 /** Демо-персонаж для сборки веб-листа (не сохраняется в хранилище). */
 export const demoCharacter: Character = {
   name: 'Геральт из Ривии',
-  concept: 'Ведьмак, который не берёт денег с бедных',
   description:
     'Седой ведьмак школы Волка. Два меча: сталь — для людей, серебро — для чудовищ. Умеет читать следы, варить зелья и молчать, когда лучше не говорить.',
   portrait: `${BASE}assets/portraits/geralt.jpg`,
@@ -40,7 +38,7 @@ export const demoCharacter: Character = {
     { value: 4, skills: ['Драка'] },
     { value: 3, skills: ['Внимательность', 'Магия'] },
     { value: 2, skills: ['Скрытность', 'Воля', 'Монстрология'] },
-    { value: 1, skills: ['Атлетика', 'Верховая езда', 'Знания', 'Телосложение'] },
+    { value: 1, skills: ['Атлетика', 'Верховая езда', 'Знания', 'Телосложение', 'Эмпатия'] },
   ],
   stunts: [
     {
@@ -66,28 +64,5 @@ export const demoCharacter: Character = {
     { value: 2, kind: 'лёгкое', text: 'Ссадина на плече' },
     { value: 4, kind: 'среднее' },
     { value: 6, kind: 'серьёзное' },
-  ],
-};
-
-/** Стресс-тест вёрстки: пять навыков на +1 (первая значимая веха). */
-export const overflowCharacter: Character = {
-  ...demoCharacter,
-  ladder: [
-    { value: 4, skills: ['Драка'] },
-    { value: 3, skills: ['Внимательность', 'Магия'] },
-    { value: 2, skills: ['Скрытность', 'Воля', 'Монстрология', 'Ремесло'] },
-    { value: 1, skills: ['Атлетика', 'Верховая езда', 'Знания', 'Телосложение', 'Эмпатия'] },
-  ],
-};
-
-/** Продвинутый герой: планка поднята, ступень +5 доступна. */
-export const advancedCharacter: Character = {
-  ...demoCharacter,
-  ladder: [
-    { value: 5, skills: ['Драка'] },
-    { value: 4, skills: ['Внимательность'] },
-    { value: 3, skills: ['Магия', 'Воля'] },
-    { value: 2, skills: ['Скрытность', 'Монстрология', 'Ремесло'] },
-    { value: 1, skills: ['Атлетика', 'Верховая езда', 'Знания', 'Эмпатия'] },
   ],
 };

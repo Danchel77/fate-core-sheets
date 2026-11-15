@@ -1,5 +1,5 @@
-import { useLayoutEffect, useRef, useState } from 'react';
-import { demoCharacter } from '../data/demoCharacter';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import type { Character } from '../data/demoCharacter';
 import { BlockHeader } from './BlockHeader';
 import { FatePoints } from './FatePoints';
 import { PortraitPlate } from './PortraitPlate';
@@ -15,12 +15,17 @@ function resizeField(el: HTMLTextAreaElement) {
 }
 
 /** Блок «Персонаж»: портрет слева, имя, жетоны судьбы и описание справа. */
-export function CharacterBlock() {
-  const c = demoCharacter;
+export function CharacterBlock({ character }: { character: Character }) {
+  const c = character;
   const [name, setName] = useState(c.name);
   const [description, setDescription] = useState(c.description);
   const nameRef = useRef<HTMLTextAreaElement>(null);
   const descRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    setName(c.name);
+    setDescription(c.description);
+  }, [c.name, c.description]);
 
   useLayoutEffect(() => {
     const el = nameRef.current;

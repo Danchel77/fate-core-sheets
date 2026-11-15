@@ -17,37 +17,12 @@
   --lh-tight: 1.15;
   --lh-body: 1.45;
 
-  /* Размеры текста */
-  --step--1: 0.875rem;
-  --step-0: 1rem;
-  --step-1: 1.25rem;
-  --step-2: 1.5rem;
-  --step-3: 2rem;
-  --step-4: 2.5rem;
+  /* Базовые размеры для сброса документа */
+  --step-0: 1rem;    /* базовый текст body */
+  --step-3: 2rem;    /* h1 по умолчанию */
 
-  /* Отступы */
-  --space-1: 0.25rem;
-  --space-2: 0.5rem;
+  /* Базовые отступы документа */
   --space-3: 0.75rem;
-  --space-4: 1rem;
-  --space-5: 1.5rem;
-  --space-6: 2rem;
-  --space-7: 3rem;
-  --space-8: 4rem;
-
-  /* Скругления и рамки */
-  --radius-sm: 4px;
-  --radius-md: 8px;
-  --radius-lg: 16px;
-  --border-width: 1px;
-
-  /* Размеры интерфейса */
-  /* Временные серые для скелета макета — удаляются после выбора палитры */
-  --wf-bg: #ffffff;
-  --wf-ink: #111111;
-  --wf-line: #b8b8b8;
-  --wf-fill: #f2f2f2;
-  --wf-muted: #8a8a8a;
 
   /* Утверждённая палитра веб-листа (Phase 2, вариант «Золото» + бронзовое паспарту) */
   --bg-table: #221f1a;
@@ -62,20 +37,32 @@
   --accent-gold-action: #b07c22;
   --accent-crimson-action: #a83727;
   --accent-crimson-ink: #711f16;
-  --accent-moss-action: #5f8038;
   --arrow-gold-hi: #d7a24a;
   --arrow-gold-mid: #b07c22;
   --arrow-gold-lo: #6b4b1e;
   --arrow-edge: #4a2318;
 
-  --accent-moss-ink: #3c5223;
   --band-ink: #f8eed9;
   --font-name-sc: 'Cormorant SC', 'Cormorant Garamond', serif;
   --font-name-prata: 'Prata', 'Cormorant Garamond', serif;
-  --text-ink-warm: #3b1d12;
-  --font-heading: var(--font-display);
+
+  /* Служебные оттенки: перенесены из компонентов без изменения цвета */
+  --tint-gold-sand: #c2a26a;
+  --tint-gold-pale: #d9c6a2;
+  --paper-highlight: #fffdf6;
+  --coin-edge: #6b4a20;
+  --coin-highlight: #d8b06a;
+  --highlight-paper: rgba(255, 255, 255, 0.45);
+  --highlight-paper-strong: rgba(255, 255, 255, 0.55);
+  --highlight-warm: rgba(255, 240, 205, 0.5);
+  --highlight-warm-soft: rgba(255, 240, 205, 0.38);
+  --shadow-warm-soft: rgba(70, 48, 18, 0.16);
+  --shadow-warm: rgba(70, 48, 18, 0.18);
+  --shadow-deep: rgba(30, 20, 8, 0.3);
+  --shadow-soft: rgba(30, 20, 8, 0.2);
+  --shadow-portrait: rgba(30, 20, 8, 0.38);
+  --shadow-black-soft: rgba(0, 0, 0, 0.25);
 
   --touch-target: 44px;
-  --content-width: 72rem;
   --transition-fast: 120ms ease;
 }
