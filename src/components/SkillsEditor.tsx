@@ -292,29 +292,31 @@ export function SkillsEditor({ initial, initialLevel = 4 }: Props) {
                         Уровень
                       </Hint>
                     </span>
-                    <span className="ske__lvsteps">
-                      <button
-                        type="button"
-                        className="ske__step"
-                        aria-label="Повысить уровень"
-                        title="Повысить уровень"
-                        disabled={level >= MAX_LEVEL}
-                        onClick={() => setLevel((l) => Math.min(MAX_LEVEL, l + 1))}
-                      >
-                        <LevelArrow direction="up" />
-                      </button>
-                      <button
-                        type="button"
-                        className="ske__step"
-                        aria-label="Понизить уровень"
-                        title="Понизить уровень"
-                        disabled={level <= 1}
-                        onClick={() => setLevel((l) => Math.max(1, l - 1))}
-                      >
-                        <LevelArrow direction="down" />
-                      </button>
+                    <span className="ske__lv-controls">
+                      <span className="ske__lvsteps">
+                        <button
+                          type="button"
+                          className="ske__step"
+                          aria-label="Повысить уровень"
+                          title="Повысить уровень"
+                          disabled={level >= MAX_LEVEL}
+                          onClick={() => setLevel((l) => Math.min(MAX_LEVEL, l + 1))}
+                        >
+                          <LevelArrow direction="up" />
+                        </button>
+                        <button
+                          type="button"
+                          className="ske__step"
+                          aria-label="Понизить уровень"
+                          title="Понизить уровень"
+                          disabled={level <= 1}
+                          onClick={() => setLevel((l) => Math.max(1, l - 1))}
+                        >
+                          <LevelArrow direction="down" />
+                        </button>
+                      </span>
+                      <span className="ske__lvnum">{level}</span>
                     </span>
-                    <span className="ske__lvnum">{level}</span>
                   </span>
                   <span className={`ske__lv-free${free < 0 ? ' ske__lv-free--debt' : ''}`}>
                     {free > 0 && (

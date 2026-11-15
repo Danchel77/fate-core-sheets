@@ -253,7 +253,7 @@
 }
 
 .ske__lvnum {
-  min-width: 1.1em;
+  min-width: 0;
   font-family: var(--font-name-prata);
   font-size: 18px;
   font-weight: 400;
@@ -262,6 +262,13 @@
   font-feature-settings: 'lnum' 1;
   text-align: right;
   color: var(--ac-ink);
+}
+
+/* Зона наведения: число и стрелки вместе, чтобы курсор не терял их. */
+.ske__lv-controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 /* Столбец стрелок: вверх над вниз; скрыт до наведения на число. */
@@ -273,15 +280,12 @@
   width: 12px;
   margin: 0;
   opacity: 0;
-  pointer-events: none;
   transition: opacity 0.12s;
 }
 
-.ske__lv-line:has(.ske__lvnum:hover) .ske__lvsteps,
-.ske__lv-line:focus-within .ske__lvsteps,
-.ske__lvsteps:hover {
+.ske__lv-controls:hover .ske__lvsteps,
+.ske__lv-controls:focus-within .ske__lvsteps {
   opacity: 1;
-  pointer-events: auto;
 }
 
 .ske__step {
@@ -453,7 +457,6 @@
 @media (hover: none) {
   .ske__lvsteps {
     opacity: 1;
-    pointer-events: auto;
   }
 }
 
