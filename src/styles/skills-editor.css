@@ -210,7 +210,14 @@
   background: color-mix(in srgb, var(--ac-strong) 18%, transparent);
 }
 
-/* ── Уровень: фиксированные две строки справа ───────────── */
+/* ── Уровень: число прижато к правому краю, стрелки в столбце ── */
+
+/*
+ * Стрелки живут в собственном узком столбце слева от числа. Ширина столбца
+ * зарезервирована всегда, поэтому число не сдвигается при показе стрелок.
+ * По умолчанию они прозрачны и не перехватывают мышь; показываются при
+ * наведении на само число или при попадании фокуса внутрь строки.
+ */
 
 .ske__lvc {
   position: absolute;
@@ -221,18 +228,17 @@
   flex-direction: column;
   align-items: flex-end;
   justify-content: center;
-  gap: 5px;
+  gap: 4px;
   min-height: 39px;
   padding-left: 12px;
-  padding-right: 0;
   z-index: 2;
 }
 
 .ske__lv-line {
   display: flex;
   align-items: center;
-  gap: 5px;
-  min-height: 21px;
+  gap: 4px;
+  min-height: 24px;
 }
 
 .ske__lv-label {
@@ -247,39 +253,40 @@
 }
 
 .ske__lvnum {
-  min-width: 12px;
+  min-width: 1.1em;
   font-family: var(--font-name-prata);
   font-size: 18px;
   font-weight: 400;
   line-height: 1;
   font-variant-numeric: lining-nums;
   font-feature-settings: 'lnum' 1;
-  text-align: center;
+  text-align: right;
   color: var(--ac-ink);
 }
 
-/* Стрелки уровня: крупные гранёные перья, заметно отличаются от карточных. */
-
-.ske__lvstep {
+/* Столбец стрелок: вверх над вниз; скрыт до наведения на число. */
+.ske__lvsteps {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   align-items: center;
-  gap: 1px;
-  width: auto;
-  height: 22px;
+  justify-content: center;
+  width: 12px;
   margin: 0;
-  opacity: 0.55;
+  opacity: 0;
+  pointer-events: none;
   transition: opacity 0.12s;
 }
 
-.ske__lv-line:hover .ske__lvstep,
-.ske__lv-line:has(.ske__step:focus-visible) .ske__lvstep {
+.ske__lv-line:has(.ske__lvnum:hover) .ske__lvsteps,
+.ske__lv-line:focus-within .ske__lvsteps,
+.ske__lvsteps:hover {
   opacity: 1;
+  pointer-events: auto;
 }
 
 .ske__step {
-  width: 22px;
-  height: 22px;
+  width: 12px;
+  height: 12px;
   display: grid;
   place-items: center;
   padding: 0;
@@ -288,13 +295,12 @@
   background: transparent;
   color: var(--ac-strong);
   cursor: pointer;
-  transition: color 0.12s, background 0.12s, transform 0.12s;
+  transition: color 0.12s, background 0.12s;
 }
 
 .ske__step:hover:not(:disabled) {
   background: color-mix(in srgb, var(--ac-strong) 10%, transparent);
   color: var(--ac-ink);
-  transform: translateY(-1px);
 }
 
 .ske__step:focus-visible {
@@ -303,14 +309,14 @@
 }
 
 .ske__step:disabled {
-  opacity: 0.28;
+  opacity: 0.25;
   cursor: default;
 }
 
 .ske__lvarrow {
   display: block;
-  width: 17px;
-  height: 17px;
+  width: 11px;
+  height: 11px;
   overflow: visible;
   filter: drop-shadow(0 1px 0 color-mix(in srgb, var(--bg-parchment) 75%, transparent));
 }
@@ -320,12 +326,10 @@
 }
 
 .ske__step:hover:not(:disabled) .ske__lvarrow {
-  filter: drop-shadow(0 1px 0 color-mix(in srgb, var(--bg-parchment) 85%, transparent))
-    drop-shadow(0 0 2px color-mix(in srgb, var(--ac-strong) 45%, transparent));
+  filter: drop-shadow(0 1px 0 color-mix(in srgb, var(--bg-parchment) 85%, transparent));
 }
 
-/* Вторая строка: остаток очков. Высота зарезервирована всегда. */
-
+/* Вторая строка: остаток очков. */
 .ske__lv-free {
   min-height: 11px;
   font-family: var(--font-body);
@@ -336,6 +340,7 @@
   text-transform: uppercase;
   color: var(--ac-strong);
   white-space: nowrap;
+  text-align: right;
 }
 
 .ske__lv-free--debt {
@@ -438,11 +443,17 @@
 }
 
 
-/* На тач-экранах нет наведения: крестик и стрелки уровня видны всегда. */
+/* На тач-экранах нет наведения: крестик и стрелки уровня видны сразу. */
 @media (hover: none), (max-width: 560px) {
-  .ske__del,
-  .ske__lvstep {
+  .ske__del {
     opacity: 1;
+  }
+}
+
+@media (hover: none) {
+  .ske__lvsteps {
+    opacity: 1;
+    pointer-events: auto;
   }
 }
 

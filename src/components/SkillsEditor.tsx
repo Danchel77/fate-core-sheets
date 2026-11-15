@@ -90,8 +90,8 @@ function LevelArrow({ direction }: { direction: 'up' | 'down' }) {
     <svg
       className={`ske__lvarrow${direction === 'down' ? ' ske__lvarrow--down' : ''}`}
       viewBox="0 0 18 18"
-      width="15"
-      height="15"
+      width="11"
+      height="11"
       aria-hidden="true"
       focusable="false"
     >
@@ -292,8 +292,7 @@ export function SkillsEditor({ initial, initialLevel = 4 }: Props) {
                         Уровень
                       </Hint>
                     </span>
-                    <span className="ske__lvnum">{level}</span>
-                    <span className="ske__lvstep">
+                    <span className="ske__lvsteps">
                       <button
                         type="button"
                         className="ske__step"
@@ -315,6 +314,7 @@ export function SkillsEditor({ initial, initialLevel = 4 }: Props) {
                         <LevelArrow direction="down" />
                       </button>
                     </span>
+                    <span className="ske__lvnum">{level}</span>
                   </span>
                   <span className={`ske__lv-free${free < 0 ? ' ske__lv-free--debt' : ''}`}>
                     {free > 0 && (
