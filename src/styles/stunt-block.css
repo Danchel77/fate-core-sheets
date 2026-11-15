@@ -1,60 +1,7 @@
-/* Блок «Трюки»: строки как в блоке аспектов и «+» в углу заголовка. */
+/* Блок «Трюки»: строки как в блоке аспектов. */
 
 .stk {
   color: var(--text-ink-primary);
-}
-
-.stk__head {
-  position: relative;
-}
-
-/* круглая кнопка «+»: визуально 24 px, палец — 44 px */
-.stk__add {
-  position: absolute;
-  top: 1px;
-  right: 9px;
-  z-index: 4;
-  width: 24px;
-  height: 24px;
-  display: grid;
-  place-items: center;
-  padding: 0;
-  border: 1px solid color-mix(in srgb, var(--accent-gold-deep) 55%, transparent);
-  border-radius: 50%;
-  background: color-mix(in srgb, var(--bg-parchment) 86%, var(--accent-gold) 14%);
-  color: var(--accent-gold-ink);
-  font-family: var(--font-body);
-  font-size: var(--text-body);
-  line-height: 1;
-  cursor: pointer;
-  transition:
-    background-color var(--transition-fast),
-    border-color var(--transition-fast),
-    color var(--transition-fast),
-    opacity var(--transition-fast);
-}
-
-.stk__add::after {
-  content: '';
-  position: absolute;
-  inset: -10px;
-  border-radius: 50%;
-}
-
-.stk__add:hover:not(:disabled) {
-  background: var(--accent-gold-deep);
-  border-color: var(--accent-gold-ink);
-  color: var(--band-ink);
-}
-
-.stk__add:disabled {
-  opacity: 0.38;
-  cursor: not-allowed;
-}
-
-.stk__add:focus-visible {
-  outline: 2px solid var(--accent-gold-ink);
-  outline-offset: 2px;
 }
 
 /* ---------- строки ---------- */

@@ -1,5 +1,6 @@
-import { useEffect, useId, useState } from 'react';
+import { useId, useState } from 'react';
 import { BlockHeader } from './BlockHeader';
+import { BlockMenu } from './BlockMenu';
 import '../styles/skills-editor.css';
 
 /** 18 навыков сеттинга «Ведьмак» (список зафиксирован в fate_core_rules.md). */
@@ -86,24 +87,6 @@ export function SkillsEditor({ initial, initialLevel = 4 }: Props) {
   const [rows, setRows] = useState<Row[]>(() => buildRows(initial));
   const [level, setLevel] = useState(initialLevel);
   const [menuRank, setMenuRank] = useState<number | null>(null);
-  const [moreOpen, setMoreOpen] = useState(false);
-
-  useEffect(() => {
-    if (!moreOpen) return;
-    const onDown = (event: PointerEvent) => {
-      const target = event.target as HTMLElement | null;
-      if (!target?.closest('.ske__rankmenu, .ske__more')) setMoreOpen(false);
-    };
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setMoreOpen(false);
-    };
-    document.addEventListener('pointerdown', onDown);
-    document.addEventListener('keydown', onKey);
-    return () => {
-      document.removeEventListener('pointerdown', onDown);
-      document.removeEventListener('keydown', onKey);
-    };
-  }, [moreOpen]);
 
   const spent = rows.reduce((sum, row) => sum + row.value * row.skills.length, 0);
   const free = BASE_POINTS + (level - 1) - spent;
@@ -176,50 +159,17 @@ export function SkillsEditor({ initial, initialLevel = 4 }: Props) {
       <BlockHeader
         title="Навыки"
         aside={
-          <button
-            type="button"
-            className="ske__more"
-            aria-label="Ступени: добавить или убрать"
-            aria-expanded={moreOpen}
-            aria-haspopup="menu"
-            onClick={() => setMoreOpen((open) => !open)}
-          >
-            <i />
-            <i />
-            <i />
-          </button>
+          <BlockMenu
+            label="Ступени: добавить или убрать"
+            items={[
+              { label: 'Добавить ступень', onSelect: addRank, disabled: !canAddRank },
+              ...(canRemoveRank
+                ? [{ label: 'Убрать ступень', onSelect: removeRank, danger: true }]
+                : []),
+            ]}
+          />
         }
       />
-
-      {moreOpen && (
-        <div className="ske__rankmenu" role="menu">
-          <button
-            type="button"
-            role="menuitem"
-            className="ske__rankmenu-item"
-            disabled={!canAddRank}
-            onClick={() => {
-              addRank();
-              setMoreOpen(false);
-            }}
-          >
-            Добавить ступень
-          </button>
-          {canRemoveRank && (
-            <button
-              type="button"
-              role="menuitem"
-              className="ske__rankmenu-item ske__rankmenu-item--danger"
-              onClick={() => {
-                removeRank();
-                setMoreOpen(false);
-              }}
-            >
-              Убрать ступень
-            </button>
-          )}
-        </div>
-      )}
 
       <div className="ske__body">
         {rows.map((row, rowIndex) => {

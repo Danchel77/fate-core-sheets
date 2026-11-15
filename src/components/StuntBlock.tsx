@@ -1,11 +1,9 @@
 import { useCallback, useState } from 'react';
 import type { Stunt } from '../data/demoCharacter';
 import { BlockHeader } from './BlockHeader';
+import { BlockMenu } from './BlockMenu';
 import { StuntModal } from './StuntModal';
-import type { StuntModalVariant } from './StuntModal';
 import '../styles/stunt-block.css';
-
-export type { StuntModalVariant } from './StuntModal';
 
 const MAX_STUNTS = 5;
 
@@ -15,7 +13,6 @@ type Editor = { mode: 'new' } | { mode: 'edit'; id: string };
 
 type Props = {
   stunts: Stunt[];
-  modal?: StuntModalVariant;
   baseRefresh?: number;
 };
 
@@ -24,9 +21,9 @@ const makeId = () => `stunt-${nextId++}`;
 
 /**
  * Блок «Трюки»: карточки героя.
- * Карточка открывает окно правки, «+» в углу блока добавляет новый трюк.
+ * Карточка открывает окно правки, меню в углу блока добавляет новый трюк.
  */
-export function StuntBlock({ stunts, modal = 'plaque', baseRefresh = 3 }: Props) {
+export function StuntBlock({ stunts, baseRefresh = 3 }: Props) {
   const [items, setItems] = useState<StuntItem[]>(() =>
     stunts.map((stunt) => ({ ...stunt, id: makeId() })),
   );
@@ -61,19 +58,22 @@ export function StuntBlock({ stunts, modal = 'plaque', baseRefresh = 3 }: Props)
 
   return (
     <section className="stk">
-      <div className="stk__head">
-        <BlockHeader title="Трюки" />
-        <button
-          type="button"
-          className="stk__add"
-          onClick={() => setEditor({ mode: 'new' })}
-          disabled={atLimit}
-          aria-label="Добавить трюк"
-          title={atLimit ? 'Все пять трюков записаны' : 'Добавить трюк'}
-        >
-          <span aria-hidden="true">+</span>
-        </button>
-      </div>
+      <BlockHeader
+        title="Трюки"
+        aside={
+          <BlockMenu
+            label="Действия с трюками"
+            items={[
+              {
+                label: 'Добавить трюк',
+                onSelect: () => setEditor({ mode: 'new' }),
+                disabled: atLimit,
+                title: atLimit ? 'Все пять трюков записаны' : undefined,
+              },
+            ]}
+          />
+        }
+      />
 
       {items.length > 0 ? (
         <div className="stk__cards">
@@ -91,7 +91,7 @@ export function StuntBlock({ stunts, modal = 'plaque', baseRefresh = 3 }: Props)
           ))}
         </div>
       ) : (
-        <p className="stk__empty">Пока пусто. Нажми «+» в углу блока, чтобы добавить трюк.</p>
+        <p className="stk__empty">Пока пусто. Открой меню из трёх точек в углу блока и выбери «Добавить трюк».</p>
       )}
 
       {atLimit && (
@@ -101,7 +101,6 @@ export function StuntBlock({ stunts, modal = 'plaque', baseRefresh = 3 }: Props)
       {editor && (editor.mode === 'new' || current) && (
         <StuntModal
           key={editor.mode === 'edit' ? editor.id : 'new'}
-          variant={modal}
           mode={editor.mode}
           initial={current ? { name: current.name, text: current.text } : { name: '', text: '' }}
           count={items.length}

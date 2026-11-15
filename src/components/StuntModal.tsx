@@ -5,12 +5,9 @@ import '../styles/stunt-modal.css';
 
 const PAPER = `${import.meta.env.BASE_URL}assets/textures/parchment-soft.jpg`;
 
-export type StuntModalVariant = 'plaque' | 'margin' | 'ledger';
-
 type Draft = { name: string; text: string };
 
 type Props = {
-  variant: StuntModalVariant;
   mode: 'new' | 'edit';
   initial: Draft;
   count: number;
@@ -20,54 +17,25 @@ type Props = {
   onClose: () => void;
 };
 
-type Copy = {
-  nameLabel: string;
-  namePlaceholder: string;
-  textLabel: string;
-  textPlaceholder: string;
-  help: string;
-  example: string;
-  note: string;
-  saveLabel: string;
-};
-
-const COPY: Record<StuntModalVariant, Copy> = {
-  plaque: {
-    nameLabel: 'Название',
-    namePlaceholder: 'Например: Ведьмачьи чувства',
-    textLabel: 'Описание',
-    textPlaceholder: 'Например: +2 к Внимательности, когда выслеживаю чудовище.',
-    help: 'Коротко: одно условие и один эффект — этого достаточно.',
-    example: 'Например: «+2 к Драке, когда противник — чудовище».',
-    note: 'Первые три трюка бесплатны. Четвёртый и пятый снижают Обновление на 1.',
-    saveLabel: 'Сохранить',
-  },
-  margin: {
-    nameLabel: 'Имя',
-    namePlaceholder: 'Например: Два меча',
-    textLabel: 'Правило',
-    textPlaceholder: 'Потому что я ведьмак, я получаю +2 к Драке против чудовищ.',
-    help: 'Начни с «Потому что я…» — так сразу видно, откуда сила.',
-    example: 'Например: «Потому что я ведьмак, я получаю +2 к Драке против чудовищ».',
-    note: 'Три трюка входят в Обновление. Каждый следующий — минус 1.',
-    saveLabel: 'Записать',
-  },
-  ledger: {
-    nameLabel: 'Название',
-    namePlaceholder: 'Например: Знак Игни',
-    textLabel: 'Когда срабатывает',
-    textPlaceholder: 'Раз за сцену я могу поджечь всё в одном секторе.',
-    help: 'Опиши, что происходит и когда. Чем короче, тем легче держать в голове.',
-    example: 'Например: «Раз за сцену я могу…».',
-    note: 'Сверх трёх трюков Обновление уменьшается на 1 за каждый.',
-    saveLabel: 'Сохранить',
-  },
-};
-
-const ORDINAL = ['', 'первый', 'второй', 'третий', 'четвёртый', 'пятый'];
-
 const FOCUSABLE =
-  'button:not([disabled]), input:not([disabled]), textarea:not([disabled]), [href], [tabindex]:not([tabindex="-1"])';
+  'button:not([disabled]), input:not([disabled]), textarea:not([disabled]), summary, [href], [tabindex]:not([tabindex="-1"])';
+
+/** Предупреждение о цене четвёртого и пятого трюка. */
+function buildWarning(
+  mode: 'new' | 'edit',
+  countAfter: number,
+  baseRefresh: number,
+): string | null {
+  if (mode !== 'new' || countAfter <= 3) return null;
+
+  const refreshBefore = Math.max(1, baseRefresh - Math.max(0, countAfter - 1 - 3));
+  const refreshAfter = Math.max(1, baseRefresh - Math.max(0, countAfter - 3));
+  if (refreshAfter >= refreshBefore) return null;
+
+  const ordinal = countAfter === 4 ? 'четвёртый' : 'пятый';
+  const tail = countAfter >= 5 ? ' Больше пяти трюков взять нельзя.' : '';
+  return `Это ${ordinal} трюк. Обновление уменьшится на 1: ${refreshBefore} → ${refreshAfter}.${tail}`;
+}
 
 /** Подтверждение удаления: два шага, чтобы не стереть трюк случайно. */
 function DeleteControl({ onDelete }: { onDelete: () => void }) {
@@ -94,40 +62,58 @@ function DeleteControl({ onDelete }: { onDelete: () => void }) {
   );
 }
 
-function buildNote(
-  variant: StuntModalVariant,
-  mode: 'new' | 'edit',
-  countAfter: number,
-  baseRefresh: number,
-  refreshAfter: number,
-) {
-  if (countAfter <= 3) return COPY[variant].note;
-
-  if (mode === 'new') {
-    if (variant === 'plaque') {
-      return `Это ${ORDINAL[countAfter]} трюк. Обновление: ${baseRefresh} → ${refreshAfter}.`;
-    }
-    if (variant === 'margin') {
-      return `Сверх трёх: ${ORDINAL[countAfter]} трюк снизит Обновление на 1 (${baseRefresh} → ${refreshAfter}).`;
-    }
-    return `Сверх трёх: останется ${refreshAfter} Обновления.`;
-  }
-
-  if (variant === 'plaque') {
-    return `Трюк записан сверх трёх: Обновление ${refreshAfter} из ${baseRefresh}.`;
-  }
-  if (variant === 'margin') {
-    return `Сверх бесплатных: Обновление ${refreshAfter} из ${baseRefresh}.`;
-  }
-  return `Этот трюк сверх трёх: Обновление ${refreshAfter} из ${baseRefresh}.`;
+function Hint() {
+  return (
+    <details className="sm__hint">
+      <summary className="sm__hint-summary">Как придумать трюк</summary>
+      <div className="sm__hint-body">
+        <p>
+          <strong>Что такое трюк.</strong> Трюк — это приём персонажа, который даёт
+          преимущество в конкретном случае. Вы можете использовать трюк, когда выполнены его
+          условия.
+        </p>
+        <p>
+          <strong>Хороший трюк.</strong> Он не работает всегда: помогает в конкретной
+          ситуации, которая реально случается в игре, и не заменяет навык. Если условие
+          слишком широкое, Мастер попросит его сузить.
+        </p>
+        <p>
+          <strong>Шаблоны.</strong> Ниже три шаблона с примерами. Это не обязательные правила:
+          можно написать свой вариант.
+        </p>
+        <ol className="sm__hint-list">
+          <li>
+            <span className="sm__hint-pattern">+2 к [Навык], когда [условие].</span>
+            <span className="sm__hint-example">
+              Пример: «Серебряный меч» — +2 к Драке, когда вы сражаетесь против чудовища.
+            </span>
+          </li>
+          <li>
+            <span className="sm__hint-pattern">
+              Использую [Навык А] вместо [Навык Б], когда [условие].
+            </span>
+            <span className="sm__hint-example">
+              Пример: «Парирую стрелы» — использую Драку вместо Атлетики, когда защищаюсь от
+              стрел и метательного оружия.
+            </span>
+          </li>
+          <li>
+            <span className="sm__hint-pattern">Раз за сцену или сессию могу [эффект].</span>
+            <span className="sm__hint-example">
+              Пример: «Знак Игни» — раз за сцену поджигаю всё в одном секторе.
+            </span>
+          </li>
+        </ol>
+      </div>
+    </details>
+  );
 }
 
 /**
- * Окно трюка: три компактные подачи одной формы.
- * Строка блока и «+» открывают его; название и описание правятся здесь.
+ * Окно трюка: название, описание, подсказка и цена сверх трёх трюков.
+ * Строка блока и меню «Добавить трюк» открывают его.
  */
 export function StuntModal({
-  variant,
   mode,
   initial,
   count,
@@ -139,7 +125,7 @@ export function StuntModal({
   const [name, setName] = useState(initial.name);
   const [text, setText] = useState(initial.text);
   const panelRef = useRef<HTMLDivElement>(null);
-  const closeRef = useRef<HTMLButtonElement>(null);
+  const textRef = useRef<HTMLTextAreaElement>(null);
 
   const rawId = useId();
   const id = rawId.replace(/:/g, '');
@@ -160,10 +146,8 @@ export function StuntModal({
     document.body.style.overflow = 'hidden';
     if (scrollbar > 0) document.body.style.paddingRight = `${scrollbar}px`;
 
-    if (!panel.contains(document.activeElement)) {
-      const firstInput = panel.querySelector<HTMLInputElement>('input');
-      (firstInput ?? closeRef.current)?.focus();
-    }
+    const firstInput = panel.querySelector<HTMLInputElement>('input');
+    firstInput?.focus();
 
     const focusables = () =>
       Array.from(panel.querySelectorAll<HTMLElement>(FOCUSABLE)).filter(
@@ -202,13 +186,18 @@ export function StuntModal({
     };
   }, [onClose]);
 
+  /* Описание ровно в две строки, а дальше растёт под текст. */
+  useEffect(() => {
+    const el = textRef.current;
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = `${el.scrollHeight}px`;
+  }, [text]);
+
   const valid = name.trim().length > 0 && text.trim().length > 0;
   const title = mode === 'new' ? 'Новый трюк' : 'Трюк';
   const countAfter = mode === 'new' ? count + 1 : count;
-  const overFree = countAfter > 3;
-  const refreshAfter = Math.max(1, baseRefresh - Math.max(0, countAfter - 3));
-  const copy = COPY[variant];
-  const note = buildNote(variant, mode, countAfter, baseRefresh, refreshAfter);
+  const warning = buildWarning(mode, countAfter, baseRefresh);
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -220,109 +209,68 @@ export function StuntModal({
     if (event.target === event.currentTarget) onClose();
   };
 
-  const fields = (
-    <form
-      id={formId}
-      className={`sm__form sm__form--${variant}`}
-      onSubmit={handleSubmit}
-      noValidate
-    >
-      <div className="sm__field">
-        <label className="sm__label" htmlFor={nameId}>
-          {copy.nameLabel}
-        </label>
-        <input
-          id={nameId}
-          className="sm__input"
-          value={name}
-          onChange={(event) => setName(event.target.value)}
-          placeholder={copy.namePlaceholder}
-          maxLength={48}
-          autoComplete="off"
-          required
-        />
-      </div>
-      <div className="sm__field">
-        <label className="sm__label" htmlFor={textId}>
-          {copy.textLabel}
-        </label>
-        <textarea
-          id={textId}
-          className="sm__input sm__textarea"
-          value={text}
-          onChange={(event) => setText(event.target.value)}
-          placeholder={copy.textPlaceholder}
-          rows={3}
-          maxLength={240}
-          required
-        />
-      </div>
-    </form>
-  );
-
-  const texture = (
-    <span
-      className="sm__texture"
-      aria-hidden="true"
-      style={{ backgroundImage: `url(${PAPER})` }}
-    />
-  );
-
   return createPortal(
     <div className="sm" onMouseDown={onBackdrop}>
       <div
         ref={panelRef}
-        className={`sm__panel sm__panel--${variant}`}
+        className="sm__panel"
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
       >
-        <button
-          ref={closeRef}
-          type="button"
-          className="sm__close"
-          aria-label="Закрыть окно"
-          onClick={onClose}
-        >
-          <span aria-hidden="true">×</span>
-        </button>
-
-        {variant === 'plaque' && (
-          <div className="sm__head sm__head--plaque">
-            {texture}
-            <span className="sm__head-title" id={titleId}>
-              {title}
-            </span>
-          </div>
-        )}
-
-        {variant === 'margin' && (
-          <header className="sm__head sm__head--margin">
-            <span className="sm__head-title" id={titleId}>
-              {title}
-            </span>
-          </header>
-        )}
-
-        {variant === 'ledger' && (
-          <header className="sm__head sm__head--ledger">
-            <h2 className="sm__display" id={titleId}>
-              {title}
-            </h2>
-            <i className="sm__ornament" aria-hidden="true" />
-          </header>
-        )}
-
-        <div className={`sm__body sm__body--${variant}`}>
-          {fields}
-          <p className="sm__help">
-            {copy.help}
-            <span className="sm__help-example">{copy.example}</span>
-          </p>
-          <p className={`sm__note${overFree ? ' sm__note--warn' : ''}`}>{note}</p>
+        <div className="sm__head">
+          <span
+            className="sm__texture"
+            aria-hidden="true"
+            style={{ backgroundImage: `url(${PAPER})` }}
+          />
+          <span className="sm__head-title" id={titleId}>
+            {title}
+          </span>
         </div>
 
-        <footer className={`sm__footer sm__footer--${variant}`}>
+        <div className="sm__body">
+          <form id={formId} className="sm__form" onSubmit={handleSubmit} noValidate>
+            <div className="sm__field">
+              <label className="sm__label" htmlFor={nameId}>
+                Название
+              </label>
+              <input
+                id={nameId}
+                className="sm__input"
+                value={name}
+                onChange={(event) => setName(event.target.value)}
+                placeholder="Например: Ведьмачьи чувства"
+                maxLength={48}
+                autoComplete="off"
+                required
+              />
+            </div>
+
+            <div className="sm__field">
+              <label className="sm__label" htmlFor={textId}>
+                Описание
+              </label>
+              <textarea
+                ref={textRef}
+                id={textId}
+                className="sm__input sm__textarea"
+                value={text}
+                onChange={(event) => setText(event.target.value)}
+                placeholder="Например: +2 к Внимательности, когда выслеживаю чудовище."
+                rows={2}
+                maxLength={240}
+                required
+              />
+            </div>
+
+            <Hint />
+          </form>
+
+          {warning && <p className="sm__note sm__note--warn">{warning}</p>}
+        </div>
+
+        <footer className="sm__footer">
           <div className="sm__footer-left">
             {onDelete ? (
               <DeleteControl onDelete={onDelete} />
@@ -335,7 +283,7 @@ export function StuntModal({
               Отмена
             </button>
             <button type="submit" form={formId} className="sm__primary" disabled={!valid}>
-              {copy.saveLabel}
+              Сохранить
             </button>
           </div>
         </footer>
