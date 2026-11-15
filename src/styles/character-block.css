@@ -65,6 +65,10 @@
 
 .cblock__name {
   margin: 0 0 12px;
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
   font-family: var(--font-name-sc);
   font-size: 1.5rem;
   font-weight: 700;
@@ -73,6 +77,8 @@
 }
 
 .cblock__desc {
+  max-height: calc(6 * 1.45em);
+  overflow-y: auto;
   margin: 12px 0 0;
   font-size: var(--text-body);
   line-height: var(--lh-body);

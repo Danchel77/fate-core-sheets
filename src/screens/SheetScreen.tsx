@@ -29,17 +29,17 @@ export default function SheetScreen() {
       <main className="book" aria-label="Лист персонажа">
         <article className="page page--left">
           <CharacterBlock />
+          <StressBlock
+            physical={demoCharacter.physicalStress}
+            mental={demoCharacter.mentalStress}
+            consequences={demoCharacter.consequences}
+          />
           <AspectBlock aspects={demoCharacter.aspects} />
         </article>
 
         <article className="page page--right">
           <SkillsEditor initial={ROWS} initialLevel={4} />
           <StuntBlock stunts={demoCharacter.stunts} baseRefresh={demoCharacter.refresh} />
-          <StressBlock
-            physical={demoCharacter.physicalStress}
-            mental={demoCharacter.mentalStress}
-            consequences={demoCharacter.consequences}
-          />
           <ExtrasBlock initial={demoCharacter.extras} />
         </article>
       </main>

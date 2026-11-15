@@ -16,7 +16,8 @@
 }
 
 .book {
-  width: min(1180px, 100%);
+  --row-first: 360px;
+  width: min(1560px, 100%);
   display: grid;
   grid-template-columns: 1fr 1fr;
   border: 2px solid var(--accent-gold);
@@ -30,11 +31,25 @@
 }
 
 .page {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-rows: var(--row-first) auto minmax(0, 1fr);
   gap: 14px;
   padding: clamp(20px, 2.6vw, 34px);
   background: color-mix(in srgb, var(--bg-parchment) 72%, transparent);
+}
+
+/* Верхняя строка — общий якорь: «Персонаж» и «Навыки» одной высоты. */
+.page > .cblock,
+.page > .ske {
+  min-height: 0;
+  height: 100%;
+}
+
+/* Нижняя строка тянется до низа страницы: за счёт неё сходятся низы. */
+.page > .ablock,
+.page > .ext {
+  min-height: 0;
+  height: 100%;
 }
 
 .page--left {
@@ -51,6 +66,18 @@
 @media (max-width: 920px) {
   .book {
     grid-template-columns: 1fr;
+  }
+
+  .page {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .page > .cblock,
+  .page > .ske,
+  .page > .ablock,
+  .page > .ext {
+    height: auto;
   }
 
   .page--left {

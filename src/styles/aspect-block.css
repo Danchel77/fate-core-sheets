@@ -28,12 +28,13 @@
 .arow__text {
   display: block;
   width: 100%;
+  max-height: calc(2 * 1.4em);
+  overflow-y: auto;
   margin-top: 2px;
   padding: 1px 0;
   border: 0;
   background: transparent;
   resize: none;
-  overflow: hidden;
   font-family: var(--font-body);
   font-size: var(--text-body);
   line-height: 1.4;
