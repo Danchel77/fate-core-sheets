@@ -225,7 +225,10 @@ export function SkillsEditor({ initial, initialLevel = 4 }: Props) {
 
               <div className="ske__grid">
                 {row.skills.map((name) => (
-                  <span className="ske__block" key={`${row.value}-${name}`}>
+                  <span
+                    className={`ske__block${canRaise(row.value) ? ' ske__block--raisable' : ''}`}
+                    key={`${row.value}-${name}`}
+                  >
                     <span className="ske__name">{name}</span>
                     <button
                       type="button"

@@ -95,6 +95,12 @@
   white-space: nowrap;
 }
 
+/* На карточках с подъёмом слева резервируем место под стрелку,
+   чтобы название оставалось по центру и не наезжало на неё. */
+.ske__block--raisable .ske__name {
+  padding-left: 16px;
+}
+
 .ske__del {
   position: absolute;
   top: 0;
@@ -130,7 +136,7 @@
 
 .ske__up {
   position: absolute;
-  left: 3px;
+  left: 1px;
   right: auto;
   bottom: 2px;
   width: 15px;
