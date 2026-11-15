@@ -70,7 +70,7 @@
   max-height: calc(2 * 1.05em);
   margin: 0 0 12px;
   padding: 0;
-  overflow-y: auto;
+  overflow-y: hidden;
   border: 0;
   border-radius: 0;
   background: transparent;
@@ -89,7 +89,7 @@
   width: 100%;
   min-height: calc(3 * 1.45em);
   max-height: calc(6 * 1.45em);
-  overflow-y: auto;
+  overflow-y: hidden;
   margin: 12px 0 0;
   padding: 0;
   border: 0;

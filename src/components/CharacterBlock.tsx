@@ -5,6 +5,15 @@ import { FatePoints } from './FatePoints';
 import { PortraitPlate } from './PortraitPlate';
 import '../styles/portrait-plate.css';
 
+/** Подгоняет высоту поля под текст и прячет ползунок, пока текст помещается. */
+function resizeField(el: HTMLTextAreaElement) {
+  el.style.height = 'auto';
+  const content = el.scrollHeight;
+  const limit = parseFloat(getComputedStyle(el).maxHeight);
+  el.style.height = `${content}px`;
+  el.style.overflowY = Number.isFinite(limit) && content > limit + 4 ? 'auto' : 'hidden';
+}
+
 /** Блок «Персонаж»: портрет слева, имя, жетоны судьбы и описание справа. */
 export function CharacterBlock() {
   const c = demoCharacter;
@@ -16,15 +25,13 @@ export function CharacterBlock() {
   useLayoutEffect(() => {
     const el = nameRef.current;
     if (!el) return;
-    el.style.height = 'auto';
-    el.style.height = `${el.scrollHeight}px`;
+    resizeField(el);
   }, [name]);
 
   useLayoutEffect(() => {
     const el = descRef.current;
     if (!el) return;
-    el.style.height = 'auto';
-    el.style.height = `${el.scrollHeight}px`;
+    resizeField(el);
   }, [description]);
 
   return (

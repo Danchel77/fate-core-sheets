@@ -29,7 +29,7 @@
 .str__track-head {
   display: flex;
   flex-direction: column;
-  gap: 0;
+  gap: 4px;
   min-width: 0;
 }
 
@@ -54,6 +54,8 @@
 .str__boxes {
   display: flex;
   flex: 0 0 auto;
+  justify-content: flex-start;
+  width: 127px;
   gap: 5px;
 }
 
@@ -216,6 +218,10 @@
 @media (max-width: 560px) {
   .str__tracks {
     grid-template-columns: 1fr;
+  }
+
+  .str__boxes {
+    width: 191px;
   }
 
   .str__box {
