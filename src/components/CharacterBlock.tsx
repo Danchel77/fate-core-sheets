@@ -2,6 +2,7 @@ import { demoCharacter } from '../data/demoCharacter';
 import { BlockHeader } from './BlockHeader';
 import { FatePoints } from './FatePoints';
 import { PortraitPlate } from './PortraitPlate';
+import '../styles/portrait-plate.css';
 
 /** Блок «Персонаж»: портрет слева, имя, жетоны судьбы и описание справа. */
 export function CharacterBlock() {

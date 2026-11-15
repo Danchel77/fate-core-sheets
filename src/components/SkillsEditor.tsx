@@ -1,6 +1,7 @@
 import { useId, useState } from 'react';
 import { BlockHeader } from './BlockHeader';
 import { BlockMenu } from './BlockMenu';
+import { Hint } from './Hint';
 import '../styles/skills-editor.css';
 
 /** 18 навыков сеттинга «Ведьмак» (список зафиксирован в fate_core_rules.md). */
@@ -77,6 +78,44 @@ function UpArrow() {
         stroke="var(--arrow-edge)"
         strokeWidth="0.55"
         strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+/** Стрелка уровня: крупнее карточной, с гранёным «пером» в основании. */
+function LevelArrow({ direction }: { direction: 'up' | 'down' }) {
+  const gid = `ske-lvl-arrow-${useId().replace(/[^a-zA-Z0-9_-]/g, '')}`;
+  return (
+    <svg
+      className={`ske__lvarrow${direction === 'down' ? ' ske__lvarrow--down' : ''}`}
+      viewBox="0 0 18 18"
+      width="15"
+      height="15"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <defs>
+        <linearGradient id={gid} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" style={{ stopColor: 'var(--arrow-gold-hi)' }} />
+          <stop offset="0.46" style={{ stopColor: 'var(--arrow-gold-mid)' }} />
+          <stop offset="1" style={{ stopColor: 'var(--arrow-gold-lo)' }} />
+        </linearGradient>
+      </defs>
+      <path
+        d="M9 1.4 16.2 8.8h-3.9v4.6L9 16.6l-3.3-3.2V8.8H1.8Z"
+        fill={`url(#${gid})`}
+        stroke="var(--arrow-edge)"
+        strokeWidth="0.65"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M9 5.1v7.1"
+        fill="none"
+        stroke="var(--arrow-gold-hi)"
+        strokeWidth="0.7"
+        strokeLinecap="round"
+        opacity="0.5"
       />
     </svg>
   );
@@ -245,30 +284,37 @@ export function SkillsEditor({ initial, initialLevel = 4 }: Props) {
               {rowIndex === 0 && (
                 <div className="ske__lvc" aria-label={`Уровень ${level}, свободных очков ${free}`}>
                   <span className="ske__lv-line">
-                    <span className="ske__lv-label">Уровень</span>
-                    <span className="ske__lvstep">
-                    <button
-                      type="button"
-                      className="ske__step"
-                      aria-label="Повысить уровень"
-                      title="Повысить уровень"
-                      disabled={level >= MAX_LEVEL}
-                      onClick={() => setLevel((l) => Math.min(MAX_LEVEL, l + 1))}
-                    >
-                      ↑
-                    </button>
-                    <button
-                      type="button"
-                      className="ske__step"
-                      aria-label="Понизить уровень"
-                      title="Понизить уровень"
-                      disabled={level <= 1}
-                      onClick={() => setLevel((l) => Math.max(1, l - 1))}
-                    >
-                      ↓
-                    </button>
+                    <span className="ske__lv-label">
+                      <Hint
+                        title="Уровень"
+                        text="Условное значение мастерства персонажа. Чем выше уровень, тем больше очков можно потратить на навыки и тем больше навыков доступно."
+                      >
+                        Уровень
+                      </Hint>
                     </span>
                     <span className="ske__lvnum">{level}</span>
+                    <span className="ske__lvstep">
+                      <button
+                        type="button"
+                        className="ske__step"
+                        aria-label="Повысить уровень"
+                        title="Повысить уровень"
+                        disabled={level >= MAX_LEVEL}
+                        onClick={() => setLevel((l) => Math.min(MAX_LEVEL, l + 1))}
+                      >
+                        <LevelArrow direction="up" />
+                      </button>
+                      <button
+                        type="button"
+                        className="ske__step"
+                        aria-label="Понизить уровень"
+                        title="Понизить уровень"
+                        disabled={level <= 1}
+                        onClick={() => setLevel((l) => Math.max(1, l - 1))}
+                      >
+                        <LevelArrow direction="down" />
+                      </button>
+                    </span>
                   </span>
                   <span className={`ske__lv-free${free < 0 ? ' ske__lv-free--debt' : ''}`}>
                     {free > 0 && (
