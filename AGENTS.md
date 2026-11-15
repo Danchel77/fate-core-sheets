@@ -63,7 +63,7 @@ If running automated browser checks (Playwright), verify ONLY objective layout g
 /src/styles/tokens.css  единственный источник цветов и шрифтов
 /src/components       блоки листа: CharacterBlock, AspectBlock, SkillsEditor, Hint, PortraitPlate, BlockHeader
 /src/screens          SheetScreen — собранный веб-лист
-/src/preview          рабочие страницы блоков: SkillsVariants (#skills), Wireframe (#print)
+/src/preview          рабочие страницы блоков: StuntsVariants (#stunts), Wireframe (#print)
 /src/data             demoCharacter.ts — демо-герой
 /public/assets        textures/ frames/ portraits/ + CREDITS.md
 /scratch              временные скрипты и скриншоты (в git не попадает)

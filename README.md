@@ -35,8 +35,8 @@ npm run preview  # посмотреть собранную версию
 
 | Адрес | Что открывается |
 |---|---|
-| `/` | собранный веб-лист (демо-персонаж) |
-| `#skills` | рабочий блок «Навыки» (страница поблочной доводки) |
+| `/` | собранный веб-лист — единственный источник правды (демо-персонаж) |
+| `#stunts` | отдельная страница блока «Трюки» в масштабе 1:1 |
 | `#print` | скелет печатного листа A4 |
 
 ## Структура
@@ -46,7 +46,7 @@ src/                  приложение
 src/components/       блоки листа: CharacterBlock, AspectBlock, SkillsEditor,
                       Hint, PortraitPlate, BlockHeader
 src/screens/          SheetScreen — собранный веб-лист
-src/preview/          рабочие страницы блоков (SkillsVariants, Wireframe)
+src/preview/          рабочие страницы блоков (StuntsVariants, Wireframe)
 src/data/             demoCharacter.ts — демо-герой
 src/styles/           tokens.css — единственный источник цветов и шрифтов
 public/assets/        textures/ frames/ portraits/ + CREDITS.md
