@@ -2,6 +2,7 @@ import { AspectBlock } from '../components/AspectBlock';
 import { CharacterBlock } from '../components/CharacterBlock';
 import { SkillsEditor, type InitRow } from '../components/SkillsEditor';
 import { StuntBlock } from '../components/StuntBlock';
+import { StressBlock } from '../components/StressBlock';
 import { demoCharacter } from '../data/demoCharacter';
 import '../styles/sheet.css';
 import '../styles/character-block.css';
@@ -44,7 +45,11 @@ export default function SheetScreen() {
         <article className="page page--right">
           <SkillsEditor initial={ROWS} initialLevel={4} />
           <StuntBlock stunts={demoCharacter.stunts} baseRefresh={demoCharacter.refresh} />
-          <Placeholder title="Стресс и последствия" lines={2} />
+          <StressBlock
+            physical={demoCharacter.physicalStress}
+            mental={demoCharacter.mentalStress}
+            consequences={demoCharacter.consequences}
+          />
           <Placeholder title="Дополнения" lines={2} />
         </article>
       </main>

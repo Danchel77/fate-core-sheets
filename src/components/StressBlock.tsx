@@ -1,13 +1,11 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { Character } from '../data/demoCharacter';
 import { BlockHeader } from './BlockHeader';
-
-export type StressVariant = 'list' | 'split' | 'grid';
+import '../styles/stress-block.css';
 
 type Consequence = Character['consequences'][number];
 
 type Props = {
-  variant: StressVariant;
   physical: number;
   mental: number;
   consequences: Consequence[];
@@ -39,7 +37,7 @@ function Track({ label, skill, count, marks, onToggle }: TrackProps) {
             title={`Отметить или снять ячейку ${index + 1}`}
             onClick={() => onToggle(index)}
           >
-            {index + 1}
+            <span className="str__box-num">{index + 1}</span>
           </button>
         ))}
       </div>
@@ -56,6 +54,22 @@ function ConsequenceSlot({
   value: string;
   onChange: (text: string) => void;
 }) {
+  const lineRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    const line = lineRef.current;
+    if (!line) return;
+
+    const grow = () => {
+      line.style.height = 'auto';
+      line.style.height = `${line.scrollHeight}px`;
+    };
+
+    grow();
+    window.addEventListener('resize', grow);
+    return () => window.removeEventListener('resize', grow);
+  }, [value]);
+
   return (
     <div className="str__slot">
       <div className="str__slot-head">
@@ -63,8 +77,9 @@ function ConsequenceSlot({
         <span className="str__slot-value">{consequence.value}</span>
       </div>
       <textarea
+        ref={lineRef}
         className="str__slot-line"
-        rows={2}
+        rows={1}
         value={value}
         aria-label={`Последствие: ${consequence.kind}, ${consequence.value}`}
         placeholder="Аспект"
@@ -75,7 +90,7 @@ function ConsequenceSlot({
 }
 
 /** Блок «Стресс и последствия»: две короткие дорожки и три поля для аспектов. */
-export function StressBlock({ variant, physical, mental, consequences }: Props) {
+export function StressBlock({ physical, mental, consequences }: Props) {
   const [physicalMarks, setPhysicalMarks] = useState<boolean[]>(() => Array(physical).fill(false));
   const [mentalMarks, setMentalMarks] = useState<boolean[]>(() => Array(mental).fill(false));
   const [texts, setTexts] = useState(() => consequences.map((item) => item.text ?? ''));
@@ -89,7 +104,7 @@ export function StressBlock({ variant, physical, mental, consequences }: Props) 
   };
 
   return (
-    <section className={`str str--${variant}`}>
+    <section className="str">
       <BlockHeader title="Стресс и последствия" />
       <div className="str__body">
         <div className="str__tracks">

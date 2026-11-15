@@ -61,7 +61,7 @@ If running automated browser checks (Playwright), verify ONLY objective layout g
 /                     AGENTS.md, project.md, design.md, fate_core_rules.md, README.md
 /src                  приложение (React + TS)
 /src/styles/tokens.css  единственный источник цветов и шрифтов
-/src/components       блоки листа: CharacterBlock, AspectBlock, SkillsEditor, Hint, PortraitPlate, BlockHeader
+/src/components       блоки листа: CharacterBlock, AspectBlock, SkillsEditor, StuntBlock, StressBlock, BlockMenu, Hint, PortraitPlate, BlockHeader
 /src/screens          SheetScreen — собранный веб-лист
 /src/preview          рабочие страницы блоков: StuntsVariants (#stunts), Wireframe (#print)
 /src/data             demoCharacter.ts — демо-герой
