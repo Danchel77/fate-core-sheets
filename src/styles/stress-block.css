@@ -1,0 +1,357 @@
+/* Блок «Стресс и последствия»: три варианта компоновки. */
+
+.str {
+  color: var(--text-ink-primary);
+}
+
+.str__body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.str__tracks {
+  display: grid;
+}
+
+.str__track {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.str__track-head {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.str__track-label {
+  font-size: var(--text-caption);
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  line-height: 1.2;
+  text-transform: uppercase;
+  color: var(--accent-gold-ink);
+}
+
+.str__track-skill {
+  font-size: var(--text-caption);
+  line-height: 1.25;
+  color: var(--text-ink-muted);
+}
+
+.str__boxes {
+  display: flex;
+  gap: 6px;
+}
+
+.str__box {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid color-mix(in srgb, var(--accent-gold) 48%, transparent);
+  border-radius: 1px;
+  background: color-mix(in srgb, var(--bg-parchment) 68%, var(--band-ink) 32%);
+  color: var(--accent-gold-deep);
+  font-family: var(--font-display);
+  font-size: var(--text-lead);
+  line-height: 1;
+  cursor: pointer;
+  transition: background var(--transition-fast), border-color var(--transition-fast),
+    color var(--transition-fast);
+}
+
+.str__box:hover {
+  border-color: var(--accent-gold-deep);
+  background: color-mix(in srgb, var(--accent-gold) 10%, var(--bg-parchment) 90%);
+}
+
+.str__box:focus-visible {
+  outline: 2px solid var(--accent-gold-action);
+  outline-offset: 2px;
+}
+
+.str__box.is-filled {
+  border-color: var(--accent-crimson-action);
+  background: color-mix(in srgb, var(--accent-crimson) 78%, var(--bg-parchment));
+  color: var(--band-ink);
+}
+
+.str__subhead {
+  margin: 0;
+  font-size: var(--text-caption);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  line-height: 1.2;
+  text-transform: uppercase;
+  color: var(--accent-gold-ink);
+}
+
+.str__slots {
+  display: grid;
+}
+
+.str__slot {
+  min-width: 0;
+}
+
+.str__slot-head {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+}
+
+.str__slot-value {
+  font-family: var(--font-display);
+  font-size: var(--text-lead);
+  line-height: 1;
+  color: var(--accent-gold-deep);
+}
+
+.str__slot-kind {
+  font-size: var(--text-caption);
+  line-height: 1.15;
+  color: var(--text-ink-muted);
+  text-transform: uppercase;
+}
+
+.str__slot-line {
+  display: block;
+  width: 100%;
+  min-height: calc(1.45em + 2px);
+  margin: 0;
+  padding: 1px 0;
+  border: 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--accent-gold) 26%, transparent);
+  border-radius: 0;
+  background: transparent;
+  color: var(--text-ink-primary);
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  line-height: 1.45;
+  resize: none;
+  overflow: hidden;
+}
+
+.str__slot-line::placeholder {
+  color: color-mix(in srgb, var(--text-ink-muted) 46%, transparent);
+  font-size: var(--text-caption);
+  font-style: italic;
+}
+
+.str__slot-line:focus-visible {
+  outline: 0;
+  border-bottom-color: var(--accent-gold-deep);
+}
+
+/* ---------- 1. «перечень» ---------- */
+
+.str--rows .str__tracks {
+  border-top: 1px solid color-mix(in srgb, var(--accent-gold) 32%, transparent);
+}
+
+.str--rows .str__track {
+  padding: 7px 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--accent-gold) 32%, transparent);
+}
+
+.str--rows .str__consequences {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.str--rows .str__slots {
+  border-top: 1px solid color-mix(in srgb, var(--accent-gold) 32%, transparent);
+}
+
+.str--rows .str__slot {
+  display: grid;
+  grid-template-columns: minmax(0, 86px) minmax(0, 1fr);
+  gap: 10px;
+  padding: 5px 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--accent-gold) 32%, transparent);
+}
+
+.str--rows .str__slot-head {
+  flex-direction: column;
+  gap: 0;
+}
+
+/* ---------- 2. «карточки» ---------- */
+
+.str--cards .str__tracks {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.str--cards .str__track {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 8px 10px 9px;
+  border: 1px solid color-mix(in srgb, var(--accent-gold) 38%, transparent);
+  background: color-mix(in srgb, var(--bg-parchment) 64%, var(--band-ink) 36%);
+}
+
+.str--cards .str__consequences {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.str--cards .str__slots {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.str--cards .str__slot {
+  padding: 7px 9px 8px;
+  border: 1px solid color-mix(in srgb, var(--accent-gold) 32%, transparent);
+  background: color-mix(in srgb, var(--bg-parchment) 52%, transparent);
+}
+
+.str--cards .str__slot-head {
+  margin-bottom: 2px;
+}
+
+/* ---------- 3. «табло» ---------- */
+
+.str--board .str__body {
+  padding: 9px 12px 11px;
+  border: 1px solid color-mix(in srgb, var(--accent-gold) 44%, transparent);
+  background: color-mix(in srgb, var(--bg-parchment) 58%, var(--band-ink) 42%);
+  box-shadow: inset 0 0 0 3px color-mix(in srgb, var(--accent-gold) 10%, transparent);
+}
+
+.str--board .str__tracks {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  border-bottom: 1px solid color-mix(in srgb, var(--accent-gold) 32%, transparent);
+}
+
+.str--board .str__track {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 2px 10px 9px;
+}
+
+.str--board .str__track + .str__track {
+  border-left: 1px solid color-mix(in srgb, var(--accent-gold) 32%, transparent);
+}
+
+.str--board .str__consequences {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding-top: 8px;
+}
+
+.str--board .str__subhead {
+  text-align: center;
+}
+
+.str--board .str__slots {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.str--board .str__slot {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 2px 8px 3px;
+  border-left: 1px solid color-mix(in srgb, var(--accent-gold) 32%, transparent);
+}
+
+.str--board .str__slot:first-child {
+  border-left: 0;
+}
+
+.str--board .str__slot-head {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0;
+}
+
+.str--board .str__slot-value {
+  font-size: var(--text-display);
+}
+
+.str--board .str__slot-kind {
+  margin-bottom: 1px;
+}
+
+@media (max-width: 600px) {
+  .str--cards .str__tracks {
+    grid-template-columns: 1fr;
+  }
+
+  .str--cards .str__slots {
+    grid-template-columns: 1fr;
+  }
+
+  .str--board .str__tracks {
+    grid-template-columns: 1fr;
+  }
+
+  .str--board .str__track + .str__track {
+    border-top: 1px solid color-mix(in srgb, var(--accent-gold) 32%, transparent);
+    border-left: 0;
+    padding-top: 8px;
+  }
+
+  .str--board .str__slots {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .str--board .str__slot:nth-child(3) {
+    border-left: 0;
+  }
+
+  .str--board .str__slot:nth-child(n + 3) {
+    padding-top: 7px;
+    border-top: 1px solid color-mix(in srgb, var(--accent-gold) 32%, transparent);
+  }
+}
+
+@media (max-width: 420px) {
+  .str__track {
+    grid-template-columns: 1fr;
+    align-items: start;
+    gap: 5px;
+  }
+
+  .str__box {
+    width: var(--touch-target);
+    height: var(--touch-target);
+  }
+
+  .str__slot-line {
+    min-height: var(--touch-target);
+  }
+
+  .str--rows .str__slot {
+    grid-template-columns: minmax(0, 74px) minmax(0, 1fr);
+    gap: 7px;
+  }
+
+  .str--board .str__slots {
+    grid-template-columns: 1fr;
+  }
+
+  .str--board .str__slot {
+    border-left: 0;
+  }
+
+  .str--board .str__slot + .str__slot {
+    border-top: 1px solid color-mix(in srgb, var(--accent-gold) 32%, transparent);
+  }
+}

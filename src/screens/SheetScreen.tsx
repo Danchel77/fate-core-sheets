@@ -44,8 +44,8 @@ export default function SheetScreen() {
         <article className="page page--right">
           <SkillsEditor initial={ROWS} initialLevel={4} />
           <StuntBlock stunts={demoCharacter.stunts} baseRefresh={demoCharacter.refresh} />
-          <Placeholder title="Дополнения" lines={2} />
           <Placeholder title="Стресс и последствия" lines={2} />
+          <Placeholder title="Дополнения" lines={2} />
         </article>
       </main>
     </div>

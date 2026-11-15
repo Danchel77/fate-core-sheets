@@ -57,8 +57,8 @@ export const demoCharacter: Character = {
     },
   ],
   extras: 'Серебряный меч, ведьмачий набор для зелий, пара алхимических бомб.',
-  physicalStress: 2,
-  mentalStress: 2,
+  physicalStress: 3,
+  mentalStress: 3,
   consequences: [
     { value: 2, kind: 'лёгкое', text: 'Ссадина на плече' },
     { value: 2, kind: 'лёгкое' },
