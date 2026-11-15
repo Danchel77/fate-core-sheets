@@ -2,10 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { BlockHeader } from './BlockHeader';
 import '../styles/extras-block.css';
 
-export type ExtrasVariant = 'lines' | 'frames' | 'columns';
-
 type Props = {
-  variant: ExtrasVariant;
   initial: [string, string];
 };
 
@@ -53,7 +50,7 @@ function GrowingArea({ index, value, onChange, placeholder }: GrowingAreaProps) 
 }
 
 /** Блок «Дополнения»: два свободных поля для заметок, снаряжения и связей. */
-export function ExtrasBlock({ variant, initial }: Props) {
+export function ExtrasBlock({ initial }: Props) {
   const [values, setValues] = useState<[string, string]>(initial);
 
   const setValue = (index: 0 | 1, next: string) => {
@@ -65,11 +62,8 @@ export function ExtrasBlock({ variant, initial }: Props) {
   };
 
   return (
-    <section className={`ext ext--${variant}`}>
+    <section className="ext">
       <BlockHeader title="Дополнения" />
-      <p className="ext__lead">
-        Свободное место: заметки, снаряжение, связи — всё, что не поместилось.
-      </p>
       <div className="ext__fields">
         <GrowingArea
           index={1}

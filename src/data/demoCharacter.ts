@@ -14,7 +14,7 @@ export type Character = {
   aspects: Aspect[];
   ladder: LadderRow[];
   stunts: Stunt[];
-  extras: string;
+  extras: [string, string];
   physicalStress: number;
   mentalStress: number;
   consequences: { value: number; kind: string; text?: string }[];
@@ -56,7 +56,10 @@ export const demoCharacter: Character = {
       text: '+2 к Драке, когда противник — чудовище, а не человек.',
     },
   ],
-  extras: 'Серебряный меч, ведьмачий набор для зелий, пара алхимических бомб.',
+  extras: [
+    'Серебряный меч, ведьмачий набор для зелий, пара алхимических бомб.',
+    'Лютик знает, где меня искать. Йеннифэр не любит, когда я пропадаю.',
+  ],
   physicalStress: 3,
   mentalStress: 3,
   consequences: [

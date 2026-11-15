@@ -3,23 +3,13 @@ import { CharacterBlock } from '../components/CharacterBlock';
 import { SkillsEditor, type InitRow } from '../components/SkillsEditor';
 import { StuntBlock } from '../components/StuntBlock';
 import { StressBlock } from '../components/StressBlock';
+import { ExtrasBlock } from '../components/ExtrasBlock';
 import { demoCharacter } from '../data/demoCharacter';
 import '../styles/sheet.css';
 import '../styles/character-block.css';
 import '../styles/aspect-block.css';
 import '../styles/skills-editor.css';
 import '../styles/hint.css';
-
-function Placeholder({ title, lines }: { title: string; lines: number }) {
-  return (
-    <div className="ph">
-      <div className="ph__title">{title}</div>
-      {Array.from({ length: lines }, (_, i) => (
-        <div className="ph__line" key={i} />
-      ))}
-    </div>
-  );
-}
 
 /** Рабочая пирамида: 21 очко, уровень 4 → два свободных очка. */
 const ROWS: InitRow[] = [
@@ -50,7 +40,7 @@ export default function SheetScreen() {
             mental={demoCharacter.mentalStress}
             consequences={demoCharacter.consequences}
           />
-          <Placeholder title="Дополнения" lines={2} />
+          <ExtrasBlock initial={demoCharacter.extras} />
         </article>
       </main>
     </div>

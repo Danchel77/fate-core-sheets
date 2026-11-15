@@ -229,29 +229,6 @@
   border: 1px solid rgba(255, 240, 205, 0.38);
 }
 
-/* ---------- заглушки будущих блоков ---------- */
-
-.ph {
-  padding: 12px 14px;
-  border: 1px dashed color-mix(in srgb, var(--accent-gold) 42%, transparent);
-}
-
-.ph__title {
-  margin-bottom: 8px;
-  font-size: 0.6875rem;
-  font-weight: 700;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: color-mix(in srgb, var(--text-ink-muted) 85%, transparent);
-}
-
-.ph__line {
-  height: 7px;
-  margin: 6px 0;
-  border-radius: 2px;
-  background: color-mix(in srgb, var(--text-ink-primary) 7%, transparent);
-}
-
 /* ---------- узкие экраны ---------- */
 
 @media (max-width: 720px) {
