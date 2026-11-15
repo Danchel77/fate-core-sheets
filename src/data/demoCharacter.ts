@@ -61,7 +61,6 @@ export const demoCharacter: Character = {
   mentalStress: 3,
   consequences: [
     { value: 2, kind: 'лёгкое', text: 'Ссадина на плече' },
-    { value: 2, kind: 'лёгкое' },
     { value: 4, kind: 'среднее' },
     { value: 6, kind: 'серьёзное' },
   ],
