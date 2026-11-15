@@ -1,4 +1,5 @@
 import { PortraitPlate } from '../components/PortraitPlate';
+import { StuntBlock } from '../components/StuntBlock';
 import { demoCharacter } from '../data/demoCharacter';
 import '../styles/portrait-plate.css';
 import '../styles/sheet.css';
@@ -80,15 +81,7 @@ export default function SheetScreen() {
             ))}
           </div>
 
-          <h2 className="page__band type-label">Трюки</h2>
-          <ul className="stunts">
-            {demoCharacter.stunts.map((stunt) => (
-              <li key={stunt.name}>
-                <b className="type-body">{stunt.name}.</b>{' '}
-                <span className="type-body">{stunt.text}</span>
-              </li>
-            ))}
-          </ul>
+          <StuntBlock stunts={demoCharacter.stunts} baseRefresh={demoCharacter.refresh} />
 
           <h2 className="page__band type-label">Дополнения</h2>
           <div className="extras-block">

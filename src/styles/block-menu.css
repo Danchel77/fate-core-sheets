@@ -56,15 +56,18 @@
   right: 0;
   min-width: 164px;
   max-width: 230px;
-  padding: 4px;
+  padding: 6px;
   border: 1px solid color-mix(in srgb, var(--accent-gold-deep) 52%, transparent);
-  background: var(--bg-parchment);
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--bg-parchment) 96%, var(--band-ink) 4%);
   box-shadow:
+    inset 0 0 0 3px color-mix(in srgb, var(--bg-parchment) 100%, transparent),
+    inset 0 0 0 4px color-mix(in srgb, var(--accent-gold) 42%, transparent),
     0 12px 26px color-mix(in srgb, var(--text-ink-primary) 26%, transparent),
     0 2px 6px color-mix(in srgb, var(--text-ink-primary) 16%, transparent);
 }
 
-/* Уголок: список visibly отходит от точек, а не висит отдельно. */
+/* Уголок: список заметно отходит от точек, а не висит отдельно. */
 .bmenu__list::before {
   content: '';
   position: absolute;
@@ -76,17 +79,6 @@
   border-top: 1px solid color-mix(in srgb, var(--accent-gold-deep) 52%, transparent);
   border-left: 1px solid color-mix(in srgb, var(--accent-gold-deep) 52%, transparent);
   transform: rotate(45deg);
-}
-
-/* Короткий штрих в зазоре: точка меню явно продолжает точки кнопки. */
-.bmenu__list::after {
-  content: '';
-  position: absolute;
-  top: -10px;
-  right: 12px;
-  width: 1px;
-  height: 10px;
-  background: color-mix(in srgb, var(--accent-gold-deep) 52%, transparent);
 }
 
 .bmenu__item {
