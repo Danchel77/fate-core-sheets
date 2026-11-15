@@ -8,13 +8,24 @@ type Props = {
 
 type GrowingAreaProps = {
   index: number;
+  title: string;
   value: string;
+  onTitleChange: (value: string) => void;
   onChange: (value: string) => void;
   placeholder: string;
 };
 
+const DEFAULT_TITLES: [string, string] = ['Заметки I', 'Заметки II'];
+
 /** Свободное поле «Дополнений»: начинается с четырёх строк и растёт под текст. */
-function GrowingArea({ index, value, onChange, placeholder }: GrowingAreaProps) {
+function GrowingArea({
+  index,
+  title,
+  value,
+  onTitleChange,
+  onChange,
+  placeholder,
+}: GrowingAreaProps) {
   const areaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
@@ -33,9 +44,18 @@ function GrowingArea({ index, value, onChange, placeholder }: GrowingAreaProps) 
 
   return (
     <div className="ext__field">
-      <span className="ext__index" aria-hidden="true">
-        {index === 1 ? 'I' : 'II'}
-      </span>
+      <input
+        className="ext__index"
+        type="text"
+        value={title}
+        maxLength={40}
+        aria-label={`Заголовок поля ${index}`}
+        placeholder={DEFAULT_TITLES[index - 1]}
+        onChange={(event) => onTitleChange(event.target.value)}
+        onBlur={() => {
+          if (!title.trim()) onTitleChange(DEFAULT_TITLES[index - 1]);
+        }}
+      />
       <textarea
         ref={areaRef}
         className="ext__area"
@@ -52,9 +72,18 @@ function GrowingArea({ index, value, onChange, placeholder }: GrowingAreaProps) 
 /** Блок «Дополнения»: два свободных поля для заметок, снаряжения и связей. */
 export function ExtrasBlock({ initial }: Props) {
   const [values, setValues] = useState<[string, string]>(initial);
+  const [titles, setTitles] = useState<[string, string]>(DEFAULT_TITLES);
 
   const setValue = (index: 0 | 1, next: string) => {
     setValues((current) => {
+      const updated: [string, string] = [...current];
+      updated[index] = next;
+      return updated;
+    });
+  };
+
+  const setTitle = (index: 0 | 1, next: string) => {
+    setTitles((current) => {
       const updated: [string, string] = [...current];
       updated[index] = next;
       return updated;
@@ -67,13 +96,17 @@ export function ExtrasBlock({ initial }: Props) {
       <div className="ext__fields">
         <GrowingArea
           index={1}
+          title={titles[0]}
           value={values[0]}
+          onTitleChange={(next) => setTitle(0, next)}
           onChange={(next) => setValue(0, next)}
           placeholder="Заметки, снаряжение, связи…"
         />
         <GrowingArea
           index={2}
+          title={titles[1]}
           value={values[1]}
+          onTitleChange={(next) => setTitle(1, next)}
           onChange={(next) => setValue(1, next)}
           placeholder="Продолжение…"
         />

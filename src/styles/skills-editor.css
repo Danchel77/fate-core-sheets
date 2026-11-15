@@ -86,19 +86,13 @@
 
 .ske__name {
   max-width: 100%;
-  padding: 0 16px 0 3px;
+  padding: 0 16px;
   font-family: var(--font-body);
   font-size: 0.8125rem;
   line-height: 1.06;
   color: var(--text-ink-primary);
   text-align: center;
   white-space: nowrap;
-}
-
-/* На карточках с подъёмом слева резервируем место под стрелку,
-   чтобы название оставалось по центру и не наезжало на неё. */
-.ske__block--raisable .ske__name {
-  padding-left: 16px;
 }
 
 .ske__del {

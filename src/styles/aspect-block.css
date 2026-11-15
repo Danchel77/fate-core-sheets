@@ -1,14 +1,18 @@
 /* Блок «Аспекты»: два якоря с подписями и три свободные строки.
    Якоря и свободные поля разделены яркой линией с ромбом. */
 
+.ablock > .bh {
+  margin-bottom: 8px;
+}
+
 .ablock__list {
-  padding-top: 2px;
+  padding-top: 0;
   border-left: 3px solid var(--accent-gold-deep);
 }
 
 .arow {
   position: relative;
-  padding: 7px 10px 5px 14px;
+  padding: 6px 10px 5px 14px;
   border-bottom: 1px solid color-mix(in srgb, var(--accent-gold) 32%, transparent);
 }
 
@@ -60,7 +64,7 @@
 .ablock__divider {
   position: relative;
   height: 13px;
-  margin: 3px 10px 3px 14px;
+  margin: 0 10px 0 14px;
 }
 
 .ablock__divider::before {

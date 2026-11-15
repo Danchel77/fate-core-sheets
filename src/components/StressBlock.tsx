@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { Character } from '../data/demoCharacter';
 import { BlockHeader } from './BlockHeader';
+import { Hint } from './Hint';
 import '../styles/stress-block.css';
 
 type Consequence = Character['consequences'][number];
@@ -9,6 +10,13 @@ type Props = {
   physical: number;
   mental: number;
   consequences: Consequence[];
+};
+
+const STRESS_HINTS: Record<string, string> = {
+  Физический:
+    'Сколько ударов и усталости герой выдерживает. За удар отмечают одну ячейку: её номер — сколько сдвигов она поглощает; когда все заняты, удар уходит в последствия. Число ячеек зависит от Телосложения.',
+  Ментальный:
+    'Сколько страха и давления выдерживает психика. За удар отмечают одну ячейку: её номер — сколько сдвигов она поглощает; когда все заняты, удар уходит в последствия. Число ячеек зависит от Воли.',
 };
 
 type TrackProps = {
@@ -23,7 +31,11 @@ function Track({ label, skill, count, marks, onToggle }: TrackProps) {
   return (
     <div className="str__track">
       <div className="str__track-head">
-        <span className="str__track-label">{label}</span>
+        <span className="str__track-label">
+          <Hint title={`${label} стресс`} text={STRESS_HINTS[label]}>
+            {label}
+          </Hint>
+        </span>
         <span className="str__track-skill">{skill}</span>
       </div>
       <div className="str__boxes" role="group" aria-label={`Стресс: ${label.toLowerCase()}`}>

@@ -1,4 +1,4 @@
-import { useId, useState } from 'react';
+import { useId, useLayoutEffect, useRef, useState } from 'react';
 import { BlockHeader } from './BlockHeader';
 import { BlockMenu } from './BlockMenu';
 import { Hint } from './Hint';
@@ -121,6 +121,52 @@ function LevelArrow({ direction }: { direction: 'up' | 'down' }) {
   );
 }
 
+/** Название навыка: ужимается по ширине карточки, но не переносится на вторую строку. */
+function SkillName({ name }: { name: string }) {
+  const ref = useRef<HTMLSpanElement>(null);
+
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    const fit = () => {
+      el.style.fontSize = '';
+      const base = parseFloat(getComputedStyle(el).fontSize);
+      const card = el.parentElement;
+      if (!card) return;
+      const available = card.clientWidth - 32;
+
+      const textWidth = () => {
+        const range = document.createRange();
+        range.selectNodeContents(el);
+        return range.getBoundingClientRect().width;
+      };
+
+      let size = base;
+      el.style.fontSize = `${size}px`;
+      while (size > 11 && textWidth() > available) {
+        size = Math.max(11, size - 0.25);
+        el.style.fontSize = `${size}px`;
+      }
+    };
+
+    fit();
+    window.addEventListener('resize', fit);
+    const observer = new ResizeObserver(fit);
+    if (el.parentElement) observer.observe(el.parentElement);
+    return () => {
+      window.removeEventListener('resize', fit);
+      observer.disconnect();
+    };
+  }, [name]);
+
+  return (
+    <span ref={ref} className="ske__name">
+      {name}
+    </span>
+  );
+}
+
 /** Интерактивная пирамида навыков: слоты стартовой пирамиды, уровень и свободные очки. */
 export function SkillsEditor({ initial, initialLevel = 4 }: Props) {
   const [rows, setRows] = useState<Row[]>(() => buildRows(initial));
@@ -225,11 +271,8 @@ export function SkillsEditor({ initial, initialLevel = 4 }: Props) {
 
               <div className="ske__grid">
                 {row.skills.map((name) => (
-                  <span
-                    className={`ske__block${canRaise(row.value) ? ' ske__block--raisable' : ''}`}
-                    key={`${row.value}-${name}`}
-                  >
-                    <span className="ske__name">{name}</span>
+                  <span className="ske__block" key={`${row.value}-${name}`}>
+                    <SkillName name={name} />
                     <button
                       type="button"
                       className="ske__del"
