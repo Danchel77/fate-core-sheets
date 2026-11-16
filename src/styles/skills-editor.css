@@ -244,7 +244,7 @@
 
 .ske__lv-label {
   font-family: var(--font-body);
-  font-size: var(--text-caption);
+  font-size: var(--text-micro);
   font-weight: 700;
   letter-spacing: 0.12em;
   line-height: 1.15;
@@ -337,7 +337,7 @@
 /* Вторая строка: остаток очков. */
 .ske__lv-free {
   font-family: var(--font-body);
-  font-size: var(--text-caption);
+  font-size: var(--text-micro);
   font-weight: 700;
   letter-spacing: 0.1em;
   line-height: 1.15;
@@ -353,7 +353,7 @@
 
 .ske__lv-free-num {
   margin-left: 4px;
-  font-size: var(--text-caption);
+  font-size: var(--text-micro);
   font-weight: 700;
   font-variant-numeric: lining-nums;
   letter-spacing: 0;

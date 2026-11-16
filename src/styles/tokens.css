@@ -10,6 +10,7 @@
   --font-body: 'PT Serif', Georgia, 'Times New Roman', serif;
 
   /* Типографика: ровно четыре размера, новые не добавлять */
+  --text-micro: 0.75rem;     /* 12px — совсем мелкие метки */
   --text-caption: 0.8125rem; /* 13px — подписи, метки, сноски */
   --text-body: 0.9375rem;    /* 15px — основной текст */
   --text-lead: 1.125rem;     /* 18px — подзаголовки */
