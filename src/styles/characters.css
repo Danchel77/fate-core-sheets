@@ -18,7 +18,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 18px;
-  min-height: 56px;
+  min-height: 40px;
   width: 100%;
   max-width: 1320px;
   margin: 0 auto clamp(12px, 1.6vw, 20px);
@@ -96,7 +96,7 @@
   width: 100%;
   max-width: 1320px;
   margin: 0 auto;
-  padding: clamp(22px, 2.6vw, 36px);
+  padding: 14px clamp(20px, 3vw, 34px) clamp(22px, 2.6vw, 36px);
   background: var(--bg-parchment);
   border: 2px solid var(--accent-gold);
   outline: 1px solid color-mix(in srgb, var(--accent-gold) 55%, transparent);
@@ -243,7 +243,9 @@
 .sort__btn {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 10px;
+  width: 172px;
   height: 34px;
   padding: 0 10px 0 11px;
   border: 1px solid color-mix(in srgb, var(--accent-gold) 48%, transparent);
@@ -262,6 +264,12 @@
 .sort__btn[aria-expanded='true'] {
   border-color: var(--accent-gold-deep);
   background: color-mix(in srgb, var(--accent-gold) 10%, transparent);
+}
+
+.sort__btn span {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .sort__btn svg {
@@ -451,19 +459,19 @@
 }
 
 .setting-mark__edge--l {
-  transform: translateX(-1.6px);
+  transform: translateX(-1px);
 }
 
 .setting-mark__edge--r {
-  transform: translateX(1.6px);
+  transform: translateX(1px);
 }
 
 .setting-mark__edge--t {
-  transform: translateY(-1.6px);
+  transform: translateY(-1px);
 }
 
 .setting-mark__edge--b {
-  transform: translateY(1.6px);
+  transform: translateY(1px);
 }
 
 /* Заливка под цвет карточки: на пергаменте виден контур, на фото — светлый знак. */
@@ -665,6 +673,14 @@
     height: 44px;
   }
 
+  /* Имя всегда в одну строку с многоточием — даже очень длинное. */
+  .hero-card__name {
+    display: block;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
   .sort__opt {
     padding: 11px 12px;
   }
@@ -674,8 +690,16 @@
     height: 44px;
   }
 
+  /* Шапка остаётся 40 px и на телефоне: кнопка «Войти» растянута по её высоте,
+     название сайта не переносится и чуть плотнее. */
   .heroes__login {
-    min-height: 44px;
+    min-height: 40px;
+  }
+
+  .heroes__brandname {
+    font-size: var(--text-caption);
+    letter-spacing: 0.1em;
+    white-space: nowrap;
   }
 }
 
