@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import type { Character } from '../data/demoCharacter';
+import type { Character } from '../data/types';
 import { BlockHeader } from './BlockHeader';
 import { FatePoints } from './FatePoints';
 import { PortraitPlate } from './PortraitPlate';

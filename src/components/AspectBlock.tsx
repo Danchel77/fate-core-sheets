@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import type { Aspect } from '../data/demoCharacter';
+import type { Aspect } from '../data/types';
 import { BlockHeader } from './BlockHeader';
 import { Hint } from './Hint';
 

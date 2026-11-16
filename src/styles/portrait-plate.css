@@ -82,3 +82,27 @@
   left: 0;
   bottom: 0;
 }
+
+.plate__empty {
+  position: relative;
+  z-index: 2;
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 1px solid color-mix(in srgb, var(--text-ink-primary) 28%, transparent);
+  background:
+    repeating-linear-gradient(
+      135deg,
+      transparent 0 9px,
+      color-mix(in srgb, var(--accent-gold) 9%, transparent) 9px 10px
+    ),
+    color-mix(in srgb, var(--tint-gold-sand) 16%, var(--bg-parchment));
+  box-shadow: 0 1px 3px var(--shadow-portrait);
+}
+
+.plate__empty svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  fill: color-mix(in srgb, var(--accent-gold-deep) 26%, transparent);
+}

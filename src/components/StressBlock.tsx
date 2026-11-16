@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import type { Character } from '../data/demoCharacter';
+import type { Character } from '../data/types';
 import { BlockHeader } from './BlockHeader';
 import { Hint } from './Hint';
 import '../styles/stress-block.css';

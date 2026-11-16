@@ -1,9 +1,10 @@
 import { useEffect, useId, useRef, useState } from 'react';
-import type { KeyboardEvent as ReactKeyboardEvent } from 'react';
+import type { KeyboardEvent as ReactKeyboardEvent, ReactNode } from 'react';
 import '../styles/block-menu.css';
 
 export type BlockMenuItem = {
   label: string;
+  icon?: ReactNode;
   onSelect: () => void;
   disabled?: boolean;
   danger?: boolean;
@@ -117,6 +118,7 @@ export function BlockMenu({ label, items }: Props) {
                 item.onSelect();
               }}
             >
+              {item.icon ? <span className="bmenu__icon">{item.icon}</span> : null}
               {item.label}
             </button>
           ))}

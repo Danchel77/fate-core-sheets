@@ -74,16 +74,17 @@ Definition of Done относится к **утверждённому экран
 /                     AGENTS.md, HANDOFF.md, project.md, design.md, fate_core_rules.md, README.md
 /src                  приложение (React + TS)
 /src/styles/tokens.css  единственный источник цветов и шрифтов
-/src/components       блоки листа: CharacterBlock, AspectBlock, SkillsEditor, StuntBlock, StressBlock, ExtrasBlock, BlockMenu, Hint, PortraitPlate, BlockHeader
-/src/screens          SheetScreen — единственный экран, собранный веб-лист
-/src/data             demoCharacter.ts — демо-герой (пока без хранилища)
-/public/assets        textures/ frames/ portraits/ + CREDITS.md
+/src/styles/characters.css  стили списка персонажей
+/src/components       блоки листа: CharacterBlock, AspectBlock, SkillsEditor, StuntBlock, StressBlock, ExtrasBlock, BlockMenu, Hint, PortraitPlate, BlockHeader; общие: SettingMark, icons
+/src/screens          CharactersScreen — список (#/), SheetScreen — лист героя (#/hero/<id>)
+/src/data             types.ts (типы листа), demoCharacter.ts (эталонный герой), characters.ts (9 демо-записей; хранилища пока нет)
+/public/assets        textures/ frames/ portraits/ logos/ + CREDITS.md
 /.scratch             временные скрипты/скриншоты; в git не входит, после проверки удаляется
 ```
 
 ## 6. Forbidden
 - Рисовать сложную графику кодом; использовать Tailwind; хардкодить цвета вне `tokens.css`.
-- Ставить официальный логотип FATE CORE SYSTEM (™) — только нейтральная надпись «Fate Core».
+- Рисовать логотипы сеттингов от руки или кодом: брать готовые файлы из `public/assets/logos/`.
 - Коммитить токены, ключи, `.env`, `node_modules`, `dist`, `.scratch`.
 - Молча добавлять новые `[TBD]` или принимать решения за пользователя по продуктовым вопросам.
 - Автоматически оценивать «красоту» скриптами.

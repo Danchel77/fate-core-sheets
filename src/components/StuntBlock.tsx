@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import type { Stunt } from '../data/demoCharacter';
+import type { Stunt } from '../data/types';
 import { BlockHeader } from './BlockHeader';
 import { BlockMenu } from './BlockMenu';
 import { StuntModal } from './StuntModal';
