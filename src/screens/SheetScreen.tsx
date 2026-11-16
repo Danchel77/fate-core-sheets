@@ -4,6 +4,7 @@ import { SkillsEditor } from '../components/SkillsEditor';
 import { StuntBlock } from '../components/StuntBlock';
 import { StressBlock } from '../components/StressBlock';
 import { ExtrasBlock } from '../components/ExtrasBlock';
+import { IconArrowLeft } from '../components/icons';
 import type { Character } from '../data/types';
 import '../styles/sheet.css';
 import '../styles/character-block.css';
@@ -18,7 +19,10 @@ export default function SheetScreen({ character }: { character: Character }) {
   return (
     <div className="table">
       <nav className="sheet-nav">
-        <a href="#/">← Мои персонажи</a>
+        <a href="#/">
+          <IconArrowLeft />
+          Мои персонажи
+        </a>
       </nav>
       <main className="book" aria-label="Лист персонажа">
         <article className="page page--left">

@@ -115,19 +115,30 @@
 
 /* Возврат к списку: узкая строка над книгой, сам разворот не двигается. */
 .sheet-nav {
+  display: flex;
+  align-items: center;
   width: min(1560px, 100%);
+  min-height: 56px;
   margin-bottom: 10px;
 }
 
 .sheet-nav a {
-  display: inline-block;
-  padding: 4px 0;
-  font-size: var(--text-caption);
-  letter-spacing: 0.09em;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0;
+  font-size: var(--text-body);
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: color-mix(in srgb, var(--table-ink) 72%, transparent);
+  color: color-mix(in srgb, var(--table-ink) 78%, transparent);
   text-decoration: none;
   transition: color var(--transition-fast);
+}
+
+.sheet-nav a svg {
+  flex: none;
+  width: 20px;
+  height: 20px;
 }
 
 .sheet-nav a:hover,

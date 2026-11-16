@@ -37,18 +37,20 @@
   border: 0;
   border-radius: 0;
   background: transparent;
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-size: var(--text-caption);
   font-weight: 700;
   letter-spacing: 0.14em;
-  line-height: 1.1;
+  line-height: 1.2;
   color: var(--accent-gold-ink);
   cursor: text;
 }
 
 .ext__index::placeholder {
-  color: color-mix(in srgb, var(--accent-gold-ink) 48%, transparent);
-  font-style: italic;
+  color: color-mix(in srgb, var(--accent-gold-ink) 58%, transparent);
+  font-style: normal;
+  font-weight: 700;
+  letter-spacing: 0.16em;
 }
 
 .ext__index:focus {
