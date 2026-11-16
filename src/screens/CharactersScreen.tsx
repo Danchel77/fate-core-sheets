@@ -228,7 +228,12 @@ export default function CharactersScreen() {
               </article>
             ))}
 
-            <button className="hero-card hero-card--new" type="button">
+            <button
+              className="hero-card hero-card--new"
+              type="button"
+              aria-disabled="true"
+              title="Создание героя появится вместе с конструктором"
+            >
               <span className="hero-card__plus" aria-hidden="true">
                 +
               </span>
