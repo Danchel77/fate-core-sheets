@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { BlockMenu } from '../components/BlockMenu';
 import { SettingMark } from '../components/SettingMark';
 import {
@@ -85,6 +85,24 @@ export default function CharactersScreen() {
   const [filter, setFilter] = useState<Filter>(saved.filter);
   const [sort, setSort] = useState<SortMode>(saved.sort);
   const [query, setQuery] = useState('');
+  const [sortOpen, setSortOpen] = useState(false);
+  const sortRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!sortOpen) return;
+    const onDown = (event: MouseEvent) => {
+      if (!sortRef.current?.contains(event.target as Node)) setSortOpen(false);
+    };
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setSortOpen(false);
+    };
+    document.addEventListener('mousedown', onDown);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onDown);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [sortOpen]);
 
   useEffect(() => {
     saveView({ filter, sort });
@@ -168,20 +186,39 @@ export default function CharactersScreen() {
               />
             </label>
 
-            <label className="sort">
-              <select
-                value={sort}
+            <div className="sort" ref={sortRef}>
+              <button
+                className="sort__btn"
+                type="button"
+                aria-haspopup="listbox"
+                aria-expanded={sortOpen}
                 aria-label="Сортировка"
-                onChange={(event) => setSort(event.target.value as SortMode)}
+                onClick={() => setSortOpen((open) => !open)}
               >
-                {SORTS.map((mode) => (
-                  <option key={mode.id} value={mode.id}>
-                    {mode.label}
-                  </option>
-                ))}
-              </select>
-              <IconChevronDown />
-            </label>
+                {SORTS.find((mode) => mode.id === sort)?.label}
+                <IconChevronDown />
+              </button>
+              {sortOpen && (
+                <ul className="sort__menu" role="listbox" aria-label="Сортировка">
+                  {SORTS.map((mode) => (
+                    <li key={mode.id}>
+                      <button
+                        className="sort__opt"
+                        type="button"
+                        role="option"
+                        aria-selected={sort === mode.id}
+                        onClick={() => {
+                          setSort(mode.id);
+                          setSortOpen(false);
+                        }}
+                      >
+                        {mode.label}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
 
             <button className="iconbtn" type="button" aria-label="Настройки" title="Настройки">
               <IconSettings />

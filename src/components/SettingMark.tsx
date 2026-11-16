@@ -26,12 +26,12 @@ export function SettingMark({ setting }: { setting: string }) {
   };
 
   return (
-    <span
-      className={`setting-mark ${mark.className}`}
-      role="img"
-      aria-label={mark.label}
-      title={mark.label}
-      style={style}
-    />
+    <span className={`setting-mark ${mark.className}`} role="img" aria-label={mark.label} title={mark.label}>
+      <i className="setting-mark__edge setting-mark__edge--l" style={style} aria-hidden="true" />
+      <i className="setting-mark__edge setting-mark__edge--r" style={style} aria-hidden="true" />
+      <i className="setting-mark__edge setting-mark__edge--t" style={style} aria-hidden="true" />
+      <i className="setting-mark__edge setting-mark__edge--b" style={style} aria-hidden="true" />
+      <i className="setting-mark__shape" style={style} aria-hidden="true" />
+    </span>
   );
 }
