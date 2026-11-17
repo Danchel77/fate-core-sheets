@@ -4,6 +4,7 @@ import '../styles/stunt-modal.css';
 import '../styles/wizard.css';
 import { Hint } from './Hint';
 import { PortraitPlate } from './PortraitPlate';
+import { PortraitCropper } from './PortraitCropper';
 import {
   IconArrowLeft,
   IconArrowRight,
@@ -288,6 +289,7 @@ type Props = {
 export function CharacterWizard({ draft, onChange, onSkip }: Props) {
   const [step, setStep] = useState<StepNo>(1);
   const [hint, setHint] = useState<HintId | null>(null);
+  const [cropSrc, setCropSrc] = useState<string | null>(null);
 
   const setting = draft.setting;
   const name = draft.name;
@@ -515,8 +517,9 @@ export function CharacterWizard({ draft, onChange, onSkip }: Props) {
                           const file = event.target.files?.[0];
                           if (!file) return;
                           const reader = new FileReader();
-                          reader.addEventListener('load', () => setPhoto(String(reader.result)));
+                          reader.addEventListener('load', () => setCropSrc(String(reader.result)));
                           reader.readAsDataURL(file);
+                          event.target.value = '';
                         }}
                       />
                       <span className="wiz__pick-hint">Нажмите, чтобы загрузить фото</span>
@@ -531,7 +534,7 @@ export function CharacterWizard({ draft, onChange, onSkip }: Props) {
                           id="wiz-concept"
                           value={concept}
                           onChange={setConcept}
-                          placeholder="Кто он и чем живёт — одной фразой"
+                          placeholder="Кто он и чем живёт — одной фразой…"
                         />
                         <p className="wiz__note">
                           Когда действие героя укладывается в концепцию, её можно{' '}
@@ -562,7 +565,7 @@ export function CharacterWizard({ draft, onChange, onSkip }: Props) {
                           id="wiz-trouble"
                           value={trouble}
                           onChange={setTrouble}
-                          placeholder="Что то и дело втягивает его в неприятности"
+                          placeholder="Что то и дело втягивает его в неприятности…"
                         />
                         <p className="wiz__note">
                           Мастер может{' '}
@@ -671,6 +674,17 @@ export function CharacterWizard({ draft, onChange, onSkip }: Props) {
               </div>
             </footer>
       </div>
+
+      {cropSrc && (
+        <PortraitCropper
+          src={cropSrc}
+          onCancel={() => setCropSrc(null)}
+          onDone={(next) => {
+            setPhoto(next);
+            setCropSrc(null);
+          }}
+        />
+      )}
     </div>
   );
 }

@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { AspectBlock } from '../components/AspectBlock';
 import { CharacterBlock } from '../components/CharacterBlock';
 import { SkillsEditor } from '../components/SkillsEditor';
@@ -5,6 +6,7 @@ import { StuntBlock } from '../components/StuntBlock';
 import { StressBlock } from '../components/StressBlock';
 import { ExtrasBlock } from '../components/ExtrasBlock';
 import { IconArrowLeft } from '../components/icons';
+import { PortraitDialog } from '../components/PortraitDialog';
 import type { Character } from '../data/types';
 import '../styles/sheet.css';
 import '../styles/character-block.css';
@@ -15,6 +17,12 @@ import '../styles/hint.css';
 /** Собранный веб-лист: единственный источник правды. */
 export default function SheetScreen({ character }: { character: Character }) {
   const level = character.ladder[0]?.value ?? 1;
+  const [portrait, setPortrait] = useState(character.portrait ?? '');
+  const [portraitOpen, setPortraitOpen] = useState(false);
+
+  useEffect(() => {
+    setPortrait(character.portrait ?? '');
+  }, [character.portrait]);
 
   return (
     <div className="table">
@@ -26,7 +34,11 @@ export default function SheetScreen({ character }: { character: Character }) {
       </nav>
       <main className="book" aria-label="Лист персонажа">
         <article className="page page--left">
-          <CharacterBlock character={character} />
+          <CharacterBlock
+            character={character}
+            portrait={portrait}
+            onPortraitClick={() => setPortraitOpen(true)}
+          />
           <StressBlock
             physical={character.physicalStress}
             mental={character.mentalStress}
@@ -41,6 +53,14 @@ export default function SheetScreen({ character }: { character: Character }) {
           <ExtrasBlock initial={character.extras} />
         </article>
       </main>
+      {portraitOpen && (
+        <PortraitDialog
+          src={portrait}
+          alt={`Портрет: ${character.name || 'персонаж'}`}
+          onClose={() => setPortraitOpen(false)}
+          onChange={setPortrait}
+        />
+      )}
     </div>
   );
 }

@@ -14,9 +14,17 @@ function resizeField(el: HTMLTextAreaElement) {
   el.style.overflowY = Number.isFinite(limit) && content > limit + 4 ? 'auto' : 'hidden';
 }
 
+type Props = {
+  character: Character;
+  /** Портрет, если его уже правили на листе; иначе берётся из героя. */
+  portrait?: string;
+  onPortraitClick?: () => void;
+};
+
 /** Блок «Персонаж»: портрет слева, имя, жетоны судьбы и описание справа. */
-export function CharacterBlock({ character }: { character: Character }) {
+export function CharacterBlock({ character, portrait, onPortraitClick }: Props) {
   const c = character;
+  const photo = portrait ?? c.portrait;
   const [name, setName] = useState(c.name);
   const [description, setDescription] = useState(c.description);
   const nameRef = useRef<HTMLTextAreaElement>(null);
@@ -44,7 +52,14 @@ export function CharacterBlock({ character }: { character: Character }) {
       <BlockHeader title="Персонаж" />
       <div className="cblock__body">
         <div className="cblock__portrait">
-          <PortraitPlate src={c.portrait} alt={`Портрет: ${name || 'персонаж'}`} />
+          <button
+            type="button"
+            className="cblock__portrait-btn"
+            aria-label={photo ? 'Изменить портрет' : 'Добавить портрет'}
+            onClick={onPortraitClick}
+          >
+            <PortraitPlate src={photo} alt={`Портрет: ${name || 'персонаж'}`} />
+          </button>
         </div>
         <div className="cblock__main">
           <textarea
@@ -53,7 +68,7 @@ export function CharacterBlock({ character }: { character: Character }) {
             rows={1}
             value={name}
             aria-label="Имя персонажа"
-            placeholder="Имя героя"
+            placeholder="Имя героя…"
             spellCheck={false}
             onChange={(event) => setName(event.target.value)}
           />
@@ -64,7 +79,7 @@ export function CharacterBlock({ character }: { character: Character }) {
             rows={3}
             value={description}
             aria-label="Описание персонажа"
-            placeholder="Расскажите о герое"
+            placeholder="Расскажите о герое…"
             onChange={(event) => setDescription(event.target.value)}
           />
         </div>
