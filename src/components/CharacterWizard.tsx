@@ -15,7 +15,9 @@ import {
   IconUser,
   IconZap,
 } from './icons';
+import { SKILLS } from '../data/characters';
 import type { SettingId } from '../data/characters';
+import { SKILL_HINTS } from '../data/skills';
 
 const BASE = import.meta.env.BASE_URL;
 const PAPER = `${BASE}assets/textures/parchment-soft.jpg`;
@@ -29,8 +31,16 @@ const TIP_COMPEL =
   'Мастер предлагает осложнение по аспекту. Согласись — получишь жетон судьбы, откажись — заплати жетон.';
 
 type Setting = 'witcher' | 'fate';
-type HintId = 'concept' | 'trouble' | 'aspects';
-type StepNo = 1 | 2;
+type HintId = 'concept' | 'trouble' | 'aspects' | 'skills';
+type StepNo = 1 | 2 | 3;
+
+/** Навык, поставленный на ступень пирамиды. */
+export type SkillPick = { name: string; value: number };
+
+/** Ступени пирамиды и число слотов на каждой. */
+const PYRAMID = [4, 3, 2, 1];
+const capFor = (value: number) => 5 - value;
+const SKILL_TOTAL = PYRAMID.reduce((sum, value) => sum + capFor(value), 0);
 
 const STEPS: { name: string; icon: ReactNode }[] = [
   { name: 'Кто он', icon: <IconUser /> },
@@ -265,6 +275,29 @@ function AspectText() {
   );
 }
 
+function SkillsText({ setting }: { setting: SettingId }) {
+  return (
+    <div className="sm__hint-body sm__hint-body--skills">
+      <p>
+        Навык показывает, что герой умеет. Число рядом со ступенью прибавляется к броску:
+        чем выше ступень, тем надёжнее дело. Обычная задача — сложность +2, трудная — +4.
+      </p>
+      <dl className="wiz__gloss">
+        {SKILLS[setting].map((skillName) => (
+          <div className="wiz__gloss-item" key={skillName}>
+            <dt className="wiz__gloss-term">{skillName}</dt>
+            <dd className="wiz__gloss-desc">{SKILL_HINTS[skillName]}</dd>
+          </div>
+        ))}
+      </dl>
+      <p>
+        Если сомневаетесь, ставьте выше то, чем герой будет заниматься чаще всего: осмотр без
+        «Внимательности» или разговор без «Эмпатии» обходятся дороже всего.
+      </p>
+    </div>
+  );
+}
+
 /** Черновик героя: то, что игрок успел заполнить в конструкторе. */
 export type WizardDraft = {
   setting: SettingId;
@@ -272,6 +305,7 @@ export type WizardDraft = {
   concept: string;
   trouble: string;
   aspects: string[];
+  skills: SkillPick[];
   portrait: string;
 };
 
@@ -290,6 +324,7 @@ export function CharacterWizard({ draft, onChange, onSkip }: Props) {
   const [step, setStep] = useState<StepNo>(1);
   const [hint, setHint] = useState<HintId | null>(null);
   const [cropSrc, setCropSrc] = useState<string | null>(null);
+  const [pickValue, setPickValue] = useState<number | null>(null);
 
   const setting = draft.setting;
   const name = draft.name;
@@ -297,6 +332,7 @@ export function CharacterWizard({ draft, onChange, onSkip }: Props) {
   const trouble = draft.trouble;
   const aspects = draft.aspects;
   const photo = draft.portrait;
+  const skills = draft.skills;
 
   const setSetting = (next: SettingId) => onChange({ setting: next });
   const setName = (next: string) => onChange({ name: next });
@@ -305,6 +341,14 @@ export function CharacterWizard({ draft, onChange, onSkip }: Props) {
   const setAspect = (index: number, value: string) =>
     onChange({ aspects: aspects.map((item, i) => (i === index ? value : item)) });
   const setPhoto = (next: string) => onChange({ portrait: next });
+  const setSkills = (next: SkillPick[]) => onChange({ skills: next });
+  const addSkill = (value: number, skillName: string) =>
+    setSkills([...skills, { name: skillName, value }]);
+  const removeSkill = (skillName: string) =>
+    setSkills(skills.filter((pick) => pick.name !== skillName));
+  const freeSkills = SKILLS[setting].filter(
+    (skillName) => !skills.some((pick) => pick.name === skillName),
+  );
 
   const photoRef = useRef<HTMLInputElement>(null);
   const bodyRef = useRef<HTMLDivElement>(null);
@@ -322,6 +366,10 @@ export function CharacterWizard({ draft, onChange, onSkip }: Props) {
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       if (event.key !== 'Escape') return;
+      if (pickValue !== null) {
+        setPickValue(null);
+        return;
+      }
       if (hint !== null) {
         setHint(null);
         return;
@@ -330,7 +378,7 @@ export function CharacterWizard({ draft, onChange, onSkip }: Props) {
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [hint, onSkip]);
+  }, [hint, pickValue, onSkip]);
 
   /* Если до подвала не хватает пары пикселей, поджимаем нижний отступ,
      чтобы ползунок не появлялся ради двух пикселей. Если не влезает
@@ -358,6 +406,7 @@ export function CharacterWizard({ draft, onChange, onSkip }: Props) {
 
   const goTo = (next: StepNo) => {
     setHint(null);
+    setPickValue(null);
     setStep(next);
   };
 
@@ -366,7 +415,9 @@ export function CharacterWizard({ draft, onChange, onSkip }: Props) {
       ? 'Как придумать концепцию'
       : hint === 'trouble'
         ? 'Как придумать проблему'
-        : 'Как придумать аспект';
+        : hint === 'aspects'
+          ? 'Как придумать аспект'
+          : 'Навыки: коротко о каждом';
   const pageFieldLabel = hint === 'concept' ? 'Концепция' : 'Проблема';
   const pageFieldValue = hint === 'concept' ? concept : trouble;
   const pageFieldPlaceholder =
@@ -416,9 +467,9 @@ export function CharacterWizard({ draft, onChange, onSkip }: Props) {
                       type="button"
                       className="wiz__stepbtn"
                       onClick={() => goTo((index + 1) as StepNo)}
-                      disabled={index > 1}
+                      disabled={index > 2}
                       title={
-                        index > 1
+                        index > 2
                           ? `Шаг «${item.name}» появится позже`
                           : `Перейти к шагу «${item.name}»`
                       }
@@ -438,12 +489,13 @@ export function CharacterWizard({ draft, onChange, onSkip }: Props) {
                   {hint === 'concept' && <ConceptText />}
                   {hint === 'trouble' && <TroubleText />}
                   {hint === 'aspects' && <AspectText />}
+                  {hint === 'skills' && <SkillsText setting={setting} />}
 
                   {hint === 'aspects' ? (
                     <div className="wiz__page-field">
                       <AspectFields values={aspects} onChange={setAspect} />
                     </div>
-                  ) : (
+                  ) : hint === 'skills' ? null : (
                     <div className="wiz__page-field">
                       <label className="sm__label" htmlFor={`wiz-${hint}-page`}>
                         {pageFieldLabel}
@@ -590,7 +642,7 @@ export function CharacterWizard({ draft, onChange, onSkip }: Props) {
                     </div>
                   </div>
                 </>
-              ) : (
+              ) : step === 2 ? (
                 <div className="wiz__grid wiz__grid--aspects">
                   <div className="wiz__aside">
                     <p>Аспект — короткая фраза о герое, она всегда правдива.</p>
@@ -624,6 +676,86 @@ export function CharacterWizard({ draft, onChange, onSkip }: Props) {
                     </button>
                   </div>
                 </div>
+              ) : (
+                <div className="wiz__grid wiz__grid--aspects">
+                  <div className="wiz__aside">
+                    <p>
+                      Навыки отвечают на вопрос, что герой умеет. Когда исход сомнителен,
+                      бросают четыре кубика и прибавляют навык.
+                    </p>
+                    <p>
+                      Пирамида даёт герою сильную сторону и оставляет слабые места: один
+                      навык на +4, два на +3, три на +2, четыре на +1. Начните с верхней
+                      ступени — она задаёт главное умение.
+                    </p>
+                    <p>
+                      +1 — «средне», +2 — «неплохо», +3 — «хорошо», +4 — «отлично». Для
+                      обычной задачи хватает +2.
+                    </p>
+                  </div>
+
+                  <div className="wiz__col">
+                    <div className="wiz__labelrow">
+                      <span className="sm__label">Навыки героя</span>
+                      <span className="wiz__scount">
+                        {skills.length} из {SKILL_TOTAL}
+                      </span>
+                    </div>
+
+                    <div className="wiz__pyr">
+                      {PYRAMID.map((value) => {
+                        const picks = skills.filter((pick) => pick.value === value);
+                        return (
+                          <div className="wiz__prow" key={value}>
+                            <span className="wiz__pval">+{value}</span>
+                            <div className="wiz__pcells">
+                              {Array.from({ length: capFor(value) }, (_, slot) => {
+                                const pick = picks[slot];
+                                return pick ? (
+                                  <div className="wiz__pcell is-filled" key={slot}>
+                                    <span className="wiz__pname" title={pick.name}>
+                                      {pick.name}
+                                    </span>
+                                    <button
+                                      type="button"
+                                      className="wiz__px"
+                                      aria-label={`Убрать навык «${pick.name}»`}
+                                      onClick={() => removeSkill(pick.name)}
+                                    >
+                                      <IconClose />
+                                    </button>
+                                  </div>
+                                ) : (
+                                  <button
+                                    type="button"
+                                    className="wiz__pcell is-empty"
+                                    key={slot}
+                                    aria-label={`Поставить навык на +${value}`}
+                                    onClick={() => setPickValue(value)}
+                                  >
+                                    <span aria-hidden="true">+</span>
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    <p className="wiz__note">
+                      Свободные места можно оставить пустыми — их заполняют в игре.
+                    </p>
+                    <button
+                      type="button"
+                      className="wiz__hint-link"
+                      onClick={() => setHint('skills')}
+                    >
+                      <span>Как читать пирамиду</span>
+                      <IconArrowRight />
+                    </button>
+                  </div>
+                </div>
               )}
             </div>
 
@@ -634,11 +766,11 @@ export function CharacterWizard({ draft, onChange, onSkip }: Props) {
                     Пропустить конструктор
                   </button>
                 )}
-                {hint === null && step === 2 && (
+                {hint === null && step > 1 && (
                   <button
                     type="button"
                     className="sm__ghost wiz__back"
-                    onClick={() => goTo(1)}
+                    onClick={() => goTo((step - 1) as StepNo)}
                   >
                     <IconArrowLeft />
                     Назад
@@ -660,11 +792,11 @@ export function CharacterWizard({ draft, onChange, onSkip }: Props) {
                   <button
                     type="button"
                     className="sm__primary"
-                    onClick={() => goTo(2)}
-                    disabled={step === 2}
+                    onClick={() => goTo((step + 1) as StepNo)}
+                    disabled={step === 3}
                     title={
-                      step === 2
-                        ? 'Дальше — шаг «Навыки», он появится позже'
+                      step === 3
+                        ? 'Дальше — шаг «Трюки», он появится позже'
                         : undefined
                     }
                   >
@@ -674,6 +806,64 @@ export function CharacterWizard({ draft, onChange, onSkip }: Props) {
               </div>
             </footer>
       </div>
+
+      {pickValue !== null && (
+        <div
+          className="wiz__pickoverlay"
+          role="presentation"
+          onPointerDown={(event) => {
+            if (event.target === event.currentTarget) setPickValue(null);
+          }}
+        >
+          <div
+            className="sm__panel wizpick"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="wizpick-title"
+          >
+            <div className="sm__head">
+              <span
+                className="sm__texture"
+                aria-hidden="true"
+                style={{ backgroundImage: `url(${PAPER})` }}
+              />
+              <span className="sm__head-title" id="wizpick-title">
+                Навык на +{pickValue}
+              </span>
+              <button
+                type="button"
+                className="wiz__close"
+                aria-label="Закрыть список навыков"
+                onClick={() => setPickValue(null)}
+              >
+                <IconClose />
+              </button>
+            </div>
+            <div className="sm__body wizpick__body">
+              {freeSkills.length === 0 ? (
+                <p className="wizpick__empty">Все навыки уже стоят в пирамиде.</p>
+              ) : (
+                <div className="wizpick__list">
+                  {freeSkills.map((skillName) => (
+                    <button
+                      type="button"
+                      className="wizpick__item"
+                      key={skillName}
+                      onClick={() => {
+                        addSkill(pickValue, skillName);
+                        setPickValue(null);
+                      }}
+                    >
+                      <span className="wizpick__name">{skillName}</span>
+                      <span className="wizpick__desc">{SKILL_HINTS[skillName]}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {cropSrc && (
         <PortraitCropper

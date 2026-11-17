@@ -18,7 +18,7 @@ export type CharacterRecord = {
 };
 
 /** Навыки для демонстрационных героев: свой набор под сеттинг. */
-const SKILLS: Record<SettingId, string[]> = {
+export const SKILLS: Record<SettingId, string[]> = {
   fate: [
     'Драка',
     'Стрельба',
@@ -302,6 +302,14 @@ export function findCharacter(id: string): CharacterRecord | undefined {
 }
 
 /** Пустой лист нового героя: пирамида без навыков, аспекты и трюки пустые. */
+/** Пирамида из выбранных навыков: строки +4/+3/+2/+1 всегда на месте. */
+export function ladderFromPicks(picks: { name: string; value: number }[]): LadderRow[] {
+  return [4, 3, 2, 1].map((value) => ({
+    value,
+    skills: picks.filter((pick) => pick.value === value).map((pick) => pick.name),
+  }));
+}
+
 export function createEmptyCharacter(): Character {
   return {
     name: '',

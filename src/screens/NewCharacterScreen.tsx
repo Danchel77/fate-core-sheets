@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import type { Character } from '../data/types';
-import { createEmptyCharacter } from '../data/characters';
+import { createEmptyCharacter, ladderFromPicks } from '../data/characters';
 import { CharacterWizard, type WizardDraft } from '../components/CharacterWizard';
 import SheetScreen from './SheetScreen';
 
@@ -10,6 +10,7 @@ const EMPTY_DRAFT: WizardDraft = {
   concept: '',
   trouble: '',
   aspects: ['', '', ''],
+  skills: [],
   portrait: '',
 };
 
@@ -19,6 +20,7 @@ function sheetFromDraft(draft: WizardDraft): Character {
     ...createEmptyCharacter(),
     name: draft.name,
     portrait: draft.portrait,
+    ladder: ladderFromPicks(draft.skills),
     aspects: [
       { label: 'Концепция', text: draft.concept },
       { label: 'Проблема', text: draft.trouble },
