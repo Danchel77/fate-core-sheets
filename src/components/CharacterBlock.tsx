@@ -64,7 +64,7 @@ export function CharacterBlock({ character }: { character: Character }) {
             rows={3}
             value={description}
             aria-label="Описание персонажа"
-            placeholder="Расскажите о герое…"
+            placeholder="Расскажите о герое"
             onChange={(event) => setDescription(event.target.value)}
           />
         </div>

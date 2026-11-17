@@ -85,11 +85,6 @@
   overflow-y: auto;
 }
 
-.ext__area::placeholder {
-  color: color-mix(in srgb, var(--accent-gold-ink) 54%, transparent);
-  font-style: italic;
-}
-
 .ext__area:focus {
   outline: none;
   background-color: color-mix(in srgb, var(--accent-gold) 6%, transparent);

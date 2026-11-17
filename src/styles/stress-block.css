@@ -197,12 +197,6 @@
   resize: none;
 }
 
-.str__slot-line::placeholder {
-  color: color-mix(in srgb, var(--text-ink-muted) 46%, transparent);
-  font-size: var(--text-caption);
-  font-style: italic;
-}
-
 .str__slot-line:focus-visible {
   outline: 0;
   border-color: var(--accent-gold-deep);
