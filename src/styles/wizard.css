@@ -1,0 +1,552 @@
+/* Полотно конструктора: лист виден под окном, фон не отвлекает. */
+.wiz-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: color-mix(in srgb, var(--bg-table) 55%, transparent);
+}
+
+/* Окно конструктора персонажа (шаги 1–2).
+   Каркас окна — шапка, поля, подсказки, кнопки и подвал — берётся из
+   stunt-modal.css, как у окна создания трюка. Здесь только раскладка. */
+
+/* ---------- окно конструктора ---------- */
+
+
+/* Высота одна на всех шагах: окно не прыгает при переходе. */
+.sm__panel.wiz {
+  width: min(900px, 100%);
+  height: min(650px, calc(100vh - 48px));
+  max-height: calc(100vh - 48px);
+}
+
+/* Окно не прокручивается на обычных экранах: содержимое в него помещается.
+   Прокрутка остаётся только аварийным выходом для очень низких экранов. */
+.wiz .sm__body {
+  overflow-y: auto;
+}
+
+/* Шапка без своей нижней линии: единственная линия — верх карты шагов. */
+.wiz .sm__head {
+  border-bottom: 0;
+}
+
+/* Ритм полей: подпись к полю ближе, чем поля между собой. */
+.wiz .sm__label {
+  margin-bottom: 8px;
+}
+
+.wiz .sm__body {
+  padding: 14px 24px 8px;
+}
+
+.wiz__close {
+  position: absolute;
+  top: 2px;
+  right: 4px;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--accent-gold-ink);
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+.wiz__close:hover {
+  background: color-mix(in srgb, var(--accent-gold) 16%, transparent);
+}
+
+.wiz__close:focus-visible {
+  outline: 2px solid var(--accent-gold-ink);
+  outline-offset: 2px;
+}
+
+.wiz__close svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* ---------- путь шагов ---------- */
+
+.wiz__path {
+  --path-pad: 24px;
+
+  position: relative;
+  flex: none;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin: 0;
+  padding: 14px var(--path-pad) 10px;
+  border-bottom: 1px solid color-mix(in srgb, var(--accent-gold) 26%, transparent);
+  list-style: none;
+}
+
+/* Линия идёт от узла к узлу с зазором: пройденное — сплошной, впереди — пунктир. */
+.wiz__step:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  top: 19px;
+  left: calc(50% + 25px);
+  right: calc(-50% + 25px);
+  height: 1px;
+  background: color-mix(in srgb, var(--accent-gold) 40%, transparent);
+}
+
+.wiz__step.is-current::after,
+.wiz__step.is-current ~ .wiz__step::after {
+  background: repeating-linear-gradient(
+    to right,
+    color-mix(in srgb, var(--accent-gold) 40%, transparent) 0 5px,
+    transparent 5px 10px
+  );
+}
+
+.wiz__step {
+  position: relative;
+  z-index: 1;
+}
+
+/* Узел пути — кнопка: шаг можно выбрать, не листая страницу. */
+.wiz__stepbtn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+.wiz__stepbtn:disabled {
+  cursor: default;
+}
+
+.wiz__stepbtn:focus-visible {
+  outline: 2px solid var(--accent-gold-ink);
+  outline-offset: 4px;
+  border-radius: 8px;
+}
+
+.wiz__stepbtn:not(:disabled):hover .wiz__node {
+  border-color: var(--accent-gold-deep);
+}
+
+.wiz__node {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  margin: 0 auto;
+  border: 1px solid color-mix(in srgb, var(--accent-gold-deep) 38%, transparent);
+  border-radius: 50%;
+  background: var(--bg-parchment);
+  color: color-mix(in srgb, var(--text-ink-muted) 78%, transparent);
+}
+
+.wiz__node svg {
+  width: 17px;
+  height: 17px;
+}
+
+.wiz__step.is-done .wiz__node {
+  border-color: color-mix(in srgb, var(--accent-gold-deep) 55%, transparent);
+  background: transparent;
+  color: var(--accent-gold-deep);
+}
+
+.wiz__step.is-done .wiz__label {
+  color: color-mix(in srgb, var(--text-ink-muted) 82%, transparent);
+}
+
+.wiz__step.is-current .wiz__node {
+  border-color: var(--accent-gold-deep);
+  background: var(--accent-gold-deep);
+  color: var(--paper-highlight);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-gold) 20%, transparent);
+}
+
+.wiz__label {
+  display: block;
+  margin-top: 7px;
+  font-family: var(--font-body);
+  font-size: var(--text-micro);
+  line-height: 1.25;
+  letter-spacing: 0.02em;
+  text-align: center;
+  color: var(--text-ink-muted);
+}
+
+.wiz__step.is-current .wiz__label {
+  font-weight: 700;
+  color: var(--text-ink-primary);
+}
+
+/* ---------- сеттинг ---------- */
+
+/* Имя и переключатели сеттинга — одна строка: имя слева, сеттинги справа. */
+.wiz__toprow {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.wiz__namefield {
+  flex: 1 1 auto;
+  max-width: 480px;
+}
+
+.wiz__name {
+  font-family: var(--font-name-sc);
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: 0.02em;
+}
+
+.wiz__segs {
+  display: flex;
+  flex: none;
+  gap: 8px;
+}
+
+.wiz__seg {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  width: 144px;
+  height: 44px;
+  padding: 0 14px;
+  border: 1px solid color-mix(in srgb, var(--accent-gold-deep) 30%, transparent);
+  background: transparent;
+  font-family: var(--font-body);
+  font-size: var(--text-caption);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  line-height: 1.2;
+  text-transform: uppercase;
+  color: var(--text-ink-muted);
+  cursor: pointer;
+  transition:
+    background-color var(--transition-fast),
+    border-color var(--transition-fast),
+    color var(--transition-fast);
+}
+
+.wiz__seg:hover {
+  border-color: color-mix(in srgb, var(--accent-gold-deep) 66%, transparent);
+  color: var(--text-ink-primary);
+}
+
+.wiz__seg[aria-pressed='true'] {
+  border-color: var(--accent-gold-deep);
+  background: color-mix(in srgb, var(--accent-gold) 12%, transparent);
+  color: var(--text-ink-primary);
+}
+
+.wiz__seg:focus-visible {
+  outline: 2px solid var(--accent-gold-ink);
+  outline-offset: 2px;
+}
+
+.wiz__logo {
+  display: inline-block;
+  background-color: currentColor;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+}
+
+.wiz__logo--witcher {
+  width: 22px;
+  height: 22px;
+}
+
+.wiz__logo--fate {
+  width: 52px;
+  height: 21px;
+  /* словесный знак сидит чуть ниже геометрического центра — поднимаем на глаз */
+  transform: translateY(-1px);
+}
+
+/* ---------- две колонки ---------- */
+
+.wiz__grid {
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr);
+  gap: 28px;
+  margin-top: 10px;
+}
+
+/* На шаге аспектов слева пояснение: колонка шире портрета, но сетка та же. */
+.wiz__grid--aspects {
+  grid-template-columns: 260px minmax(0, 1fr);
+  align-items: start;
+  margin-top: 4px;
+}
+
+.wiz__aside {
+  font-family: var(--font-body);
+  font-size: var(--text-caption);
+  line-height: 1.6;
+  color: var(--text-ink-muted);
+}
+
+.wiz__aside p {
+  margin: 0 0 10px;
+}
+
+.wiz__aside p:last-child {
+  margin-bottom: 0;
+}
+
+.wiz__col {
+  min-width: 0;
+}
+
+.wiz__field-gap {
+  margin-top: 20px;
+}
+
+/* Пояснение под полем: что это и зачем нужно. */
+.wiz__note {
+  max-width: 540px;
+  margin: 6px 0 0;
+  font-family: var(--font-body);
+  font-size: var(--text-caption);
+  line-height: 1.45;
+  color: var(--text-ink-muted);
+}
+
+.wiz__hint-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  min-height: 40px;
+  margin-top: 4px;
+  padding: 6px 0 4px;
+  border: 0;
+  background: transparent;
+  font-family: var(--font-body);
+  font-size: var(--text-caption);
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: 0.02em;
+  text-align: left;
+  color: var(--accent-gold-ink);
+  cursor: pointer;
+  transition: color var(--transition-fast);
+}
+
+.wiz__hint-link svg {
+  flex: none;
+  width: 15px;
+  height: 15px;
+  margin-right: 2px;
+  color: var(--accent-gold-deep);
+}
+
+.wiz__hint-link:hover {
+  color: var(--accent-gold-deep);
+}
+
+.wiz__hint-link:focus-visible {
+  outline: 2px solid var(--accent-gold-ink);
+  outline-offset: 2px;
+}
+
+/* ---------- справка страницей ---------- */
+
+.wiz__page {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding: 4px 0 6px;
+  font-size: var(--text-caption);
+  line-height: 1.6;
+}
+
+/* Справка идёт книжным разворотом: две колонки по 65–70 знаков. */
+.wiz__page .sm__hint-body {
+  column-count: 2;
+  column-gap: 44px;
+}
+
+.wiz__page .sm__hint-body > p,
+.wiz__page .sm__hint-body > ol,
+.wiz__page .sm__hint-body li {
+  break-inside: avoid;
+}
+
+.wiz__page-title {
+  margin: 0 0 6px;
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--text-ink-primary);
+}
+
+/* Поле под справкой: читаешь подсказку и тут же пишешь.
+   Ширина как у поля в форме, чтобы линия не растягивалась на всю страницу. */
+.wiz__page-field {
+  max-width: 604px;
+  margin-top: 8px;
+}
+
+/* Поле-строка: одна строка, дальше растёт под текст. */
+.wiz__grow {
+  min-height: calc(1.45em + 10px);
+  line-height: 1.45;
+  resize: none;
+  overflow: hidden;
+}
+
+.wiz__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.wiz__back svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* ---------- портрет ---------- */
+
+.wiz__pick {
+  margin-top: 8px;
+}
+
+/* Портрет — та же плашка, что в листе, поэтому её пропорции сразу видны. */
+.wiz__portrait {
+  display: block;
+  width: 220px;
+  max-width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+.wiz__portrait .plate {
+  width: 100%;
+}
+
+.wiz__portrait:hover .plate {
+  border-color: var(--accent-gold-deep);
+  box-shadow:
+    inset 0 1px 0 var(--highlight-paper),
+    0 1px 3px var(--shadow-warm),
+    0 0 0 2px color-mix(in srgb, var(--accent-gold) 42%, transparent);
+}
+
+.wiz__portrait:focus-visible {
+  outline: 2px solid var(--accent-gold-ink);
+  outline-offset: 3px;
+}
+
+.wiz__pick-hint {
+  display: block;
+  margin-top: 8px;
+  font-family: var(--font-body);
+  font-size: var(--text-micro);
+  line-height: 1.3;
+  color: var(--text-ink-muted);
+}
+
+.wiz__seg:focus-visible {
+  outline: 2px solid var(--accent-gold-ink);
+  outline-offset: 2px;
+}
+
+@media (max-width: 760px) {
+  .wiz__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* На телефоне поля идут первыми, пояснение — под ними. */
+  .wiz__grid--aspects .wiz__col {
+    order: 1;
+  }
+
+  .wiz__grid--aspects .wiz__aside {
+    order: 2;
+  }
+
+  .wiz__toprow {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+  }
+
+  .wiz__namefield {
+    max-width: none;
+  }
+
+  .wiz__segs {
+    justify-content: flex-end;
+  }
+
+  .wiz__seg {
+    width: 132px;
+  }
+
+  .wiz__pick {
+    padding-bottom: 8px;
+  }
+
+  .wiz__path {
+    --path-pad: 16px;
+  }
+
+  .wiz .sm__body {
+    padding: 16px 16px 6px;
+  }
+
+  .wiz .sm__ghost,
+  .wiz .sm__primary,
+  .wiz__seg {
+    min-height: 44px;
+  }
+}
+
+/* ---------- шаг 2: аспекты ---------- */
+
+.wiz__aspects {
+  display: grid;
+  gap: 14px;
+  margin-top: 2px;
+}
+
+.wiz__aspect {
+  display: block;
+}
+
+.wiz__aspects + .wiz__hint-link {
+  margin-top: 8px;
+}
+
+.wiz__page .wiz__aspects {
+  gap: 10px;
+  margin-top: 2px;
+}

@@ -300,3 +300,36 @@ export const characters: CharacterRecord[] = DEMO.map((demo) => ({
 export function findCharacter(id: string): CharacterRecord | undefined {
   return characters.find((character) => character.id === id);
 }
+
+/** Пустой лист нового героя: пирамида без навыков, аспекты и трюки пустые. */
+export function createEmptyCharacter(): Character {
+  return {
+    name: '',
+    description: '',
+    portrait: '',
+    refresh: 3,
+    fatePoints: 3,
+    aspects: [
+      { label: 'Концепция', text: '' },
+      { label: 'Проблема', text: '' },
+      { label: 'Первое приключение', text: '' },
+      { label: 'Переплетение судеб', text: '' },
+      { label: 'Переплетение судеб', text: '' },
+    ],
+    ladder: [
+      { value: 4, skills: [] },
+      { value: 3, skills: [] },
+      { value: 2, skills: [] },
+      { value: 1, skills: [] },
+    ],
+    stunts: [],
+    extras: ['', ''],
+    physicalStress: 3,
+    mentalStress: 3,
+    consequences: [
+      { value: 2, kind: 'лёгкое' },
+      { value: 4, kind: 'среднее' },
+      { value: 6, kind: 'серьёзное' },
+    ],
+  };
+}

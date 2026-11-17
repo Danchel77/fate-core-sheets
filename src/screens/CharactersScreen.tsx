@@ -265,17 +265,12 @@ export default function CharactersScreen() {
               </article>
             ))}
 
-            <button
-              className="hero-card hero-card--new"
-              type="button"
-              aria-disabled="true"
-              title="Создание героя появится вместе с конструктором"
-            >
+            <a className="hero-card hero-card--new" href="#/new">
               <span className="hero-card__plus" aria-hidden="true">
                 +
               </span>
               <span className="hero-card__newlabel">Создать героя</span>
-            </button>
+            </a>
           </div>
         )}
       </main>
