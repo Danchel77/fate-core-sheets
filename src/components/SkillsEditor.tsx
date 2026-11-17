@@ -1,7 +1,9 @@
-import { useId, useLayoutEffect, useRef, useState } from 'react';
+import { useId, useState } from 'react';
 import { BlockHeader } from './BlockHeader';
 import { BlockMenu } from './BlockMenu';
 import { Hint } from './Hint';
+import { SkillPicker } from './SkillPicker';
+import { SkillPyramid, type PyramidRow } from './SkillPyramid';
 import '../styles/skills-editor.css';
 
 /** 18 навыков сеттинга «Ведьмак» (список зафиксирован в fate_core_rules.md). */
@@ -28,7 +30,7 @@ export const SKILL_POOL = [
 
 export type InitRow = { value: number; skills: string[] };
 
-type Row = { value: number; skills: string[] };
+type Row = PyramidRow;
 
 type Props = {
   initial: InitRow[];
@@ -58,29 +60,6 @@ function buildRows(initial: InitRow[]): Row[] {
   return [...values]
     .sort((a, b) => b - a)
     .map((value) => ({ value, skills: [...(byValue.get(value) ?? [])] }));
-}
-
-/** Стрелка «поднять навык»: простое древко и треугольник, золото с тиснением. */
-function UpArrow() {
-  const gid = `ske-arrow-${useId().replace(/[^a-zA-Z0-9_-]/g, '')}`;
-  return (
-    <svg className="ske__upico" viewBox="0 0 16 16" width="13" height="13" aria-hidden="true" focusable="false">
-      <defs>
-        <linearGradient id={gid} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" style={{ stopColor: 'var(--arrow-gold-hi)' }} />
-          <stop offset="0.45" style={{ stopColor: 'var(--arrow-gold-mid)' }} />
-          <stop offset="1" style={{ stopColor: 'var(--arrow-gold-lo)' }} />
-        </linearGradient>
-      </defs>
-      <path
-        d="M6.2 14.35q0 .55.6.55h2.4q.6 0 .6-.55V8.55h2.6L8 2.75 3.6 8.55h2.6Z"
-        fill={`url(#${gid})`}
-        stroke="var(--arrow-edge)"
-        strokeWidth="0.55"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
 }
 
 /** Стрелка уровня: крупнее карточной, с гранёным «пером» в основании. */
@@ -118,52 +97,6 @@ function LevelArrow({ direction }: { direction: 'up' | 'down' }) {
         opacity="0.5"
       />
     </svg>
-  );
-}
-
-/** Название навыка: ужимается по ширине карточки, но не переносится на вторую строку. */
-function SkillName({ name }: { name: string }) {
-  const ref = useRef<HTMLSpanElement>(null);
-
-  useLayoutEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-
-    const fit = () => {
-      el.style.fontSize = '';
-      const base = parseFloat(getComputedStyle(el).fontSize);
-      const card = el.parentElement;
-      if (!card) return;
-      const available = card.clientWidth - 32;
-
-      const textWidth = () => {
-        const range = document.createRange();
-        range.selectNodeContents(el);
-        return range.getBoundingClientRect().width;
-      };
-
-      let size = base;
-      el.style.fontSize = `${size}px`;
-      while (size > 11 && textWidth() > available) {
-        size = Math.max(11, size - 0.25);
-        el.style.fontSize = `${size}px`;
-      }
-    };
-
-    fit();
-    window.addEventListener('resize', fit);
-    const observer = new ResizeObserver(fit);
-    if (el.parentElement) observer.observe(el.parentElement);
-    return () => {
-      window.removeEventListener('resize', fit);
-      observer.disconnect();
-    };
-  }, [name]);
-
-  return (
-    <span ref={ref} className="ske__name">
-      {name}
-    </span>
   );
 }
 
@@ -235,9 +168,61 @@ export function SkillsEditor({ initial, initialLevel = 4 }: Props) {
 
   const top = rows[0];
   const canAddRank = (top?.value ?? 0) < MAX_SKILL_RANK;
-  const canRemoveRank =
-    top !== undefined && top.value > 4 && top.skills.length === 0;
+  const canRemoveRank = top !== undefined && top.value > 4 && top.skills.length === 0;
   const debtWord = Math.abs(free) === 1 ? 'очка' : 'очков';
+  const extraSlot = free > 0 && rows.some((row) => row.value === 1 && row.skills.length >= baseCap(1));
+
+  const levelBlock = (
+    <div className="ske__lvc" aria-label={`Уровень ${level}, свободных очков ${free}`}>
+      <span className="ske__lv-line">
+        <span className="ske__lv-label">
+          <Hint
+            title="Уровень"
+            text="Условное значение мастерства персонажа. Чем выше уровень, тем больше очков можно потратить на навыки и тем больше навыков доступно."
+          >
+            Уровень
+          </Hint>
+        </span>
+        <span className="ske__lv-controls">
+          <span className="ske__lvsteps">
+            <button
+              type="button"
+              className="ske__step"
+              aria-label="Повысить уровень"
+              title="Повысить уровень"
+              disabled={level >= MAX_LEVEL}
+              onClick={() => setLevel((l) => Math.min(MAX_LEVEL, l + 1))}
+            >
+              <LevelArrow direction="up" />
+            </button>
+            <button
+              type="button"
+              className="ske__step"
+              aria-label="Понизить уровень"
+              title="Понизить уровень"
+              disabled={level <= 1}
+              onClick={() => setLevel((l) => Math.max(1, l - 1))}
+            >
+              <LevelArrow direction="down" />
+            </button>
+          </span>
+          <span className="ske__lvnum">{level}</span>
+        </span>
+      </span>
+      <span className={`ske__lv-free${free < 0 ? ' ske__lv-free--debt' : ''}`}>
+        {free > 0 && (
+          <>
+            Доступно очков <b className="ske__lv-free-num">{free}</b>
+          </>
+        )}
+        {free < 0 && (
+          <>
+            Не хватает <b className="ske__lv-free-num">{Math.abs(free)}</b> {debtWord}
+          </>
+        )}
+      </span>
+    </div>
+  );
 
   return (
     <section className="ske">
@@ -256,161 +241,31 @@ export function SkillsEditor({ initial, initialLevel = 4 }: Props) {
         }
       />
 
-      <div className="ske__body">
-        {rows.map((row, rowIndex) => {
-          const cap = baseCap(row.value);
-          const filled = row.skills.length;
-          const empties = Math.max(0, cap - filled);
-          const extra = row.value === 1 && filled >= cap && free > 0;
-
-          return (
-            <div className={`ske__row${rowIndex === 0 ? ' ske__row--top' : ''}`} key={row.value}>
-              <span className="ske__rankcell">
-                <span className="ske__rank">+{row.value}</span>
-              </span>
-
-              <div className="ske__grid">
-                {row.skills.map((name) => (
-                  <span className="ske__block" key={`${row.value}-${name}`}>
-                    <SkillName name={name} />
-                    <button
-                      type="button"
-                      className="ske__del"
-                      aria-label={`Убрать ${name}`}
-                      title="Убрать навык"
-                      onClick={() => remove(row.value, name)}
-                    >
-                      ×
-                    </button>
-                    {canRaise(row.value) && (
-                      <button
-                        type="button"
-                        className="ske__up"
-                        aria-label={`Поднять ${name}`}
-                        title="Поднять на ступень (1 очко)"
-                        onClick={() => raise(row.value, name)}
-                      >
-                        <UpArrow />
-                      </button>
-                    )}
-                  </span>
-                ))}
-
-                {Array.from({ length: empties }, (_, index) => {
-                  const affordable = free >= row.value;
-                  return (
-                    <button
-                      type="button"
-                      className={`ske__slot${affordable ? ' ske__slot--ready' : ''}`}
-                      key={`${row.value}-empty-${index}`}
-                      title={
-                        affordable
-                          ? `Занять слот: ${row.value} ${pointsWord(row.value)}`
-                          : `Не хватает очков: нужно ${row.value} ${pointsWord(row.value)}`
-                      }
-                      onClick={() => affordable && setMenuRank(row.value)}
-                    >
-                      <span className="ske__slot-plus" aria-hidden="true">+</span>
-                    </button>
-                  );
-                })}
-
-                {extra && (
-                  <button
-                    type="button"
-                    className="ske__slot ske__slot--ready ske__slot--new"
-                    onClick={() => setMenuRank(1)}
-                    title="Добавить навык на +1"
-                  >
-                    <span className="ske__slot-plus" aria-hidden="true">+</span>
-                  </button>
-                )}
-              </div>
-
-              {rowIndex === 0 && (
-                <div className="ske__lvc" aria-label={`Уровень ${level}, свободных очков ${free}`}>
-                  <span className="ske__lv-line">
-                    <span className="ske__lv-label">
-                      <Hint
-                        title="Уровень"
-                        text="Условное значение мастерства персонажа. Чем выше уровень, тем больше очков можно потратить на навыки и тем больше навыков доступно."
-                      >
-                        Уровень
-                      </Hint>
-                    </span>
-                    <span className="ske__lv-controls">
-                      <span className="ske__lvsteps">
-                        <button
-                          type="button"
-                          className="ske__step"
-                          aria-label="Повысить уровень"
-                          title="Повысить уровень"
-                          disabled={level >= MAX_LEVEL}
-                          onClick={() => setLevel((l) => Math.min(MAX_LEVEL, l + 1))}
-                        >
-                          <LevelArrow direction="up" />
-                        </button>
-                        <button
-                          type="button"
-                          className="ske__step"
-                          aria-label="Понизить уровень"
-                          title="Понизить уровень"
-                          disabled={level <= 1}
-                          onClick={() => setLevel((l) => Math.max(1, l - 1))}
-                        >
-                          <LevelArrow direction="down" />
-                        </button>
-                      </span>
-                      <span className="ske__lvnum">{level}</span>
-                    </span>
-                  </span>
-                  <span className={`ske__lv-free${free < 0 ? ' ske__lv-free--debt' : ''}`}>
-                    {free > 0 && (
-                      <>
-                        Доступно очков <b className="ske__lv-free-num">{free}</b>
-                      </>
-                    )}
-                    {free < 0 && (
-                      <>
-                        Не хватает <b className="ske__lv-free-num">{Math.abs(free)}</b> {debtWord}
-                      </>
-                    )}
-                  </span>
-                  
-                </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
+      <SkillPyramid
+        rows={rows}
+        cap={baseCap}
+        isReady={(value) => free >= value}
+        canRaise={canRaise}
+        onSlot={setMenuRank}
+        onRemove={remove}
+        onRaise={raise}
+        extraSlot={extraSlot}
+        slotTitle={(value) =>
+          free >= value
+            ? `Занять слот: ${value} ${pointsWord(value)}`
+            : `Не хватает очков: нужно ${value} ${pointsWord(value)}`
+        }
+        topAside={levelBlock}
+      />
 
       {menuRank !== null && (
-        <>
-          <button
-            type="button"
-            className="ske__scrim"
-            aria-label="Закрыть список навыков"
-            onClick={() => setMenuRank(null)}
-          />
-          <div className="ske__menu" role="menu">
-            <span className="ske__menu-cap">
-              Стоимость: {menuRank} {pointsWord(menuRank)}
-            </span>
-            {available.length === 0 && (
-              <span className="ske__menu-empty">Все навыки уже в пирамиде</span>
-            )}
-            {available.map((name) => (
-              <button
-                type="button"
-                className="ske__menu-item"
-                key={name}
-                onClick={() => addSkill(menuRank, name)}
-              >
-                {name}
-              </button>
-            ))}
-          </div>
-        </>
+        <SkillPicker
+          rank={menuRank}
+          skills={[...available]}
+          note={`Стоимость: ${menuRank} ${pointsWord(menuRank)}`}
+          onPick={(name) => addSkill(menuRank, name)}
+          onClose={() => setMenuRank(null)}
+        />
       )}
     </section>
   );

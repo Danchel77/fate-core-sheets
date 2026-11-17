@@ -10,11 +10,19 @@
 }
 
 .ske__body {
+  --ac: var(--accent-gold-deep);
+  --ac-strong: var(--accent-gold-action);
+  --ac-ink: var(--accent-gold-ink);
   display: flex;
   flex: 0 0 auto;
   flex-direction: column;
   justify-content: flex-start;
   margin-top: -6px;
+}
+
+/* В конструкторе пирамида живёт без блока листа — отступ не нужен. */
+.ske__body--big {
+  margin-top: 0;
 }
 
 .ske__row {
@@ -359,72 +367,6 @@
   letter-spacing: 0;
 }
 
-/* ── Меню навыков ───────────────────────────────────────── */
-
-.ske__scrim {
-  position: fixed;
-  inset: 0;
-  z-index: 11;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  cursor: default;
-}
-
-.ske__menu {
-  position: absolute;
-  z-index: 12;
-  left: 52px;
-  bottom: 6px;
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 2px;
-  width: 310px;
-  padding: 8px;
-  border: 1px solid color-mix(in srgb, var(--ac) 45%, transparent);
-  border-radius: 3px;
-  background: color-mix(in srgb, var(--bg-parchment) 96%, var(--paper-highlight));
-  box-shadow: 0 14px 30px color-mix(in srgb, var(--ac-ink) 30%, transparent);
-}
-
-.ske__menu-cap {
-  grid-column: 1 / -1;
-  padding: 0 2px 6px;
-  border-bottom: 1px solid color-mix(in srgb, var(--ac) 30%, transparent);
-  color: var(--ac-ink);
-  font-family: var(--font-body);
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-
-.ske__menu-item {
-  padding: 5px 6px;
-  border: 0;
-  border-radius: 2px;
-  background: transparent;
-  color: var(--text-ink-primary);
-  font-family: var(--font-body);
-  font-size: 11.5px;
-  line-height: 1.15;
-  text-align: left;
-  cursor: pointer;
-}
-
-.ske__menu-item:hover {
-  background: color-mix(in srgb, var(--ac-strong) 16%, transparent);
-}
-
-.ske__menu-empty {
-  grid-column: 1 / -1;
-  padding: 4px;
-  color: var(--text-ink-muted);
-  font-family: var(--font-body);
-  font-size: 11.5px;
-  font-style: italic;
-}
-
 @media (min-width: 1440px) {
   .ske__name {
     font-size: 0.9375rem;
@@ -474,4 +416,83 @@
 
 .ske__slot--ready .ske__slot-plus {
   opacity: 1;
+}
+
+/* ── Ступень со словом и крупный вариант для конструктора ──────── */
+
+.ske__rankcell {
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ske__rankword {
+  font-family: var(--font-body);
+  font-size: 11px;
+  line-height: 1.05;
+  letter-spacing: 0.02em;
+  color: var(--text-ink-muted);
+  text-align: center;
+}
+
+.ske__body--big .ske__row {
+  grid-template-columns: 66px minmax(0, 1fr);
+  padding: 7px 0;
+}
+
+.ske__body--big .ske__grid {
+  gap: 4px;
+  min-height: 50px;
+}
+
+.ske__body--big .ske__block,
+.ske__body--big .ske__slot {
+  height: 50px;
+}
+
+.ske__body--big .ske__name {
+  padding: 0 24px;
+  font-size: 0.9375rem;
+}
+
+.ske__body--big .ske__rank {
+  font-size: 19px;
+}
+
+.ske__body--big .ske__rankword {
+  font-size: 12px;
+}
+
+/* В конструкторе крестики видны сразу: на телефоне наведения нет. */
+.ske__body--big .ske__del {
+  width: 24px;
+  height: 24px;
+  font-size: 18px;
+  opacity: 0.55;
+}
+
+.ske__body--big .ske__block:hover .ske__del,
+.ske__body--big .ske__block:focus-within .ske__del {
+  opacity: 1;
+}
+
+.ske__body--big .ske__slot {
+  font-size: 13px;
+}
+
+.ske__body--big .ske__slot-plus {
+  font-size: 14px;
+}
+
+@media (max-width: 560px) {
+  .ske__body--big .ske__row {
+    grid-template-columns: 58px minmax(0, 1fr);
+  }
+
+  .ske__body--big .ske__rank {
+    font-size: 16px;
+  }
+
+  .ske__body--big .ske__name {
+    padding: 0 16px;
+  }
 }
