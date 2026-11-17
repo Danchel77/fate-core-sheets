@@ -151,8 +151,13 @@
   background: color-mix(in srgb, var(--accent-gold) 7%, transparent);
 }
 
+.sm__input:focus-visible {
+  outline: 2px solid var(--accent-gold-ink);
+  outline-offset: 3px;
+}
+
 .sm__input::placeholder {
-  color: color-mix(in srgb, var(--text-ink-muted) 52%, transparent);
+  color: color-mix(in srgb, var(--text-ink-muted) 68%, transparent);
 }
 
 /* Две строки по умолчанию; высоту под текст ставит сам компонент. */
@@ -166,8 +171,7 @@
 /* ---------- подсказка ---------- */
 
 .sm__hint {
-  margin-top: 2px;
-  border-top: 1px solid color-mix(in srgb, var(--accent-gold) 26%, transparent);
+  margin-top: 10px;
 }
 
 .sm__hint-summary {
@@ -175,7 +179,8 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 9px 0 2px;
+  min-height: 40px;
+  padding: 8px 0 4px;
   font-family: var(--font-body);
   font-size: var(--text-caption);
   font-weight: 700;
@@ -204,6 +209,10 @@
 
 .sm__hint[open] .sm__hint-summary::after {
   transform: rotate(225deg);
+}
+
+.sm__hint-summary:hover {
+  color: var(--accent-gold-deep);
 }
 
 .sm__hint-summary:focus-visible {
