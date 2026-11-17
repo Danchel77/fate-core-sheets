@@ -20,6 +20,10 @@ const cornerMask = {
   WebkitMaskImage: `url(${CORNER})`,
 };
 
+/* Наведение открывает плашку не сразу: если мышь просто прошла по слову,
+   подсказка не выскакивает. Фокус с клавиатуры и клик работают сразу. */
+const OPEN_DELAY = 320;
+
 const MARGIN = 10;
 const GAP = 10;
 const POINTER_SIZE = 5.5;
@@ -138,6 +142,16 @@ export function Hint({ title, text, children }: Props) {
     setOpen(true);
   };
 
+  const scheduleOpen = () => {
+    if (open) return;
+    clearTimer();
+    timer.current = window.setTimeout(() => {
+      timer.current = null;
+      pinned.current = false;
+      setOpen(true);
+    }, OPEN_DELAY);
+  };
+
   const scheduleClose = () => {
     if (pinned.current) return;
     clearTimer();
@@ -166,7 +180,7 @@ export function Hint({ title, text, children }: Props) {
         aria-controls={open ? id : undefined}
         onClick={handleClick}
         onPointerEnter={() => {
-          if (canHover.current) show();
+          if (canHover.current) scheduleOpen();
         }}
         onPointerLeave={scheduleClose}
         onFocus={show}

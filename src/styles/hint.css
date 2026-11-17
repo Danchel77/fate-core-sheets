@@ -1,4 +1,4 @@
-/* Подсказка: затухающее подчёркивание и всплывающая плашка справа. */
+/* Подсказка: тонкая линия под словом и всплывающая плашка справа. */
 
 .hint__word {
   position: relative;
@@ -17,15 +17,9 @@
   position: absolute;
   left: 0;
   right: 0;
-  bottom: -3px;
+  bottom: -1px;
   height: 1px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    var(--accent-gold-deep) 18%,
-    var(--accent-gold-deep) 82%,
-    transparent
-  );
+  background: color-mix(in srgb, var(--accent-gold-deep) 58%, transparent);
 }
 
 .hint__word:hover::after,
