@@ -76,8 +76,10 @@ Definition of Done относится к **утверждённому экран
 /src/styles/tokens.css  единственный источник цветов и шрифтов
 /src/styles/characters.css  стили списка персонажей
 /src/components       блоки листа: CharacterBlock, AspectBlock, SkillsEditor, StuntBlock, StressBlock, ExtrasBlock, BlockMenu, Hint, PortraitPlate, BlockHeader; общие: SettingMark, icons
-/src/screens          CharactersScreen — список (#/), SheetScreen — лист героя (#/hero/<id>)
-/src/data             types.ts (типы листа), demoCharacter.ts (эталонный герой), characters.ts (9 демо-записей; хранилища пока нет)
+/src/screens          CharactersScreen — список (#/), SheetScreen — лист героя (#/hero/<id>), NewCharacterScreen — новый герой (#/new)
+/src/components/CharacterWizard.tsx  окно конструктора: шаги 1–2, справки, подвал
+/src/styles/wizard.css  стили окна конструктора
+/src/data             types.ts (типы листа), demoCharacter.ts (эталонный герой), characters.ts (9 демо-записей, createEmptyCharacter; хранилища пока нет)
 /public/assets        textures/ frames/ portraits/ logos/ + CREDITS.md
 /.scratch             временные скрипты/скриншоты; в git не входит, после проверки удаляется
 ```
