@@ -75,7 +75,7 @@ Definition of Done относится к **утверждённому экран
 /src                  приложение (React + TS)
 /src/styles/tokens.css  единственный источник цветов и шрифтов
 /src/styles/characters.css  стили списка персонажей
-/src/components       блоки листа: CharacterBlock, AspectBlock, SkillsEditor, StuntBlock, StressBlock, ExtrasBlock, BlockMenu, Hint, PortraitPlate, BlockHeader; общие: SettingMark, icons
+/src/components       блоки листа: CharacterBlock, AspectBlock, SkillsEditor, StuntBlock, StressBlock, ExtrasBlock, BlockMenu, Hint, PortraitPlate, PortraitDialog, PortraitCropper, BlockHeader, CharacterWizard; общие: SettingMark, icons
 /src/screens          CharactersScreen — список (#/), SheetScreen — лист героя (#/hero/<id>), NewCharacterScreen — новый герой (#/new)
 /src/components/CharacterWizard.tsx  окно конструктора: шаги 1–2, справки, подвал
 /src/styles/wizard.css  стили окна конструктора
