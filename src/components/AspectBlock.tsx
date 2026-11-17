@@ -16,9 +16,9 @@ const PLACEHOLDERS: Record<string, string> = {
 };
 
 const FREE_PLACEHOLDERS = [
-  'Серебряный меч отца',
-  'Мясник из Блавикена',
-  'Долг перед Гильдией',
+  'Серебряный меч отца…',
+  'Мясник из Блавикена…',
+  'Долг перед Гильдией…',
 ];
 
 type AutoTextareaProps = {

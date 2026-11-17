@@ -94,7 +94,7 @@ function ConsequenceSlot({
         rows={1}
         value={value}
         aria-label={`Последствие: ${consequence.kind}, ${consequence.value}`}
-        placeholder="Аспект"
+        placeholder="Аспект…"
         onChange={(event) => onChange(event.target.value)}
       />
     </div>

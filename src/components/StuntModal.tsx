@@ -240,7 +240,7 @@ export function StuntModal({
                 className="sm__input"
                 value={name}
                 onChange={(event) => setName(event.target.value)}
-                placeholder="Например: Ведьмачьи чувства"
+                placeholder="Например: Ведьмачьи чувства…"
                 maxLength={48}
                 autoComplete="off"
                 required

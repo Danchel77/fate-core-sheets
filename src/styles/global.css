@@ -49,12 +49,12 @@ textarea {
   font: inherit;
 }
 
-/* Единый вид заглушек во всех текстовых полях: без курсива, без собственных
-   настроек — цвет и начертание берутся у поля. */
+/* Единый вид заглушек во всех текстовых полях: курсив, приглушённый цвет.
+   Тексты заглушек заканчиваются многоточием (если не стоят ? ! .). */
 ::placeholder {
   color: color-mix(in srgb, var(--text-ink-muted) 55%, transparent);
   font: inherit;
-  font-style: normal;
+  font-style: italic;
   letter-spacing: inherit;
   opacity: 1;
 }

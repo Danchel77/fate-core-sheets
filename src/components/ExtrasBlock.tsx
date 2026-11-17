@@ -15,7 +15,7 @@ type GrowingAreaProps = {
   placeholder: string;
 };
 
-const DEFAULT_TITLES: [string, string] = ['Заметки I', 'Заметки II'];
+const DEFAULT_TITLES: [string, string] = ['Заметки I…', 'Заметки II…'];
 
 /** Свободное поле «Дополнений»: начинается с четырёх строк и растёт под текст. */
 function GrowingArea({
@@ -100,7 +100,7 @@ export function ExtrasBlock({ initial }: Props) {
           value={values[0]}
           onTitleChange={(next) => setTitle(0, next)}
           onChange={(next) => setValue(0, next)}
-          placeholder="Заметки, снаряжение, связи"
+          placeholder="Заметки, снаряжение, связи…"
         />
         <GrowingArea
           index={2}
@@ -108,7 +108,7 @@ export function ExtrasBlock({ initial }: Props) {
           value={values[1]}
           onTitleChange={(next) => setTitle(1, next)}
           onChange={(next) => setValue(1, next)}
-          placeholder="Продолжение"
+          placeholder="Продолжение…"
         />
       </div>
     </section>

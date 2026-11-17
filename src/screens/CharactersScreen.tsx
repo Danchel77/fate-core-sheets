@@ -180,7 +180,7 @@ export default function CharactersScreen() {
               <input
                 type="search"
                 value={query}
-                placeholder="Поиск по имени"
+                placeholder="Поиск по имени…"
                 aria-label="Поиск по имени"
                 onChange={(event) => setQuery(event.target.value)}
               />

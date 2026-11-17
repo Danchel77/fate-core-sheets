@@ -48,9 +48,6 @@
 
 .ext__index::placeholder {
   color: color-mix(in srgb, var(--accent-gold-ink) 58%, transparent);
-  font-style: normal;
-  font-weight: 700;
-  letter-spacing: 0.16em;
 }
 
 .ext__index:focus {
