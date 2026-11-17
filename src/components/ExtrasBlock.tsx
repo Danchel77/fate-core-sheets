@@ -15,7 +15,7 @@ type GrowingAreaProps = {
   placeholder: string;
 };
 
-const DEFAULT_TITLES: [string, string] = ['Заметки I…', 'Заметки II…'];
+const DEFAULT_TITLES: [string, string] = ['Заметки I', 'Заметки II'];
 
 /** Свободное поле «Дополнений»: начинается с четырёх строк и растёт под текст. */
 function GrowingArea({
