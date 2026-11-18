@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 import '../styles/stunt-modal.css';
 import '../styles/wizard.css';
 import { Hint } from './Hint';
-import { FATE_POINTS_HINT, REFRESH_HINT } from './FatePoints';
+import { FATE_POINTS_HINT } from './FatePoints';
 import { PortraitPlate } from './PortraitPlate';
 import { PortraitCropper } from './PortraitCropper';
 import { SkillPicker } from './SkillPicker';
@@ -49,7 +49,8 @@ const RANK_WORDS: Record<number, string> = {
   1: 'Средне',
 };
 
-const TIP_MILESTONE_SIGNIFICANT = 'Конец сценария или крупного события. Даёт очко навыка.';
+const TIP_MILESTONE_SIGNIFICANT =
+  'Конец сценария или крупного события. Герой получает очко навыка и может поменять местами две ступени навыков или заменить навык, сменить трюк или купить новый, если хватает обновления, переименовать аспект (кроме концепции) и переписать последствия.';
 const TIP_MILESTONE_MAJOR =
   'Конец сюжетной арки. Даёт всё, что даёт значимая веха, плюс очко обновления, возможность добавить новую ступень навыков и переписать концепцию.';
 
@@ -678,11 +679,7 @@ export function CharacterWizard({ draft, onChange, onSkip }: Props) {
                       <Hint title="Большая веха" text={TIP_MILESTONE_MAJOR}>
                         большая веха
                       </Hint>{' '}
-                      вдобавок даёт очко{' '}
-                      <Hint title="Обновление" text={REFRESH_HINT}>
-                        обновления
-                      </Hint>
-                      .
+                      вдобавок добавляет новую ступень навыков.
                     </p>
                   </div>
 
