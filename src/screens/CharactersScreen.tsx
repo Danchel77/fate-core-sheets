@@ -10,8 +10,10 @@ import {
   IconSearch,
   IconSettings,
   IconTrash,
+  IconUpload,
 } from '../components/icons';
-import { deleteCharacter, useCharacters } from '../data/store';
+import { downloadFile, fileText, jsonFileName, parseFile } from '../data/exchange';
+import { createCharacter, deleteCharacter, useCharacters } from '../data/store';
 import type { CharacterRecord, SettingId } from '../data/types';
 import { buildCharacterPdf } from '../pdf/sheetPdf';
 import '../styles/characters.css';
@@ -129,6 +131,8 @@ export default function CharactersScreen() {
   );
 
   const [pdfBusy, setPdfBusy] = useState<string | null>(null);
+  const [importError, setImportError] = useState<string | null>(null);
+  const importRef = useRef<HTMLInputElement>(null);
 
   const downloadPdf = async (hero: CharacterRecord) => {
     if (pdfBusy) return;
@@ -164,6 +168,34 @@ export default function CharactersScreen() {
       );
   }, [records, filter, query, sort]);
 
+  const downloadJson = (hero: CharacterRecord) => {
+    downloadFile(fileText(hero), jsonFileName(hero));
+  };
+
+  const cloneHero = (hero: CharacterRecord) => {
+    const name = hero.sheet.name.trim();
+    void createCharacter(hero.setting, {
+      ...hero.sheet,
+      name: name ? `${name} (копия)` : 'Копия героя',
+    });
+  };
+
+  const importHero = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+    if (!file) return;
+    const text = await file.text().catch(() => '');
+    const parsed = parseFile(text);
+    if (!parsed) {
+      setImportError('Не получилось прочитать файл. Нужен файл героя, скачанный отсюда.');
+      return;
+    }
+    setImportError(null);
+    setFilter('all');
+    setQuery('');
+    await createCharacter(parsed.setting, parsed.sheet);
+  };
+
   const menuItems = (hero: CharacterRecord) => [
     {
       label: pdfBusy === hero.id ? 'Собираем PDF…' : 'Скачать PDF',
@@ -175,16 +207,14 @@ export default function CharactersScreen() {
     {
       label: 'Скачать JSON',
       icon: <IconBraces />,
-      disabled: true,
-      onSelect: () => {},
-      title: '«Скачать JSON» появится на следующем шаге',
+      onSelect: () => downloadJson(hero),
+      title: 'Скачать героя файлом — портрет в файл не входит',
     },
     {
       label: 'Клонировать',
       icon: <IconCopy />,
-      disabled: true,
-      onSelect: () => {},
-      title: '«Клонировать» появится на следующем шаге',
+      onSelect: () => cloneHero(hero),
+      title: 'Сделать копию героя',
     },
     {
       label: 'Удалить',
@@ -277,6 +307,16 @@ export default function CharactersScreen() {
                 )}
               </div>
 
+              <button
+                className="iconbtn"
+                type="button"
+                aria-label="Загрузить героя из файла"
+                title="Загрузить героя из файла"
+                onClick={() => importRef.current?.click()}
+              >
+                <IconUpload />
+              </button>
+
               <button className="iconbtn" type="button" aria-label="Настройки" title="Настройки">
                 <IconSettings />
               </button>
@@ -284,15 +324,38 @@ export default function CharactersScreen() {
           )}
         </header>
 
+        <input
+          ref={importRef}
+          className="heroes__file"
+          type="file"
+          accept="application/json,.json"
+          onChange={(event) => void importHero(event)}
+        />
+
+        {importError && (
+          <p className="heroes__note" role="alert">
+            {importError}
+          </p>
+        )}
+
         {records.length === 0 ? (
           <section className="heroes__empty">
             <h2 className="heroes__empty-title">Пока никого нет</h2>
             <p className="heroes__empty-text">
               Создайте первого героя — он появится здесь и сразу откроется готовым листом.
             </p>
-            <a className="heroes__empty-action" href="#/new">
-              Создать героя
-            </a>
+            <div className="heroes__empty-actions">
+              <a className="heroes__empty-action" href="#/new">
+                Создать героя
+              </a>
+              <button
+                className="heroes__empty-action heroes__empty-action--ghost"
+                type="button"
+                onClick={() => importRef.current?.click()}
+              >
+                Загрузить из файла
+              </button>
+            </div>
           </section>
         ) : visible.length === 0 ? (
           <section className="heroes__empty">

@@ -628,6 +628,41 @@
   color: var(--text-ink-primary);
 }
 
+.heroes__empty-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.heroes__empty-actions .heroes__empty-action {
+  margin-top: 0;
+}
+
+.heroes__empty-action--ghost {
+  background: transparent;
+  border-color: color-mix(in srgb, var(--accent-gold-deep) 45%, transparent);
+  color: var(--text-ink-muted);
+}
+
+.heroes__empty-action--ghost:hover {
+  background: color-mix(in srgb, var(--accent-gold) 12%, transparent);
+  color: var(--text-ink-primary);
+}
+
+/* файл героя прячем: кнопки открывают его сами */
+.heroes__file {
+  display: none;
+}
+
+.heroes__note {
+  margin: 10px 0 0;
+  font-size: var(--text-caption);
+  line-height: 1.45;
+  color: var(--accent-crimson-ink);
+}
+
 /* ---------- меньше экрана ---------- */
 
 @media (max-width: 1100px) {
