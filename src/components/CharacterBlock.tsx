@@ -76,7 +76,7 @@ export function CharacterBlock({ character, portrait, onPortraitClick }: Props) 
           <textarea
             ref={descRef}
             className="cblock__desc"
-            rows={3}
+            rows={1}
             value={description}
             aria-label="Описание персонажа"
             placeholder="Расскажите о герое…"
