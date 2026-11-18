@@ -50,10 +50,10 @@ const RANK_WORDS: Record<number, string> = {
   1: 'Средне',
 };
 
-const TIP_MILESTONE_SMALL =
-  'Конец приключения или важной сцены. Герой поднимает один навык на ступень, пирамида при этом сохраняется.';
-const TIP_MILESTONE_BIG =
-  'Конец большой истории. Герой получает несколько повышений и может поменять трюки.';
+const TIP_MILESTONE_SIGNIFICANT =
+  'Конец сценария или крупного события. Даёт всё, что даёт малая веха, и одно очко навыка: новый навык на +1 или ступень выше существующему.';
+const TIP_MILESTONE_MAJOR =
+  'Конец сюжетной арки. Даёт всё, что даёт значимая веха, плюс очко обновления, возможность поднять навык выше потолка и переписать концепцию.';
 
 const STEPS: { name: string; icon: ReactNode }[] = [
   { name: 'Кто он', icon: <IconUser /> },
@@ -64,9 +64,9 @@ const STEPS: { name: string; icon: ReactNode }[] = [
 
 /* Три свободных аспекта: без подписей, только примеры в поле. */
 const ASPECT_EXAMPLES = [
-  'Старый долг перед наставницей',
-  'Слишком честен для своего ремесла',
-  'За мной охотится Гильдия',
+  'Старый долг перед наставницей…',
+  'Слишком честен для своего ремесла…',
+  'За мной охотится Гильдия…',
 ];
 
 /** Знак сеттинга — те же логотипы, что на карточках списка. */
@@ -500,14 +500,13 @@ export function CharacterWizard({ draft, onChange, onSkip }: Props) {
                 <>
                   <div className="wiz__toprow">
                     <div className="sm__field wiz__namefield">
-                      <label className="sm__label" htmlFor="wiz-name">
-                        Имя героя
-                      </label>
                       <input
                         id="wiz-name"
                         className="sm__input wiz__name"
                         value={name}
                         onChange={(event) => setName(event.target.value)}
+                        placeholder="Имя героя…"
+                        aria-label="Имя героя"
                         autoComplete="off"
                         maxLength={40}
                       />
@@ -673,14 +672,14 @@ export function CharacterWizard({ draft, onChange, onSkip }: Props) {
                     </p>
                     <p>
                       После приключения герой становится сильнее:{' '}
-                      <Hint title="Средняя веха" text={TIP_MILESTONE_SMALL}>
-                        средняя веха
+                      <Hint title="Значимая веха" text={TIP_MILESTONE_SIGNIFICANT}>
+                        значимая веха
                       </Hint>{' '}
-                      поднимает один навык на ступень,{' '}
-                      <Hint title="Большая веха" text={TIP_MILESTONE_BIG}>
+                      даёт очко навыка — новый навык на +1 или ступень выше существующего, а{' '}
+                      <Hint title="Большая веха" text={TIP_MILESTONE_MAJOR}>
                         большая веха
                       </Hint>{' '}
-                      даёт несколько повышений.
+                      вдобавок даёт очко обновления.
                     </p>
                   </div>
 

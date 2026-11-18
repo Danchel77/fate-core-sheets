@@ -93,6 +93,8 @@
 }
 
 .ske__name {
+  box-sizing: border-box;
+  width: 100%;
   max-width: 100%;
   padding: 0 16px;
   font-family: var(--font-body);
@@ -450,7 +452,7 @@
 }
 
 .ske__body--big .ske__name {
-  padding: 0 24px;
+  padding: 0 14px;
   font-size: 0.9375rem;
 }
 
@@ -462,17 +464,23 @@
   font-size: 12px;
 }
 
-/* В конструкторе крестики видны сразу: на телефоне наведения нет. */
+/* Крестик появляется при наведении; на сенсорных экранах наведения нет. */
 .ske__body--big .ske__del {
   width: 24px;
   height: 24px;
   font-size: 18px;
-  opacity: 0.55;
+  opacity: 0;
 }
 
 .ske__body--big .ske__block:hover .ske__del,
 .ske__body--big .ske__block:focus-within .ske__del {
   opacity: 1;
+}
+
+@media (hover: none) {
+  .ske__body--big .ske__del {
+    opacity: 1;
+  }
 }
 
 .ske__body--big .ske__slot {

@@ -59,7 +59,9 @@ function SkillName({ name }: { name: string }) {
       const base = parseFloat(getComputedStyle(el).fontSize);
       const card = el.parentElement;
       if (!card) return;
-      const available = card.clientWidth - 32;
+      const style = getComputedStyle(el);
+      const pad = parseFloat(style.paddingLeft) + parseFloat(style.paddingRight) + 6;
+      const available = card.clientWidth - pad;
 
       const textWidth = () => {
         const range = document.createRange();
