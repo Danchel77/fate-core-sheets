@@ -49,19 +49,34 @@ export default function SheetScreen({ character, onPatch }: Props) {
             character={character}
             portrait={portrait}
             onPortraitClick={() => setPortraitOpen(true)}
+            onPatch={onPatch}
           />
           <StressBlock
             physical={physicalStress(character)}
             mental={mentalStress(character)}
             consequences={character.consequences}
+            marks={character.marks}
+            onChange={onPatch}
           />
-          <AspectBlock aspects={character.aspects} />
+          <AspectBlock aspects={character.aspects} onChange={(aspects) => onPatch?.({ aspects })} />
         </article>
 
         <article className="page page--right">
-          <SkillsEditor initial={character.ladder} initialLevel={character.level} />
-          <StuntBlock stunts={character.stunts} baseRefresh={character.refresh} />
-          <ExtrasBlock initial={character.extras} />
+          <SkillsEditor
+            initial={character.ladder}
+            initialLevel={character.level}
+            onChange={({ ladder, level }) => onPatch?.({ ladder, level })}
+          />
+          <StuntBlock
+            stunts={character.stunts}
+            baseRefresh={character.refresh}
+            onChange={(stunts) => onPatch?.({ stunts })}
+          />
+          <ExtrasBlock
+            initial={character.extras}
+            initialTitles={character.extraTitles}
+            onChange={(extras, extraTitles) => onPatch?.({ extras, extraTitles })}
+          />
         </article>
       </main>
       {portraitOpen && (

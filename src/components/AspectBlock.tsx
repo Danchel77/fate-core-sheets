@@ -53,14 +53,18 @@ function AutoTextarea({ value, onChange, placeholder, label }: AutoTextareaProps
 
 type Props = {
   aspects: Aspect[];
+  /** Готовый список аспектов после правки: лист сохраняет его сразу. */
+  onChange?: (aspects: Aspect[]) => void;
 };
 
 /** Блок «Аспекты»: два якоря с подписями и три свободные строки. */
-export function AspectBlock({ aspects }: Props) {
+export function AspectBlock({ aspects, onChange }: Props) {
   const [values, setValues] = useState(aspects.map((aspect) => aspect.text));
 
   const setValue = (index: number, text: string) => {
-    setValues((prev) => prev.map((item, i) => (i === index ? text : item)));
+    const next = values.map((item, i) => (i === index ? text : item));
+    setValues(next);
+    onChange?.(aspects.map((aspect, i) => ({ ...aspect, text: next[i] ?? aspect.text })));
   };
 
   const anchors = aspects.slice(0, 2);

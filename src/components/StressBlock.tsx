@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import type { Character } from '../data/types';
+import type { Character, CharacterPatch, StressMarks } from '../data/types';
 import { BlockHeader } from './BlockHeader';
 import { Hint } from './Hint';
 import '../styles/stress-block.css';
@@ -10,6 +10,10 @@ type Props = {
   physical: number;
   mental: number;
   consequences: Consequence[];
+  /** Отметки ячеек, сохранённые в листе. */
+  marks?: StressMarks;
+  /** Правка отметок и последствий: лист сохраняет её сразу. */
+  onChange?: (patch: CharacterPatch) => void;
 };
 
 const STRESS_HINTS: Record<string, string> = {
@@ -101,18 +105,46 @@ function ConsequenceSlot({
   );
 }
 
+/** Ячейки всегда считаются из навыков; сохранённые отметки добиваем пустыми. */
+function fillMarks(count: number, saved: boolean[] | undefined): boolean[] {
+  return Array.from({ length: count }, (_, index) => saved?.[index] ?? false);
+}
+
 /** Блок «Стресс и последствия»: две короткие дорожки и три поля для аспектов. */
-export function StressBlock({ physical, mental, consequences }: Props) {
-  const [physicalMarks, setPhysicalMarks] = useState<boolean[]>(() => Array(physical).fill(false));
-  const [mentalMarks, setMentalMarks] = useState<boolean[]>(() => Array(mental).fill(false));
+export function StressBlock({ physical, mental, consequences, marks, onChange }: Props) {
+  const [physicalMarks, setPhysicalMarks] = useState<boolean[]>(() =>
+    fillMarks(physical, marks?.physical),
+  );
+  const [mentalMarks, setMentalMarks] = useState<boolean[]>(() =>
+    fillMarks(mental, marks?.mental),
+  );
   const [texts, setTexts] = useState(() => consequences.map((item) => item.text ?? ''));
 
-  const toggle = (
-    marks: boolean[],
-    setMarks: (next: boolean[]) => void,
-    index: number,
-  ) => {
-    setMarks(marks.map((marked, i) => (i === index ? !marked : marked)));
+  const toggle = (kind: 'physical' | 'mental', index: number) => {
+    // Ячеек может стать больше, чем сохранённых отметок: добиваем дорожку до нужной длины.
+    const current =
+      kind === 'physical' ? fillMarks(physical, physicalMarks) : fillMarks(mental, mentalMarks);
+    const next = current.map((marked, i) => (i === index ? !marked : marked));
+    const nextPhysical = kind === 'physical' ? next : physicalMarks;
+    const nextMental = kind === 'mental' ? next : mentalMarks;
+
+    if (kind === 'physical') setPhysicalMarks(next);
+    else setMentalMarks(next);
+
+    onChange?.({
+      marks: {
+        physical: fillMarks(physical, nextPhysical),
+        mental: fillMarks(mental, nextMental),
+      },
+    });
+  };
+
+  const setText = (index: number, text: string) => {
+    const next = texts.map((item, i) => (i === index ? text : item));
+    setTexts(next);
+    onChange?.({
+      consequences: consequences.map((item, i) => ({ ...item, text: next[i] ?? item.text })),
+    });
   };
 
   return (
@@ -125,14 +157,14 @@ export function StressBlock({ physical, mental, consequences }: Props) {
             skill="Телосложение"
             count={physical}
             marks={physicalMarks}
-            onToggle={(index) => toggle(physicalMarks, setPhysicalMarks, index)}
+            onToggle={(index) => toggle('physical', index)}
           />
           <Track
             label="Ментальный"
             skill="Воля"
             count={mental}
             marks={mentalMarks}
-            onToggle={(index) => toggle(mentalMarks, setMentalMarks, index)}
+            onToggle={(index) => toggle('mental', index)}
           />
         </div>
 
@@ -142,7 +174,7 @@ export function StressBlock({ physical, mental, consequences }: Props) {
               key={`${consequence.kind}-${consequence.value}-${index}`}
               consequence={consequence}
               value={texts[index]}
-              onChange={(text) => setTexts((prev) => prev.map((item, i) => (i === index ? text : item)))}
+              onChange={(text) => setText(index, text)}
             />
           ))}
         </div>

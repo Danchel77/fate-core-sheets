@@ -4,6 +4,9 @@ import '../styles/extras-block.css';
 
 type Props = {
   initial: [string, string];
+  initialTitles?: [string, string];
+  /** Оба поля и их заголовки: лист сохраняет правку сразу. */
+  onChange?: (extras: [string, string], titles: [string, string]) => void;
 };
 
 type GrowingAreaProps = {
@@ -70,24 +73,22 @@ function GrowingArea({
 }
 
 /** Блок «Дополнения»: два свободных поля для заметок, снаряжения и связей. */
-export function ExtrasBlock({ initial }: Props) {
+export function ExtrasBlock({ initial, initialTitles, onChange }: Props) {
   const [values, setValues] = useState<[string, string]>(initial);
-  const [titles, setTitles] = useState<[string, string]>(DEFAULT_TITLES);
+  const [titles, setTitles] = useState<[string, string]>(initialTitles ?? DEFAULT_TITLES);
 
   const setValue = (index: 0 | 1, next: string) => {
-    setValues((current) => {
-      const updated: [string, string] = [...current];
-      updated[index] = next;
-      return updated;
-    });
+    const updated: [string, string] = [...values];
+    updated[index] = next;
+    setValues(updated);
+    onChange?.(updated, titles);
   };
 
   const setTitle = (index: 0 | 1, next: string) => {
-    setTitles((current) => {
-      const updated: [string, string] = [...current];
-      updated[index] = next;
-      return updated;
-    });
+    const updated: [string, string] = [...titles];
+    updated[index] = next;
+    setTitles(updated);
+    onChange?.(values, updated);
   };
 
   return (

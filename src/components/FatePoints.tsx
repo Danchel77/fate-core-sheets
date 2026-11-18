@@ -9,13 +9,15 @@ type Props = {
   initial: number;
   refresh: number;
   max?: number;
+  /** Новое число жетонов: лист сохраняет его сразу. */
+  onChange?: (value: number) => void;
 };
 
 /**
  * Жетоны судьбы: кликабельные кружки + значение обновления.
  * Повторный клик по последнему заполненному снимает один жетон.
  */
-export function FatePoints({ initial, refresh, max = 5 }: Props) {
+export function FatePoints({ initial, refresh, max = 5, onChange }: Props) {
   const [value, setValue] = useState(initial);
 
   useEffect(() => {
@@ -23,7 +25,9 @@ export function FatePoints({ initial, refresh, max = 5 }: Props) {
   }, [initial]);
 
   const pick = (index: number) => {
-    setValue(index + 1 === value ? index : index + 1);
+    const next = index + 1 === value ? index : index + 1;
+    setValue(next);
+    onChange?.(next);
   };
 
   return (

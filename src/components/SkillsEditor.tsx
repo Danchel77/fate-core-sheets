@@ -35,6 +35,8 @@ type Row = PyramidRow;
 type Props = {
   initial: InitRow[];
   initialLevel?: number;
+  /** Пирамида и уровень: лист сохраняет правку сразу. */
+  onChange?: (patch: { ladder: InitRow[]; level: number }) => void;
 };
 
 const MAX_SKILL_RANK = 6;
@@ -101,10 +103,24 @@ function LevelArrow({ direction }: { direction: 'up' | 'down' }) {
 }
 
 /** Интерактивная пирамида навыков: слоты стартовой пирамиды, уровень и свободные очки. */
-export function SkillsEditor({ initial, initialLevel = 4 }: Props) {
+export function SkillsEditor({ initial, initialLevel = 4, onChange }: Props) {
   const [rows, setRows] = useState<Row[]>(() => buildRows(initial));
   const [level, setLevel] = useState(initialLevel);
   const [menuRank, setMenuRank] = useState<number | null>(null);
+
+  const publish = (nextRows: Row[], nextLevel: number) => {
+    onChange?.({
+      ladder: nextRows.map(({ value, skills }) => ({ value, skills: [...skills] })),
+      level: nextLevel,
+    });
+  };
+
+  const changeLevel = (next: number) => {
+    const clamped = Math.min(MAX_LEVEL, Math.max(1, next));
+    if (clamped === level) return;
+    setLevel(clamped);
+    publish(rows, clamped);
+  };
 
   const spent = rows.reduce((sum, row) => sum + row.value * row.skills.length, 0);
   const free = BASE_POINTS + (level - 1) - spent;
@@ -119,48 +135,50 @@ export function SkillsEditor({ initial, initialLevel = 4 }: Props) {
   };
 
   const raise = (rank: number, name: string) => {
-    setRows((prev) =>
-      prev.map((row) => {
-        if (row.value === rank) {
-          return { ...row, skills: row.skills.filter((skill) => skill !== name) };
-        }
-        if (row.value === rank + 1) {
-          return { ...row, skills: [...row.skills, name] };
-        }
-        return row;
-      }),
-    );
+    const next = rows.map((row) => {
+      if (row.value === rank) {
+        return { ...row, skills: row.skills.filter((skill) => skill !== name) };
+      }
+      if (row.value === rank + 1) {
+        return { ...row, skills: [...row.skills, name] };
+      }
+      return row;
+    });
+    setRows(next);
+    publish(next, level);
   };
 
   const remove = (rank: number, name: string) => {
-    setRows((prev) =>
-      prev.map((row) =>
-        row.value === rank ? { ...row, skills: row.skills.filter((skill) => skill !== name) } : row,
-      ),
+    const next = rows.map((row) =>
+      row.value === rank ? { ...row, skills: row.skills.filter((skill) => skill !== name) } : row,
     );
+    setRows(next);
+    publish(next, level);
   };
 
   const addSkill = (rank: number, name: string) => {
-    setRows((prev) =>
-      prev.map((row) => (row.value === rank ? { ...row, skills: [...row.skills, name] } : row)),
+    const next = rows.map((row) =>
+      row.value === rank ? { ...row, skills: [...row.skills, name] } : row,
     );
+    setRows(next);
     setMenuRank(null);
+    publish(next, level);
   };
 
   const addRank = () => {
-    setRows((prev) => {
-      const top = prev[0]?.value ?? 0;
-      if (top >= MAX_SKILL_RANK) return prev;
-      return [{ value: top + 1, skills: [] }, ...prev];
-    });
+    const top = rows[0]?.value ?? 0;
+    if (top >= MAX_SKILL_RANK) return;
+    const next = [{ value: top + 1, skills: [] }, ...rows];
+    setRows(next);
+    publish(next, level);
   };
 
   const removeRank = () => {
-    setRows((prev) => {
-      const top = prev[0];
-      if (!top || prev.length <= 1 || top.skills.length > 0) return prev;
-      return prev.slice(1);
-    });
+    const top = rows[0];
+    if (!top || rows.length <= 1 || top.skills.length > 0) return;
+    const next = rows.slice(1);
+    setRows(next);
+    publish(next, level);
   };
 
   const used = new Set(rows.flatMap((row) => row.skills));
@@ -191,7 +209,7 @@ export function SkillsEditor({ initial, initialLevel = 4 }: Props) {
               aria-label="Повысить уровень"
               title="Повысить уровень"
               disabled={level >= MAX_LEVEL}
-              onClick={() => setLevel((l) => Math.min(MAX_LEVEL, l + 1))}
+              onClick={() => changeLevel(level + 1)}
             >
               <LevelArrow direction="up" />
             </button>
@@ -201,7 +219,7 @@ export function SkillsEditor({ initial, initialLevel = 4 }: Props) {
               aria-label="Понизить уровень"
               title="Понизить уровень"
               disabled={level <= 1}
-              onClick={() => setLevel((l) => Math.max(1, l - 1))}
+              onClick={() => changeLevel(level - 1)}
             >
               <LevelArrow direction="down" />
             </button>

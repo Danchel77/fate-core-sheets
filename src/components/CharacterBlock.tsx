@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { effectiveRefresh } from '../data/characters';
-import type { Character } from '../data/types';
+import type { Character, CharacterPatch } from '../data/types';
 import { BlockHeader } from './BlockHeader';
 import { FatePoints } from './FatePoints';
 import { PortraitPlate } from './PortraitPlate';
@@ -20,10 +20,12 @@ type Props = {
   /** Портрет, если его уже правили на листе; иначе берётся из героя. */
   portrait?: string;
   onPortraitClick?: () => void;
+  /** Правка сохраняется в листе сразу. */
+  onPatch?: (patch: CharacterPatch) => void;
 };
 
 /** Блок «Персонаж»: портрет слева, имя, жетоны судьбы и описание справа. */
-export function CharacterBlock({ character, portrait, onPortraitClick }: Props) {
+export function CharacterBlock({ character, portrait, onPortraitClick, onPatch }: Props) {
   const c = character;
   const photo = portrait ?? c.portrait;
   const [name, setName] = useState(c.name);
@@ -71,9 +73,16 @@ export function CharacterBlock({ character, portrait, onPortraitClick }: Props) 
             aria-label="Имя персонажа"
             placeholder="Имя героя…"
             spellCheck={false}
-            onChange={(event) => setName(event.target.value)}
+            onChange={(event) => {
+              setName(event.target.value);
+              onPatch?.({ name: event.target.value });
+            }}
           />
-          <FatePoints initial={c.fatePoints} refresh={effectiveRefresh(c)} />
+          <FatePoints
+            initial={c.fatePoints}
+            refresh={effectiveRefresh(c)}
+            onChange={(value) => onPatch?.({ fatePoints: value })}
+          />
           <textarea
             ref={descRef}
             className="cblock__desc"
@@ -81,7 +90,10 @@ export function CharacterBlock({ character, portrait, onPortraitClick }: Props) 
             value={description}
             aria-label="Описание персонажа"
             placeholder="Расскажите о герое…"
-            onChange={(event) => setDescription(event.target.value)}
+            onChange={(event) => {
+              setDescription(event.target.value);
+              onPatch?.({ description: event.target.value });
+            }}
           />
         </div>
       </div>
