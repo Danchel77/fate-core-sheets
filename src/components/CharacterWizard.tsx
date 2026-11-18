@@ -8,7 +8,6 @@ import { PortraitPlate } from './PortraitPlate';
 import { PortraitCropper } from './PortraitCropper';
 import { SkillPicker } from './SkillPicker';
 import { SkillPyramid } from './SkillPyramid';
-import { StuntBlock } from './StuntBlock';
 import {
   IconArrowLeft,
   IconArrowRight,
@@ -19,7 +18,7 @@ import {
   IconUser,
   IconZap,
 } from './icons';
-import { SKILLS, STARTING_REFRESH } from '../data/characters';
+import { FREE_STUNTS, MAX_STUNTS, SKILLS, STARTING_REFRESH } from '../data/characters';
 import type { SettingId, Stunt } from '../data/types';
 
 const BASE = import.meta.env.BASE_URL;
@@ -316,6 +315,8 @@ export function CharacterWizard({ draft, onChange, onSkip }: Props) {
   const [hint, setHint] = useState<HintId | null>(null);
   const [cropSrc, setCropSrc] = useState<string | null>(null);
   const [pickValue, setPickValue] = useState<number | null>(null);
+  /* Справка шага «Трюки» открывается рядом с полями, а не вместо них. */
+  const [stuntHelp, setStuntHelp] = useState(false);
 
   const setting = draft.setting;
   const name = draft.name;
@@ -335,6 +336,18 @@ export function CharacterWizard({ draft, onChange, onSkip }: Props) {
   const setPhoto = (next: string) => onChange({ portrait: next });
   const setSkills = (next: SkillPick[]) => onChange({ skills: next });
   const setStunts = (next: Stunt[]) => onChange({ stunts: next });
+  /* Обновление после добавления трюка: три трюка бесплатны, каждый следующий −1. */
+  const refreshAfter = (count: number) =>
+    Math.max(1, STARTING_REFRESH - Math.max(0, count - FREE_STUNTS));
+  const nextStuntCosts = refreshAfter(stunts.length + 1) < refreshAfter(stunts.length);
+  const addStunt = () => {
+    if (stunts.length >= MAX_STUNTS) return;
+    stuntFocus.current = stunts.length;
+    setStunts([...stunts, { name: '', text: '' }]);
+  };
+  const updateStunt = (index: number, patch: Partial<Stunt>) =>
+    setStunts(stunts.map((item, i) => (i === index ? { ...item, ...patch } : item)));
+  const removeStunt = (index: number) => setStunts(stunts.filter((_, i) => i !== index));
   const addSkill = (value: number, skillName: string) =>
     setSkills([...skills, { name: skillName, value }]);
   const removeSkill = (skillName: string) =>
@@ -345,6 +358,9 @@ export function CharacterWizard({ draft, onChange, onSkip }: Props) {
 
   const photoRef = useRef<HTMLInputElement>(null);
   const bodyRef = useRef<HTMLDivElement>(null);
+  /* Новый трюк добавляется пустой карточкой — курсор сразу в её название. */
+  const stuntRefs = useRef<Array<HTMLInputElement | null>>([]);
+  const stuntFocus = useRef<number | null>(null);
 
   /* Пока окно открыто, страница под ним не прокручивается. */
   useEffect(() => {
@@ -355,12 +371,26 @@ export function CharacterWizard({ draft, onChange, onSkip }: Props) {
     };
   }, []);
 
+  /* После добавления трюка ставим курсор в его название. */
+  useEffect(() => {
+    const index = stuntFocus.current;
+    if (index === null) return;
+    const field = stuntRefs.current[index];
+    if (!field) return;
+    field.focus();
+    stuntFocus.current = null;
+  }, [stunts]);
+
   /* Esc: из справки — назад к полям, из полей — закрыть конструктор. */
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       if (event.key !== 'Escape') return;
       if (pickValue !== null) {
         setPickValue(null);
+        return;
+      }
+      if (stuntHelp) {
+        setStuntHelp(false);
         return;
       }
       if (hint !== null) {
@@ -371,7 +401,7 @@ export function CharacterWizard({ draft, onChange, onSkip }: Props) {
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [hint, pickValue, onSkip]);
+  }, [hint, pickValue, stuntHelp, onSkip]);
 
   /* Если до подвала не хватает пары пикселей, поджимаем нижний отступ,
      чтобы ползунок не появлялся ради двух пикселей. Если не влезает
@@ -395,10 +425,11 @@ export function CharacterWizard({ draft, onChange, onSkip }: Props) {
       observer.disconnect();
       window.removeEventListener('resize', fit);
     };
-  }, [step, hint, name, concept, trouble, aspects, photo]);
+  }, [step, hint, stuntHelp, name, concept, trouble, aspects, photo, stunts.length]);
 
   const goTo = (next: StepNo) => {
     setHint(null);
+    setStuntHelp(false);
     setPickValue(null);
     setStep(next);
   };
@@ -700,20 +731,137 @@ export function CharacterWizard({ draft, onChange, onSkip }: Props) {
                   </div>
                 </div>
               ) : (
-                <div className="wiz__grid wiz__grid--aspects wiz__grid--stunts">
+                <div className={`wiz__grid wiz__grid--stunts${stuntHelp ? ' is-help' : ''}`}>
                   <div className="wiz__aside">
-                    <p>
-                      Трюк даёт герою особое преимущество: +2 к навыку при условии, замена одного
-                      навыка другим или разовый эффект.
-                    </p>
-                    <p>
-                      Три трюка входят в стартовое обновление. Четвёртый и пятый снимают по жетону —
-                      окно трюка покажет, сколько останется.
-                    </p>
+                    {stuntHelp ? (
+                      <div className="wiz__stunt-help" role="region" aria-label="Как придумать трюк">
+                        <h3 className="wiz__page-title">Как придумать трюк</h3>
+                        <p>
+                          <strong>Что такое трюк.</strong> Это приём героя, который даёт
+                          преимущество в конкретном случае. Пользуйтесь им, когда выполнены его
+                          условия.
+                        </p>
+                        <p>
+                          <strong>Хороший трюк</strong> не работает всегда: помогает в ситуации,
+                          которая действительно случается в игре, и не заменяет навык. Слишком
+                          широкое условие Мастер попросит сузить.
+                        </p>
+                        <p>
+                          <strong>Как придумать.</strong> Оттолкнитесь от биографии: чем герой
+                          занимался, с кем связан, чего боится. Ниже три шаблона с примерами — это
+                          не обязательные правила, можно написать свой вариант.
+                        </p>
+                        <ol className="sm__hint-list">
+                          <li>
+                            <span className="sm__hint-pattern">+2 к [Навык], когда [условие].</span>
+                            <span className="sm__hint-example">
+                              Пример: «Серебряный меч» — +2 к Драке, когда сражаетесь против
+                              чудовища.
+                            </span>
+                          </li>
+                          <li>
+                            <span className="sm__hint-pattern">
+                              Использую [Навык А] вместо [Навык Б], когда [условие].
+                            </span>
+                            <span className="sm__hint-example">
+                              Пример: «Парирую стрелы» — Драка вместо Атлетики, когда защищаетесь от
+                              стрел.
+                            </span>
+                          </li>
+                          <li>
+                            <span className="sm__hint-pattern">
+                              Раз за сцену или сессию могу [эффект].
+                            </span>
+                            <span className="sm__hint-example">
+                              Пример: «Знак Игни» — раз за сцену поджигаю всё в одном секторе.
+                            </span>
+                          </li>
+                        </ol>
+                      </div>
+                    ) : (
+                      <>
+                        <p>
+                          Трюк — особый приём героя: он даёт преимущество в узком случае.
+                          Например, +2 к навыку, замена одного навыка другим или разовый эффект.
+                        </p>
+                        <p>
+                          Срабатывает трюк только когда выполнено его условие, поэтому он не
+                          заменяет навык. Три трюка входят в стартовое обновление, каждый следующий
+                          отнимает по жетону.
+                        </p>
+                        <button
+                          type="button"
+                          className="wiz__hint-link"
+                          onClick={() => setStuntHelp(true)}
+                        >
+                          Как придумать трюк
+                          <IconArrowRight />
+                        </button>
+                      </>
+                    )}
                   </div>
 
                   <div className="wiz__col">
-                    <StuntBlock stunts={stunts} baseRefresh={STARTING_REFRESH} onChange={setStunts} />
+                    <div className="wiz__stunts">
+                      {stunts.map((stunt, index) => (
+                        <article className="wiz__stunt" key={index}>
+                          <input
+                            ref={(field) => {
+                              stuntRefs.current[index] = field;
+                            }}
+                            className="sm__input wiz__stunt-name"
+                            type="text"
+                            value={stunt.name}
+                            maxLength={48}
+                            placeholder="Название трюка"
+                            aria-label={`Название трюка ${index + 1}`}
+                            onChange={(event) => updateStunt(index, { name: event.target.value })}
+                          />
+                          <textarea
+                            className="sm__input sm__textarea wiz__stunt-text"
+                            rows={2}
+                            value={stunt.text}
+                            maxLength={240}
+                            placeholder="Что даёт и при каком условии работает"
+                            aria-label={`Описание трюка ${index + 1}`}
+                            onChange={(event) => updateStunt(index, { text: event.target.value })}
+                          />
+                          <button
+                            type="button"
+                            className="wiz__stunt-remove"
+                            aria-label={`Удалить трюк ${index + 1}`}
+                            onClick={() => removeStunt(index)}
+                          >
+                            <IconClose />
+                          </button>
+                        </article>
+                      ))}
+
+                      {stunts.length < MAX_STUNTS ? (
+                        <button
+                          type="button"
+                          className={`wiz__stunt-add${nextStuntCosts ? ' wiz__stunt-add--cost' : ''}`}
+                          onClick={addStunt}
+                        >
+                          <span className="wiz__stunt-plus" aria-hidden="true">
+                            +
+                          </span>
+                          <span className="wiz__stunt-add-text">
+                            <span className="wiz__stunt-add-label">Добавить трюк</span>
+                            {nextStuntCosts && (
+                              <span className="wiz__stunt-add-note">
+                                Этот трюк уменьшит обновление: {refreshAfter(stunts.length)} →{' '}
+                                {refreshAfter(stunts.length + 1)}
+                              </span>
+                            )}
+                          </span>
+                        </button>
+                      ) : (
+                        <p className="wiz__stunt-full">
+                          Все пять трюков записаны — больше добавить нельзя.
+                        </p>
+                      )}
+                    </div>
                   </div>
                 </div>
               )}
@@ -721,12 +869,12 @@ export function CharacterWizard({ draft, onChange, onSkip }: Props) {
 
             <footer className="sm__footer">
               <div className="sm__footer-left">
-                {hint === null && step === 1 && (
+                {hint === null && !stuntHelp && step === 1 && (
                   <button type="button" className="sm__ghost" onClick={onSkip}>
                     Пропустить конструктор
                   </button>
                 )}
-                {hint === null && step > 1 && (
+                {hint === null && !stuntHelp && step > 1 && (
                   <button
                     type="button"
                     className="sm__ghost wiz__back"
@@ -741,6 +889,16 @@ export function CharacterWizard({ draft, onChange, onSkip }: Props) {
                     type="button"
                     className="sm__ghost wiz__back"
                     onClick={() => setHint(null)}
+                  >
+                    <IconArrowLeft />
+                    Вернуться к полям
+                  </button>
+                )}
+                {stuntHelp && (
+                  <button
+                    type="button"
+                    className="sm__ghost wiz__back"
+                    onClick={() => setStuntHelp(false)}
                   >
                     <IconArrowLeft />
                     Вернуться к полям

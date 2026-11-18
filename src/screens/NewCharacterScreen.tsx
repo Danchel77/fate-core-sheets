@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import type { Character } from '../data/types';
+import type { Character, Stunt } from '../data/types';
 import { createEmptyCharacter, ladderFromPicks } from '../data/characters';
 import { createCharacter } from '../data/store';
 import { CharacterWizard, type WizardDraft } from '../components/CharacterWizard';
@@ -16,6 +16,13 @@ const EMPTY_DRAFT: WizardDraft = {
   portrait: '',
 };
 
+/** Пустые карточки трюков в лист не попадают: добавленная, но не заполненная строка — не трюк. */
+function filledStunts(draft: WizardDraft): Stunt[] {
+  return draft.stunts
+    .map((stunt) => ({ name: stunt.name.trim(), text: stunt.text.trim() }))
+    .filter((stunt) => stunt.name.length > 0 || stunt.text.length > 0);
+}
+
 /** Черновик превращается в лист: то, что игрок уже вписал, видно под окном. */
 function sheetFromDraft(draft: WizardDraft): Character {
   return {
@@ -23,7 +30,7 @@ function sheetFromDraft(draft: WizardDraft): Character {
     name: draft.name,
     portrait: draft.portrait,
     ladder: ladderFromPicks(draft.skills),
-    stunts: draft.stunts,
+    stunts: filledStunts(draft),
     aspects: [
       { label: 'Концепция', text: draft.concept },
       { label: 'Проблема', text: draft.trouble },
@@ -42,7 +49,7 @@ function isBlankDraft(draft: WizardDraft): boolean {
     !draft.trouble.trim() &&
     draft.aspects.every((text) => !text.trim()) &&
     draft.skills.length === 0 &&
-    draft.stunts.length === 0 &&
+    filledStunts(draft).length === 0 &&
     !draft.portrait
   );
 }

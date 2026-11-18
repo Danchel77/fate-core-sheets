@@ -564,14 +564,140 @@
   margin-top: 4px;
 }
 
-.wiz__grid--stunts .stk {
-  margin-top: 2px;
+.wiz__stunts {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
-/* Две колонки — только на широком окне: на телефоне блок трюков идёт первым. */
+.wiz__stunt {
+  position: relative;
+  padding: 8px 40px 8px 12px;
+  border: 1px solid color-mix(in srgb, var(--accent-gold) 38%, transparent);
+  background: color-mix(in srgb, var(--paper-highlight) 34%, transparent);
+}
+
+.wiz__stunt-name {
+  font-family: var(--font-name-sc);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.wiz__stunt-text {
+  margin-top: 6px;
+  min-height: calc(2 * 1.45em + 10px);
+}
+
+.wiz__stunt-remove {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--text-ink-muted);
+  cursor: pointer;
+}
+
+.wiz__stunt-remove:hover {
+  color: var(--accent-crimson-ink);
+}
+
+.wiz__stunt-remove svg {
+  width: 14px;
+  height: 14px;
+}
+
+.wiz__stunt-add {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 52px;
+  padding: 8px 14px;
+  border: 1px dashed color-mix(in srgb, var(--accent-gold) 52%, transparent);
+  background: none;
+  color: var(--accent-gold-ink);
+  text-align: left;
+  cursor: pointer;
+}
+
+.wiz__stunt-add:hover {
+  background: color-mix(in srgb, var(--accent-gold) 8%, transparent);
+}
+
+.wiz__stunt-add--cost {
+  border-style: solid;
+  border-color: color-mix(in srgb, var(--accent-gold-deep) 46%, transparent);
+  background: color-mix(in srgb, var(--accent-gold) 10%, transparent);
+}
+
+.wiz__stunt-plus {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 22px;
+  height: 22px;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1;
+}
+
+.wiz__stunt-add-label {
+  display: block;
+  font-family: var(--font-body);
+  font-size: var(--text-caption);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.wiz__stunt-add-note {
+  display: block;
+  margin-top: 3px;
+  font-family: var(--font-body);
+  font-size: var(--text-micro);
+  letter-spacing: 0.01em;
+  color: var(--text-ink-muted);
+}
+
+.wiz__stunt-full {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: var(--text-caption);
+  color: var(--text-ink-muted);
+}
+
+.wiz__stunt-help {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.wiz__stunt-help p {
+  margin: 0;
+}
+
+.wiz__stunt-help .sm__hint-list {
+  margin: 2px 0 0;
+}
+
+/* Две колонки — только на широком окне: на телефоне поля трюков идут первыми. */
 @media (min-width: 761px) {
   .wiz__grid--stunts {
     grid-template-columns: 236px minmax(0, 1fr);
+  }
+
+  .wiz__grid--stunts.is-help {
+    grid-template-columns: minmax(0, 340px) minmax(0, 1fr);
   }
 }
 
@@ -582,5 +708,34 @@
 
   .wiz__grid--stunts .wiz__aside {
     order: 2;
+  }
+
+  .wiz__grid--stunts.is-help .wiz__aside {
+    order: 1;
+  }
+
+  .wiz__grid--stunts.is-help .wiz__col {
+    order: 2;
+  }
+
+  .wiz__stunt {
+    padding: 8px 44px 8px 10px;
+  }
+
+  /* На телефоне справка прокручивается внутри своей колонки, чтобы поля
+     оставались на экране: читать и вписывать можно не переключаясь. */
+  .wiz__grid--stunts.is-help .wiz__stunt-help {
+    max-height: 260px;
+    overflow-y: auto;
+    padding-right: 4px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid color-mix(in srgb, var(--accent-gold) 26%, transparent);
+  }
+
+  .wiz__stunt-remove {
+    top: 2px;
+    right: 2px;
+    width: 44px;
+    height: 44px;
   }
 }
