@@ -6,7 +6,6 @@ import {
   IconBraces,
   IconChevronDown,
   IconCopy,
-  IconExternalLink,
   IconFileDown,
   IconSearch,
   IconSettings,
@@ -172,13 +171,6 @@ export default function CharactersScreen() {
       disabled: pdfBusy !== null,
       onSelect: () => void downloadPdf(hero),
       title: 'Скачать лист персонажа в PDF',
-    },
-    {
-      label: 'Ссылка на PDF',
-      icon: <IconExternalLink />,
-      disabled: true,
-      onSelect: () => {},
-      title: '«Ссылка на PDF» появится на следующем шаге',
     },
     {
       label: 'Скачать JSON',

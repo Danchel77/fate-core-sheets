@@ -213,13 +213,15 @@ function strokeBox(page: PDFPage, box: Box, color: PDFColor = LINE, width = LINE
   });
 }
 
-function hLine(page: PDFPage, box: Box, y: number, color: PDFColor = LINE, width = 0.5): void {
-  page.drawLine({
-    start: { x: mm(box.x), y: mm(PAGE.h - y) },
-    end: { x: mm(box.x + box.w), y: mm(PAGE.h - y) },
-    thickness: width,
-    color,
-  });
+/** Рамка без верхней линии — когда верхняя грань уже нарисована соседним полем. */
+function strokeBoxOpenTop(page: PDFPage, box: Box, color: PDFColor = LINE, width = LINE_WIDTH): void {
+  const left = mm(box.x);
+  const right = mm(box.x + box.w);
+  const top = mm(PAGE.h - box.y);
+  const bottom = mm(PAGE.h - box.y - box.h);
+  page.drawLine({ start: { x: left, y: top }, end: { x: left, y: bottom }, thickness: width, color });
+  page.drawLine({ start: { x: left, y: bottom }, end: { x: right, y: bottom }, thickness: width, color });
+  page.drawLine({ start: { x: right, y: bottom }, end: { x: right, y: top }, thickness: width, color });
 }
 
 const BAR_SLANT = 3.0;
@@ -300,12 +302,20 @@ function drawHeader(
 
   const nameBox = B(15, 25.2, 127.4, 29.4);
   strokeBox(page, nameBox);
-  drawFieldLabel(page, 'Имя', nameBox.x + 2, nameBox.y + 1.1, fonts);
-  const nameX = nameBox.x + 2 + fonts.medium.widthOfTextAtSize('Имя', 8) / MM + 4;
+  const namePad = 2.2;
   const name = character.name.trim();
-  if (name) {
-    const fit = fitLine(name, fonts.semiBold, nameBox.x + nameBox.w - nameX - 2, 14, 8.4);
-    drawText(page, fit.text, nameX, nameBox.y + (nameBox.h - capMm(fit.size)) / 2, fit.size, fonts.semiBold);
+  if (!name) {
+    drawFieldLabel(page, 'Имя', nameBox.x + namePad, nameBox.y + (nameBox.h - capMm(8)) / 2, fonts, 8);
+  } else {
+    const fit = fitLine(name, fonts.semiBold, nameBox.w - namePad * 2, 14, 8.4);
+    drawText(
+      page,
+      fit.text,
+      nameBox.x + namePad,
+      nameBox.y + (nameBox.h - capMm(fit.size)) / 2,
+      fit.size,
+      fonts.semiBold,
+    );
     if (fit.text.endsWith('…')) overflow.push({ title: 'Имя', text: name });
   }
 
@@ -325,21 +335,20 @@ function drawHeader(
   );
 
   const descriptionBox = B(15, 29.4, 127.4, 42.4);
-  strokeBox(page, descriptionBox);
-  drawFieldLabel(page, 'Описание', descriptionBox.x + 2, descriptionBox.y + 0.9, fonts);
-  hLine(page, descriptionBox, 31.6, LINE, 0.5);
+  strokeBoxOpenTop(page, descriptionBox);
   const description = character.description.trim();
-  if (description) {
-    const top = descriptionBox.y + 3.6;
+  if (!description) {
+    drawFieldLabel(page, 'Описание', descriptionBox.x + 2.2, descriptionBox.y + 1.2, fonts, 8);
+  } else {
     const fit = fitParagraph(
       description,
       fonts.regular,
       descriptionBox.w - 4.4,
-      descriptionBox.h - 4.4,
+      descriptionBox.h - 2.6,
       10.2,
       8,
     );
-    drawParagraph(page, fit.lines, descriptionBox.x + 2.2, top, fit.size, fonts.regular);
+    drawParagraph(page, fit.lines, descriptionBox.x + 2.2, descriptionBox.y + 1.3, fit.size, fonts.regular);
     if (fit.clipped) overflow.push({ title: 'Описание', text: description });
   }
 
@@ -367,18 +376,18 @@ function drawAspects(page: PDFPage, character: Character, fonts: PdfFonts, overf
     if (!aspect) return;
 
     const label = aspect.label.trim();
-    let valueX = box.x + 2;
-    if (label && index < 2) {
-      drawFieldLabel(page, label, box.x + 2, box.y + (box.h - capMm(7.6)) / 2, fonts, 7.6);
-      valueX = box.x + 2 + fonts.medium.widthOfTextAtSize(label, 7.6) / MM + 3.4;
-    }
     const text = aspect.text.trim();
-    if (!text) return;
-    const fit = fitLine(text, fonts.regular, box.x + box.w - 2 - valueX, 10.6, 7.4);
+    if (!text) {
+      if (label && index < 2) {
+        drawFieldLabel(page, label, box.x + 2, box.y + (box.h - capMm(7.6)) / 2, fonts, 7.6);
+      }
+      return;
+    }
+    const fit = fitLine(text, fonts.regular, box.w - 4, 10.6, 7.4);
     drawText(
       page,
       fit.text,
-      valueX,
+      box.x + 2,
       box.y + (box.h - capMm(fit.size)) / 2,
       fit.size,
       fonts.regular,
@@ -525,30 +534,16 @@ function drawStunts(page: PDFPage, character: Character, fonts: PdfFonts, overfl
   }
 }
 
-function drawStressTrack(page: PDFPage, marks: boolean[], top: number, fonts: PdfFonts): void {
+function drawStressTrack(page: PDFPage, top: number, fonts: PdfFonts): void {
   for (let index = 0; index < 4; index += 1) {
     const x0 = 15 + index * 9.5;
     const box = B(x0, top, x0 + 7, top + 6);
     strokeBox(page, box, LINE, 1);
     drawText(page, String(index + 1), box.x + 0.9, box.y + 0.4, 9.5, fonts.medium, GREY);
-    if (marks[index]) {
-      page.drawLine({
-        start: { x: mm(box.x + 1.2), y: mm(PAGE.h - box.y - 1.2) },
-        end: { x: mm(box.x + box.w - 1.2), y: mm(PAGE.h - box.y - box.h + 1.2) },
-        thickness: 1.1,
-        color: BLACK,
-      });
-      page.drawLine({
-        start: { x: mm(box.x + box.w - 1.2), y: mm(PAGE.h - box.y - 1.2) },
-        end: { x: mm(box.x + 1.2), y: mm(PAGE.h - box.y - box.h + 1.2) },
-        thickness: 1.1,
-        color: BLACK,
-      });
-    }
   }
 }
 
-function drawStress(page: PDFPage, character: Character, fonts: PdfFonts): void {
+function drawStress(page: PDFPage, fonts: PdfFonts): void {
   const physBar = B(15, 118.2, 63.3, 121.2);
   drawBar(page, physBar, 'Физ. стресс', fonts, 9.8);
   const physTitle = 'ФИЗ. СТРЕСС';
@@ -577,8 +572,8 @@ function drawStress(page: PDFPage, character: Character, fonts: PdfFonts): void 
     WHITE,
   );
 
-  drawStressTrack(page, character.marks.physical ?? [], 121.2, fonts);
-  drawStressTrack(page, character.marks.mental ?? [], 133, fonts);
+  drawStressTrack(page, 121.2, fonts);
+  drawStressTrack(page, 133, fonts);
 }
 
 function drawConsequences(
@@ -600,13 +595,14 @@ function drawConsequences(
 
     const box = B(69, row.top, 134.8, row.top + 5.8);
     strokeBox(page, box);
-    drawFieldLabel(page, row.label, box.x + 1.6, box.y + 1.1, fonts, 7.8);
 
     const value = character.consequences.find((item) => item.value === row.value)?.text?.trim() ?? '';
-    if (!value) return;
-    const valueX = box.x + 1.6 + fonts.medium.widthOfTextAtSize(row.label, 7.8) / MM + 3.4;
-    const fit = fitLine(value, fonts.regular, box.x + box.w - valueX - 2, 9.8, 7.2);
-    drawText(page, fit.text, valueX, box.y + 1.9, fit.size, fonts.regular);
+    if (!value) {
+      drawFieldLabel(page, row.label, box.x + 1.6, box.y + 1.1, fonts, 7.8);
+      return;
+    }
+    const fit = fitLine(value, fonts.regular, box.w - 3.2, 9.8, 7.2);
+    drawText(page, fit.text, box.x + 1.6, box.y + 1.9, fit.size, fonts.regular);
     if (fit.text.endsWith('…')) {
       overflow.push({ title: `Последствие «${row.label}»`, text: value });
     }
@@ -706,7 +702,7 @@ export async function buildCharacterPdf(character: Character): Promise<Uint8Arra
   drawSkills(page, character, fonts, overflow);
   drawExtras(page, character, fonts, overflow);
   drawStunts(page, character, fonts, overflow);
-  drawStress(page, character, fonts);
+  drawStress(page, fonts);
   drawConsequences(page, character, fonts, overflow);
 
   if (overflow.length > 0) drawAppendix(doc, fonts, overflow);
