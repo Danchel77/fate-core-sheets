@@ -31,6 +31,7 @@
 | `logos/fate-core-logo.svg` | Оригинальный логотип FATE CORE SYSTEM (™) | Evil Hat Productions (предоставлен владельцем проекта) | Товарный знак Evil Hat; используется как знак принадлежности сеттингу |
 | `logos/fate-wordmark.svg` | Кроп того же логотипа — только слово FATE | производная от `fate-core-logo.svg` | То же |
 | `logos/wolf-head.svg` | Знак «Ведьмака» (волчья голова) | предоставлен владельцем проекта | Товарный знак CD Projekt Red; используется как знак принадлежности сеттингу |
+| `logos/fate-core-logo.png` | Растр логотипа для печатного PDF (1400×683) | производная от `fate-core-logo.svg` | То же, товарный знак Evil Hat |
 
 ## Иконки
 
@@ -46,3 +47,4 @@
 |---|---|---|---|
 | Cormorant Garamond | Christian Thalmann | Google Fonts (`@fontsource/cormorant-garamond`) | OFL 1.1 |
 | PT Serif | ParaType | Google Fonts (`@fontsource/pt-serif`) | OFL 1.1 |
+| Montserrat (Black, Bold, SemiBold, Medium, Regular) | Julieta Ulanovsky, Sol Matas | https://github.com/JulietaUla/Montserrat (`public/fonts/`) | OFL 1.1 |

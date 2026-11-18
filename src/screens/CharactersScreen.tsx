@@ -14,6 +14,7 @@ import {
 } from '../components/icons';
 import { deleteCharacter, useCharacters } from '../data/store';
 import type { CharacterRecord, SettingId } from '../data/types';
+import { buildCharacterPdf } from '../pdf/sheetPdf';
 import '../styles/characters.css';
 
 type Filter = 'all' | SettingId;
@@ -47,6 +48,16 @@ function readView(): SavedView {
   } catch {
     return { filter: 'all', sort: 'date' };
   }
+}
+
+/** Имя файла: без символов, которые запрещены в именах файлов. */
+function pdfFileName(hero: CharacterRecord): string {
+  const base = hero.sheet.name
+    .replace(/[\\/:*?"<>|]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 60);
+  return `${base || 'Лист персонажа'}.pdf`;
 }
 
 function saveView(view: SavedView) {
@@ -118,6 +129,30 @@ export default function CharactersScreen() {
     [records],
   );
 
+  const [pdfBusy, setPdfBusy] = useState<string | null>(null);
+
+  const downloadPdf = async (hero: CharacterRecord) => {
+    if (pdfBusy) return;
+    setPdfBusy(hero.id);
+    try {
+      const bytes = await buildCharacterPdf(hero.sheet);
+      const blob = new Blob([bytes], { type: 'application/pdf' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = pdfFileName(hero);
+      document.body.append(link);
+      link.click();
+      link.remove();
+      window.setTimeout(() => URL.revokeObjectURL(url), 2000);
+    } catch (error) {
+      console.error('Не удалось собрать PDF', error);
+      window.alert('Не удалось собрать PDF. Попробуйте ещё раз.');
+    } finally {
+      setPdfBusy(null);
+    }
+  };
+
   const visible = useMemo(() => {
     const needle = query.trim().toLocaleLowerCase('ru');
     return records
@@ -132,11 +167,11 @@ export default function CharactersScreen() {
 
   const menuItems = (hero: CharacterRecord) => [
     {
-      label: 'Скачать PDF',
+      label: pdfBusy === hero.id ? 'Собираем PDF…' : 'Скачать PDF',
       icon: <IconFileDown />,
-      disabled: true,
-      onSelect: () => {},
-      title: '«Скачать PDF» появится на следующем шаге',
+      disabled: pdfBusy !== null,
+      onSelect: () => void downloadPdf(hero),
+      title: 'Скачать лист персонажа в PDF',
     },
     {
       label: 'Ссылка на PDF',
