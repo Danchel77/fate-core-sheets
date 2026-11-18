@@ -740,7 +740,11 @@ export function CharacterWizard({ draft, onChange, onSkip }: Props) {
                 <div className={`wiz__grid wiz__grid--stunts${stuntHelp ? ' is-help' : ''}`}>
                   <div className="wiz__aside">
                     {stuntHelp ? (
-                      <div className="wiz__stunt-help" role="region" aria-label="Как придумать трюк">
+                      <div
+                        className={`wiz__stunt-help${stunts.length < 4 ? ' wiz__stunt-help--scroll' : ''}`}
+                        role="region"
+                        aria-label="Как придумать трюк"
+                      >
                         <h3 className="wiz__page-title">Как придумать трюк</h3>
                         <p>
                           <strong>Что такое трюк.</strong> Это приём героя, который даёт
