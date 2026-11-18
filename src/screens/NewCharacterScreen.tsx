@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import type { Character } from '../data/types';
 import { createEmptyCharacter, ladderFromPicks } from '../data/characters';
+import { createCharacter } from '../data/store';
 import { CharacterWizard, type WizardDraft } from '../components/CharacterWizard';
 import SheetScreen from './SheetScreen';
 
@@ -11,6 +12,7 @@ const EMPTY_DRAFT: WizardDraft = {
   trouble: '',
   aspects: ['', '', ''],
   skills: [],
+  stunts: [],
   portrait: '',
 };
 
@@ -21,6 +23,7 @@ function sheetFromDraft(draft: WizardDraft): Character {
     name: draft.name,
     portrait: draft.portrait,
     ladder: ladderFromPicks(draft.skills),
+    stunts: draft.stunts,
     aspects: [
       { label: 'Концепция', text: draft.concept },
       { label: 'Проблема', text: draft.trouble },
@@ -31,32 +34,52 @@ function sheetFromDraft(draft: WizardDraft): Character {
   };
 }
 
+/** Совсем пустой черновик не сохраняем: случайно открытое окно не оставляет пустых карточек. */
+function isBlankDraft(draft: WizardDraft): boolean {
+  return (
+    !draft.name.trim() &&
+    !draft.concept.trim() &&
+    !draft.trouble.trim() &&
+    draft.aspects.every((text) => !text.trim()) &&
+    draft.skills.length === 0 &&
+    draft.stunts.length === 0 &&
+    !draft.portrait
+  );
+}
+
 /**
  * Новый герой: сразу открывается пустой лист, поверх него — конструктор.
- * Опытный игрок закрывает окно и работает с листом напрямую.
+ * Любое закрытие окна сохраняет героя и открывает его лист.
  */
 export default function NewCharacterScreen() {
   const [draft, setDraft] = useState<WizardDraft>(EMPTY_DRAFT);
-  const [open, setOpen] = useState(true);
-  const [revision, setRevision] = useState(0);
+  const [open] = useState(true);
+  const [saving, setSaving] = useState(false);
   const character = useMemo(() => sheetFromDraft(draft), [draft]);
 
-  /* Закрытие перерисовывает лист с нуля, чтобы вписанное попало во все блоки. */
-  const close = () => {
-    setOpen(false);
-    setRevision((value) => value + 1);
+  const finish = async () => {
+    if (saving) return;
+    setSaving(true);
+
+    if (isBlankDraft(draft)) {
+      window.location.hash = '#/';
+      return;
+    }
+
+    const record = await createCharacter(draft.setting, sheetFromDraft(draft));
+    window.location.hash = `#/hero/${record.id}`;
   };
 
   return (
     <div className="newchar">
       <div className="newchar__sheet" aria-hidden={open || undefined}>
-        <SheetScreen key={revision} character={character} />
+        <SheetScreen character={character} />
       </div>
       {open && (
         <CharacterWizard
           draft={draft}
           onChange={(patch) => setDraft((prev) => ({ ...prev, ...patch }))}
-          onSkip={close}
+          onSkip={() => void finish()}
         />
       )}
     </div>

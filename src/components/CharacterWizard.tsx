@@ -8,6 +8,7 @@ import { PortraitPlate } from './PortraitPlate';
 import { PortraitCropper } from './PortraitCropper';
 import { SkillPicker } from './SkillPicker';
 import { SkillPyramid } from './SkillPyramid';
+import { StuntBlock } from './StuntBlock';
 import {
   IconArrowLeft,
   IconArrowRight,
@@ -18,8 +19,8 @@ import {
   IconUser,
   IconZap,
 } from './icons';
-import { SKILLS } from '../data/characters';
-import type { SettingId } from '../data/types';
+import { SKILLS, STARTING_REFRESH } from '../data/characters';
+import type { SettingId, Stunt } from '../data/types';
 
 const BASE = import.meta.env.BASE_URL;
 const PAPER = `${BASE}assets/textures/parchment-soft.jpg`;
@@ -32,7 +33,7 @@ const TIP_COMPEL =
 
 type Setting = 'witcher' | 'fate';
 type HintId = 'concept' | 'trouble' | 'aspects';
-type StepNo = 1 | 2 | 3;
+type StepNo = 1 | 2 | 3 | 4;
 
 /** Навык, поставленный на ступень пирамиды. */
 export type SkillPick = { name: string; value: number };
@@ -295,6 +296,7 @@ export type WizardDraft = {
   trouble: string;
   aspects: string[];
   skills: SkillPick[];
+  stunts: Stunt[];
   portrait: string;
 };
 
@@ -322,6 +324,7 @@ export function CharacterWizard({ draft, onChange, onSkip }: Props) {
   const aspects = draft.aspects;
   const photo = draft.portrait;
   const skills = draft.skills;
+  const stunts = draft.stunts;
 
   const setSetting = (next: SettingId) => onChange({ setting: next });
   const setName = (next: string) => onChange({ name: next });
@@ -331,6 +334,7 @@ export function CharacterWizard({ draft, onChange, onSkip }: Props) {
     onChange({ aspects: aspects.map((item, i) => (i === index ? value : item)) });
   const setPhoto = (next: string) => onChange({ portrait: next });
   const setSkills = (next: SkillPick[]) => onChange({ skills: next });
+  const setStunts = (next: Stunt[]) => onChange({ stunts: next });
   const addSkill = (value: number, skillName: string) =>
     setSkills([...skills, { name: skillName, value }]);
   const removeSkill = (skillName: string) =>
@@ -454,12 +458,7 @@ export function CharacterWizard({ draft, onChange, onSkip }: Props) {
                       type="button"
                       className="wiz__stepbtn"
                       onClick={() => goTo((index + 1) as StepNo)}
-                      disabled={index > 2}
-                      title={
-                        index > 2
-                          ? `Шаг «${item.name}» появится позже`
-                          : `Перейти к шагу «${item.name}»`
-                      }
+                      title={`Перейти к шагу «${item.name}»`}
                     >
                       <span className="wiz__node">{done ? <IconCheck /> : item.icon}</span>
                       <span className="wiz__label">{item.name}</span>
@@ -661,7 +660,7 @@ export function CharacterWizard({ draft, onChange, onSkip }: Props) {
                     </button>
                   </div>
                 </div>
-              ) : (
+              ) : step === 3 ? (
                 <div className="wiz__grid wiz__grid--aspects wiz__grid--skills">
                   <div className="wiz__aside">
                     <p>
@@ -700,6 +699,23 @@ export function CharacterWizard({ draft, onChange, onSkip }: Props) {
                     />
                   </div>
                 </div>
+              ) : (
+                <div className="wiz__grid wiz__grid--aspects wiz__grid--stunts">
+                  <div className="wiz__aside">
+                    <p>
+                      Трюк даёт герою особое преимущество: +2 к навыку при условии, замена одного
+                      навыка другим или разовый эффект.
+                    </p>
+                    <p>
+                      Три трюка входят в стартовое обновление. Четвёртый и пятый снимают по жетону —
+                      окно трюка покажет, сколько останется.
+                    </p>
+                  </div>
+
+                  <div className="wiz__col">
+                    <StuntBlock stunts={stunts} baseRefresh={STARTING_REFRESH} onChange={setStunts} />
+                  </div>
+                </div>
               )}
             </div>
 
@@ -732,19 +748,18 @@ export function CharacterWizard({ draft, onChange, onSkip }: Props) {
                 )}
               </div>
               <div className="sm__actions">
-                {hint === null && (
+                {hint === null && step < 4 && (
                   <button
                     type="button"
                     className="sm__primary"
                     onClick={() => goTo((step + 1) as StepNo)}
-                    disabled={step === 3}
-                    title={
-                      step === 3
-                        ? 'Дальше — шаг «Трюки», он появится позже'
-                        : undefined
-                    }
                   >
                     Далее
+                  </button>
+                )}
+                {hint === null && step === 4 && (
+                  <button type="button" className="sm__primary" onClick={onSkip}>
+                    Готово
                   </button>
                 )}
               </div>

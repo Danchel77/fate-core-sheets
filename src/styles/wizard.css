@@ -556,3 +556,31 @@
   gap: 10px;
   margin-top: 2px;
 }
+
+/* ---------- шаг «Трюки» ---------- */
+
+.wiz__grid--stunts {
+  align-items: start;
+  margin-top: 4px;
+}
+
+.wiz__grid--stunts .stk {
+  margin-top: 2px;
+}
+
+/* Две колонки — только на широком окне: на телефоне блок трюков идёт первым. */
+@media (min-width: 761px) {
+  .wiz__grid--stunts {
+    grid-template-columns: 236px minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 760px) {
+  .wiz__grid--stunts .wiz__col {
+    order: 1;
+  }
+
+  .wiz__grid--stunts .wiz__aside {
+    order: 2;
+  }
+}

@@ -14,6 +14,8 @@ type Editor = { mode: 'new' } | { mode: 'edit'; id: string };
 type Props = {
   stunts: Stunt[];
   baseRefresh?: number;
+  /** Блок сообщает о правках, чтобы лист их сразу сохранил. */
+  onChange?: (stunts: Stunt[]) => void;
 };
 
 let nextId = 0;
@@ -23,13 +25,18 @@ const makeId = () => `stunt-${nextId++}`;
  * Блок «Трюки»: карточки героя.
  * Карточка открывает окно правки, меню в углу блока добавляет новый трюк.
  */
-export function StuntBlock({ stunts, baseRefresh = 3 }: Props) {
+export function StuntBlock({ stunts, baseRefresh = 3, onChange }: Props) {
   const [items, setItems] = useState<StuntItem[]>(() =>
     stunts.map((stunt) => ({ ...stunt, id: makeId() })),
   );
   const [editor, setEditor] = useState<Editor | null>(null);
 
   const closeEditor = useCallback(() => setEditor(null), []);
+
+  const commit = (next: StuntItem[]) => {
+    setItems(next);
+    onChange?.(next.map(({ name, text }) => ({ name, text })));
+  };
   const atLimit = items.length >= MAX_STUNTS;
 
   const current = editor?.mode === 'edit' ? items.find((item) => item.id === editor.id) : undefined;
@@ -42,9 +49,9 @@ export function StuntBlock({ stunts, baseRefresh = 3 }: Props) {
         setEditor(null);
         return;
       }
-      setItems([...items, { id: makeId(), ...value }]);
+      commit([...items, { id: makeId(), ...value }]);
     } else {
-      setItems(items.map((item) => (item.id === editor.id ? { ...item, ...value } : item)));
+      commit(items.map((item) => (item.id === editor.id ? { ...item, ...value } : item)));
     }
 
     setEditor(null);
@@ -52,7 +59,7 @@ export function StuntBlock({ stunts, baseRefresh = 3 }: Props) {
 
   const remove = () => {
     if (!editor || editor.mode !== 'edit') return;
-    setItems(items.filter((item) => item.id !== editor.id));
+    commit(items.filter((item) => item.id !== editor.id));
     setEditor(null);
   };
 
