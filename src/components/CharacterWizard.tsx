@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 import '../styles/stunt-modal.css';
 import '../styles/wizard.css';
 import { Hint } from './Hint';
-import { FATE_POINTS_HINT } from './FatePoints';
+import { FATE_POINTS_HINT, REFRESH_HINT } from './FatePoints';
 import { PortraitPlate } from './PortraitPlate';
 import { PortraitCropper } from './PortraitCropper';
 import { SkillPicker } from './SkillPicker';
@@ -427,6 +427,12 @@ export function CharacterWizard({ draft, onChange, onSkip }: Props) {
     };
   }, [step, hint, stuntHelp, name, concept, trouble, aspects, photo, stunts.length]);
 
+  /* Справка встаёт на место текста слева: возвращаем окно к началу, чтобы
+     поля трюков не оказались наполовину прокручены. */
+  useEffect(() => {
+    if (stuntHelp) bodyRef.current?.scrollTo({ top: 0 });
+  }, [stuntHelp]);
+
   const goTo = (next: StepNo) => {
     setHint(null);
     setStuntHelp(false);
@@ -789,14 +795,6 @@ export function CharacterWizard({ draft, onChange, onSkip }: Props) {
                           заменяет навык. Три трюка входят в стартовое обновление, каждый следующий
                           отнимает по жетону.
                         </p>
-                        <button
-                          type="button"
-                          className="wiz__hint-link"
-                          onClick={() => setStuntHelp(true)}
-                        >
-                          Как придумать трюк
-                          <IconArrowRight />
-                        </button>
                       </>
                     )}
                   </div>
@@ -837,31 +835,42 @@ export function CharacterWizard({ draft, onChange, onSkip }: Props) {
                         </article>
                       ))}
 
-                      {stunts.length < MAX_STUNTS ? (
-                        <button
-                          type="button"
+                      {stunts.length < MAX_STUNTS && (
+                        <div
                           className={`wiz__stunt-add${nextStuntCosts ? ' wiz__stunt-add--cost' : ''}`}
-                          onClick={addStunt}
                         >
+                          <button
+                            type="button"
+                            className="wiz__stunt-add-hit"
+                            aria-label="Добавить трюк"
+                            onClick={addStunt}
+                          />
                           <span className="wiz__stunt-plus" aria-hidden="true">
                             +
                           </span>
-                          <span className="wiz__stunt-add-text">
-                            <span className="wiz__stunt-add-label">Добавить трюк</span>
-                            {nextStuntCosts && (
-                              <span className="wiz__stunt-add-note">
-                                Этот трюк уменьшит обновление: {refreshAfter(stunts.length)} →{' '}
-                                {refreshAfter(stunts.length + 1)}
-                              </span>
-                            )}
-                          </span>
-                        </button>
-                      ) : (
-                        <p className="wiz__stunt-full">
-                          Все пять трюков записаны — больше добавить нельзя.
-                        </p>
+                          <span className="wiz__stunt-add-label">Добавить трюк</span>
+                          {nextStuntCosts && (
+                            <span className="wiz__stunt-add-note">
+                              Этот трюк уменьшит{' '}
+                              <Hint title="Обновление" text={REFRESH_HINT}>
+                                обновление
+                              </Hint>
+                              : {refreshAfter(stunts.length)} → {refreshAfter(stunts.length + 1)}
+                            </span>
+                          )}
+                        </div>
                       )}
                     </div>
+                    {!stuntHelp && (
+                      <button
+                        type="button"
+                        className="wiz__hint-link"
+                        onClick={() => setStuntHelp(true)}
+                      >
+                        Как придумать трюк
+                        <IconArrowRight />
+                      </button>
+                    )}
                   </div>
                 </div>
               )}

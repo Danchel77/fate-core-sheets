@@ -567,25 +567,53 @@
 .wiz__stunts {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
 
 .wiz__stunt {
   position: relative;
-  padding: 8px 40px 8px 12px;
+  padding: 2px 40px 6px 12px;
   border: 1px solid color-mix(in srgb, var(--accent-gold) 38%, transparent);
   background: color-mix(in srgb, var(--paper-highlight) 34%, transparent);
 }
 
+/* Внутри карточки у полей нет своей линии и рамки фокуса: карточку отделяет
+   только её рамка, а фокус подсвечивает саму карточку. */
+.wiz__stunt .sm__input,
+.wiz__stunt .sm__input:focus,
+.wiz__stunt .sm__input:focus-visible {
+  border-bottom: 0;
+  outline: none;
+  background: transparent;
+}
+
+.wiz__stunt:focus-within {
+  border-color: color-mix(in srgb, var(--accent-gold-deep) 70%, transparent);
+  background: color-mix(in srgb, var(--accent-gold) 6%, var(--paper-highlight) 30%);
+}
+
 .wiz__stunt-name {
+  padding: 1px 0 2px;
   font-family: var(--font-name-sc);
+  font-size: var(--text-lead);
   font-weight: 700;
+  line-height: 1.25;
   letter-spacing: 0.02em;
+  color: var(--accent-gold-ink);
+}
+
+/* Заглушка названия — как во всех полях конструктора: обычный шрифт, курсив. */
+.wiz__stunt-name::placeholder {
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  font-weight: 400;
+  letter-spacing: normal;
+  color: color-mix(in srgb, var(--text-ink-muted) 55%, transparent);
 }
 
 .wiz__stunt-text {
-  margin-top: 6px;
-  min-height: calc(2 * 1.45em + 10px);
+  padding: 2px 0 2px;
+  min-height: calc(2 * 1.45em);
 }
 
 .wiz__stunt-remove {
@@ -613,22 +641,27 @@
   height: 14px;
 }
 
+/* Заглушка добавления — как плитка «Создать героя» в списке: пунктир,
+   крупный плюс по центру, подпись капителью. */
 .wiz__stunt-add {
+  position: relative;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 10px;
+  justify-content: center;
+  gap: 0;
   width: 100%;
-  min-height: 52px;
+  min-height: 92px;
   padding: 8px 14px;
-  border: 1px dashed color-mix(in srgb, var(--accent-gold) 52%, transparent);
-  background: none;
+  border: 1px dashed color-mix(in srgb, var(--accent-gold) 48%, transparent);
+  background: transparent;
   color: var(--accent-gold-ink);
-  text-align: left;
-  cursor: pointer;
+  text-align: center;
 }
 
 .wiz__stunt-add:hover {
-  background: color-mix(in srgb, var(--accent-gold) 8%, transparent);
+  border-color: var(--accent-gold-deep);
+  background: color-mix(in srgb, var(--accent-gold) 7%, transparent);
 }
 
 .wiz__stunt-add--cost {
@@ -637,43 +670,58 @@
   background: color-mix(in srgb, var(--accent-gold) 10%, transparent);
 }
 
+.wiz__stunt-add-hit {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+.wiz__stunt-add-hit:focus-visible {
+  outline: 2px solid var(--accent-gold-ink);
+  outline-offset: -4px;
+}
+
 .wiz__stunt-plus {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex: none;
-  width: 22px;
-  height: 22px;
-  border: 1px solid currentColor;
-  border-radius: 50%;
-  font-family: var(--font-body);
-  font-size: 15px;
-  line-height: 1;
+  position: relative;
+  z-index: 1;
+  pointer-events: none;
+  font-family: var(--font-display);
+  font-size: 2.75rem;
+  font-weight: 400;
+  line-height: 0.9;
 }
 
 .wiz__stunt-add-label {
-  display: block;
+  position: relative;
+  z-index: 1;
+  pointer-events: none;
   font-family: var(--font-body);
   font-size: var(--text-caption);
-  font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 
 .wiz__stunt-add-note {
-  display: block;
-  margin-top: 3px;
+  position: relative;
+  z-index: 2;
+  margin-top: 0;
+  max-width: 100%;
   font-family: var(--font-body);
   font-size: var(--text-micro);
   letter-spacing: 0.01em;
   color: var(--text-ink-muted);
 }
 
-.wiz__stunt-full {
-  margin: 0;
-  font-family: var(--font-body);
-  font-size: var(--text-caption);
-  color: var(--text-ink-muted);
+.wiz__stunt-add-note .hint__word {
+  color: var(--accent-gold-ink);
+}
+
+.wiz__stunts + .wiz__hint-link {
+  margin-top: 8px;
 }
 
 .wiz__stunt-help {
@@ -693,11 +741,22 @@
 /* Две колонки — только на широком окне: на телефоне поля трюков идут первыми. */
 @media (min-width: 761px) {
   .wiz__grid--stunts {
-    grid-template-columns: 236px minmax(0, 1fr);
+    grid-template-columns: 260px minmax(0, 1fr);
   }
 
   .wiz__grid--stunts.is-help {
-    grid-template-columns: minmax(0, 340px) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 360px) minmax(0, 1fr);
+  }
+
+  /* Справка прокручивается внутри своей колонки, чтобы поля справа стояли
+     на месте и не уезжали вместе с длинным текстом. */
+  .wiz__grid--stunts.is-help .wiz__stunt-help {
+    max-height: 430px;
+    overflow-y: auto;
+    padding-right: 6px;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in srgb, var(--accent-gold) 62%, transparent) transparent;
   }
 }
 
@@ -719,7 +778,7 @@
   }
 
   .wiz__stunt {
-    padding: 8px 44px 8px 10px;
+    padding: 2px 44px 6px 10px;
   }
 
   /* На телефоне справка прокручивается внутри своей колонки, чтобы поля
@@ -730,6 +789,8 @@
     padding-right: 4px;
     padding-bottom: 6px;
     border-bottom: 1px solid color-mix(in srgb, var(--accent-gold) 26%, transparent);
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in srgb, var(--accent-gold) 62%, transparent) transparent;
   }
 
   .wiz__stunt-remove {

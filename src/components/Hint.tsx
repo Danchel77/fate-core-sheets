@@ -122,7 +122,11 @@ export function Hint({ title, text, children }: Props) {
       close();
     };
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') close();
+      if (event.key === 'Escape') {
+        /* Подсказка поверх окна: Esc закрывает её, а не окно под ней. */
+        event.stopPropagation();
+        close();
+      }
     };
     const onResize = () => close();
 
