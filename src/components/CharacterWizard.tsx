@@ -19,7 +19,7 @@ import {
   IconZap,
 } from './icons';
 import { SKILLS } from '../data/characters';
-import type { SettingId } from '../data/characters';
+import type { SettingId } from '../data/types';
 
 const BASE = import.meta.env.BASE_URL;
 const PAPER = `${BASE}assets/textures/parchment-soft.jpg`;

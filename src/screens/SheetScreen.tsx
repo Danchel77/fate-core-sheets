@@ -7,22 +7,33 @@ import { StressBlock } from '../components/StressBlock';
 import { ExtrasBlock } from '../components/ExtrasBlock';
 import { IconArrowLeft } from '../components/icons';
 import { PortraitDialog } from '../components/PortraitDialog';
-import type { Character } from '../data/types';
+import { physicalStress, mentalStress } from '../data/characters';
+import type { Character, CharacterPatch } from '../data/types';
 import '../styles/sheet.css';
 import '../styles/character-block.css';
 import '../styles/aspect-block.css';
 import '../styles/skills-editor.css';
 import '../styles/hint.css';
 
+type Props = {
+  character: Character;
+  /** Правка листа уходит в хранилище сразу, без кнопки «Сохранить». */
+  onPatch?: (patch: CharacterPatch) => void;
+};
+
 /** Собранный веб-лист: единственный источник правды. */
-export default function SheetScreen({ character }: { character: Character }) {
-  const level = character.ladder[0]?.value ?? 1;
-  const [portrait, setPortrait] = useState(character.portrait ?? '');
+export default function SheetScreen({ character, onPatch }: Props) {
+  const [portrait, setPortrait] = useState(character.portrait);
   const [portraitOpen, setPortraitOpen] = useState(false);
 
   useEffect(() => {
-    setPortrait(character.portrait ?? '');
+    setPortrait(character.portrait);
   }, [character.portrait]);
+
+  const changePortrait = (next: string) => {
+    setPortrait(next);
+    onPatch?.({ portrait: next });
+  };
 
   return (
     <div className="table">
@@ -40,15 +51,15 @@ export default function SheetScreen({ character }: { character: Character }) {
             onPortraitClick={() => setPortraitOpen(true)}
           />
           <StressBlock
-            physical={character.physicalStress}
-            mental={character.mentalStress}
+            physical={physicalStress(character)}
+            mental={mentalStress(character)}
             consequences={character.consequences}
           />
           <AspectBlock aspects={character.aspects} />
         </article>
 
         <article className="page page--right">
-          <SkillsEditor initial={character.ladder} initialLevel={level} />
+          <SkillsEditor initial={character.ladder} initialLevel={character.level} />
           <StuntBlock stunts={character.stunts} baseRefresh={character.refresh} />
           <ExtrasBlock initial={character.extras} />
         </article>
@@ -58,7 +69,7 @@ export default function SheetScreen({ character }: { character: Character }) {
           src={portrait}
           alt={`Портрет: ${character.name || 'персонаж'}`}
           onClose={() => setPortraitOpen(false)}
-          onChange={setPortrait}
+          onChange={changePortrait}
         />
       )}
     </div>

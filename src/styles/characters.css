@@ -603,8 +603,13 @@
 }
 
 .heroes__empty-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--touch-target);
   margin-top: 20px;
   padding: 10px 22px;
+  text-decoration: none;
   border: 1px solid var(--accent-gold-deep);
   background: color-mix(in srgb, var(--accent-gold) 10%, transparent);
   font-family: var(--font-body);

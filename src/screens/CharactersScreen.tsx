@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { BlockMenu } from '../components/BlockMenu';
+import { ConfirmDialog } from '../components/ConfirmDialog';
 import { SettingMark } from '../components/SettingMark';
 import {
   IconBraces,
@@ -11,7 +12,8 @@ import {
   IconSettings,
   IconTrash,
 } from '../components/icons';
-import { characters, type CharacterRecord, type SettingId } from '../data/characters';
+import { deleteCharacter, useCharacters } from '../data/store';
+import type { CharacterRecord, SettingId } from '../data/types';
 import '../styles/characters.css';
 
 type Filter = 'all' | SettingId;
@@ -55,20 +57,17 @@ function saveView(view: SavedView) {
   }
 }
 
-/** Меню карточки: пункты пока заглушки, работают на следующем шаге. */
-const CARD_ACTIONS = [
-  { label: 'Скачать PDF', icon: <IconFileDown /> },
-  { label: 'Ссылка на PDF', icon: <IconExternalLink /> },
-  { label: 'Скачать JSON', icon: <IconBraces /> },
-  { label: 'Клонировать', icon: <IconCopy /> },
-  { label: 'Удалить', icon: <IconTrash />, danger: true },
-];
+/** Имя для карточки: без имени герой всё равно должен быть узнаваем. */
+function heroName(hero: CharacterRecord) {
+  return hero.sheet.name.trim() || 'Безымянный герой';
+}
 
 function HeroPortrait({ hero }: { hero: CharacterRecord }) {
+  const photo = hero.sheet.portrait;
   return (
-    <span className={`hero-photo${hero.portrait ? '' : ' hero-photo--empty'}`}>
-      {hero.portrait ? (
-        <img src={hero.portrait} alt="" />
+    <span className={`hero-photo${photo ? '' : ' hero-photo--empty'}`}>
+      {photo ? (
+        <img src={photo} alt="" />
       ) : (
         <svg className="hero-photo__figure" viewBox="0 0 64 64" aria-hidden="true">
           <circle cx="32" cy="23" r="11.5" />
@@ -81,11 +80,13 @@ function HeroPortrait({ hero }: { hero: CharacterRecord }) {
 }
 
 export default function CharactersScreen() {
+  const { records } = useCharacters();
   const saved = useMemo(readView, []);
   const [filter, setFilter] = useState<Filter>(saved.filter);
   const [sort, setSort] = useState<SortMode>(saved.sort);
   const [query, setQuery] = useState('');
   const [sortOpen, setSortOpen] = useState(false);
+  const [pendingDelete, setPendingDelete] = useState<CharacterRecord | null>(null);
   const sortRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -110,34 +111,62 @@ export default function CharactersScreen() {
 
   const counts = useMemo(
     () => ({
-      all: characters.length,
-      witcher: characters.filter((hero) => hero.setting === 'witcher').length,
-      fate: characters.filter((hero) => hero.setting === 'fate').length,
+      all: records.length,
+      witcher: records.filter((hero) => hero.setting === 'witcher').length,
+      fate: records.filter((hero) => hero.setting === 'fate').length,
     }),
-    [],
+    [records],
   );
 
   const visible = useMemo(() => {
     const needle = query.trim().toLocaleLowerCase('ru');
-    return characters
+    return records
       .filter((hero) => filter === 'all' || hero.setting === filter)
-      .filter((hero) => !needle || hero.name.toLocaleLowerCase('ru').includes(needle))
+      .filter((hero) => !needle || heroName(hero).toLocaleLowerCase('ru').includes(needle))
       .sort((a, b) =>
         sort === 'name'
-          ? a.name.localeCompare(b.name, 'ru')
+          ? heroName(a).localeCompare(heroName(b), 'ru')
           : b.createdAt.localeCompare(a.createdAt),
       );
-  }, [filter, query, sort]);
+  }, [records, filter, query, sort]);
 
-  const menuItems = () =>
-    CARD_ACTIONS.map((action) => ({
-      label: action.label,
-      icon: action.icon,
-      danger: action.danger,
+  const menuItems = (hero: CharacterRecord) => [
+    {
+      label: 'Скачать PDF',
+      icon: <IconFileDown />,
       disabled: true,
       onSelect: () => {},
-      title: `«${action.label}» появится на следующем шаге`,
-    }));
+      title: '«Скачать PDF» появится на следующем шаге',
+    },
+    {
+      label: 'Ссылка на PDF',
+      icon: <IconExternalLink />,
+      disabled: true,
+      onSelect: () => {},
+      title: '«Ссылка на PDF» появится на следующем шаге',
+    },
+    {
+      label: 'Скачать JSON',
+      icon: <IconBraces />,
+      disabled: true,
+      onSelect: () => {},
+      title: '«Скачать JSON» появится на следующем шаге',
+    },
+    {
+      label: 'Клонировать',
+      icon: <IconCopy />,
+      disabled: true,
+      onSelect: () => {},
+      title: '«Клонировать» появится на следующем шаге',
+    },
+    {
+      label: 'Удалить',
+      icon: <IconTrash />,
+      danger: true,
+      onSelect: () => setPendingDelete(hero),
+      title: 'Удалить героя вместе с листом',
+    },
+  ];
 
   return (
     <div className="heroes">
@@ -156,77 +185,89 @@ export default function CharactersScreen() {
       <main className="heroes__page">
         <header className="heroes__head">
           <h1 className="heroes__title">
-            Мои персонажи <span className="heroes__count">({characters.length})</span>
+            Мои персонажи <span className="heroes__count">({records.length})</span>
           </h1>
 
-          <div className="heroes__tools">
-            <div className="seg" role="group" aria-label="Фильтр по сеттингу">
-              {FILTERS.map((item) => (
+          {records.length > 0 && (
+            <div className="heroes__tools">
+              <div className="seg" role="group" aria-label="Фильтр по сеттингу">
+                {FILTERS.map((item) => (
+                  <button
+                    key={item.id}
+                    className="seg__btn"
+                    type="button"
+                    aria-pressed={filter === item.id}
+                    onClick={() => setFilter(item.id)}
+                  >
+                    {item.label}
+                    <span className="seg__count">{counts[item.id]}</span>
+                  </button>
+                ))}
+              </div>
+
+              <label className="search">
+                <IconSearch />
+                <input
+                  type="search"
+                  value={query}
+                  placeholder="Поиск по имени…"
+                  aria-label="Поиск по имени"
+                  onChange={(event) => setQuery(event.target.value)}
+                />
+              </label>
+
+              <div className="sort" ref={sortRef}>
                 <button
-                  key={item.id}
-                  className="seg__btn"
+                  className="sort__btn"
                   type="button"
-                  aria-pressed={filter === item.id}
-                  onClick={() => setFilter(item.id)}
+                  aria-haspopup="listbox"
+                  aria-expanded={sortOpen}
+                  aria-label="Сортировка"
+                  onClick={() => setSortOpen((open) => !open)}
                 >
-                  {item.label}
-                  <span className="seg__count">{counts[item.id]}</span>
+                  {SORTS.find((mode) => mode.id === sort)?.label}
+                  <IconChevronDown />
                 </button>
-              ))}
-            </div>
+                {sortOpen && (
+                  <ul className="sort__menu" role="listbox" aria-label="Сортировка">
+                    {SORTS.map((mode) => (
+                      <li key={mode.id}>
+                        <button
+                          className="sort__opt"
+                          type="button"
+                          role="option"
+                          aria-selected={sort === mode.id}
+                          onClick={() => {
+                            setSort(mode.id);
+                            setSortOpen(false);
+                          }}
+                        >
+                          {mode.label}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
 
-            <label className="search">
-              <IconSearch />
-              <input
-                type="search"
-                value={query}
-                placeholder="Поиск по имени…"
-                aria-label="Поиск по имени"
-                onChange={(event) => setQuery(event.target.value)}
-              />
-            </label>
-
-            <div className="sort" ref={sortRef}>
-              <button
-                className="sort__btn"
-                type="button"
-                aria-haspopup="listbox"
-                aria-expanded={sortOpen}
-                aria-label="Сортировка"
-                onClick={() => setSortOpen((open) => !open)}
-              >
-                {SORTS.find((mode) => mode.id === sort)?.label}
-                <IconChevronDown />
+              <button className="iconbtn" type="button" aria-label="Настройки" title="Настройки">
+                <IconSettings />
               </button>
-              {sortOpen && (
-                <ul className="sort__menu" role="listbox" aria-label="Сортировка">
-                  {SORTS.map((mode) => (
-                    <li key={mode.id}>
-                      <button
-                        className="sort__opt"
-                        type="button"
-                        role="option"
-                        aria-selected={sort === mode.id}
-                        onClick={() => {
-                          setSort(mode.id);
-                          setSortOpen(false);
-                        }}
-                      >
-                        {mode.label}
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              )}
             </div>
-
-            <button className="iconbtn" type="button" aria-label="Настройки" title="Настройки">
-              <IconSettings />
-            </button>
-          </div>
+          )}
         </header>
 
-        {visible.length === 0 ? (
+        {records.length === 0 ? (
+          <section className="heroes__empty">
+            <h2 className="heroes__empty-title">Пока никого нет</h2>
+            <p className="heroes__empty-text">
+              Создайте первого героя — он появится здесь и сразу откроется готовым листом.
+            </p>
+            <a className="heroes__empty-action" href="#/new">
+              Создать героя
+            </a>
+          </section>
+        ) : visible.length === 0 ? (
           <section className="heroes__empty">
             <h2 className="heroes__empty-title">Никого не нашлось</h2>
             <p className="heroes__empty-text">
@@ -250,18 +291,18 @@ export default function CharactersScreen() {
                 <a
                   className="hero-card__link"
                   href={`#/hero/${hero.id}`}
-                  aria-label={`Открыть лист: ${hero.name}`}
+                  aria-label={`Открыть лист: ${heroName(hero)}`}
                 >
                   <HeroPortrait hero={hero} />
                   <span className="hero-card__body">
-                    <span className="hero-card__name">{hero.name}</span>
-                    <span className="hero-card__concept">{hero.concept}</span>
+                    <span className="hero-card__name">{heroName(hero)}</span>
+                    <span className="hero-card__concept">{hero.sheet.aspects[0]?.text ?? ''}</span>
                     <span className="hero-card__level">
-                      уровень <b>{hero.level}</b>
+                      уровень <b>{hero.sheet.level}</b>
                     </span>
                   </span>
                 </a>
-                <BlockMenu label={`Действия: ${hero.name}`} items={menuItems()} />
+                <BlockMenu label={`Действия: ${heroName(hero)}`} items={menuItems(hero)} />
               </article>
             ))}
 
@@ -281,6 +322,19 @@ export default function CharactersScreen() {
           CD Projekt Red. Права на сеттинги и торговые марки принадлежат их правообладателям.
         </p>
       </footer>
+
+      {pendingDelete && (
+        <ConfirmDialog
+          title="Удалить героя?"
+          text={`Лист героя «${heroName(pendingDelete)}» и все правки исчезнут. Вернуть их будет нельзя.`}
+          confirmLabel="Удалить"
+          onConfirm={() => {
+            void deleteCharacter(pendingDelete.id);
+            setPendingDelete(null);
+          }}
+          onClose={() => setPendingDelete(null)}
+        />
+      )}
     </div>
   );
 }

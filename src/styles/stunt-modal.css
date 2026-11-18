@@ -452,3 +452,16 @@
     min-height: 44px;
   }
 }
+
+/* Окно подтверждения: то же оформление, но уже и без формы. */
+.sm__panel--confirm {
+  width: min(420px, 100%);
+}
+
+.sm__text {
+  margin: 2px 0 0;
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  line-height: 1.55;
+  color: var(--text-ink-primary);
+}

@@ -1,4 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { effectiveRefresh } from '../data/characters';
 import type { Character } from '../data/types';
 import { BlockHeader } from './BlockHeader';
 import { FatePoints } from './FatePoints';
@@ -72,7 +73,7 @@ export function CharacterBlock({ character, portrait, onPortraitClick }: Props) 
             spellCheck={false}
             onChange={(event) => setName(event.target.value)}
           />
-          <FatePoints initial={c.fatePoints} refresh={c.refresh} />
+          <FatePoints initial={c.fatePoints} refresh={effectiveRefresh(c)} />
           <textarea
             ref={descRef}
             className="cblock__desc"
