@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Hint } from './Hint';
 
-const FATE_POINTS_HINT =
+export const FATE_POINTS_HINT =
   'Валюта истории. Отдай жетон, чтобы воспользоваться аспектом: +2 к броску или переброс.';
-const REFRESH_HINT = 'Сколько жетонов судьбы герой получает в начале каждой игровой сессии.';
+export const REFRESH_HINT = 'Сколько жетонов судьбы герой получает в начале каждой игровой сессии.';
 
 type Props = {
   initial: number;

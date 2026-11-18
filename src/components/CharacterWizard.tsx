@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import '../styles/stunt-modal.css';
 import '../styles/wizard.css';
 import { Hint } from './Hint';
+import { FATE_POINTS_HINT, REFRESH_HINT } from './FatePoints';
 import { PortraitPlate } from './PortraitPlate';
 import { PortraitCropper } from './PortraitCropper';
 import { SkillPicker } from './SkillPicker';
@@ -24,8 +25,6 @@ const BASE = import.meta.env.BASE_URL;
 const PAPER = `${BASE}assets/textures/parchment-soft.jpg`;
 
 /* Тексты плашек: заголовок — сам термин, в тексте его уже не повторяем. */
-const TIP_FATE_POINTS =
-  'Валюта истории. Отдай жетон, чтобы воспользоваться аспектом: +2 к броску или переброс.';
 const TIP_INVOKE =
   'Потрать жетон судьбы, чтобы получить +2 к броску или переброс, когда действие укладывается в аспект.';
 const TIP_COMPEL =
@@ -50,10 +49,9 @@ const RANK_WORDS: Record<number, string> = {
   1: 'Средне',
 };
 
-const TIP_MILESTONE_SIGNIFICANT =
-  'Конец сценария или крупного события. Даёт всё, что даёт малая веха, и одно очко навыка: новый навык на +1 или ступень выше существующему.';
+const TIP_MILESTONE_SIGNIFICANT = 'Конец сценария или крупного события. Даёт очко навыка.';
 const TIP_MILESTONE_MAJOR =
-  'Конец сюжетной арки. Даёт всё, что даёт значимая веха, плюс очко обновления, возможность поднять навык выше потолка и переписать концепцию.';
+  'Конец сюжетной арки. Даёт всё, что даёт значимая веха, плюс очко обновления, возможность добавить новую ступень навыков и переписать концепцию.';
 
 const STEPS: { name: string; icon: ReactNode }[] = [
   { name: 'Кто он', icon: <IconUser /> },
@@ -580,7 +578,7 @@ export function CharacterWizard({ draft, onChange, onSkip }: Props) {
                             призвать
                           </Hint>{' '}
                           за{' '}
-                          <Hint title="Жетоны судьбы" text={TIP_FATE_POINTS}>
+                          <Hint title="Жетоны судьбы" text={FATE_POINTS_HINT}>
                             жетон судьбы
                           </Hint>
                           .
@@ -611,7 +609,7 @@ export function CharacterWizard({ draft, onChange, onSkip }: Props) {
                             навязать
                           </Hint>{' '}
                           проблему: герой попадает в переделку, а игрок получает{' '}
-                          <Hint title="Жетоны судьбы" text={TIP_FATE_POINTS}>
+                          <Hint title="Жетоны судьбы" text={FATE_POINTS_HINT}>
                             жетон судьбы
                           </Hint>
                           .
@@ -638,7 +636,7 @@ export function CharacterWizard({ draft, onChange, onSkip }: Props) {
                         призвать
                       </Hint>{' '}
                       за{' '}
-                      <Hint title="Жетоны судьбы" text={TIP_FATE_POINTS}>
+                      <Hint title="Жетоны судьбы" text={FATE_POINTS_HINT}>
                         жетон судьбы
                       </Hint>
                       , а мастер может его{' '}
@@ -671,15 +669,20 @@ export function CharacterWizard({ draft, onChange, onSkip }: Props) {
                       результат проверки.
                     </p>
                     <p>
-                      После приключения герой становится сильнее:{' '}
+                      Развитие персонажа в Fate устроено по вехам:{' '}
                       <Hint title="Значимая веха" text={TIP_MILESTONE_SIGNIFICANT}>
                         значимая веха
                       </Hint>{' '}
-                      даёт очко навыка — новый навык на +1 или ступень выше существующего, а{' '}
+                      позволяет добавить новый навык на ступень +1 или поместить существующий навык
+                      на ступень выше, а{' '}
                       <Hint title="Большая веха" text={TIP_MILESTONE_MAJOR}>
                         большая веха
                       </Hint>{' '}
-                      вдобавок даёт очко обновления.
+                      вдобавок даёт очко{' '}
+                      <Hint title="Обновление" text={REFRESH_HINT}>
+                        обновления
+                      </Hint>
+                      .
                     </p>
                   </div>
 
