@@ -433,6 +433,7 @@
   position: absolute;
   left: 4px;
   bottom: 4px;
+  z-index: 3;
   display: block;
   filter: drop-shadow(0 1px 2px color-mix(in srgb, var(--text-ink-primary) 45%, transparent));
 }
