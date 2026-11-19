@@ -458,6 +458,7 @@
 
 /* Портрет — та же плашка, что в листе, поэтому её пропорции сразу видны. */
 .wiz__portrait {
+  position: relative;
   display: block;
   width: 220px;
   max-width: 100%;
@@ -469,6 +470,12 @@
 
 .wiz__portrait .plate {
   width: 100%;
+}
+
+/* У готового героя сеттинг не выбирают: он отмечен прямо на портрете. */
+.wiz__portrait .setting-mark {
+  left: 6px;
+  bottom: 6px;
 }
 
 .wiz__portrait:hover .plate {
@@ -571,6 +578,12 @@
   .wiz .sm__primary,
   .wiz__seg {
     min-height: 44px;
+  }
+
+  /* Справки на телефоне — в одну колонку: две колонки здесь не читаются. */
+  .wiz__page .sm__hint-body {
+    column-count: 1;
+    column-gap: 0;
   }
 }
 

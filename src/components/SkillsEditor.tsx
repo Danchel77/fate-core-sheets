@@ -1,5 +1,6 @@
 import { useId, useState } from 'react';
 import { BlockHeader } from './BlockHeader';
+import { useCompact } from '../hooks/useCompact';
 import { BlockMenu } from './BlockMenu';
 import { Hint } from './Hint';
 import { SkillPicker } from './SkillPicker';
@@ -187,6 +188,7 @@ export function SkillsEditor({ initial, initialLevel = 4, onChange }: Props) {
   const top = rows[0];
   const canAddRank = (top?.value ?? 0) < MAX_SKILL_RANK;
   const canRemoveRank = top !== undefined && top.value > 4 && top.skills.length === 0;
+  const compact = useCompact();
   const debtWord = Math.abs(free) === 1 ? 'очка' : 'очков';
   const extraSlot = free > 0 && rows.some((row) => row.value === 1 && row.skills.length >= baseCap(1));
 
@@ -259,6 +261,8 @@ export function SkillsEditor({ initial, initialLevel = 4, onChange }: Props) {
         }
       />
 
+      {compact && <div className="ske__levelbar">{levelBlock}</div>}
+
       <SkillPyramid
         rows={rows}
         cap={baseCap}
@@ -273,7 +277,7 @@ export function SkillsEditor({ initial, initialLevel = 4, onChange }: Props) {
             ? `Занять слот: ${value} ${pointsWord(value)}`
             : `Не хватает очков: нужно ${value} ${pointsWord(value)}`
         }
-        topAside={levelBlock}
+        topAside={compact ? undefined : levelBlock}
       />
 
       {menuRank !== null && (

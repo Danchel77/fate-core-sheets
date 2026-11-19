@@ -29,6 +29,16 @@ export function PortraitCropper({ src, onCancel, onDone }: Props) {
   const [frame, setFrame] = useState({ w: 300, h: 400 });
   const frameRef = useRef<HTMLDivElement>(null);
   const drag = useRef<{ px: number; py: number; ox: number; oy: number } | null>(null);
+  /* Пальцы на кадре: два пальца — масштаб щипком, один — сдвиг. */
+  const pointers = useRef(new Map<number, { x: number; y: number }>());
+  const pinch = useRef<{
+    dist: number;
+    zoom: number;
+    x: number;
+    y: number;
+    mx: number;
+    my: number;
+  } | null>(null);
 
   useLayoutEffect(() => {
     const el = frameRef.current;
@@ -68,19 +78,71 @@ export function PortraitCropper({ src, onCancel, onDone }: Props) {
   const x = Math.min(maxX, Math.max(-maxX, pos.x));
   const y = Math.min(maxY, Math.max(-maxY, pos.y));
 
+  const frameCenter = () => {
+    const rect = frameRef.current?.getBoundingClientRect();
+    return rect
+      ? { cx: rect.left + rect.width / 2, cy: rect.top + rect.height / 2 }
+      : { cx: 0, cy: 0 };
+  };
+
   const startDrag = (event: ReactPointerEvent<HTMLDivElement>) => {
     if (event.button !== 0 || !image) return;
-    event.currentTarget.setPointerCapture(event.pointerId);
+    try {
+      event.currentTarget.setPointerCapture(event.pointerId);
+    } catch {
+      /* Синтетические события и старые браузеры могут не знать указатель — не мешаем жесту. */
+    }
+    pointers.current.set(event.pointerId, { x: event.clientX, y: event.clientY });
+
+    if (pointers.current.size === 2) {
+      const [a, b] = Array.from(pointers.current.values());
+      const { cx, cy } = frameCenter();
+      pinch.current = {
+        dist: Math.hypot(a.x - b.x, a.y - b.y) || 1,
+        zoom,
+        x,
+        y,
+        mx: (a.x + b.x) / 2 - cx,
+        my: (a.y + b.y) / 2 - cy,
+      };
+      drag.current = null;
+      return;
+    }
+
     drag.current = { px: event.clientX, py: event.clientY, ox: x, oy: y };
   };
 
   const moveDrag = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (pointers.current.has(event.pointerId)) {
+      pointers.current.set(event.pointerId, { x: event.clientX, y: event.clientY });
+    }
+
+    const p = pinch.current;
+    if (p && pointers.current.size === 2) {
+      const [a, b] = Array.from(pointers.current.values());
+      const dist = Math.hypot(a.x - b.x, a.y - b.y) || 1;
+      const nextZoom = Math.min(3, Math.max(1, p.zoom * (dist / p.dist)));
+      const { cx, cy } = frameCenter();
+      const mx = (a.x + b.x) / 2 - cx;
+      const my = (a.y + b.y) / 2 - cy;
+      const s0 = baseScale * p.zoom;
+      const s1 = baseScale * nextZoom;
+      /* Точка картинки под серединой пальцев должна остаться на месте. */
+      const px = (p.mx - p.x) / s0;
+      const py = (p.my - p.y) / s0;
+      setZoom(nextZoom);
+      setPos({ x: mx - px * s1, y: my - py * s1 });
+      return;
+    }
+
     const d = drag.current;
     if (!d) return;
     setPos({ x: d.ox + event.clientX - d.px, y: d.oy + event.clientY - d.py });
   };
 
-  const endDrag = () => {
+  const endDrag = (event: ReactPointerEvent<HTMLDivElement>) => {
+    pointers.current.delete(event.pointerId);
+    if (pointers.current.size < 2) pinch.current = null;
     drag.current = null;
   };
 

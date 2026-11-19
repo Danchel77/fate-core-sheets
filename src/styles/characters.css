@@ -32,19 +32,6 @@
   text-decoration: none;
 }
 
-.heroes__brandmark {
-  display: grid;
-  place-items: center;
-  width: 36px;
-  height: 36px;
-  background: var(--bg-parchment);
-  border: 1px solid var(--accent-gold);
-  box-shadow: 0 2px 6px color-mix(in srgb, black 45%, transparent);
-  font-family: var(--font-display);
-  font-size: var(--text-lead);
-  font-weight: 600;
-  color: var(--accent-gold-ink);
-}
 
 .heroes__brandname {
   font-family: var(--font-display);
@@ -361,6 +348,11 @@
   height: 16px;
 }
 
+/* Лупа занимает место шестерёнки только на телефоне. */
+.heroes__searchbtn {
+  display: none;
+}
+
 /* ---------- сетка карточек ---------- */
 
 .heroes__grid {
@@ -558,9 +550,9 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 4px;
-  min-height: 110px;
-  padding: 12px;
+  gap: 2px;
+  min-height: 84px;
+  padding: 8px 12px;
   border-style: dashed;
   border-color: color-mix(in srgb, var(--accent-gold) 48%, transparent);
   background: transparent;
@@ -575,7 +567,7 @@
 
 .hero-card__plus {
   font-family: var(--font-display);
-  font-size: 2.75rem;
+  font-size: 2.25rem;
   font-weight: 400;
   line-height: 1;
 }
@@ -683,14 +675,6 @@
     grid-template-columns: 1fr;
   }
 
-  /* В узкой карточке длинное имя не влезает в строку — даём ему две строки вместо «…». */
-  .hero-card__name {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    white-space: normal;
-  }
-
   /* Портрет и поля карточки чуть компактнее, чтобы имя получало больше ширины. */
   .hero-card__link {
     grid-template-columns: 72px minmax(0, 1fr);
@@ -712,8 +696,27 @@
     width: 100%;
   }
 
+  /* Поиск живёт под кнопками: по лупе раскрывается, по повторному нажатию прячется. */
+  .seg {
+    order: 1;
+  }
+
   .heroes__row {
+    order: 2;
     width: 100%;
+  }
+
+  .search {
+    order: 3;
+    display: none;
+  }
+
+  .search.is-open {
+    display: flex;
+  }
+
+  .heroes__searchbtn {
+    display: grid;
   }
 
   .heroes__row .sort {
@@ -732,7 +735,7 @@
   .seg__btn {
     flex: 1;
     justify-content: center;
-    min-height: 44px;
+    min-height: 40px;
   }
 
   .search {

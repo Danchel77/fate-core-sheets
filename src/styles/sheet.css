@@ -145,6 +145,11 @@
   height: 20px;
 }
 
+/* На телефоне шапка должна остаться одной строкой: короткая подпись и плотные кнопки. */
+.sheet-nav__label-short {
+  display: none;
+}
+
 .sheet-nav a:hover,
 .sheet-nav a:focus-visible {
   color: var(--arrow-gold-hi);
@@ -182,10 +187,33 @@
   background: color-mix(in srgb, var(--accent-gold) 14%, transparent);
 }
 
-/* На телефоне кнопки шапки листа — под палец. */
+/* На телефоне кнопки шапки листа — под палец, но шапка остаётся одной строкой. */
 @media (max-width: 480px) {
+  .sheet-nav {
+    flex-wrap: nowrap;
+    gap: 8px;
+  }
+
+  .sheet-nav a {
+    gap: 6px;
+    font-size: var(--text-caption);
+  }
+
+  .sheet-nav__label {
+    display: none;
+  }
+
+  .sheet-nav__label-short {
+    display: inline;
+  }
+
+  .sheet-nav__actions {
+    gap: 8px;
+  }
+
   .sheet-nav__btn {
     min-height: 44px;
-    padding: 0 12px;
+    padding: 0 9px;
+    letter-spacing: 0.06em;
   }
 }

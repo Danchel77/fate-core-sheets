@@ -214,8 +214,14 @@
     grid-template-columns: 1fr;
   }
 
+  /* Подпись дорожки не влезает рядом с клетками — ставим её над ними. */
+  .str__track {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 6px;
+  }
+
   .str__boxes {
-    width: 191px;
+    width: auto;
   }
 
   .str__box {

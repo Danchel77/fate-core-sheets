@@ -504,3 +504,46 @@
     padding: 0 16px;
   }
 }
+
+/* Узкий экран: уровень — отдельная строка над пирамидой,
+   чтобы очки не наезжали на клетки, а стрелки не жались к меню «⋯». */
+.ske__levelbar {
+  margin: 2px 0 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid color-mix(in srgb, var(--accent-gold) 22%, transparent);
+}
+
+.ske__levelbar .ske__lvc {
+  position: static;
+  transform: none;
+  align-items: stretch;
+  gap: 6px;
+  min-height: 0;
+  padding-left: 0;
+}
+
+.ske__levelbar .ske__lv-line {
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 36px;
+}
+
+.ske__levelbar .ske__lv-controls {
+  gap: 8px;
+}
+
+.ske__levelbar .ske__lvsteps {
+  flex-direction: row;
+  width: auto;
+  gap: 6px;
+  opacity: 1;
+}
+
+.ske__levelbar .ske__step {
+  width: 36px;
+  height: 36px;
+}
+
+.ske__levelbar .ske__lv-free {
+  text-align: left;
+}

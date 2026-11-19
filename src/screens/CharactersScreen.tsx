@@ -9,7 +9,6 @@ import {
   IconCopy,
   IconFileDown,
   IconSearch,
-  IconSettings,
   IconTrash,
   IconUpload,
 } from '../components/icons';
@@ -101,6 +100,7 @@ export default function CharactersScreen() {
   const [sort, setSort] = useState<SortMode>(saved.sort);
   const [query, setQuery] = useState('');
   const [sortOpen, setSortOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const [pendingDelete, setPendingDelete] = useState<CharacterRecord | null>(null);
   const sortRef = useRef<HTMLDivElement>(null);
 
@@ -136,6 +136,18 @@ export default function CharactersScreen() {
   const [pdfBusy, setPdfBusy] = useState<string | null>(null);
   const [importError, setImportError] = useState<string | null>(null);
   const importRef = useRef<HTMLInputElement>(null);
+  const searchRef = useRef<HTMLInputElement>(null);
+
+  /* На телефоне поиск спрятан за лупу: место в тулбаре дорого. */
+  const toggleSearch = () => {
+    if (searchOpen) {
+      setQuery('');
+      setSearchOpen(false);
+      return;
+    }
+    setSearchOpen(true);
+    requestAnimationFrame(() => searchRef.current?.focus());
+  };
 
   const downloadPdf = async (hero: CharacterRecord) => {
     if (pdfBusy) return;
@@ -232,9 +244,6 @@ export default function CharactersScreen() {
     <div className="heroes">
       <header className="heroes__top">
         <a className="heroes__brand" href="#/">
-          <span className="heroes__brandmark" aria-hidden="true">
-            F
-          </span>
           <span className="heroes__brandname">Fate Core Sheets</span>
         </a>
         <AccountButton />
@@ -263,9 +272,11 @@ export default function CharactersScreen() {
                 ))}
               </div>
 
-              <label className="search">
+              <label className={`search${searchOpen ? ' is-open' : ''}`}>
                 <IconSearch />
                 <input
+                  ref={searchRef}
+                  id="heroes-search"
                   type="search"
                   value={query}
                   placeholder="Поиск по имени…"
@@ -319,8 +330,15 @@ export default function CharactersScreen() {
                   <IconUpload />
                 </button>
 
-                <button className="iconbtn" type="button" aria-label="Настройки" title="Настройки">
-                  <IconSettings />
+                <button
+                  className="iconbtn heroes__searchbtn"
+                  type="button"
+                  aria-label={searchOpen ? 'Скрыть поиск' : 'Поиск'}
+                  aria-expanded={searchOpen}
+                  aria-controls="heroes-search"
+                  onClick={toggleSearch}
+                >
+                  <IconSearch />
                 </button>
               </div>
             </div>

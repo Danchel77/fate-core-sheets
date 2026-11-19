@@ -28,14 +28,16 @@ const MARGIN = 10;
 const GAP = 10;
 const POINTER_SIZE = 5.5;
 
-type Side = 'right' | 'left';
+type Side = 'right' | 'left' | 'top' | 'bottom';
 
 type Pos = {
   top: number;
   left: number;
   side: Side;
-  /** Смещение ромба-указателя по вертикали в координатах плашки. */
+  /** Смещение ромба-указателя по вертикали в координатах плашки (плашки слева/справа). */
   offset: number;
+  /** Смещение ромба-указателя по горизонтали (плашки сверху/снизу). */
+  offsetX: number;
 };
 
 type Props = {
@@ -89,6 +91,36 @@ export function Hint({ title, text, children }: Props) {
     const vw = window.innerWidth;
     const vh = window.innerHeight;
 
+    /* На телефоне места слева и справа нет — плашка встаёт над словом или под ним. */
+    const compact = window.matchMedia('(max-width: 760px)').matches;
+
+    if (compact) {
+      let side: Side = 'bottom';
+      let top = t.bottom + GAP;
+      if (top + p.height > vh - MARGIN) {
+        side = 'top';
+        top = t.top - p.height - GAP;
+      }
+      let left = t.left + t.width / 2 - p.width / 2;
+
+      top = Math.min(Math.max(MARGIN, top), vh - p.height - MARGIN);
+      left = Math.min(Math.max(MARGIN, left), vw - p.width - MARGIN);
+
+      const offsetX = Math.min(
+        Math.max(16, t.left + t.width / 2 - left),
+        p.width - 16,
+      );
+
+      setPos({
+        top: top + window.scrollY,
+        left: left + window.scrollX,
+        side,
+        offset: 0,
+        offsetX,
+      });
+      return;
+    }
+
     let side: Side = 'right';
     let left = t.right + GAP;
     if (left + p.width > vw - MARGIN) {
@@ -110,6 +142,7 @@ export function Hint({ title, text, children }: Props) {
       left: left + window.scrollX,
       side,
       offset,
+      offsetX: 0,
     });
   }, [open]);
 
@@ -226,7 +259,13 @@ export function Hint({ title, text, children }: Props) {
             <span
               className="hint-pop__pointer"
               aria-hidden="true"
-              style={pos ? { top: pos.offset - POINTER_SIZE } : undefined}
+              style={
+                pos
+                  ? pos.side === 'top' || pos.side === 'bottom'
+                    ? { left: pos.offsetX - POINTER_SIZE }
+                    : { top: pos.offset - POINTER_SIZE }
+                  : undefined
+              }
             />
           </div>,
           document.body,

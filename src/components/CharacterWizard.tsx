@@ -5,6 +5,7 @@ import '../styles/wizard.css';
 import { Hint } from './Hint';
 import { FATE_POINTS_HINT, REFRESH_HINT } from './FatePoints';
 import { PortraitPlate } from './PortraitPlate';
+import { SettingMark } from './SettingMark';
 import { PortraitCropper } from './PortraitCropper';
 import { SkillPicker } from './SkillPicker';
 import { SkillPyramid } from './SkillPyramid';
@@ -554,30 +555,28 @@ export function CharacterWizard({ draft, onChange, onSkip, lockedSetting = false
                       />
                     </div>
 
-                    <div className="wiz__segs" role="group" aria-label="Сеттинг">
-                      <button
-                        type="button"
-                        className="wiz__seg"
-                        aria-pressed={setting === 'witcher'}
-                        disabled={lockedSetting}
-                        title={lockedSetting ? 'Сеттинг готового героя не меняется' : undefined}
-                        onClick={() => setSetting('witcher')}
-                      >
-                        <Logo kind="witcher" />
-                        <span>Ведьмак</span>
-                      </button>
-                      <button
-                        type="button"
-                        className="wiz__seg"
-                        aria-pressed={setting === 'fate'}
-                        aria-label="Fate"
-                        disabled={lockedSetting}
-                        title={lockedSetting ? 'Сеттинг готового героя не меняется' : undefined}
-                        onClick={() => setSetting('fate')}
-                      >
-                        <Logo kind="fate" />
-                      </button>
-                    </div>
+                    {!lockedSetting && (
+                      <div className="wiz__segs" role="group" aria-label="Сеттинг">
+                        <button
+                          type="button"
+                          className="wiz__seg"
+                          aria-pressed={setting === 'witcher'}
+                          onClick={() => setSetting('witcher')}
+                        >
+                          <Logo kind="witcher" />
+                          <span>Ведьмак</span>
+                        </button>
+                        <button
+                          type="button"
+                          className="wiz__seg"
+                          aria-pressed={setting === 'fate'}
+                          aria-label="Fate"
+                          onClick={() => setSetting('fate')}
+                        >
+                          <Logo kind="fate" />
+                        </button>
+                      </div>
+                    )}
                   </div>
 
                   <div className="wiz__grid">
@@ -591,6 +590,7 @@ export function CharacterWizard({ draft, onChange, onSkip, lockedSetting = false
                         <span aria-hidden="true">
                           <PortraitPlate src={photo} alt="" />
                         </span>
+                        {lockedSetting && <SettingMark setting={setting} />}
                       </button>
                       <input
                         ref={photoRef}

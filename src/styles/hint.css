@@ -163,3 +163,16 @@
   border-top: 1px solid color-mix(in srgb, var(--accent-gold-deep) 68%, transparent);
   border-right: 1px solid color-mix(in srgb, var(--accent-gold-deep) 68%, transparent);
 }
+
+/* Телефон: плашка над словом или под ним, ромб смотрит вниз или вверх. */
+.hint-pop--bottom .hint-pop__pointer {
+  top: -6px;
+  border-top: 1px solid color-mix(in srgb, var(--accent-gold-deep) 68%, transparent);
+  border-left: 1px solid color-mix(in srgb, var(--accent-gold-deep) 68%, transparent);
+}
+
+.hint-pop--top .hint-pop__pointer {
+  bottom: -6px;
+  border-bottom: 1px solid color-mix(in srgb, var(--accent-gold-deep) 68%, transparent);
+  border-right: 1px solid color-mix(in srgb, var(--accent-gold-deep) 68%, transparent);
+}

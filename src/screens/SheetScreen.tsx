@@ -55,7 +55,8 @@ export default function SheetScreen({ character, setting, onPatch }: Props) {
       <nav className="sheet-nav">
         <a href="#/">
           <IconArrowLeft />
-          Мои персонажи
+          <span className="sheet-nav__label">Мои персонажи</span>
+          <span className="sheet-nav__label-short">Персонажи</span>
         </a>
         {onPatch && (
           <div className="sheet-nav__actions">
