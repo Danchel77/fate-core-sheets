@@ -35,7 +35,7 @@
 
 .heroes__brandname {
   font-family: var(--font-display);
-  font-size: var(--text-lead);
+  font-size: 1.25rem;
   font-weight: 600;
   letter-spacing: 0.16em;
   text-transform: uppercase;
@@ -771,7 +771,7 @@
   }
 
   .heroes__brandname {
-    font-size: var(--text-body);
+    font-size: 1.125rem;
     letter-spacing: 0.08em;
     white-space: nowrap;
   }

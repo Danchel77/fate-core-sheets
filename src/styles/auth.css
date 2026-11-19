@@ -245,15 +245,15 @@
 }
 
 @media (max-width: 760px) {
-  /* Аватар на телефоне не спорит с названием: 32 и 30 вместо 36 и 34. */
+  /* Аватар на телефоне меньше, чем на ПК: 28 вместо 36. */
   .acct__trigger {
-    width: 32px;
-    height: 32px;
+    width: 28px;
+    height: 28px;
   }
 
   .acct__trigger--sheet {
-    width: 30px;
-    height: 30px;
+    width: 28px;
+    height: 28px;
   }
 
   .auth__body {
@@ -266,11 +266,6 @@
 
   .auth__link {
     min-height: 44px;
-  }
-
-  .acct__trigger {
-    width: 44px;
-    height: 44px;
   }
 
   .acct__item {
