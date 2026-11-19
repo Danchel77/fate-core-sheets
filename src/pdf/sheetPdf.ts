@@ -426,10 +426,13 @@ function drawSkills(page: PDFPage, character: Character, fonts: PdfFonts, overfl
       drawText(
         page,
         fit.text,
-        box.x + 1.3,
+        box.x,
         box.y + (box.h - capMm(fit.size)) / 2,
         fit.size,
         fonts.regular,
+        BLACK,
+        'center',
+        box.w,
       );
       if (fit.text.endsWith('…')) overflow.push({ title: `Навык на +${row.value}`, text: skill });
     }

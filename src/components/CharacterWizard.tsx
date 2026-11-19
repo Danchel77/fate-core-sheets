@@ -370,6 +370,8 @@ export function CharacterWizard({ draft, onChange, onSkip, lockedSetting = false
 
   const photoRef = useRef<HTMLInputElement>(null);
   const bodyRef = useRef<HTMLDivElement>(null);
+  /* Прокрутка полей до открытия справки: вернуть её при возвращении. */
+  const helpScroll = useRef(0);
   /* Новый трюк добавляется пустой карточкой — курсор сразу в её название. */
   const stuntRefs = useRef<Array<HTMLInputElement | null>>([]);
   const stuntFocus = useRef<number | null>(null);
@@ -439,8 +441,19 @@ export function CharacterWizard({ draft, onChange, onSkip, lockedSetting = false
     };
   }, [step, hint, stuntHelp, name, concept, trouble, aspects, photo, stunts.length]);
 
-  /* Справка встаёт на место текста слева: возвращаем окно к началу, чтобы
-     поля трюков не оказались наполовину прокручены. */
+  /* Справка открывается с начала, а поля запоминают, на чём остановились. */
+  useEffect(() => {
+    const el = bodyRef.current;
+    if (!el) return;
+    if (hint !== null) {
+      helpScroll.current = el.scrollTop;
+      el.scrollTo({ top: 0 });
+    } else {
+      el.scrollTo({ top: helpScroll.current });
+    }
+  }, [hint]);
+
+  /* Справка трюков встаёт на место полей: тоже начинается с начала. */
   useEffect(() => {
     if (stuntHelp) bodyRef.current?.scrollTo({ top: 0 });
   }, [stuntHelp]);

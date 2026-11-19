@@ -5,35 +5,16 @@ import { BlockMenu } from './BlockMenu';
 import { Hint } from './Hint';
 import { SkillPicker } from './SkillPicker';
 import { SkillPyramid, type PyramidRow } from './SkillPyramid';
+import { SKILLS } from '../data/characters';
+import type { SettingId } from '../data/types';
 import '../styles/skills-editor.css';
-
-/** 18 навыков сеттинга «Ведьмак» (список зафиксирован в fate_core_rules.md). */
-export const SKILL_POOL = [
-  'Атлетика',
-  'Внимательность',
-  'Верховая езда',
-  'Воля',
-  'Воровство',
-  'Драка',
-  'Знания',
-  'Контакты',
-  'Хитрость',
-  'Ремесло',
-  'Ресурсы',
-  'Скрытность',
-  'Стрельба',
-  'Телосложение',
-  'Убеждение',
-  'Эмпатия',
-  'Монстрология',
-  'Магия',
-] as const;
 
 export type InitRow = { value: number; skills: string[] };
 
 type Row = PyramidRow;
 
 type Props = {
+  setting: SettingId;
   initial: InitRow[];
   initialLevel?: number;
   /** Пирамида и уровень: лист сохраняет правку сразу. */
@@ -104,7 +85,7 @@ function LevelArrow({ direction }: { direction: 'up' | 'down' }) {
 }
 
 /** Интерактивная пирамида навыков: слоты стартовой пирамиды, уровень и свободные очки. */
-export function SkillsEditor({ initial, initialLevel = 4, onChange }: Props) {
+export function SkillsEditor({ setting, initial, initialLevel = 4, onChange }: Props) {
   const [rows, setRows] = useState<Row[]>(() => buildRows(initial));
   const [level, setLevel] = useState(initialLevel);
   const [menuRank, setMenuRank] = useState<number | null>(null);
@@ -183,7 +164,7 @@ export function SkillsEditor({ initial, initialLevel = 4, onChange }: Props) {
   };
 
   const used = new Set(rows.flatMap((row) => row.skills));
-  const available = SKILL_POOL.filter((name) => !used.has(name));
+  const available = SKILLS[setting].filter((name) => !used.has(name));
 
   const top = rows[0];
   const canAddRank = (top?.value ?? 0) < MAX_SKILL_RANK;

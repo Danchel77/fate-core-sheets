@@ -509,6 +509,7 @@
 .wiz__portrait .setting-mark {
   left: 6px;
   bottom: 6px;
+  z-index: 4;
 }
 
 .wiz__portrait:hover .plate {

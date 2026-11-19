@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { SKILL_HINTS } from '../data/skills';
+import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
 import { IconClose } from './icons';
 import '../styles/skill-picker.css';
 
@@ -15,6 +16,7 @@ type Props = {
 /** Окно выбора навыка: одно и то же в конструкторе и на листе персонажа. */
 export function SkillPicker({ rank, skills, note, onPick, onClose }: Props) {
   const closeRef = useRef<HTMLButtonElement>(null);
+  useBodyScrollLock();
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {

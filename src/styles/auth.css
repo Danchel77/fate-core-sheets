@@ -245,6 +245,17 @@
 }
 
 @media (max-width: 760px) {
+  /* Аватар на телефоне не спорит с названием: 32 и 30 вместо 36 и 34. */
+  .acct__trigger {
+    width: 32px;
+    height: 32px;
+  }
+
+  .acct__trigger--sheet {
+    width: 30px;
+    height: 30px;
+  }
+
   .auth__body {
     padding: 18px 18px 22px;
   }

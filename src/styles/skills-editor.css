@@ -376,7 +376,8 @@
 
 .ske__lv-free-num {
   margin-left: 4px;
-  font-size: var(--text-micro);
+  font-size: var(--text-body);
+  line-height: 1;
   font-weight: 700;
   font-variant-numeric: lining-nums;
   letter-spacing: 0;

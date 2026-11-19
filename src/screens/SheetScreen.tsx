@@ -87,6 +87,7 @@ export default function SheetScreen({ character, setting, onPatch }: Props) {
 
         <article className="page page--right">
           <SkillsEditor
+            setting={setting}
             initial={character.ladder}
             initialLevel={character.level}
             onChange={({ ladder, level }) => onPatch?.({ ladder, level })}

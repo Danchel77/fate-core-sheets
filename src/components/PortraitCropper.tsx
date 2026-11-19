@@ -155,8 +155,8 @@ export function PortraitCropper({ src, onCancel, onDone }: Props) {
     if (!ctx) return;
     const sw = frame.w / scale;
     const sh = frame.h / scale;
-    const sx = image.naturalWidth / 2 + x / scale - sw / 2;
-    const sy = image.naturalHeight / 2 + y / scale - sh / 2;
+    const sx = image.naturalWidth / 2 - x / scale - sw / 2;
+    const sy = image.naturalHeight / 2 - y / scale - sh / 2;
     ctx.drawImage(image, sx, sy, sw, sh, 0, 0, OUT_W, OUT_H);
     onDone(canvas.toDataURL('image/jpeg', 0.86));
   };

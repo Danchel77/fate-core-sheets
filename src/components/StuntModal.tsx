@@ -1,6 +1,7 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import type { FormEvent, MouseEvent as ReactMouseEvent } from 'react';
 import { createPortal } from 'react-dom';
+import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
 import '../styles/stunt-modal.css';
 
 const PAPER = `${import.meta.env.BASE_URL}assets/textures/parchment-soft.jpg`;
@@ -122,6 +123,7 @@ export function StuntModal({
   onDelete,
   onClose,
 }: Props) {
+  useBodyScrollLock();
   const [name, setName] = useState(initial.name);
   const [text, setText] = useState(initial.text);
   const panelRef = useRef<HTMLDivElement>(null);

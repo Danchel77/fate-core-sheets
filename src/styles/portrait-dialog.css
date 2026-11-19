@@ -28,7 +28,6 @@
 
 .pd__preview {
   width: 168px;
-  height: 224px;
   padding: 0;
   border: 0;
   background: none;
@@ -37,7 +36,6 @@
 
 .pd__preview .plate {
   width: 100%;
-  height: 100%;
   transition: box-shadow 140ms ease, border-color 140ms ease;
 }
 
