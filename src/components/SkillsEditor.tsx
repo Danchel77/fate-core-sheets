@@ -1,4 +1,4 @@
-import { useId, useState } from 'react';
+import { useEffect, useId, useState } from 'react';
 import { BlockHeader } from './BlockHeader';
 import { useCompact } from '../hooks/useCompact';
 import { BlockMenu } from './BlockMenu';
@@ -189,7 +189,16 @@ export function SkillsEditor({ initial, initialLevel = 4, onChange }: Props) {
   const canAddRank = (top?.value ?? 0) < MAX_SKILL_RANK;
   const canRemoveRank = top !== undefined && top.value > 4 && top.skills.length === 0;
   const compact = useCompact();
+  const [levelOpen, setLevelOpen] = useState(false);
   const debtWord = Math.abs(free) === 1 ? 'очка' : 'очков';
+
+  // На телефоне стрелки уровня прячутся при прокрутке листа.
+  useEffect(() => {
+    if (!compact || !levelOpen) return;
+    const close = () => setLevelOpen(false);
+    window.addEventListener('scroll', close, { passive: true });
+    return () => window.removeEventListener('scroll', close);
+  }, [compact, levelOpen]);
   const extraSlot = free > 0 && rows.some((row) => row.value === 1 && row.skills.length >= baseCap(1));
 
   const levelBlock = (
@@ -203,7 +212,7 @@ export function SkillsEditor({ initial, initialLevel = 4, onChange }: Props) {
             Уровень
           </Hint>
         </span>
-        <span className="ske__lv-controls">
+        <span className={`ske__lv-controls${compact && levelOpen ? ' ske__lv-controls--open' : ''}`}>
           <span className="ske__lvsteps">
             <button
               type="button"
@@ -226,7 +235,19 @@ export function SkillsEditor({ initial, initialLevel = 4, onChange }: Props) {
               <LevelArrow direction="down" />
             </button>
           </span>
-          <span className="ske__lvnum">{level}</span>
+          {compact ? (
+            <button
+              type="button"
+              className="ske__lvnum ske__lvnum--tap"
+              aria-label={`Уровень ${level}. Изменить`}
+              aria-expanded={levelOpen}
+              onClick={() => setLevelOpen((open) => !open)}
+            >
+              {level}
+            </button>
+          ) : (
+            <span className="ske__lvnum">{level}</span>
+          )}
         </span>
       </span>
       <span className={`ske__lv-free${free < 0 ? ' ske__lv-free--debt' : ''}`}>

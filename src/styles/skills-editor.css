@@ -345,6 +345,19 @@
 }
 
 /* Вторая строка: остаток очков. */
+.ske__lvnum--tap {
+  padding: 0;
+  border: 0;
+  background: none;
+  appearance: none;
+  cursor: pointer;
+}
+
+.ske__lvnum--tap:focus-visible {
+  outline: 1px dashed color-mix(in srgb, var(--ac-strong) 75%, transparent);
+  outline-offset: 2px;
+}
+
 .ske__lv-free {
   font-family: var(--font-body);
   font-size: var(--text-micro);
@@ -516,34 +529,72 @@
 .ske__levelbar .ske__lvc {
   position: static;
   transform: none;
+  width: fit-content;
+  max-width: 100%;
   align-items: stretch;
-  gap: 6px;
+  gap: 4px;
   min-height: 0;
   padding-left: 0;
 }
 
 .ske__levelbar .ske__lv-line {
-  justify-content: space-between;
-  gap: 10px;
-  min-height: 36px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 12px;
+  min-height: 40px;
 }
 
+/* Число стоит там же, где кончается «Доступно очков», а стрелки
+   раскрываются по тапу вокруг него и не сдвигают число. */
 .ske__levelbar .ske__lv-controls {
-  gap: 8px;
+  position: relative;
 }
 
 .ske__levelbar .ske__lvsteps {
-  flex-direction: row;
-  width: auto;
-  gap: 6px;
-  opacity: 1;
+  display: contents;
 }
 
 .ske__levelbar .ske__step {
-  width: 36px;
-  height: 36px;
+  position: absolute;
+  top: 50%;
+  margin-top: -20px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.14s, background-color 0.12s;
+}
+
+/* Вниз — слева от числа, вверх — справа. */
+.ske__levelbar .ske__step:nth-child(1) {
+  left: calc(100% + 2px);
+}
+
+.ske__levelbar .ske__step:nth-child(2) {
+  right: calc(100% + 2px);
+}
+
+.ske__levelbar .ske__lvnum {
+  min-width: 20px;
+  font-size: 20px;
+}
+
+.ske__levelbar .ske__lvarrow {
+  width: 22px;
+  height: 22px;
+}
+
+.ske__levelbar .ske__lv-controls--open .ske__step {
+  visibility: visible;
+  opacity: 1;
+}
+
+.ske__levelbar .ske__step:disabled {
+  opacity: 0.25;
 }
 
 .ske__levelbar .ske__lv-free {
-  text-align: left;
+  text-align: right;
 }
