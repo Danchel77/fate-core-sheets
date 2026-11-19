@@ -245,15 +245,15 @@
 }
 
 @media (max-width: 760px) {
-  /* Аватар на телефоне меньше, чем на ПК: 28 вместо 36. */
+  /* Аватар на телефоне меньше, чем на ПК: 30 вместо 36. */
   .acct__trigger {
-    width: 28px;
-    height: 28px;
+    width: 30px;
+    height: 30px;
   }
 
   .acct__trigger--sheet {
-    width: 28px;
-    height: 28px;
+    width: 30px;
+    height: 30px;
   }
 
   .auth__body {
