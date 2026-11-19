@@ -22,6 +22,7 @@ export function AuthDialog() {
   const open = useAuthDialogOpen();
   const { user } = useAuth();
   const [mode, setMode] = useState<Mode>('login');
+  const [emailOpen, setEmailOpen] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [repeat, setRepeat] = useState('');
@@ -51,6 +52,7 @@ export function AuthDialog() {
 
   const changeMode = (next: Mode) => {
     setMode(next);
+    setEmailOpen(true);
     setPassword('');
     setRepeat('');
     setError(null);
@@ -174,10 +176,18 @@ export function AuthDialog() {
               Продолжить с Google
             </button>
 
-            <p className="auth__divider">
-              <span>или по почте</span>
-            </p>
+            {!emailOpen && (
+              <button
+                type="button"
+                className="sm__ghost auth__mail"
+                onClick={() => setEmailOpen(true)}
+                disabled={busy}
+              >
+                Продолжить с почтой
+              </button>
+            )}
 
+            {emailOpen && (
             <form className="auth__form" onSubmit={(event) => void submit(event)}>
               <label className="sm__label" htmlFor="auth-email">
                 Почта
@@ -188,7 +198,7 @@ export function AuthDialog() {
                 type="email"
                 inputMode="email"
                 autoComplete="email"
-                placeholder="name@example.com"
+                placeholder={mode === 'register' ? 'name@example.com' : undefined}
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
               />
@@ -201,7 +211,7 @@ export function AuthDialog() {
                 className="sm__input auth__input"
                 type="password"
                 autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
-                placeholder="Не короче шести знаков"
+                placeholder={mode === 'register' ? 'Не короче шести знаков' : undefined}
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
               />
@@ -216,7 +226,7 @@ export function AuthDialog() {
                     className="sm__input auth__input"
                     type="password"
                     autoComplete="new-password"
-                    placeholder="Повторите пароль"
+                    placeholder={mode === 'register' ? 'Повторите пароль' : undefined}
                     value={repeat}
                     onChange={(event) => setRepeat(event.target.value)}
                   />
@@ -261,8 +271,23 @@ export function AuthDialog() {
                     Уже есть аккаунт — войти
                   </button>
                 )}
+                <button
+                  type="button"
+                  className="auth__link auth__link--quiet"
+                  onClick={() => {
+                    setEmailOpen(false);
+                    setMode('login');
+                    setPassword('');
+                    setRepeat('');
+                    setError(null);
+                    setNotice(null);
+                  }}
+                >
+                  Другой способ входа
+                </button>
               </div>
             </form>
+            )}
           </div>
         )}
       </div>

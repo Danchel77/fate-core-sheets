@@ -124,7 +124,7 @@ export function authErrorMessage(error: unknown): string {
     case 'auth/popup-blocked':
       return 'Браузер закрыл окно входа. Разрешите всплывающие окна для этого сайта.';
     case 'auth/unauthorized-domain':
-      return 'Этот адрес пока не разрешён в настройках входа Firebase.';
+      return 'Этот адрес сайта не разрешён в Firebase. Откройте настройки входа в консоли Firebase и добавьте домен danchel77.github.io в список разрешённых.';
     case 'auth/operation-not-allowed':
       return 'Этот способ входа пока не включён в проекте Firebase.';
     case 'auth/invalid-credential':

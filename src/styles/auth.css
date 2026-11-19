@@ -45,26 +45,29 @@
   cursor: default;
 }
 
-.auth__divider {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin: 4px 0 2px;
+.auth__mail {
+  width: 100%;
+  min-height: var(--touch-target);
+  padding: 0 16px;
+  border: 1px solid color-mix(in srgb, var(--accent-gold-deep) 38%, transparent);
+  background: transparent;
   font-family: var(--font-body);
   font-size: var(--text-caption);
-  color: var(--text-ink-muted);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent-gold-ink);
+  cursor: pointer;
 }
 
-.auth__divider::before,
-.auth__divider::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: color-mix(in srgb, var(--accent-gold) 34%, transparent);
+.auth__mail:hover:not(:disabled) {
+  border-color: var(--accent-gold-deep);
+  background: color-mix(in srgb, var(--accent-gold) 9%, transparent);
 }
 
-.auth__divider span {
-  white-space: nowrap;
+.auth__mail:disabled {
+  opacity: 0.5;
+  cursor: default;
 }
 
 .auth__form {
@@ -136,6 +139,10 @@
 
 .auth__link:hover {
   color: var(--accent-gold-deep);
+}
+
+.auth__link--quiet {
+  color: color-mix(in srgb, var(--text-ink-muted) 80%, transparent);
 }
 
 .auth__signed {
