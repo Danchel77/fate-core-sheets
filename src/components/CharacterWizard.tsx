@@ -15,7 +15,7 @@ import {
   IconArrowRight,
   IconCheck,
   IconClose,
-  IconDice,
+  IconDices,
   IconSparkles,
   IconSwords,
   IconUser,
@@ -564,7 +564,7 @@ export function CharacterWizard({ draft, onChange, onSkip, lockedSetting = false
                         title="Открыть генератор имён"
                         onClick={() => setNameGen(true)}
                       >
-                        <IconDice />
+                        <IconDices />
                       </button>
                     </div>
 

@@ -4,7 +4,7 @@ import { createPortal } from 'react-dom';
 import { settingConfig } from '../data/settings';
 import type { NameGender } from '../data/settings/types';
 import type { SettingId } from '../data/types';
-import { IconDice } from './icons';
+import { IconDices } from './icons';
 import '../styles/stunt-modal.css';
 import '../styles/name-generator.css';
 
@@ -224,13 +224,13 @@ export function NameGenerator({ setting, onPick, onClose }: Props) {
           </div>
 
           <button ref={goRef} type="button" className="ng__go" onClick={generate}>
-            <IconDice />
+            <IconDices />
             Сгенерировать
           </button>
 
-          {history.length > 0 && (
-            <div className="ng__history">
-              <span className="ng__history-label">Предыдущие варианты</span>
+          <div className="ng__history">
+            <span className="ng__history-label">Предыдущие варианты</span>
+            {history.length > 0 ? (
               <div className="ng__history-list">
                 {history.map((item) => (
                   <button
@@ -243,8 +243,10 @@ export function NameGenerator({ setting, onPick, onClose }: Props) {
                   </button>
                 ))}
               </div>
-            </div>
-          )}
+            ) : (
+              <p className="ng__history-empty">Появятся после первой генерации.</p>
+            )}
+          </div>
         </div>
 
         <footer className="sm__footer">

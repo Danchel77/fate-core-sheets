@@ -5,6 +5,18 @@
 
 .ng {
   width: min(520px, 100%);
+  /* Высота постоянная: окно не прыгает, когда под именем появляется история. */
+  height: min(620px, calc(100dvh - 32px));
+}
+
+.ng__body {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Имя занимает свободное место, поэтому история всегда стоит на одном уровне. */
+.ng__result {
+  flex: 1 1 auto;
 }
 
 .ng__lead {
@@ -132,6 +144,14 @@
   gap: 6px;
 }
 
+.ng__history-empty {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: var(--text-caption);
+  font-style: italic;
+  color: color-mix(in srgb, var(--text-ink-muted) 70%, transparent);
+}
+
 .ng__history-chip {
   min-height: 32px;
   padding: 2px 10px;
@@ -150,6 +170,11 @@
 }
 
 @media (max-width: 560px) {
+  /* На телефоне окно выше: десяти вариантам тесно в настольной высоте. */
+  .ng {
+    height: min(720px, calc(100dvh - 32px));
+  }
+
   .ng__chip,
   .ng__go {
     min-height: 44px;

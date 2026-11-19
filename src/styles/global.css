@@ -58,3 +58,28 @@ textarea {
   letter-spacing: inherit;
   opacity: 1;
 }
+
+/* На телефоне ползунки прокрутки не показываем: палец и так ведёт содержимое,
+   а тонкие полоски у края выглядят как деталь настольного окна. */
+@media (max-width: 760px) {
+  html,
+  body,
+  textarea,
+  .sm__body,
+  .wiz__page,
+  .spick__body {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  html::-webkit-scrollbar,
+  body::-webkit-scrollbar,
+  textarea::-webkit-scrollbar,
+  .sm__body::-webkit-scrollbar,
+  .wiz__page::-webkit-scrollbar,
+  .spick__body::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+  }
+}

@@ -230,18 +230,18 @@
   border: 0;
   border-radius: 2px;
   background: transparent;
-  color: var(--accent-gold-ink);
+  color: var(--accent-gold-deep);
   cursor: pointer;
 }
 
 .wiz__dice svg {
-  width: 21px;
-  height: 21px;
+  width: 22px;
+  height: 22px;
 }
 
 .wiz__dice:hover {
   background: color-mix(in srgb, var(--accent-gold) 12%, transparent);
-  color: var(--accent-gold-deep);
+  color: var(--accent-crimson);
 }
 
 .wiz__dice:focus-visible {
@@ -576,7 +576,7 @@
   }
 
   .wiz__segs {
-    justify-content: flex-end;
+    justify-content: center;
   }
 
   .wiz__seg {
