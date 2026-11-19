@@ -248,7 +248,9 @@
     grid-template-columns: 1fr;
   }
 
+  /* На телефоне портрет стоит один в строке — центрируем, иначе справа зияет пустота. */
   .cblock__portrait {
     width: 168px;
+    margin-inline: auto;
   }
 }

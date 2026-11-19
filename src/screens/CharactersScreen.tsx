@@ -274,53 +274,55 @@ export default function CharactersScreen() {
                 />
               </label>
 
-              <div className="sort" ref={sortRef}>
+              <div className="heroes__row">
+                <div className="sort" ref={sortRef}>
+                  <button
+                    className="sort__btn"
+                    type="button"
+                    aria-haspopup="listbox"
+                    aria-expanded={sortOpen}
+                    aria-label="Сортировка"
+                    onClick={() => setSortOpen((open) => !open)}
+                  >
+                    {SORTS.find((mode) => mode.id === sort)?.label}
+                    <IconChevronDown />
+                  </button>
+                  {sortOpen && (
+                    <ul className="sort__menu" role="listbox" aria-label="Сортировка">
+                      {SORTS.map((mode) => (
+                        <li key={mode.id}>
+                          <button
+                            className="sort__opt"
+                            type="button"
+                            role="option"
+                            aria-selected={sort === mode.id}
+                            onClick={() => {
+                              setSort(mode.id);
+                              setSortOpen(false);
+                            }}
+                          >
+                            {mode.label}
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+
                 <button
-                  className="sort__btn"
+                  className="iconbtn"
                   type="button"
-                  aria-haspopup="listbox"
-                  aria-expanded={sortOpen}
-                  aria-label="Сортировка"
-                  onClick={() => setSortOpen((open) => !open)}
+                  aria-label="Загрузить героя из файла"
+                  title="Загрузить героя из файла"
+                  onClick={() => importRef.current?.click()}
                 >
-                  {SORTS.find((mode) => mode.id === sort)?.label}
-                  <IconChevronDown />
+                  <IconUpload />
                 </button>
-                {sortOpen && (
-                  <ul className="sort__menu" role="listbox" aria-label="Сортировка">
-                    {SORTS.map((mode) => (
-                      <li key={mode.id}>
-                        <button
-                          className="sort__opt"
-                          type="button"
-                          role="option"
-                          aria-selected={sort === mode.id}
-                          onClick={() => {
-                            setSort(mode.id);
-                            setSortOpen(false);
-                          }}
-                        >
-                          {mode.label}
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                )}
+
+                <button className="iconbtn" type="button" aria-label="Настройки" title="Настройки">
+                  <IconSettings />
+                </button>
               </div>
-
-              <button
-                className="iconbtn"
-                type="button"
-                aria-label="Загрузить героя из файла"
-                title="Загрузить героя из файла"
-                onClick={() => importRef.current?.click()}
-              >
-                <IconUpload />
-              </button>
-
-              <button className="iconbtn" type="button" aria-label="Настройки" title="Настройки">
-                <IconSettings />
-              </button>
             </div>
           )}
         </header>

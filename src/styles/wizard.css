@@ -543,8 +543,20 @@
     width: 132px;
   }
 
+  /* Портрет здесь один в колонке: центрируем и уменьшаем, чтобы под ним был виден следующий шаг. */
   .wiz__pick {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     padding-bottom: 8px;
+  }
+
+  .wiz__portrait {
+    width: 168px;
+  }
+
+  .wiz__pick-hint {
+    text-align: center;
   }
 
   .wiz__path {
