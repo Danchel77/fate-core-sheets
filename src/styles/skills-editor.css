@@ -577,8 +577,21 @@
 }
 
 .ske__levelbar .ske__lvnum {
-  min-width: 20px;
+  min-width: 0;
   font-size: 20px;
+}
+
+/* Без синей подсветки тапа: стрелки и число — часть текста листа. */
+.ske__levelbar .ske__step,
+.ske__levelbar .ske__lvnum--tap {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  user-select: none;
+}
+
+.ske__levelbar .ske__step:focus:not(:focus-visible),
+.ske__levelbar .ske__lvnum--tap:focus:not(:focus-visible) {
+  outline: none;
 }
 
 .ske__levelbar .ske__lvarrow {
