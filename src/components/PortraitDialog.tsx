@@ -47,8 +47,10 @@ export function PortraitDialog({ src, alt, onClose, onChange }: Props) {
         src={crop}
         onCancel={() => setCrop(null)}
         onDone={(next) => {
+          /* Кадр принят — портрет сразу на месте, окно портрета больше не нужно. */
           onChange(next);
           setCrop(null);
+          onClose();
         }}
       />
     );

@@ -38,6 +38,7 @@ export default function App() {
     <SheetScreen
       key={hero.id}
       character={hero.sheet}
+      setting={hero.setting}
       onPatch={(patch) => void updateCharacter(hero.id, patch)}
     />
   ) : (

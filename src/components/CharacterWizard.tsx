@@ -18,7 +18,13 @@ import {
   IconUser,
   IconZap,
 } from './icons';
-import { FREE_STUNTS, MAX_STUNTS, SKILLS, STARTING_REFRESH } from '../data/characters';
+import {
+  FREE_STUNTS,
+  MAX_STUNTS,
+  SKILLS,
+  STARTING_REFRESH,
+  ladderFromPicks,
+} from '../data/characters';
 import type { SettingId, Stunt } from '../data/types';
 
 const BASE = import.meta.env.BASE_URL;
@@ -37,9 +43,8 @@ type StepNo = 1 | 2 | 3 | 4;
 /** Навык, поставленный на ступень пирамиды. */
 export type SkillPick = { name: string; value: number };
 
-/** Ступени пирамиды и число слотов на каждой. */
-const PYRAMID = [4, 3, 2, 1];
-const capFor = (value: number) => 5 - value;
+/** Сколько карточек помещается на ступени: +4 — одна, +3 — две и так далее. */
+const capFor = (value: number) => Math.max(0, 5 - value);
 
 /* Подписи ступеней словами — прямо на пирамиде, чтобы не объяснять их в тексте. */
 const RANK_WORDS: Record<number, string> = {
@@ -303,6 +308,8 @@ type Props = {
   draft: WizardDraft;
   onChange: (patch: Partial<WizardDraft>) => void;
   onSkip: () => void;
+  /** У готового героя сеттинг не меняется: иначе пришлось бы стирать навыки. */
+  lockedSetting?: boolean;
 };
 
 /**
@@ -310,7 +317,7 @@ type Props = {
  * новичок сразу понимает, куда попадут имя, портрет и аспекты, а опытный
  * игрок пропускает конструктор одной кнопкой.
  */
-export function CharacterWizard({ draft, onChange, onSkip }: Props) {
+export function CharacterWizard({ draft, onChange, onSkip, lockedSetting = false }: Props) {
   const [step, setStep] = useState<StepNo>(1);
   const [hint, setHint] = useState<HintId | null>(null);
   const [cropSrc, setCropSrc] = useState<string | null>(null);
@@ -552,6 +559,8 @@ export function CharacterWizard({ draft, onChange, onSkip }: Props) {
                         type="button"
                         className="wiz__seg"
                         aria-pressed={setting === 'witcher'}
+                        disabled={lockedSetting}
+                        title={lockedSetting ? 'Сеттинг готового героя не меняется' : undefined}
                         onClick={() => setSetting('witcher')}
                       >
                         <Logo kind="witcher" />
@@ -562,6 +571,8 @@ export function CharacterWizard({ draft, onChange, onSkip }: Props) {
                         className="wiz__seg"
                         aria-pressed={setting === 'fate'}
                         aria-label="Fate"
+                        disabled={lockedSetting}
+                        title={lockedSetting ? 'Сеттинг готового героя не меняется' : undefined}
                         onClick={() => setSetting('fate')}
                       >
                         <Logo kind="fate" />
@@ -722,11 +733,9 @@ export function CharacterWizard({ draft, onChange, onSkip }: Props) {
                   <div className="wiz__col">
                     <SkillPyramid
                       big
-                      rows={PYRAMID.map((value) => ({
-                        value,
-                        skills: skills
-                          .filter((pick) => pick.value === value)
-                          .map((pick) => pick.name),
+                      rows={ladderFromPicks(skills).map((row) => ({
+                        value: row.value,
+                        skills: row.skills,
                       }))}
                       cap={capFor}
                       rankWords={RANK_WORDS}

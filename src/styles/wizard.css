@@ -262,6 +262,19 @@
   outline-offset: 2px;
 }
 
+/* У готового героя сеттинг заперт: сегмент виден, но не откликается на наведение. */
+.wiz__seg:disabled {
+  cursor: default;
+}
+
+.wiz__seg:disabled:hover {
+  border-color: color-mix(in srgb, var(--accent-gold-deep) 30%, transparent);
+}
+
+.wiz__seg:disabled[aria-pressed='true']:hover {
+  border-color: var(--accent-gold-deep);
+}
+
 .wiz__logo {
   display: inline-block;
   background-color: currentColor;
@@ -483,6 +496,19 @@
 .wiz__seg:focus-visible {
   outline: 2px solid var(--accent-gold-ink);
   outline-offset: 2px;
+}
+
+/* У готового героя сеттинг заперт: сегмент виден, но не откликается на наведение. */
+.wiz__seg:disabled {
+  cursor: default;
+}
+
+.wiz__seg:disabled:hover {
+  border-color: color-mix(in srgb, var(--accent-gold-deep) 30%, transparent);
+}
+
+.wiz__seg:disabled[aria-pressed='true']:hover {
+  border-color: var(--accent-gold-deep);
 }
 
 @media (max-width: 760px) {

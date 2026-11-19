@@ -66,10 +66,14 @@ export function effectiveRefresh(character: Character): number {
 
 /** Пирамида из выбранных навыков: строки +4/+3/+2/+1 всегда на месте. */
 export function ladderFromPicks(picks: { name: string; value: number }[]): LadderRow[] {
-  return [4, 3, 2, 1].map((value) => ({
-    value,
-    skills: picks.filter((pick) => pick.value === value).map((pick) => pick.name),
-  }));
+  /* Обычные ступени есть всегда, а поднятые вехами (+5, +6) добавляются сверху. */
+  const values = new Set([4, 3, 2, 1, ...picks.map((pick) => pick.value)]);
+  return [...values]
+    .sort((left, right) => right - left)
+    .map((value) => ({
+      value,
+      skills: picks.filter((pick) => pick.value === value).map((pick) => pick.name),
+    }));
 }
 
 /** Пустой лист нового героя: пирамида без навыков, аспекты и трюки пустые. */

@@ -7,8 +7,10 @@ import { StressBlock } from '../components/StressBlock';
 import { ExtrasBlock } from '../components/ExtrasBlock';
 import { IconArrowLeft } from '../components/icons';
 import { PortraitDialog } from '../components/PortraitDialog';
+import { CharacterWizard, type WizardDraft } from '../components/CharacterWizard';
+import { draftFromCharacter, patchFromDraft } from '../components/wizardDraft';
 import { physicalStress, mentalStress } from '../data/characters';
-import type { Character, CharacterPatch } from '../data/types';
+import type { Character, CharacterPatch, SettingId } from '../data/types';
 import '../styles/sheet.css';
 import '../styles/character-block.css';
 import '../styles/aspect-block.css';
@@ -17,14 +19,17 @@ import '../styles/hint.css';
 
 type Props = {
   character: Character;
+  setting: SettingId;
   /** Правка листа уходит в хранилище сразу, без кнопки «Сохранить». */
   onPatch?: (patch: CharacterPatch) => void;
 };
 
 /** Собранный веб-лист: единственный источник правды. */
-export default function SheetScreen({ character, onPatch }: Props) {
+export default function SheetScreen({ character, setting, onPatch }: Props) {
   const [portrait, setPortrait] = useState(character.portrait);
   const [portraitOpen, setPortraitOpen] = useState(false);
+  const [editor, setEditor] = useState<WizardDraft | null>(null);
+  const [revision, setRevision] = useState(0);
 
   useEffect(() => {
     setPortrait(character.portrait);
@@ -35,6 +40,15 @@ export default function SheetScreen({ character, onPatch }: Props) {
     onPatch?.({ portrait: next });
   };
 
+  const openEditor = () => setEditor(draftFromCharacter(character, setting));
+
+  /* Окно правит имя, аспекты, навыки, трюки и портрет; закрытие сохраняет. */
+  const closeEditor = () => {
+    if (editor) onPatch?.(patchFromDraft(character, editor));
+    setEditor(null);
+    setRevision((value) => value + 1);
+  };
+
   return (
     <div className="table">
       <nav className="sheet-nav">
@@ -42,8 +56,18 @@ export default function SheetScreen({ character, onPatch }: Props) {
           <IconArrowLeft />
           Мои персонажи
         </a>
+        {onPatch && (
+          <div className="sheet-nav__actions">
+            <button type="button" className="sheet-nav__btn" onClick={openEditor}>
+              Конструктор
+            </button>
+            <button type="button" className="sheet-nav__btn">
+              Войти
+            </button>
+          </div>
+        )}
       </nav>
-      <main className="book" aria-label="Лист персонажа">
+      <main className="book" aria-label="Лист персонажа" key={revision}>
         <article className="page page--left">
           <CharacterBlock
             character={character}
@@ -85,6 +109,14 @@ export default function SheetScreen({ character, onPatch }: Props) {
           alt={`Портрет: ${character.name || 'персонаж'}`}
           onClose={() => setPortraitOpen(false)}
           onChange={changePortrait}
+        />
+      )}
+      {editor && (
+        <CharacterWizard
+          draft={editor}
+          onChange={(patch) => setEditor((prev) => (prev ? { ...prev, ...patch } : prev))}
+          onSkip={closeEditor}
+          lockedSetting
         />
       )}
     </div>

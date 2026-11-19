@@ -5,7 +5,7 @@ import type { Character, CharacterRecord, SettingId } from './types';
  * Файл героя. Версия растёт, если состав данных меняется несовместимо:
  * старые файлы при этом продолжают открываться.
  */
-export const FILE_VERSION = 1;
+export const FILE_VERSION = 2;
 
 export type CharacterFile = {
   app: 'fate-core-sheets';
@@ -15,14 +15,14 @@ export type CharacterFile = {
   sheet: Character;
 };
 
-/** Портрет в файл не кладём: он живёт только в браузере (T5). */
+/** Файл несёт героя целиком, вместе с портретом: перенос не требует второй картинки. */
 export function toFile(record: CharacterRecord): CharacterFile {
   return {
     app: 'fate-core-sheets',
     version: FILE_VERSION,
     exportedAt: new Date().toISOString(),
     setting: record.setting,
-    sheet: { ...record.sheet, portrait: '' },
+    sheet: { ...record.sheet },
   };
 }
 
@@ -67,6 +67,15 @@ function asText(value: unknown): string {
   return typeof value === 'string' ? value : '';
 }
 
+/** Портрет приходит картинкой в тексте; совсем огромные файлы не принимаем. */
+const MAX_PORTRAIT = 3_000_000;
+
+function asPortrait(value: unknown): string {
+  if (typeof value !== 'string') return '';
+  if (!value.startsWith('data:image/')) return '';
+  return value.length <= MAX_PORTRAIT ? value : '';
+}
+
 function asPair(value: unknown, fallback: [string, string]): [string, string] {
   if (!Array.isArray(value) || value.length !== 2) return fallback;
   return [asText(value[0]), asText(value[1])];
@@ -98,11 +107,21 @@ export function parseFile(text: string): { setting: SettingId; sheet: Character 
   const stunts = Array.isArray(source.stunts) ? source.stunts : [];
   const consequences = Array.isArray(source.consequences) ? source.consequences : [];
 
+  /* Поднятые вехами ступени (+5, +6) тоже сохраняются: без них импорт терял навыки. */
+  const rows = [...base.ladder];
+  for (const item of ladder) {
+    const value = Number(item?.value);
+    if (!Number.isInteger(value) || value < 5 || value > 6) continue;
+    if (rows.some((row) => row.value === value)) continue;
+    rows.push({ value, skills: [] });
+  }
+  rows.sort((left, right) => right.value - left.value);
+
   const sheet: Character = {
     ...base,
     name: asText(source.name).slice(0, 60),
     description: asText(source.description),
-    portrait: '',
+    portrait: asPortrait(source.portrait),
     level: asInt(source.level, base.level, 1, 99),
     refresh: asInt(source.refresh, base.refresh, 1, 99),
     fatePoints: asInt(source.fatePoints, base.fatePoints, 0, 9),
@@ -110,7 +129,7 @@ export function parseFile(text: string): { setting: SettingId; sheet: Character 
       label: asText(aspects[index]?.label) || aspect.label,
       text: asText(aspects[index]?.text).slice(0, 240),
     })),
-    ladder: base.ladder.map((row) => {
+    ladder: rows.map((row) => {
       const saved = ladder.find((item) => Number(item?.value) === row.value);
       const skills = Array.isArray(saved?.skills)
         ? saved.skills.filter((skill): skill is string => typeof skill === 'string' && skill.trim() !== '')

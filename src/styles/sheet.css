@@ -111,12 +111,16 @@
   .page {
     padding: 16px;
   }
+
 }
 
 /* Возврат к списку: узкая строка над книгой, сам разворот не двигается. */
 .sheet-nav {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
+  justify-content: space-between;
+  gap: 16px;
   width: min(1560px, 100%);
   min-height: 40px;
   margin-bottom: 10px;
@@ -144,4 +148,44 @@
 .sheet-nav a:hover,
 .sheet-nav a:focus-visible {
   color: var(--arrow-gold-hi);
+}
+
+/* Действия справа: конструктор и вход (вход пока заглушка, как в списке). */
+.sheet-nav__actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: auto;
+}
+
+.sheet-nav__btn {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid color-mix(in srgb, var(--accent-gold) 52%, transparent);
+  background: transparent;
+  font-family: var(--font-body);
+  font-size: var(--text-caption);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--table-ink);
+  cursor: pointer;
+  transition:
+    border-color var(--transition-fast),
+    background-color var(--transition-fast);
+}
+
+.sheet-nav__btn:hover,
+.sheet-nav__btn:focus-visible {
+  border-color: var(--accent-gold);
+  background: color-mix(in srgb, var(--accent-gold) 14%, transparent);
+}
+
+/* На телефоне кнопки шапки листа — под палец. */
+@media (max-width: 480px) {
+  .sheet-nav__btn {
+    min-height: 44px;
+    padding: 0 12px;
+  }
 }
