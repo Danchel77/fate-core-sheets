@@ -397,7 +397,7 @@
   align-self: center;
   width: 84px;
   height: 84px;
-  border: 2px solid color-mix(in srgb, var(--accent-gold-deep) 55%, transparent);
+  border: 1.5px solid color-mix(in srgb, var(--accent-gold-deep) 55%, transparent);
   background: color-mix(in srgb, var(--tint-gold-sand) 18%, var(--bg-parchment));
   overflow: hidden;
 }
