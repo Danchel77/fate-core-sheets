@@ -738,3 +738,35 @@
 .hero-card .bmenu__trigger::after {
   inset: -20px -11px;
 }
+
+/* Подсказка про вход на пустом списке. */
+.heroes__empty-login {
+  margin: 16px 0 0;
+  font-family: var(--font-body);
+  font-size: var(--text-caption);
+  line-height: 1.45;
+  color: var(--text-ink-muted);
+}
+
+.heroes__empty-link {
+  min-height: 40px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-weight: 700;
+  color: var(--accent-gold-ink);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+.heroes__empty-link:hover {
+  color: var(--accent-gold-deep);
+}
+
+@media (max-width: 760px) {
+  .heroes__empty-link {
+    min-height: 44px;
+  }
+}

@@ -1,0 +1,306 @@
+/* Вход в аккаунт и кнопка-аватар. */
+
+.auth .auth__panel {
+  width: min(440px, 100%);
+}
+
+.auth__body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 18px 22px 8px;
+}
+
+.auth__lead {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: var(--text-caption);
+  line-height: 1.45;
+  color: var(--text-ink-muted);
+}
+
+.auth__google {
+  width: 100%;
+  min-height: var(--touch-target);
+  padding: 0 16px;
+  border: 1px solid color-mix(in srgb, var(--accent-gold-deep) 55%, transparent);
+  background: color-mix(in srgb, var(--paper-highlight) 40%, transparent);
+  color: var(--accent-gold-ink);
+  font-family: var(--font-body);
+  font-size: var(--text-caption);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background var(--transition-fast), border-color var(--transition-fast);
+}
+
+.auth__google:hover:not(:disabled) {
+  border-color: var(--accent-gold-deep);
+  background: color-mix(in srgb, var(--accent-gold) 10%, transparent);
+}
+
+.auth__google:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.auth__divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 4px 0 2px;
+  font-family: var(--font-body);
+  font-size: var(--text-caption);
+  color: var(--text-ink-muted);
+}
+
+.auth__divider::before,
+.auth__divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: color-mix(in srgb, var(--accent-gold) 34%, transparent);
+}
+
+.auth__divider span {
+  white-space: nowrap;
+}
+
+.auth__form {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.auth__input {
+  width: 100%;
+  min-height: 40px;
+  padding: 8px 10px;
+  border: 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--accent-gold) 42%, transparent);
+  background: transparent;
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  color: var(--text-ink-primary);
+}
+
+.auth__input:focus {
+  outline: none;
+  border-bottom-color: var(--accent-gold-deep);
+  background: color-mix(in srgb, var(--accent-gold) 7%, transparent);
+}
+
+.auth__error {
+  margin: 4px 0 0;
+  font-family: var(--font-body);
+  font-size: var(--text-caption);
+  line-height: 1.4;
+  color: var(--accent-crimson-ink);
+}
+
+.auth__notice {
+  margin: 4px 0 0;
+  font-family: var(--font-body);
+  font-size: var(--text-caption);
+  line-height: 1.4;
+  color: var(--accent-gold-ink);
+}
+
+.auth__submit {
+  width: 100%;
+  min-height: var(--touch-target);
+  margin-top: 8px;
+}
+
+.auth__links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.auth__link {
+  min-height: 40px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-family: var(--font-body);
+  font-size: var(--text-caption);
+  color: var(--accent-gold-ink);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+.auth__link:hover {
+  color: var(--accent-gold-deep);
+}
+
+.auth__signed {
+  margin: 0 0 8px;
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  color: var(--text-ink-primary);
+}
+
+.auth__signed b {
+  font-weight: 700;
+}
+
+.auth__wide {
+  width: 100%;
+  min-height: var(--touch-target);
+}
+
+/* Аватар с меню аккаунта. */
+
+.acct {
+  position: relative;
+  display: inline-flex;
+}
+
+.acct__trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 1px solid color-mix(in srgb, var(--accent-gold) 55%, transparent);
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--paper-highlight) 40%, transparent);
+  overflow: hidden;
+  cursor: pointer;
+  transition: border-color var(--transition-fast);
+}
+
+.acct__trigger:hover {
+  border-color: var(--accent-gold-deep);
+}
+
+.acct__trigger--sheet {
+  width: 34px;
+  height: 34px;
+}
+
+.acct__photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.acct__initial {
+  font-family: var(--font-name-sc);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--accent-gold-ink);
+}
+
+.acct__menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 120;
+  min-width: 200px;
+  padding: 10px 12px;
+  border: 1px solid color-mix(in srgb, var(--accent-gold) 52%, transparent);
+  background: var(--bg-parchment);
+  box-shadow: 0 10px 26px var(--shadow-warm);
+}
+
+.acct__email {
+  margin: 0 0 8px;
+  font-family: var(--font-body);
+  font-size: var(--text-caption);
+  line-height: 1.35;
+  color: var(--text-ink-muted);
+  word-break: break-all;
+}
+
+.acct__item {
+  width: 100%;
+  min-height: 36px;
+  padding: 0;
+  border: 0;
+  background: none;
+  text-align: left;
+  font-family: var(--font-body);
+  font-size: var(--text-caption);
+  font-weight: 700;
+  color: var(--accent-crimson-ink);
+  cursor: pointer;
+}
+
+.acct__item:hover {
+  color: var(--accent-crimson-action);
+}
+
+@media (max-width: 760px) {
+  .auth__body {
+    padding: 16px 18px 6px;
+  }
+
+  .auth__links {
+    flex-direction: column;
+  }
+
+  .auth__link {
+    min-height: 44px;
+  }
+
+  .acct__trigger {
+    width: 44px;
+    height: 44px;
+  }
+
+  .acct__item {
+    min-height: 44px;
+  }
+}
+
+/* крестик окна: базовые стили общие, портретные окна уточняют под себя */
+
+.auth .sm__close {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--accent-gold-ink);
+  cursor: pointer;
+}
+
+.auth .sm__head {
+  position: relative;
+}
+
+.auth .sm__close svg {
+  width: 16px;
+  height: 16px;
+}
+
+.auth .sm__close:hover {
+  color: var(--accent-gold-deep);
+}
+
+.auth .sm__close:focus-visible {
+  outline: 2px solid var(--accent-gold-ink);
+  outline-offset: 2px;
+}
+
+@media (max-width: 560px) {
+  .auth .sm__close {
+    width: 44px;
+    height: 44px;
+    top: 2px;
+    right: 2px;
+  }
+}

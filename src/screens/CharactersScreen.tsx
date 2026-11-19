@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { AccountButton } from '../components/AccountButton';
 import { BlockMenu } from '../components/BlockMenu';
 import { ConfirmDialog } from '../components/ConfirmDialog';
 import { SettingMark } from '../components/SettingMark';
@@ -14,6 +15,7 @@ import {
 } from '../components/icons';
 import { downloadFile, fileText, jsonFileName, parseFile } from '../data/exchange';
 import { createCharacter, deleteCharacter, useCharacters } from '../data/store';
+import { openAuthDialog, useAuth } from '../firebase/authStore';
 import type { CharacterRecord, SettingId } from '../data/types';
 import { buildCharacterPdf } from '../pdf/sheetPdf';
 import '../styles/characters.css';
@@ -92,7 +94,8 @@ function HeroPortrait({ hero }: { hero: CharacterRecord }) {
 }
 
 export default function CharactersScreen() {
-  const { records } = useCharacters();
+  const { records, notice } = useCharacters();
+  const { ready: authReady, user } = useAuth();
   const saved = useMemo(readView, []);
   const [filter, setFilter] = useState<Filter>(saved.filter);
   const [sort, setSort] = useState<SortMode>(saved.sort);
@@ -234,9 +237,7 @@ export default function CharactersScreen() {
           </span>
           <span className="heroes__brandname">Fate Core Sheets</span>
         </a>
-        <button className="heroes__login" type="button">
-          Войти
-        </button>
+        <AccountButton />
       </header>
 
       <main className="heroes__page">
@@ -338,6 +339,12 @@ export default function CharactersScreen() {
           </p>
         )}
 
+        {notice && !importError && (
+          <p className="heroes__note" role="status">
+            {notice}
+          </p>
+        )}
+
         {records.length === 0 ? (
           <section className="heroes__empty">
             <h2 className="heroes__empty-title">Пока никого нет</h2>
@@ -356,6 +363,14 @@ export default function CharactersScreen() {
                 Загрузить из файла
               </button>
             </div>
+            {authReady && !user && (
+              <p className="heroes__empty-login">
+                Герои из аккаунта появятся после входа.{' '}
+                <button className="heroes__empty-link" type="button" onClick={openAuthDialog}>
+                  Войти
+                </button>
+              </p>
+            )}
           </section>
         ) : visible.length === 0 ? (
           <section className="heroes__empty">

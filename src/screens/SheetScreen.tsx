@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { AccountButton } from '../components/AccountButton';
 import { AspectBlock } from '../components/AspectBlock';
 import { CharacterBlock } from '../components/CharacterBlock';
 import { SkillsEditor } from '../components/SkillsEditor';
@@ -61,9 +62,7 @@ export default function SheetScreen({ character, setting, onPatch }: Props) {
             <button type="button" className="sheet-nav__btn" onClick={openEditor}>
               Конструктор
             </button>
-            <button type="button" className="sheet-nav__btn">
-              Войти
-            </button>
+            <AccountButton variant="sheet" />
           </div>
         )}
       </nav>

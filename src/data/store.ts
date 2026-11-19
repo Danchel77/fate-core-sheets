@@ -1,15 +1,29 @@
 import { useSyncExternalStore } from 'react';
-import type { Character, CharacterPatch, CharacterRecord, SettingId } from './types';
+import { getUser, initAuth, onAuthChange } from '../firebase/authStore';
+import { deleteCloud, subscribeCloud, writeCloud } from './cloud';
 import { newId, readAll, removeOne, writeOne } from './storage';
+import type { Character, CharacterPatch, CharacterRecord, SettingId } from './types';
 
 /**
- * Список героев в памяти страницы. Экран читает его подпиской,
- * а каждая правка сразу уходит в браузерное хранилище.
+ * Герои на странице. Без входа живут в браузере, со входом — в аккаунте:
+ * облако становится главным, а браузер хранит только героев без входа.
  */
-export type CharactersState = { ready: boolean; records: CharacterRecord[] };
+export type StoreMode = 'local' | 'cloud';
+export type CharactersState = {
+  ready: boolean;
+  mode: StoreMode;
+  uid: string | null;
+  records: CharacterRecord[];
+  notice: string | null;
+};
 
-let state: CharactersState = { ready: false, records: [] };
+let state: CharactersState = { ready: false, mode: 'local', uid: null, records: [], notice: null };
 const listeners = new Set<() => void>();
+let localRecords: CharacterRecord[] = [];
+let localReady: Promise<void> | null = null;
+let cloudUnsub: (() => void) | null = null;
+let pendingUid: string | null = null;
+let initialized = false;
 
 function publish(next: CharactersState) {
   state = next;
@@ -35,17 +49,111 @@ function sortByNewest(records: CharacterRecord[]) {
   return [...records].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 }
 
-let loading: Promise<void> | null = null;
-
-/** Первое чтение из хранилища; повторные вызовы ждут то же самое чтение. */
-export function loadCharacters(): Promise<void> {
-  if (!loading) {
-    loading = readAll().then(
-      (records) => publish({ ready: true, records: sortByNewest(records) }),
-      () => publish({ ready: true, records: [] }),
-    );
+function loadLocal(): Promise<void> {
+  if (!localReady) {
+    localReady = readAll().then((records) => {
+      localRecords = records;
+    });
   }
-  return loading;
+  return localReady;
+}
+
+function publishLocal(notice: string | null = null) {
+  publish({ ready: true, mode: 'local', uid: null, records: sortByNewest(localRecords), notice });
+}
+
+function setNotice(notice: string | null) {
+  if (notice === state.notice) return;
+  publish({ ...state, notice });
+}
+
+/* --- отложенная запись в облако: правка на каждый ввод не должна бить по сети --- */
+
+const pending = new Map<string, { uid: string; record: CharacterRecord; timer: number }>();
+
+function scheduleCloudWrite(uid: string, record: CharacterRecord) {
+  const previous = pending.get(record.id);
+  if (previous) window.clearTimeout(previous.timer);
+  const timer = window.setTimeout(() => {
+    pending.delete(record.id);
+    void writeCloud(uid, record).catch(() => setNotice('Не удалось сохранить в облако. Попробуем ещё раз.'));
+  }, 700);
+  pending.set(record.id, { uid, record, timer });
+}
+
+function flushPending() {
+  pending.forEach(({ uid, record, timer }) => {
+    window.clearTimeout(timer);
+    void writeCloud(uid, record).catch(() => undefined);
+  });
+  pending.clear();
+}
+
+/* --- вход и выход --- */
+
+async function transferLocalHeroes(uid: string) {
+  await loadLocal();
+  if (!localRecords.length) return;
+  const failed: CharacterRecord[] = [];
+  for (const record of localRecords) {
+    try {
+      await writeCloud(uid, record);
+      await removeOne(record.id);
+    } catch {
+      failed.push(record);
+    }
+  }
+  localRecords = failed;
+  if (failed.length) {
+    setNotice('Часть героев не удалось перенести в аккаунт — они остались в этом браузере.');
+  }
+}
+
+async function switchUser(user: { uid: string } | null) {
+  if (cloudUnsub) {
+    cloudUnsub();
+    cloudUnsub = null;
+  }
+  flushPending();
+
+  if (!user) {
+    await loadLocal();
+    pendingUid = null;
+    publishLocal();
+    return;
+  }
+
+  const uid = user.uid;
+  pendingUid = uid;
+  publish({ ready: true, mode: 'cloud', uid, records: [], notice: null });
+  await loadLocal();
+  await transferLocalHeroes(uid);
+  if (pendingUid !== uid) return;
+  cloudUnsub = subscribeCloud(
+    uid,
+    (records) => {
+      if (pendingUid !== uid) return;
+      publish({ ready: true, mode: 'cloud', uid, records: sortByNewest(records), notice: null });
+    },
+    () => {
+      if (pendingUid !== uid) return;
+      setNotice('Облако пока не принимает героев: проверьте правила доступа в Firebase.');
+    },
+  );
+}
+
+/** Однократная подготовка: браузер, вход, облако. */
+export function initStore(): void {
+  if (initialized) return;
+  initialized = true;
+  initAuth();
+  onAuthChange((user) => {
+    void switchUser(user);
+  });
+  void loadLocal().then(() => {
+    if (!getUser() && state.mode === 'local' && !state.ready) publishLocal();
+  });
+  window.addEventListener('pagehide', flushPending);
 }
 
 export function findCharacter(id: string): CharacterRecord | undefined {
@@ -58,12 +166,25 @@ export async function createCharacter(
 ): Promise<CharacterRecord> {
   const now = new Date().toISOString();
   const record: CharacterRecord = { id: newId(), setting, createdAt: now, updatedAt: now, sheet };
-  publish({ ready: true, records: sortByNewest([record, ...state.records]) });
+
+  if (state.mode === 'cloud' && state.uid) {
+    const uid = state.uid;
+    publish({ ...state, records: sortByNewest([record, ...state.records]) });
+    try {
+      await writeCloud(uid, record);
+    } catch {
+      setNotice('Не удалось сохранить героя в облако. Проверьте связь.');
+    }
+    return record;
+  }
+
+  localRecords = [record, ...localRecords];
+  publishLocal();
   await writeOne(record);
   return record;
 }
 
-/** Правка листа: сразу в памяти и сразу в хранилище. */
+/** Правка листа: сразу на экране, затем в браузере или в облаке. */
 export async function updateCharacter(id: string, patch: CharacterPatch): Promise<void> {
   const current = state.records.find((record) => record.id === id);
   if (!current) return;
@@ -73,13 +194,36 @@ export async function updateCharacter(id: string, patch: CharacterPatch): Promis
     sheet: { ...current.sheet, ...patch },
   };
   publish({
-    ready: true,
+    ...state,
     records: state.records.map((item) => (item.id === id ? record : item)),
   });
+
+  if (state.mode === 'cloud' && state.uid) {
+    scheduleCloudWrite(state.uid, record);
+    return;
+  }
+
+  localRecords = localRecords.map((item) => (item.id === id ? record : item));
   await writeOne(record);
 }
 
 export async function deleteCharacter(id: string): Promise<void> {
-  publish({ ready: true, records: state.records.filter((record) => record.id !== id) });
+  const pendingWrite = pending.get(id);
+  if (pendingWrite) {
+    window.clearTimeout(pendingWrite.timer);
+    pending.delete(id);
+  }
+  publish({ ...state, records: state.records.filter((record) => record.id !== id) });
+
+  if (state.mode === 'cloud' && state.uid) {
+    try {
+      await deleteCloud(state.uid, id);
+    } catch {
+      setNotice('Не удалось удалить героя из облака. Проверьте связь.');
+    }
+    return;
+  }
+
+  localRecords = localRecords.filter((record) => record.id !== id);
   await removeOne(id);
 }
