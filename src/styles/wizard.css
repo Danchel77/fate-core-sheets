@@ -512,6 +512,17 @@
   z-index: 4;
 }
 
+/* На большом портрете знак крупнее, иначе теряется на фото. */
+.wiz__portrait .setting-mark--witcher {
+  width: 42px;
+  height: 42px;
+}
+
+.wiz__portrait .setting-mark--fate {
+  width: 62px;
+  height: 26px;
+}
+
 .wiz__portrait:hover .plate {
   border-color: var(--accent-gold-deep);
   box-shadow:

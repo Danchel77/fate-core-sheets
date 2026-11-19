@@ -194,6 +194,7 @@
 
 .fp__row {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
   margin-top: 9px;
 }
@@ -212,14 +213,6 @@
     background 0.12s ease;
 }
 
-.fp__coin::after {
-  content: '';
-  position: absolute;
-  inset: 5px;
-  border: 1px dashed color-mix(in srgb, var(--accent-gold) 52%, transparent);
-  border-radius: 50%;
-}
-
 .fp__coin:hover {
   transform: translateY(-1px);
 }
@@ -229,7 +222,13 @@
   outline-offset: 3px;
 }
 
+.fp__coin--extra {
+  border-style: dashed;
+  border-color: color-mix(in srgb, var(--accent-gold) 62%, transparent);
+}
+
 .fp__coin.is-filled {
+  border-style: solid;
   border-color: var(--coin-edge);
   background: radial-gradient(circle at 35% 28%, var(--coin-highlight), var(--accent-gold-deep) 68%, var(--coin-edge) 100%);
   box-shadow:
@@ -237,15 +236,18 @@
     0 1px 2px var(--shadow-black-soft);
 }
 
-.fp__coin.is-filled::after {
-  border: 1px solid var(--highlight-warm-soft);
-}
-
 /* ---------- узкие экраны ---------- */
 
 @media (max-width: 720px) {
   .cblock__body {
     grid-template-columns: 1fr;
+  }
+
+  /* Десять жетонов в строку не влезают — две строки по пять. */
+  .fp__row {
+    display: grid;
+    grid-template-columns: repeat(5, 26px);
+    row-gap: 8px;
   }
 
   /* На телефоне портрет стоит один в строке — центрируем, иначе справа зияет пустота. */

@@ -17,7 +17,7 @@ type Props = {
  * Жетоны судьбы: кликабельные кружки + значение обновления.
  * Повторный клик по последнему заполненному снимает один жетон.
  */
-export function FatePoints({ initial, refresh, max = 5, onChange }: Props) {
+export function FatePoints({ initial, refresh, max = 10, onChange }: Props) {
   const [value, setValue] = useState(initial);
 
   useEffect(() => {
@@ -48,11 +48,14 @@ export function FatePoints({ initial, refresh, max = 5, onChange }: Props) {
       <div className="fp__row" role="group" aria-label="Текущие жетоны судьбы">
         {Array.from({ length: max }, (_, i) => {
           const filled = i < value;
+          const className = ['fp__coin', i >= refresh ? 'fp__coin--extra' : '', filled ? 'is-filled' : '']
+            .filter(Boolean)
+            .join(' ');
           return (
             <button
               key={i}
               type="button"
-              className={filled ? 'fp__coin is-filled' : 'fp__coin'}
+              className={className}
               aria-pressed={filled}
               aria-label={`Жетон ${i + 1}`}
               onClick={() => pick(i)}
