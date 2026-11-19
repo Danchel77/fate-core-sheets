@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { createPortal } from 'react-dom';
 import {
   authErrorMessage,
@@ -11,9 +11,9 @@ import {
   useAuthDialogOpen,
   useAuth,
 } from '../firebase/authStore';
+import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
+import { useDialogKeys } from '../hooks/useDialogKeys';
 import { IconClose } from './icons';
-import '../styles/stunt-modal.css';
-import '../styles/auth.css';
 
 type Mode = 'login' | 'register';
 
@@ -30,19 +30,9 @@ export function AuthDialog() {
   const [notice, setNotice] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
-  useEffect(() => {
-    if (!open) return;
-    const previous = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') closeAuthDialog();
-    };
-    document.addEventListener('keydown', onKeyDown);
-    return () => {
-      document.removeEventListener('keydown', onKeyDown);
-      document.body.style.overflow = previous;
-    };
-  }, [open]);
+  const panelRef = useRef<HTMLDivElement>(null);
+  useBodyScrollLock(open);
+  useDialogKeys({ panel: panelRef, onClose: closeAuthDialog, enabled: open });
 
   useEffect(() => {
     if (open && user) closeAuthDialog();
@@ -127,6 +117,7 @@ export function AuthDialog() {
       }}
     >
       <div
+        ref={panelRef}
         className="sm__panel auth__panel"
         role="dialog"
         aria-modal="true"

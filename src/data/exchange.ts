@@ -1,3 +1,4 @@
+import { downloadBlob } from './download';
 import { createEmptyCharacter } from './characters';
 import type { Character, CharacterRecord, SettingId } from './types';
 
@@ -16,7 +17,7 @@ export type CharacterFile = {
 };
 
 /** Файл несёт героя целиком, вместе с портретом: перенос не требует второй картинки. */
-export function toFile(record: CharacterRecord): CharacterFile {
+function toFile(record: CharacterRecord): CharacterFile {
   return {
     app: 'fate-core-sheets',
     version: FILE_VERSION,
@@ -43,15 +44,7 @@ export function jsonFileName(record: CharacterRecord): string {
 }
 
 export function downloadFile(text: string, fileName: string, type = 'application/json'): void {
-  const blob = new Blob([text], { type });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = fileName;
-  document.body.append(link);
-  link.click();
-  link.remove();
-  window.setTimeout(() => URL.revokeObjectURL(url), 2000);
+  downloadBlob(new Blob([text], { type }), fileName);
 }
 
 function asSetting(value: unknown): SettingId | null {

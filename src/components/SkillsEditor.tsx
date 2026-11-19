@@ -7,7 +7,6 @@ import { SkillPicker } from './SkillPicker';
 import { SkillPyramid, type PyramidRow } from './SkillPyramid';
 import { SKILLS } from '../data/characters';
 import type { SettingId } from '../data/types';
-import '../styles/skills-editor.css';
 
 export type InitRow = { value: number; skills: string[] };
 

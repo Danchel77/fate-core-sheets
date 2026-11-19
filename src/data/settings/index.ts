@@ -18,15 +18,4 @@ export const SETTINGS: Record<SettingId, SettingConfig> = {
 export function settingConfig(id: SettingId): SettingConfig {
   return SETTINGS[id];
 }
-
-/** Группы имён, в которых есть хотя бы одно имя для выбранного пола. */
-export function nameGroupsFor(
-  id: SettingId,
-  gender: 'male' | 'female' | 'any',
-): NameGroup[] {
-  const groups = settingConfig(id).nameGroups;
-  if (gender === 'any') return groups;
-  return groups.filter((group) => group.genders.includes(gender));
-}
-
 export type { NameGroup, SettingConfig };

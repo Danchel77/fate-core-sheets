@@ -1,8 +1,8 @@
 import { useEffect, useRef } from 'react';
 import { SKILL_HINTS } from '../data/skills';
 import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
+import { useDialogKeys } from '../hooks/useDialogKeys';
 import { IconClose } from './icons';
-import '../styles/skill-picker.css';
 
 type Props = {
   rank: number;
@@ -16,17 +16,9 @@ type Props = {
 /** Окно выбора навыка: одно и то же в конструкторе и на листе персонажа. */
 export function SkillPicker({ rank, skills, note, onPick, onClose }: Props) {
   const closeRef = useRef<HTMLButtonElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
   useBodyScrollLock();
-
-  useEffect(() => {
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key !== 'Escape') return;
-      event.stopPropagation();
-      onClose();
-    };
-    window.addEventListener('keydown', onKey, true);
-    return () => window.removeEventListener('keydown', onKey, true);
-  }, [onClose]);
+  useDialogKeys({ panel: panelRef, onClose, capture: true });
 
   useEffect(() => {
     closeRef.current?.focus({ preventScroll: true });
@@ -39,7 +31,7 @@ export function SkillPicker({ rank, skills, note, onPick, onClose }: Props) {
         if (event.target === event.currentTarget) onClose();
       }}
     >
-      <div className="spick" role="dialog" aria-modal="true" aria-labelledby="spick-title">
+      <div ref={panelRef} className="spick" role="dialog" aria-modal="true" aria-labelledby="spick-title">
         <div className="spick__head">
           <span className="spick__title" id="spick-title">
             Навык на +{rank}

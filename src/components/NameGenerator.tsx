@@ -1,18 +1,16 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import type { KeyboardEvent as ReactKeyboardEvent, MouseEvent as ReactMouseEvent } from 'react';
+import type { MouseEvent as ReactMouseEvent } from 'react';
 import { createPortal } from 'react-dom';
 import { settingConfig } from '../data/settings';
 import type { NameGender } from '../data/settings/types';
 import type { SettingId } from '../data/types';
+import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
+import { useDialogKeys } from '../hooks/useDialogKeys';
 import { IconDices } from './icons';
-import '../styles/stunt-modal.css';
-import '../styles/name-generator.css';
 
 /** Сколько предыдущих имён помнить: игрок часто перегенерирует и хочет вернуться. */
 const HISTORY_LIMIT = 10;
 
-const FOCUSABLE =
-  'button:not([disabled]), input:not([disabled]), textarea:not([disabled]), select:not([disabled]), summary, [href], [tabindex]:not([tabindex="-1"])';
 
 type GenderChoice = 'any' | NameGender;
 
@@ -100,48 +98,12 @@ export function NameGenerator({ setting, onPick, onClose }: Props) {
   /* Выбранный народ мог исчезнуть после смены пола — тогда «Любой». */
   const activeGroup = groups.some((group) => group.id === groupId) ? groupId : 'any';
 
-  /* Пока окно открыто, страница под ним не прокручивается. */
-  useEffect(() => {
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    return () => {
-      document.body.style.overflow = prev;
-    };
-  }, []);
+  useBodyScrollLock();
+  useDialogKeys({ panel: panelRef, onClose, capture: true, trap: true });
 
   useEffect(() => {
     goRef.current?.focus();
   }, []);
-
-  /* Esc закрывает генератор, но не конструктор под ним: ловим в capture. */
-  useEffect(() => {
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key !== 'Escape') return;
-      event.stopPropagation();
-      onClose();
-    };
-    document.addEventListener('keydown', onKey, true);
-    return () => document.removeEventListener('keydown', onKey, true);
-  }, [onClose]);
-
-  const trapTab = (event: ReactKeyboardEvent<HTMLDivElement>) => {
-    if (event.key !== 'Tab') return;
-    const panel = panelRef.current;
-    if (!panel) return;
-    const nodes = Array.from(panel.querySelectorAll<HTMLElement>(FOCUSABLE)).filter(
-      (node) => node.offsetParent !== null,
-    );
-    if (nodes.length === 0) return;
-    const first = nodes[0];
-    const last = nodes[nodes.length - 1];
-    if (event.shiftKey && document.activeElement === first) {
-      event.preventDefault();
-      last.focus();
-    } else if (!event.shiftKey && document.activeElement === last) {
-      event.preventDefault();
-      first.focus();
-    }
-  };
 
   const generate = () => {
     const previous = current;
@@ -165,7 +127,6 @@ export function NameGenerator({ setting, onPick, onClose }: Props) {
         aria-modal="true"
         aria-labelledby="ng-title"
         ref={panelRef}
-        onKeyDown={trapTab}
       >
         <header className="sm__head">
           <span className="sm__texture" aria-hidden="true" />

@@ -14,6 +14,23 @@ import '@fontsource/cormorant-sc/latin-700.css';
 import '@fontsource/prata/cyrillic-400.css';
 import '@fontsource/prata/latin-400.css';
 import './styles/global.css';
+import './styles/characters.css';
+import './styles/sheet.css';
+import './styles/character-block.css';
+import './styles/portrait-plate.css';
+import './styles/aspect-block.css';
+import './styles/stress-block.css';
+import './styles/extras-block.css';
+import './styles/skills-editor.css';
+import './styles/stunt-block.css';
+import './styles/block-menu.css';
+import './styles/hint.css';
+import './styles/stunt-modal.css';
+import './styles/skill-picker.css';
+import './styles/portrait-dialog.css';
+import './styles/wizard.css';
+import './styles/auth.css';
+import './styles/name-generator.css';
 
 const rootElement = document.getElementById('root');
 

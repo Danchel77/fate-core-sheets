@@ -1,5 +1,4 @@
 import { type ReactNode, useId, useLayoutEffect, useRef } from 'react';
-import '../styles/skills-editor.css';
 
 export type PyramidRow = { value: number; skills: string[] };
 

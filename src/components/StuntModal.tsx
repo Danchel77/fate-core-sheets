@@ -2,7 +2,8 @@ import { useEffect, useId, useRef, useState } from 'react';
 import type { FormEvent, MouseEvent as ReactMouseEvent } from 'react';
 import { createPortal } from 'react-dom';
 import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
-import '../styles/stunt-modal.css';
+import { useDialogKeys } from '../hooks/useDialogKeys';
+import { refreshWithStunts } from '../data/characters';
 
 const PAPER = `${import.meta.env.BASE_URL}assets/textures/parchment-soft.jpg`;
 
@@ -18,8 +19,6 @@ type Props = {
   onClose: () => void;
 };
 
-const FOCUSABLE =
-  'button:not([disabled]), input:not([disabled]), textarea:not([disabled]), summary, [href], [tabindex]:not([tabindex="-1"])';
 
 /** Предупреждение о цене четвёртого и пятого трюка. */
 function buildWarning(
@@ -29,8 +28,8 @@ function buildWarning(
 ): string | null {
   if (mode !== 'new' || countAfter <= 3) return null;
 
-  const refreshBefore = Math.max(1, baseRefresh - Math.max(0, countAfter - 1 - 3));
-  const refreshAfter = Math.max(1, baseRefresh - Math.max(0, countAfter - 3));
+  const refreshBefore = refreshWithStunts(baseRefresh, countAfter - 1);
+  const refreshAfter = refreshWithStunts(baseRefresh, countAfter);
   if (refreshAfter >= refreshBefore) return null;
 
   const ordinal = countAfter === 4 ? 'четвёртый' : 'пятый';
@@ -136,57 +135,17 @@ export function StuntModal({
   const nameId = `stunt-modal-name-${id}`;
   const textId = `stunt-modal-text-${id}`;
 
+  const previousFocus = useRef<HTMLElement | null>(null);
+  useDialogKeys({ panel: panelRef, onClose, trap: true });
+
   useEffect(() => {
-    const panel = panelRef.current;
-    if (!panel) return;
-
-    const previous = document.activeElement as HTMLElement | null;
-    const scrollbar = window.innerWidth - document.documentElement.clientWidth;
-    const prevOverflow = document.body.style.overflow;
-    const prevPadding = document.body.style.paddingRight;
-
-    document.body.style.overflow = 'hidden';
-    if (scrollbar > 0) document.body.style.paddingRight = `${scrollbar}px`;
-
-    const firstInput = panel.querySelector<HTMLInputElement>('input');
-    firstInput?.focus();
-
-    const focusables = () =>
-      Array.from(panel.querySelectorAll<HTMLElement>(FOCUSABLE)).filter(
-        (element) => element.offsetParent !== null,
-      );
-
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        event.preventDefault();
-        onClose();
-        return;
-      }
-      if (event.key !== 'Tab') return;
-
-      const list = focusables();
-      if (list.length === 0) return;
-      const first = list[0];
-      const last = list[list.length - 1];
-
-      if (event.shiftKey && document.activeElement === first) {
-        event.preventDefault();
-        last.focus();
-      } else if (!event.shiftKey && document.activeElement === last) {
-        event.preventDefault();
-        first.focus();
-      }
-    };
-
-    document.addEventListener('keydown', onKeyDown);
-
+    previousFocus.current = document.activeElement as HTMLElement | null;
+    panelRef.current?.querySelector<HTMLInputElement>('input')?.focus();
     return () => {
-      document.removeEventListener('keydown', onKeyDown);
-      document.body.style.overflow = prevOverflow;
-      document.body.style.paddingRight = prevPadding;
+      const previous = previousFocus.current;
       if (previous && document.contains(previous)) previous.focus();
     };
-  }, [onClose]);
+  }, []);
 
   /* Описание ровно в две строки, а дальше растёт под текст. */
   useEffect(() => {

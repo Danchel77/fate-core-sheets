@@ -8,7 +8,7 @@ import type { Character, CharacterPatch, CharacterRecord, SettingId } from './ty
  * Герои на странице. Без входа живут в браузере, со входом — в аккаунте:
  * облако становится главным, а браузер хранит только героев без входа.
  */
-export type StoreMode = 'local' | 'cloud';
+type StoreMode = 'local' | 'cloud';
 export type CharactersState = {
   ready: boolean;
   mode: StoreMode;

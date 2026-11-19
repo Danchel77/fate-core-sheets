@@ -13,11 +13,11 @@ import {
   IconUpload,
 } from '../components/icons';
 import { downloadFile, fileText, jsonFileName, parseFile } from '../data/exchange';
+import { downloadBlob } from '../data/download';
 import { createCharacter, deleteCharacter, useCharacters } from '../data/store';
 import { openAuthDialog, useAuth } from '../firebase/authStore';
 import type { CharacterRecord, SettingId } from '../data/types';
 import { buildCharacterPdf } from '../pdf/sheetPdf';
-import '../styles/characters.css';
 
 type Filter = 'all' | SettingId;
 type SortMode = 'date' | 'name';
@@ -154,15 +154,7 @@ export default function CharactersScreen() {
     setPdfBusy(hero.id);
     try {
       const bytes = await buildCharacterPdf(hero.sheet);
-      const blob = new Blob([bytes], { type: 'application/pdf' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = pdfFileName(hero);
-      document.body.append(link);
-      link.click();
-      link.remove();
-      window.setTimeout(() => URL.revokeObjectURL(url), 2000);
+      downloadBlob(new Blob([bytes], { type: 'application/pdf' }), pdfFileName(hero));
     } catch (error) {
       console.error('Не удалось собрать PDF', error);
       window.alert('Не удалось собрать PDF. Попробуйте ещё раз.');

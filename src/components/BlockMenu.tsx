@@ -1,8 +1,7 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import type { KeyboardEvent as ReactKeyboardEvent, ReactNode } from 'react';
-import '../styles/block-menu.css';
 
-export type BlockMenuItem = {
+type BlockMenuItem = {
   label: string;
   icon?: ReactNode;
   onSelect: () => void;

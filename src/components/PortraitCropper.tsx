@@ -6,8 +6,6 @@ import {
   type PointerEvent as ReactPointerEvent,
 } from 'react';
 import { IconClose } from './icons';
-import '../styles/stunt-modal.css';
-import '../styles/portrait-dialog.css';
 
 /** Рамка кадра — 3:4, как плашка портрета в листе. */
 const FRAME_RATIO = 3 / 4;

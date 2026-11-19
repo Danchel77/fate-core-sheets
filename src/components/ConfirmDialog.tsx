@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import '../styles/stunt-modal.css';
+import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
+import { useDialogKeys } from '../hooks/useDialogKeys';
 
 type Props = {
   title: string;
@@ -12,8 +13,11 @@ type Props = {
 
 /** Короткое подтверждение: «Отмена» и действие. Оформление — как у окна трюка. */
 export function ConfirmDialog({ title, text, confirmLabel, onConfirm, onClose }: Props) {
+  const panelRef = useRef<HTMLDivElement>(null);
   const cancelRef = useRef<HTMLButtonElement>(null);
   const confirmRef = useRef<HTMLButtonElement>(null);
+  useBodyScrollLock();
+  useDialogKeys({ panel: panelRef, onClose, trap: true });
 
   useEffect(() => {
     const previous = document.activeElement as HTMLElement | null;
@@ -21,37 +25,7 @@ export function ConfirmDialog({ title, text, confirmLabel, onConfirm, onClose }:
     return () => previous?.focus();
   }, []);
 
-  useEffect(() => {
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        event.preventDefault();
-        onClose();
-        return;
-      }
-      if (event.key !== 'Tab') return;
-      const first = cancelRef.current;
-      const last = confirmRef.current;
-      if (!first || !last) return;
-      if (event.shiftKey && document.activeElement === first) {
-        event.preventDefault();
-        last.focus();
-      } else if (!event.shiftKey && document.activeElement === last) {
-        event.preventDefault();
-        first.focus();
-      }
-    };
-    document.addEventListener('keydown', onKey);
-    return () => document.removeEventListener('keydown', onKey);
-  }, [onClose]);
 
-  useEffect(() => {
-    const { body } = document;
-    const previous = body.style.overflow;
-    body.style.overflow = 'hidden';
-    return () => {
-      body.style.overflow = previous;
-    };
-  }, []);
 
   return createPortal(
     <div
@@ -61,6 +35,7 @@ export function ConfirmDialog({ title, text, confirmLabel, onConfirm, onClose }:
       }}
     >
       <div
+        ref={panelRef}
         className="sm__panel sm__panel--confirm"
         role="dialog"
         aria-modal="true"

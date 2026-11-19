@@ -1,9 +1,9 @@
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
+import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
+import { useDialogKeys } from '../hooks/useDialogKeys';
 import { IconClose } from './icons';
 import { PortraitPlate } from './PortraitPlate';
 import { PortraitCropper } from './PortraitCropper';
-import '../styles/stunt-modal.css';
-import '../styles/portrait-dialog.css';
 
 type Props = {
   src: string;
@@ -15,24 +15,10 @@ type Props = {
 /** Окно портрета в листе: заменить (с кадрированием) или удалить. */
 export function PortraitDialog({ src, alt, onClose, onChange }: Props) {
   const fileRef = useRef<HTMLInputElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
   const [crop, setCrop] = useState<string | null>(null);
-
-  useEffect(() => {
-    const previous = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    return () => {
-      document.body.style.overflow = previous;
-    };
-  }, []);
-
-  useEffect(() => {
-    if (crop) return;
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') onClose();
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [crop, onClose]);
+  useBodyScrollLock();
+  useDialogKeys({ panel: panelRef, onClose, enabled: !crop });
 
   const pick = (file: File | undefined) => {
     if (!file) return;
@@ -63,7 +49,7 @@ export function PortraitDialog({ src, alt, onClose, onChange }: Props) {
         if (event.target === event.currentTarget) onClose();
       }}
     >
-      <div className="sm__panel pd" role="dialog" aria-modal="true" aria-labelledby="pd-title">
+      <div ref={panelRef} className="sm__panel pd" role="dialog" aria-modal="true" aria-labelledby="pd-title">
         <div className="sm__head">
           <span className="sm__head-title" id="pd-title">
             Портрет

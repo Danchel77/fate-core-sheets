@@ -3,7 +3,6 @@ import type { Stunt } from '../data/types';
 import { BlockHeader } from './BlockHeader';
 import { BlockMenu } from './BlockMenu';
 import { StuntModal } from './StuntModal';
-import '../styles/stunt-block.css';
 
 const MAX_STUNTS = 5;
 

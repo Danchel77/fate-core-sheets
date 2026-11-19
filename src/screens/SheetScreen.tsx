@@ -12,11 +12,6 @@ import { CharacterWizard, type WizardDraft } from '../components/CharacterWizard
 import { draftFromCharacter, patchFromDraft } from '../components/wizardDraft';
 import { physicalStress, mentalStress } from '../data/characters';
 import type { Character, CharacterPatch, SettingId } from '../data/types';
-import '../styles/sheet.css';
-import '../styles/character-block.css';
-import '../styles/aspect-block.css';
-import '../styles/skills-editor.css';
-import '../styles/hint.css';
 
 type Props = {
   character: Character;

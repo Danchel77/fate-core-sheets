@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from 'react';
 import type { Character, CharacterPatch, StressMarks } from '../data/types';
 import { BlockHeader } from './BlockHeader';
 import { Hint } from './Hint';
-import '../styles/stress-block.css';
 
 type Consequence = Character['consequences'][number];
 

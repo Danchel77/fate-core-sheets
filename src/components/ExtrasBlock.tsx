@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
 import { BlockHeader } from './BlockHeader';
-import '../styles/extras-block.css';
 
 type Props = {
   initial: [string, string];

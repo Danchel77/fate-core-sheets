@@ -1,7 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
-import '../styles/stunt-modal.css';
-import '../styles/wizard.css';
 import { Hint } from './Hint';
 import { FATE_POINTS_HINT, REFRESH_HINT } from './FatePoints';
 import { NameGenerator } from './NameGenerator';
@@ -22,11 +20,11 @@ import {
   IconZap,
 } from './icons';
 import {
-  FREE_STUNTS,
   MAX_STUNTS,
   SKILLS,
   STARTING_REFRESH,
   ladderFromPicks,
+  refreshWithStunts,
 } from '../data/characters';
 import type { SettingId, Stunt } from '../data/types';
 
@@ -349,8 +347,7 @@ export function CharacterWizard({ draft, onChange, onSkip, lockedSetting = false
   const setSkills = (next: SkillPick[]) => onChange({ skills: next });
   const setStunts = (next: Stunt[]) => onChange({ stunts: next });
   /* Обновление после добавления трюка: три трюка бесплатны, каждый следующий −1. */
-  const refreshAfter = (count: number) =>
-    Math.max(1, STARTING_REFRESH - Math.max(0, count - FREE_STUNTS));
+  const refreshAfter = (count: number) => refreshWithStunts(STARTING_REFRESH, count);
   const nextStuntCosts = refreshAfter(stunts.length + 1) < refreshAfter(stunts.length);
   const addStunt = () => {
     if (stunts.length >= MAX_STUNTS) return;

@@ -4,7 +4,6 @@ import type { Character, CharacterPatch } from '../data/types';
 import { BlockHeader } from './BlockHeader';
 import { FatePoints } from './FatePoints';
 import { PortraitPlate } from './PortraitPlate';
-import '../styles/portrait-plate.css';
 
 /** Подгоняет высоту поля под текст и прячет ползунок, пока текст помещается. */
 function resizeField(el: HTMLTextAreaElement) {
