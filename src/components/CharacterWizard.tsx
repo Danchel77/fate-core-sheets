@@ -4,6 +4,7 @@ import '../styles/stunt-modal.css';
 import '../styles/wizard.css';
 import { Hint } from './Hint';
 import { FATE_POINTS_HINT, REFRESH_HINT } from './FatePoints';
+import { NameGenerator } from './NameGenerator';
 import { PortraitPlate } from './PortraitPlate';
 import { SettingMark } from './SettingMark';
 import { PortraitCropper } from './PortraitCropper';
@@ -14,6 +15,7 @@ import {
   IconArrowRight,
   IconCheck,
   IconClose,
+  IconDice,
   IconSparkles,
   IconSwords,
   IconUser,
@@ -325,6 +327,8 @@ export function CharacterWizard({ draft, onChange, onSkip, lockedSetting = false
   const [pickValue, setPickValue] = useState<number | null>(null);
   /* Справка шага «Трюки» открывается рядом с полями, а не вместо них. */
   const [stuntHelp, setStuntHelp] = useState(false);
+  /* Генератор имён на шаге «Кто он». */
+  const [nameGen, setNameGen] = useState(false);
 
   const setting = draft.setting;
   const name = draft.name;
@@ -553,6 +557,15 @@ export function CharacterWizard({ draft, onChange, onSkip, lockedSetting = false
                         autoComplete="off"
                         maxLength={40}
                       />
+                      <button
+                        type="button"
+                        className="wiz__dice"
+                        aria-label="Открыть генератор имён"
+                        title="Открыть генератор имён"
+                        onClick={() => setNameGen(true)}
+                      >
+                        <IconDice />
+                      </button>
                     </div>
 
                     {!lockedSetting && (
@@ -955,6 +968,17 @@ export function CharacterWizard({ draft, onChange, onSkip, lockedSetting = false
             setPickValue(null);
           }}
           onClose={() => setPickValue(null)}
+        />
+      )}
+
+      {nameGen && (
+        <NameGenerator
+          setting={setting}
+          onPick={(next) => {
+            setName(next);
+            setNameGen(false);
+          }}
+          onClose={() => setNameGen(false)}
         />
       )}
 
