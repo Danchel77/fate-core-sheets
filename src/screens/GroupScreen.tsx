@@ -72,6 +72,8 @@ function GhostCard({
         >
           {body}
         </button>
+      ) : member.heroId ? (
+        <a className="hero-card__link" href={`#/group/hero/${member.uid}`}>{body}</a>
       ) : (
         <div className="hero-card__link">{body}</div>
       )}
@@ -163,6 +165,8 @@ function HeroCard({
         <a className="hero-card__link" href={`#/hero/${member.heroId}`}>
           {body}
         </a>
+      ) : member.heroId ? (
+        <a className="hero-card__link" href={`#/group/hero/${member.uid}`}>{body}</a>
       ) : (
         <div className="hero-card__link">{body}</div>
       )}

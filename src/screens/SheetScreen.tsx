@@ -30,6 +30,8 @@ type Props = {
   readOnly?: boolean;
   /** Пометка в шапке: на чужом листе «лист другого игрока» и «Добавить себе». */
   header?: ReactNode;
+  /** Куда ведёт стрелка назад: по умолчанию в свой список. */
+  back?: { href: string; label: string; short?: string };
 };
 
 function shareUrl(token: string): string {
@@ -44,6 +46,7 @@ export default function SheetScreen({
   onPatch,
   readOnly = false,
   header,
+  back = { href: '#/', label: 'Мои персонажи', short: 'Персонажи' },
 }: Props) {
   const [portrait, setPortrait] = useState(character.portrait);
   const [portraitOpen, setPortraitOpen] = useState(false);
@@ -159,10 +162,10 @@ export default function SheetScreen({
       style={{ '--sheet-texture': PAPER_TEXTURE } as CSSProperties}
     >
       <nav className={header ? 'sheet-nav sheet-nav--note' : 'sheet-nav'}>
-        <a href="#/">
+        <a href={back.href}>
           <IconArrowLeft />
-          <span className="sheet-nav__label">Мои персонажи</span>
-          <span className="sheet-nav__label-short">Персонажи</span>
+          <span className="sheet-nav__label">{back.label}</span>
+          <span className="sheet-nav__label-short">{back.short ?? back.label}</span>
         </a>
         {header}
         <div className="sheet-nav__actions">

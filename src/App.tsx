@@ -3,6 +3,7 @@ import { AuthDialog } from './components/AuthDialog';
 import CharactersScreen from './screens/CharactersScreen';
 import CharactersLoading from './screens/CharactersLoading';
 import GroupScreen from './screens/GroupScreen';
+import GroupSheetScreen from './screens/GroupSheetScreen';
 import JoinGroupScreen from './screens/JoinGroupScreen';
 import NewCharacterScreen from './screens/NewCharacterScreen';
 import SharedScreen from './screens/SharedScreen';
@@ -36,6 +37,7 @@ export default function App() {
   const match = /^\/hero\/([^/]+)$/.exec(hash);
   const shareMatch = /^\/s\/([^/]+)$/.exec(hash);
   const joinMatch = /^\/g\/([^/]+)$/.exec(hash);
+  const groupHeroMatch = /^\/group\/hero\/([^/]+)$/.exec(hash);
 
   /* Чужая ссылка не зависит от своего списка: показываем её сразу,
      а «Добавить себе» внизу дождётся хранилища. */
@@ -61,6 +63,19 @@ export default function App() {
       </>
     );
   }
+
+  if (groupHeroMatch) {
+    return (
+      <>
+        <GroupSheetScreen
+          key={groupHeroMatch[1]}
+          memberUid={decodeURIComponent(groupHeroMatch[1])}
+        />
+        <AuthDialog />
+      </>
+    );
+  }
+
 
   if (hash === '/group') {
     return (

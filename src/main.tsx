@@ -34,6 +34,7 @@ import './styles/name-generator.css';
 import './styles/loading.css';
 import './styles/shared.css';
 import './styles/group.css';
+import './styles/notes.css';
 
 const rootElement = document.getElementById('root');
 

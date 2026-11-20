@@ -5,12 +5,15 @@ import {
   getDoc,
   getDocs,
   onSnapshot,
+  query,
   setDoc,
+  updateDoc,
+  where,
   writeBatch,
 } from 'firebase/firestore';
 import { db } from '../firebase/app';
 import { newId } from './storage';
-import type { CharacterRecord, SettingId } from './types';
+import type { Character, CharacterRecord, SettingId } from './types';
 
 /**
  * Группы за столом. Человек может состоять в нескольких группах.
@@ -42,10 +45,28 @@ export type GroupMember = {
   playerName: string;
   heroId: string | null;
   card: GroupCard | null;
+  /** Снимок листа для чтения за столом: без портрета, он лежит в portrait. */
+  sheet: Character | null;
+  setting: SettingId | null;
   portrait: string | null;
   joinedAt: number;
   /** Карточка «Мастер игры»: мастер за столом без листа героя. */
   gameMaster: boolean;
+};
+
+/** Блоки листа, к которым можно оставить заметку. */
+export type BlockId = 'character' | 'aspects' | 'skills' | 'stunts' | 'stress' | 'extras';
+
+/** Заметка на блок чужого листа: groups/{id}/notes/{noteId}. */
+export type GroupNote = {
+  id: string;
+  heroId: string;
+  blockId: BlockId;
+  authorId: string;
+  authorName: string;
+  text: string;
+  createdAt: number;
+  updatedAt: number;
 };
 
 export type GroupLink = { groupId: string; name: string; masterId: string };
@@ -143,11 +164,18 @@ function memberFrom(uid: string, data: Record<string, unknown> | undefined): Gro
           level: typeof card.level === 'number' ? card.level : 1,
         }
       : null;
+  const sheet = data?.sheet as Record<string, unknown> | null | undefined;
+  const validSheet =
+    sheet && typeof sheet === 'object' && Array.isArray(sheet.aspects)
+      ? (sheet as unknown as Character)
+      : null;
   return {
     uid,
     playerName: typeof data?.playerName === 'string' ? data.playerName : 'Игрок',
     heroId: typeof data?.heroId === 'string' ? data.heroId : null,
     card: validCard,
+    sheet: validSheet,
+    setting: data?.setting === 'fate' || data?.setting === 'witcher' ? data.setting : null,
     portrait: typeof data?.portrait === 'string' ? data.portrait : null,
     joinedAt: typeof data?.joinedAt === 'number' ? data.joinedAt : 0,
     gameMaster: data?.gameMaster === true,
@@ -383,10 +411,12 @@ export async function forgetGroup(uid: string, groupId: string): Promise<void> {
 /** Мастер закрывает группу: стол, места, приглашение, своя запись. */
 export async function closeGroup(group: Group): Promise<void> {
   const snapshot = await getDocs(membersCol(group.id));
+  const notes = await getDocs(notesCol(group.id)).catch(() => null);
   const masterSnap = await getDoc(pointerRef(group.masterId)).catch(() => null);
   const refs = masterSnap?.exists() ? readRefs(masterSnap.data()) : [];
   const batch = writeBatch(database());
   snapshot.docs.forEach((item) => batch.delete(item.ref));
+  notes?.docs.forEach((item) => batch.delete(item.ref));
   batch.delete(groupRef(group.id));
   if (group.inviteToken) batch.delete(linkRef(group.inviteToken));
   if (masterSnap?.exists()) {
@@ -415,6 +445,8 @@ export async function setMyHero(
     {
       heroId: record?.id ?? null,
       card: record ? cardFrom(record) : null,
+      sheet: record ? { ...record.sheet, portrait: '' } : null,
+      setting: record?.setting ?? null,
       portrait,
       gameMaster: !record && gameMaster,
     },
@@ -443,7 +475,13 @@ export async function syncGroupCard(uid: string, record: CharacterRecord): Promi
     const attached = refs.filter((item) => item.heroId === record.id);
     if (!attached.length) return;
     const batch = writeBatch(database());
-    attached.forEach((item) => batch.update(memberRef(item.id, uid), { card: cardFrom(record) }));
+    attached.forEach((item) =>
+      batch.update(memberRef(item.id, uid), {
+        card: cardFrom(record),
+        sheet: { ...record.sheet, portrait: '' },
+        setting: record.setting,
+      }),
+    );
     await batch.commit();
   } catch {
     /* без сети карточка догонит в следующий раз */
@@ -504,4 +542,61 @@ function cardFrom(record: CharacterRecord): GroupCard {
     concept: record.sheet.aspects[0]?.text ?? '',
     level: record.sheet.level,
   };
+}
+
+/* ── Заметки на блоки ──────────────────────────────────────────── */
+
+const notesCol = (groupId: string) => collection(database(), 'groups', groupId, 'notes');
+
+/** Заметки к листу героя: подписка на всю коллекцию, фильтр по heroId. */
+export function subscribeNotes(
+  groupId: string,
+  heroId: string,
+  next: (notes: GroupNote[]) => void,
+  onError?: (error: unknown) => void,
+) {
+  try {
+    const request = query(notesCol(groupId), where('heroId', '==', heroId));
+    return onSnapshot(
+      request,
+      (snap) => {
+        next(
+          snap.docs.map((item) => {
+            const v = item.data();
+            return {
+              id: item.id,
+              heroId: String(v.heroId ?? ''),
+              blockId: v.blockId as BlockId,
+              authorId: String(v.authorId ?? ''),
+              authorName: String(v.authorName ?? 'Игрок'),
+              text: String(v.text ?? ''),
+              createdAt: Number(v.createdAt ?? 0),
+              updatedAt: Number(v.updatedAt ?? 0),
+            };
+          }),
+        );
+      },
+      (error) => onError?.(error),
+    );
+  } catch {
+    return () => {};
+  }
+}
+
+export async function addNote(
+  groupId: string,
+  note: Omit<GroupNote, 'id' | 'createdAt' | 'updatedAt'>,
+): Promise<string> {
+  const ref = doc(notesCol(groupId));
+  const now = Date.now();
+  await setDoc(ref, { ...note, createdAt: now, updatedAt: now });
+  return ref.id;
+}
+
+export async function updateNote(groupId: string, noteId: string, text: string): Promise<void> {
+  await updateDoc(doc(notesCol(groupId), noteId), { text, updatedAt: Date.now() });
+}
+
+export async function deleteNote(groupId: string, noteId: string): Promise<void> {
+  await deleteDoc(doc(notesCol(groupId), noteId));
 }
