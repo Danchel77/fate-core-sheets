@@ -75,9 +75,6 @@ export default function SheetScreen({ character, setting, record, onPatch }: Pro
       </nav>
       <div className="book-stage">
         <div className="book-cover">
-          <div className="book-stack book-stack--1" aria-hidden="true" />
-          <div className="book-stack book-stack--2" aria-hidden="true" />
-          <div className="book-stack book-stack--3" aria-hidden="true" />
           <main className="book" aria-label="Лист персонажа" key={revision}>
             <article className="page page--left">
               <CharacterBlock

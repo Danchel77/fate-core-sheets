@@ -52,7 +52,11 @@ export function getUser(): User | null {
 
 /** Подписка на смену пользователя без хука (для хранилища). */
 export function onAuthChange(callback: (user: User | null) => void): () => void {
-  return subscribe(() => callback(state.user));
+  const unsubscribe = subscribe(() => callback(state.user));
+  // Если Firebase уже ответил до подписки (или не настроен), сообщаем сразу,
+  // иначе хранилище навсегда останется в состоянии «загрузка».
+  if (state.ready) callback(state.user);
+  return unsubscribe;
 }
 
 /* --- окно входа --- */

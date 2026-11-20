@@ -1,0 +1,78 @@
+/* Загрузка живёт внутри самой страницы: тот же фон, та же обложка или
+   тот же лист. Отдельного окна и затемнения нет, пустой список не
+   показывается. */
+
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  text-align: center;
+}
+
+.loading__mark {
+  display: block;
+  width: 13px;
+  height: 13px;
+  margin-bottom: 14px;
+  background: var(--accent-gold-deep);
+  transform: rotate(45deg);
+}
+
+.loading__text {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-lead);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--text-ink-primary);
+}
+
+.loading__line {
+  display: block;
+  width: 120px;
+  height: 2px;
+  margin-top: 18px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--accent-gold-deep),
+    transparent
+  );
+  animation: loading-line 1.5s ease-in-out infinite;
+}
+
+@keyframes loading-line {
+  0%,
+  100% {
+    opacity: 0.3;
+    transform: scaleX(0.6);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loading__line {
+    animation: none;
+    opacity: 0.7;
+  }
+}
+
+/* Список: строка загрузки внутри той же бежевой страницы. */
+.heroes__loading {
+  display: grid;
+  place-items: center;
+  min-height: clamp(260px, 46vh, 440px);
+}
+
+/* Лист: страницы уже на месте, чтобы высота книги не скакала. */
+.page--loading {
+  display: grid;
+  place-items: center;
+  min-height: clamp(420px, 62vh, 680px);
+}

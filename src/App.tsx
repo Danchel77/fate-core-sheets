@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { AuthDialog } from './components/AuthDialog';
-import { SplashScreen } from './components/SplashScreen';
 import CharactersScreen from './screens/CharactersScreen';
+import CharactersLoading from './screens/CharactersLoading';
 import NewCharacterScreen from './screens/NewCharacterScreen';
+import SheetLoading from './screens/SheetLoading';
 import SheetScreen from './screens/SheetScreen';
 import { findCharacter, initStore, updateCharacter, useCharacters } from './data/store';
 
@@ -29,7 +30,19 @@ export default function App() {
     window.scrollTo(0, 0);
   }, [hash]);
 
-  if (!ready) return <SplashScreen />;
+  const match = /^\/hero\/([^/]+)$/.exec(hash);
+
+  /* Пока хранилище не ответило, показываем ту страницу, куда шли:
+     список — свой список, лист — свой фолиант. Пустая страница и
+     отдельная заставка не мелькают. */
+  if (!ready) {
+    return (
+      <>
+        {match ? <SheetLoading /> : <CharactersLoading />}
+        <AuthDialog />
+      </>
+    );
+  }
 
   if (hash === '/new') {
     return (
@@ -40,7 +53,6 @@ export default function App() {
     );
   }
 
-  const match = /^\/hero\/([^/]+)$/.exec(hash);
   const hero = match ? findCharacter(decodeURIComponent(match[1])) : undefined;
 
   return (

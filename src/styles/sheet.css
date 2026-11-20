@@ -62,6 +62,9 @@
 
 .book {
   --page-gap: 14px;
+  /* Обрезы пачки листов: светлая кромка бумаги и тёмный шов между листами. */
+  --stack-sheet: color-mix(in srgb, var(--bg-parchment) 88%, var(--text-ink-primary) 12%);
+  --stack-seam: color-mix(in srgb, var(--bg-parchment) 64%, var(--text-ink-primary) 36%);
   position: relative;
   z-index: 1;
   width: 100%;
@@ -71,57 +74,6 @@
   row-gap: var(--page-gap);
   background: transparent;
   color: var(--text-ink-primary);
-}
-
-/* Пачка листов между страницами и кожей: 14 px по бокам, 16 px снизу.
-   Тонкие линии — торцы листов. Сверху и снизу у центра вырезана
-   ложбинка, поэтому обрез повторяет изгиб страниц в корешок и снизу
-   распадается на две половины. */
-.book-stack {
-  position: absolute;
-  inset: 10px 14px 18px;
-  z-index: 0;
-  pointer-events: none;
-  border-radius: 6px 6px 12px 12px;
-  background:
-    repeating-linear-gradient(
-      to bottom,
-      color-mix(in srgb, var(--paper-highlight) 82%, var(--bg-parchment)) 0 1px,
-      color-mix(in srgb, var(--text-ink-primary) 9%, transparent) 1px 2px
-    ),
-    linear-gradient(
-      to bottom,
-      var(--paper-highlight) 0%,
-      var(--bg-parchment) 45%,
-      color-mix(in srgb, var(--bg-parchment) 86%, var(--tint-gold-sand) 14%) 100%
-    );
-  box-shadow:
-    0 20px 40px -22px var(--shadow-deep),
-    inset 0 1px 0 var(--paper-highlight),
-    inset 0 -1px 0 color-mix(in srgb, var(--text-ink-primary) 12%, transparent);
-  mask-image:
-    radial-gradient(ellipse 38px 16px at 50% 0, transparent 94%, black 100%),
-    radial-gradient(ellipse 38px 16px at 50% 100%, transparent 94%, black 100%);
-  mask-composite: intersect;
-  -webkit-mask-image:
-    radial-gradient(ellipse 38px 16px at 50% 0, transparent 94%, black 100%),
-    radial-gradient(ellipse 38px 16px at 50% 100%, transparent 94%, black 100%);
-  -webkit-mask-composite: source-in;
-}
-
-/* Задние листы уходят вниз на пару пикселей — обрез становится глубже. */
-.book-stack--1 {
-  transform: translate(0, 2px);
-  filter: brightness(0.93);
-}
-
-.book-stack--2 {
-  transform: translate(0, 1px);
-  filter: brightness(0.965);
-}
-
-.book-stack--3 {
-  transform: translate(0, 0);
 }
 
 /* Закладка-ляссе выходит прямо из ложбинки корешка и лежит поверх
@@ -238,6 +190,20 @@
     color-mix(in srgb, var(--text-ink-primary) 13%, transparent) 100%
   );
   box-shadow:
+    -0.5px 0.5px 0 0.5px var(--stack-seam),
+    -1px 1px 0 1px var(--stack-sheet),
+    -1.5px 1.5px 0 1.5px var(--stack-seam),
+    -2px 2px 0 2px var(--stack-sheet),
+    -2.5px 2.5px 0 2.5px var(--stack-seam),
+    -3px 3px 0 3px var(--stack-sheet),
+    -3.5px 3.5px 0 3.5px var(--stack-seam),
+    -4px 4px 0 4px var(--stack-sheet),
+    -4.5px 4.5px 0 4.5px var(--stack-seam),
+    -5px 5px 0 5px var(--stack-sheet),
+    -5.5px 5.5px 0 5.5px var(--stack-seam),
+    -6px 6px 0 6px var(--stack-sheet),
+    -6.5px 6.5px 0 6.5px var(--stack-seam),
+    -7px 7px 0 7px var(--stack-seam),
     inset -18px 0 26px -18px color-mix(in srgb, var(--text-ink-primary) 55%, transparent),
     inset 0 0 0 1px color-mix(in srgb, var(--accent-gold) 20%, transparent),
     inset 0 0 46px var(--theme-vignette);
@@ -252,23 +218,44 @@
     color-mix(in srgb, var(--text-ink-primary) 13%, transparent) 100%
   );
   box-shadow:
+    0.5px 0.5px 0 0.5px var(--stack-seam),
+    1px 1px 0 1px var(--stack-sheet),
+    1.5px 1.5px 0 1.5px var(--stack-seam),
+    2px 2px 0 2px var(--stack-sheet),
+    2.5px 2.5px 0 2.5px var(--stack-seam),
+    3px 3px 0 3px var(--stack-sheet),
+    3.5px 3.5px 0 3.5px var(--stack-seam),
+    4px 4px 0 4px var(--stack-sheet),
+    4.5px 4.5px 0 4.5px var(--stack-seam),
+    5px 5px 0 5px var(--stack-sheet),
+    5.5px 5.5px 0 5.5px var(--stack-seam),
+    6px 6px 0 6px var(--stack-sheet),
+    6.5px 6.5px 0 6.5px var(--stack-seam),
+    7px 7px 0 7px var(--stack-seam),
     inset 18px 0 26px -18px color-mix(in srgb, var(--text-ink-primary) 55%, transparent),
     inset 0 0 0 1px color-mix(in srgb, var(--accent-gold) 20%, transparent),
     inset 0 0 46px var(--theme-vignette);
 }
 
+/* Телефон — не книга: длинные листы на тёмном столе, без кожи, корешка
+   и закладки. Обрез стопки тонкий: слева и сверху у первого листа,
+   справа и снизу у второго; внутренний стык листов остаётся без обреза,
+   поэтому лист читается сплошным. */
 @media (max-width: 920px) {
   .book-stage {
     width: 100%;
   }
 
   .book-cover {
-    padding: 8px 20px 24px;
-    border-radius: 8px 8px 14px 14px;
+    padding: 0;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+    overflow: visible;
   }
 
   .book-cover::before {
-    background-size: 220px auto;
+    display: none;
   }
 
   .book {
@@ -277,29 +264,9 @@
     row-gap: 0;
   }
 
-  /* На телефоне это не разворот, а стопка листов: без закладки и корешка. */
   .book::after,
   .book-ribbon {
     display: none;
-  }
-
-  .book-stack {
-    inset: 8px 10px 14px;
-    border-radius: 4px 4px 10px 10px;
-    mask-image: none;
-    -webkit-mask-image: none;
-  }
-
-  .book-stack--1 {
-    transform: translate(0, 2px);
-  }
-
-  .book-stack--2 {
-    transform: translate(0, 1px);
-  }
-
-  .book-stack--3 {
-    transform: translate(0, 0);
   }
 
   .page {
@@ -314,7 +281,22 @@
   .page--right {
     border-radius: 2px;
     background-image: none;
+  }
+
+  .page--left {
     box-shadow:
+      -1px -1px 0 1px var(--stack-sheet),
+      -2px -2px 0 2px var(--stack-seam),
+      -3px -3px 0 3px var(--stack-sheet),
+      inset 0 0 0 1px color-mix(in srgb, var(--accent-gold) 20%, transparent),
+      inset 0 0 46px var(--theme-vignette);
+  }
+
+  .page--right {
+    box-shadow:
+      1px 1px 0 1px var(--stack-sheet),
+      2px 2px 0 2px var(--stack-seam),
+      3px 3px 0 3px var(--stack-sheet),
       inset 0 0 0 1px color-mix(in srgb, var(--accent-gold) 20%, transparent),
       inset 0 0 46px var(--theme-vignette);
   }
@@ -334,16 +316,6 @@
 @media (max-width: 720px) {
   .book {
     --page-gap: 10px;
-  }
-}
-
-@media (max-width: 560px) {
-  .book-cover {
-    padding: 6px 16px 20px;
-  }
-
-  .book-stack {
-    inset: 6px 8px 12px;
   }
 }
 

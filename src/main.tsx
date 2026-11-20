@@ -31,6 +31,7 @@ import './styles/portrait-dialog.css';
 import './styles/wizard.css';
 import './styles/auth.css';
 import './styles/name-generator.css';
+import './styles/loading.css';
 
 const rootElement = document.getElementById('root');
 

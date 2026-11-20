@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from 'react';
-import { getUser, initAuth, onAuthChange } from '../firebase/authStore';
+import { initAuth, onAuthChange } from '../firebase/authStore';
 import { deleteCloud, subscribeCloud, writeCloud } from './cloud';
 import { newId, readAll, removeOne, writeOne } from './storage';
 import type { Character, CharacterPatch, CharacterRecord, SettingId } from './types';
@@ -153,11 +153,11 @@ export function initStore(): void {
   if (initialized) return;
   initialized = true;
   initAuth();
+  /* Список показываем только после ответа Firebase о входе: иначе герои
+     из браузера мелькнут перед облаком. Тишину до ответа занимает
+     страница загрузки. */
   onAuthChange((user) => {
     void switchUser(user);
-  });
-  void loadLocal().then(() => {
-    if (!getUser() && state.mode === 'local' && !state.ready) publishLocal();
   });
   window.addEventListener('pagehide', flushPending);
 }
