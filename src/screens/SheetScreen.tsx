@@ -158,7 +158,7 @@ export default function SheetScreen({
       data-theme={setting}
       style={{ '--sheet-texture': PAPER_TEXTURE } as CSSProperties}
     >
-      <nav className="sheet-nav">
+      <nav className={header ? 'sheet-nav sheet-nav--note' : 'sheet-nav'}>
         <a href="#/">
           <IconArrowLeft />
           <span className="sheet-nav__label">Мои персонажи</span>

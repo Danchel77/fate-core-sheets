@@ -107,7 +107,10 @@ export default function SharedScreen({ token }: Props) {
       header={
         <div className="shared-note">
           <span className="shared-note__text">
-            Лист другого игрока · правки видит только владелец
+            <span className="shared-note__wide">
+              Лист другого игрока · правки видит только владелец
+            </span>
+            <span className="shared-note__narrow">Лист другого игрока · только чтение</span>
           </span>
           {addedId ? (
             <a className="shared-note__btn" href={`#/hero/${addedId}`}>

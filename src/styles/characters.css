@@ -808,6 +808,35 @@ a.heroes__tab:focus-visible {
   }
 }
 
+/* 721–1300: шапка списка не помещается в одну строку — вкладки и
+   «Создать героя» сверху, фильтры во всю ширину снизу. Шапка группы
+   остаётся в одну строку: у неё нет фильтров. */
+@media (min-width: 721px) and (max-width: 1300px) {
+  .heroes__head--tools {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      'lead action'
+      'tools tools';
+    align-items: center;
+    gap: 10px 20px;
+  }
+
+  .heroes__head--tools .heroes__lead {
+    grid-area: lead;
+  }
+
+  .heroes__head--tools .heroes__tools {
+    grid-area: tools;
+    justify-content: flex-start;
+  }
+
+  .heroes__head--tools .heroes__create {
+    grid-area: action;
+    justify-self: end;
+  }
+}
+
 @media (max-width: 720px) {
   /* На телефоне страница списка компактнее: отступы не съедают экран. */
   .heroes {

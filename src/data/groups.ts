@@ -15,7 +15,7 @@ import type { CharacterRecord, SettingId } from './types';
 
 /**
  * Группа за столом.
- * users/{uid}/group — где я состою (одна группа на человека).
+ * users/{uid} — где я состою: поля groupId и heroId (одна группа на человека).
  * groups/{id} — название и мастер.
  * groups/{id}/members/{uid} — карточка героя, которую видит стол.
  * groupLinks/{token} — публичная ссылка-приглашение: только id группы и имя.
@@ -59,7 +59,7 @@ function database() {
   return db;
 }
 
-const pointerRef = (uid: string) => doc(database(), 'users', uid, 'group');
+const pointerRef = (uid: string) => doc(database(), 'users', uid);
 const groupRef = (id: string) => doc(database(), 'groups', id);
 const membersCol = (id: string) => collection(database(), 'groups', id, 'members');
 const memberRef = (groupId: string, uid: string) =>

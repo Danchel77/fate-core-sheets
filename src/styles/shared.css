@@ -1,22 +1,24 @@
 /* ── Лист по чужой ссылке ────────────────────────────────────────── */
 
-/* Пометка в шапке: чужой лист и «Добавить себе». */
+/* Пометка в шапке: чужой лист и «Добавить себе».
+   Живёт на тёмной шапке — без пергаментной карточки и рамки. */
 .shared-note {
   display: inline-flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 8px 12px;
-  padding: 3px 5px 3px 12px;
-  border: 1px solid color-mix(in srgb, var(--accent-gold) 40%, transparent);
-  border-radius: 2px;
-  background: color-mix(in srgb, var(--bg-parchment) 94%, transparent);
+  gap: 4px 14px;
+  min-width: 0;
 }
 
 .shared-note__text {
   font-family: var(--font-body);
   font-size: var(--text-caption);
-  letter-spacing: 0.05em;
-  color: var(--text-ink-muted);
+  letter-spacing: 0.04em;
+  color: color-mix(in srgb, var(--nav-ink) 66%, transparent);
+}
+
+.shared-note__narrow {
+  display: none;
 }
 
 .shared-note__btn {
@@ -25,31 +27,34 @@
   justify-content: center;
   min-height: 40px;
   padding: 0 14px;
-  border: 1px solid var(--accent-gold-deep);
+  border: 1px solid color-mix(in srgb, var(--nav-gold) 62%, transparent);
   border-radius: 2px;
-  background: var(--accent-gold-deep);
+  background: transparent;
   font-family: var(--font-body);
   font-size: var(--text-caption);
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--bg-parchment);
+  color: var(--nav-gold-hi);
   text-decoration: none;
   cursor: pointer;
-  transition: background-color var(--transition-fast);
+  transition: background-color var(--transition-fast), color var(--transition-fast),
+    border-color var(--transition-fast);
 }
 
 .shared-note__btn:hover {
-  background: var(--accent-gold-ink);
+  border-color: var(--nav-gold-hi);
+  background: color-mix(in srgb, var(--nav-gold) 16%, transparent);
+  color: var(--nav-ink);
 }
 
 .shared-note__btn:focus-visible {
-  outline: 2px solid var(--accent-gold-ink);
+  outline: 2px solid var(--nav-gold-hi);
   outline-offset: 2px;
 }
 
 .shared-note__btn:disabled {
-  opacity: 0.55;
+  opacity: 0.5;
   cursor: default;
 }
 
@@ -125,14 +130,44 @@
   color: var(--accent-gold-ink);
 }
 
-@media (max-width: 720px) {
+/* Пока шапке тесно (≤900), пометка уходит отдельной строкой под действиями. */
+@media (max-width: 900px) {
+  .sheet-nav--note {
+    flex-wrap: wrap;
+  }
+
   .shared-note {
-    order: 3;
+    order: 5;
     flex-basis: 100%;
     justify-content: space-between;
+    padding-top: 2px;
+  }
+}
+
+@media (max-width: 720px) {
+  .shared-note {
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    gap: 8px;
   }
 
   .shared-note__text {
-    flex: 1 1 auto;
+    flex: none;
+    font-size: 0.78rem;
+    line-height: 1.45;
+  }
+
+  .shared-note__btn {
+    width: 100%;
+    min-height: 44px;
+  }
+
+  .shared-note__wide {
+    display: none;
+  }
+
+  .shared-note__narrow {
+    display: inline;
   }
 }

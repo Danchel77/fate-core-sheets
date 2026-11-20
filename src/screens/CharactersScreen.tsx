@@ -235,7 +235,7 @@ export default function CharactersScreen() {
       </header>
 
       <main className="heroes__page">
-        <header className="heroes__head">
+        <header className="heroes__head heroes__head--tools">
           <div className="heroes__lead">
             <ListTabs active="characters" count={records.length} />
           </div>
