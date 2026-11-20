@@ -140,11 +140,11 @@
 
 .str__slot {
   display: grid;
-  grid-template-columns: minmax(0, 88px) minmax(0, 1fr);
-  align-items: start;
-  gap: 10px;
+  grid-template-columns: 112px minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
   min-width: 0;
-  padding: 5px 0;
+  padding: 6px 0;
   border-bottom: 1px solid color-mix(in srgb, var(--accent-gold) 32%, transparent);
 }
 
@@ -154,15 +154,16 @@
 
 .str__slot-head {
   display: flex;
-  flex-direction: column;
-  gap: 0;
+  align-items: baseline;
+  gap: 9px;
   min-width: 0;
-  padding-top: 2px;
 }
 
 .str__slot-kind {
   overflow: hidden;
-  font-size: var(--text-caption);
+  font-family: var(--font-ui);
+  font-size: 0.66rem;
+  letter-spacing: 0.03em;
   line-height: 1.15;
   color: var(--text-ink-muted);
   text-overflow: ellipsis;
@@ -172,10 +173,11 @@
 
 .str__slot-value {
   font-family: var(--font-display);
-  font-size: var(--text-lead);
+  font-size: 1.75rem;
   font-weight: 700;
   line-height: 1;
   color: var(--text-ink-primary);
+  font-variant-numeric: lining-nums;
 }
 
 .str__slot-line {
@@ -190,7 +192,7 @@
   padding: 3px 6px;
   border: 1px solid color-mix(in srgb, var(--accent-gold) 24%, transparent);
   border-radius: 1px;
-  background: color-mix(in srgb, var(--bg-parchment) 86%, var(--band-ink) 14%);
+  background: color-mix(in srgb, var(--bg-parchment) 90%, var(--text-ink-primary) 10%);
   color: var(--text-ink-primary);
   font-family: var(--font-body);
   font-size: var(--text-body);

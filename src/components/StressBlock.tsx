@@ -88,8 +88,8 @@ function ConsequenceSlot({
   return (
     <div className="str__slot">
       <div className="str__slot-head">
-        <span className="str__slot-kind">{consequence.kind}</span>
         <span className="str__slot-value">{consequence.value}</span>
+        <span className="str__slot-kind">{consequence.kind}</span>
       </div>
       <textarea
         ref={lineRef}
