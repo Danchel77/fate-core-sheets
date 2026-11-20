@@ -239,8 +239,39 @@
 /* ---------- узкие экраны ---------- */
 
 @media (max-width: 720px) {
+  /* Компактная шапка: мини-портрет слева, имя, жетоны и описание справа.
+     Так «Навыки» и «Трюки» поднимаются выше без перестановки блоков. */
   .cblock__body {
-    grid-template-columns: 1fr;
+    grid-template-columns: 112px minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  .cblock__portrait {
+    width: 112px;
+    margin-inline: 0;
+  }
+
+  .cblock__name {
+    margin-bottom: 8px;
+    font-size: 1.375rem;
+  }
+
+  .cblock__desc {
+    max-height: calc(3 * 1.45em);
+    margin-top: 8px;
+  }
+
+  .bh {
+    margin-bottom: 10px;
+    padding: 3px 12px;
+  }
+
+  .fp {
+    padding: 6px 0 7px;
+  }
+
+  .fp__head {
+    gap: 8px;
   }
 
   /* Десять жетонов в строку не влезают — две строки по пять. */
@@ -248,11 +279,6 @@
     display: grid;
     grid-template-columns: repeat(5, 26px);
     row-gap: 8px;
-  }
-
-  /* На телефоне портрет стоит один в строке — центрируем, иначе справа зияет пустота. */
-  .cblock__portrait {
-    width: 168px;
-    margin-inline: auto;
+    margin-top: 7px;
   }
 }

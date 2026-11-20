@@ -8,20 +8,23 @@ import { StressBlock } from '../components/StressBlock';
 import { ExtrasBlock } from '../components/ExtrasBlock';
 import { IconArrowLeft } from '../components/icons';
 import { PortraitDialog } from '../components/PortraitDialog';
+import { SheetExport } from '../components/SheetExport';
 import { CharacterWizard, type WizardDraft } from '../components/CharacterWizard';
 import { draftFromCharacter, patchFromDraft } from '../components/wizardDraft';
 import { physicalStress, mentalStress } from '../data/characters';
-import type { Character, CharacterPatch, SettingId } from '../data/types';
+import type { Character, CharacterPatch, CharacterRecord, SettingId } from '../data/types';
 
 type Props = {
   character: Character;
   setting: SettingId;
+  /** Запись нужна для экспорта; в предпросмотре нового героя её ещё нет. */
+  record?: CharacterRecord;
   /** Правка листа уходит в хранилище сразу, без кнопки «Сохранить». */
   onPatch?: (patch: CharacterPatch) => void;
 };
 
 /** Собранный веб-лист: единственный источник правды. */
-export default function SheetScreen({ character, setting, onPatch }: Props) {
+export default function SheetScreen({ character, setting, record, onPatch }: Props) {
   const [portrait, setPortrait] = useState(character.portrait);
   const [portraitOpen, setPortraitOpen] = useState(false);
   const [editor, setEditor] = useState<WizardDraft | null>(null);
@@ -55,6 +58,7 @@ export default function SheetScreen({ character, setting, onPatch }: Props) {
         </a>
         {onPatch && (
           <div className="sheet-nav__actions">
+            {record && <SheetExport record={record} />}
             <button type="button" className="sheet-nav__btn" onClick={openEditor}>
               Конструктор
             </button>

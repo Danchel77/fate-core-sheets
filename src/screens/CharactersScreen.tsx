@@ -12,7 +12,7 @@ import {
   IconTrash,
   IconUpload,
 } from '../components/icons';
-import { downloadFile, fileText, jsonFileName, parseFile } from '../data/exchange';
+import { downloadFile, fileText, jsonFileName, parseFile, pdfFileName } from '../data/exchange';
 import { downloadBlob } from '../data/download';
 import { createCharacter, deleteCharacter, useCharacters } from '../data/store';
 import { openAuthDialog, useAuth } from '../firebase/authStore';
@@ -50,16 +50,6 @@ function readView(): SavedView {
   } catch {
     return { filter: 'all', sort: 'date' };
   }
-}
-
-/** Имя файла: без символов, которые запрещены в именах файлов. */
-function pdfFileName(hero: CharacterRecord): string {
-  const base = hero.sheet.name
-    .replace(/[\\/:*?"<>|]+/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim()
-    .slice(0, 60);
-  return `${base || 'Лист персонажа'}.pdf`;
 }
 
 function saveView(view: SavedView) {
@@ -403,6 +393,13 @@ export default function CharactersScreen() {
           </section>
         ) : (
           <div className="heroes__grid">
+            <a className="hero-card hero-card--new" href="#/new">
+              <span className="hero-card__plus" aria-hidden="true">
+                +
+              </span>
+              <span className="hero-card__newlabel">Создать героя</span>
+            </a>
+
             {visible.map((hero) => (
               <article className="hero-card" key={hero.id}>
                 <a
@@ -422,13 +419,6 @@ export default function CharactersScreen() {
                 <BlockMenu label={`Действия: ${heroName(hero)}`} items={menuItems(hero)} />
               </article>
             ))}
-
-            <a className="hero-card hero-card--new" href="#/new">
-              <span className="hero-card__plus" aria-hidden="true">
-                +
-              </span>
-              <span className="hero-card__newlabel">Создать героя</span>
-            </a>
           </div>
         )}
       </main>

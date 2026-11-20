@@ -49,6 +49,7 @@ export default function App() {
           key={hero.id}
           character={hero.sheet}
           setting={hero.setting}
+          record={hero}
           onPatch={(patch) => void updateCharacter(hero.id, patch)}
         />
       ) : (

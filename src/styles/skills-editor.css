@@ -96,13 +96,16 @@
   box-sizing: border-box;
   width: 100%;
   max-width: 100%;
-  padding: 0 16px;
+  padding: 0 14px;
   font-family: var(--font-body);
   font-size: 0.8125rem;
-  line-height: 1.06;
+  line-height: 1.14;
   color: var(--text-ink-primary);
   text-align: center;
-  white-space: nowrap;
+  /* Один кегль на все плашки; длинное слово переносится, а не ужимается. */
+  white-space: normal;
+  hyphens: auto;
+  overflow-wrap: break-word;
 }
 
 .ske__del {
@@ -124,12 +127,20 @@
   line-height: 1;
   cursor: pointer;
   opacity: 0;
+  pointer-events: none;
   transition: opacity 0.12s, background 0.12s;
 }
 
 .ske__block:hover .ske__del,
-.ske__block:focus-within .ske__del {
+.ske__block:focus-within .ske__del,
+.ske__block--revealed .ske__del {
   opacity: 1;
+  pointer-events: auto;
+}
+
+/* Крестик открывается поверх имени: чуть оставляем ему места справа. */
+.ske__block--revealed .ske__name {
+  padding-right: 22px;
 }
 
 .ske__del:hover {
@@ -405,13 +416,6 @@
 }
 
 
-/* На тач-экранах нет наведения: крестик и стрелки уровня видны сразу. */
-@media (hover: none), (max-width: 560px) {
-  .ske__del {
-    opacity: 1;
-  }
-}
-
 @media (hover: none) {
   .ske__lvsteps {
     opacity: 1;
@@ -494,6 +498,7 @@
 @media (hover: none) {
   .ske__body--big .ske__del {
     opacity: 1;
+    pointer-events: auto;
   }
 }
 

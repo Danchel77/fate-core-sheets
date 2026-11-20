@@ -1,4 +1,4 @@
-import { type ReactNode, useId, useLayoutEffect, useRef } from 'react';
+import { type ReactNode, useEffect, useId, useState } from 'react';
 
 export type PyramidRow = { value: number; skills: string[] };
 
@@ -45,54 +45,6 @@ function UpArrow() {
   );
 }
 
-/** Название навыка: ужимается по ширине карточки, но не переносится на вторую строку. */
-function SkillName({ name }: { name: string }) {
-  const ref = useRef<HTMLSpanElement>(null);
-
-  useLayoutEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-
-    const fit = () => {
-      el.style.fontSize = '';
-      const base = parseFloat(getComputedStyle(el).fontSize);
-      const card = el.parentElement;
-      if (!card) return;
-      const style = getComputedStyle(el);
-      const pad = parseFloat(style.paddingLeft) + parseFloat(style.paddingRight) + 6;
-      const available = card.clientWidth - pad;
-
-      const textWidth = () => {
-        const range = document.createRange();
-        range.selectNodeContents(el);
-        return range.getBoundingClientRect().width;
-      };
-
-      let size = base;
-      el.style.fontSize = `${size}px`;
-      while (size > 11 && textWidth() > available) {
-        size = Math.max(11, size - 0.25);
-        el.style.fontSize = `${size}px`;
-      }
-    };
-
-    fit();
-    window.addEventListener('resize', fit);
-    const observer = new ResizeObserver(fit);
-    if (el.parentElement) observer.observe(el.parentElement);
-    return () => {
-      window.removeEventListener('resize', fit);
-      observer.disconnect();
-    };
-  }, [name]);
-
-  return (
-    <span ref={ref} className="ske__name">
-      {name}
-    </span>
-  );
-}
-
 /**
  * Пирамида навыков: ступени, карточки, крестики и пустые слоты.
  * Один и тот же вид на листе и в конструкторе — разница только в размере.
@@ -111,6 +63,27 @@ export function SkillPyramid({
   slotTitle,
   big = false,
 }: Props) {
+  /* На тач-экране карточка сама раскрывает свой крестик; на десктопе — наведение. */
+  const [touch, setTouch] = useState(false);
+  const [revealed, setRevealed] = useState<string | null>(null);
+
+  useEffect(() => {
+    const query = window.matchMedia('(hover: none)');
+    const update = () => setTouch(query.matches);
+    update();
+    query.addEventListener('change', update);
+    return () => query.removeEventListener('change', update);
+  }, []);
+
+  useEffect(() => {
+    const clear = (event: PointerEvent) => {
+      const target = event.target;
+      if (!(target instanceof Element) || !target.closest('.ske__grid')) setRevealed(null);
+    };
+    document.addEventListener('pointerdown', clear);
+    return () => document.removeEventListener('pointerdown', clear);
+  }, []);
+
   return (
     <div className={`ske__body${big ? ' ske__body--big' : ''}`}>
       {rows.map((row, rowIndex) => {
@@ -130,14 +103,25 @@ export function SkillPyramid({
 
             <div className="ske__grid">
               {row.skills.map((name) => (
-                <span className="ske__block" key={`${row.value}-${name}`}>
-                  <SkillName name={name} />
+                <span
+                  className={`ske__block${revealed === name ? ' ske__block--revealed' : ''}`}
+                  key={`${row.value}-${name}`}
+                  onClick={
+                    touch
+                      ? () => setRevealed((current) => (current === name ? null : name))
+                      : undefined
+                  }
+                >
+                  <span className="ske__name">{name}</span>
                   <button
                     type="button"
                     className="ske__del"
                     aria-label={`Убрать ${name}`}
                     title="Убрать навык"
-                    onClick={() => onRemove(row.value, name)}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      onRemove(row.value, name);
+                    }}
                   >
                     ×
                   </button>
@@ -147,7 +131,10 @@ export function SkillPyramid({
                       className="ske__up"
                       aria-label={`Поднять ${name}`}
                       title="Поднять на ступень (1 очко)"
-                      onClick={() => onRaise(row.value, name)}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        onRaise(row.value, name);
+                      }}
                     >
                       <UpArrow />
                     </button>

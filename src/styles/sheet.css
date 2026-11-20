@@ -107,11 +107,17 @@
   }
 }
 
+/* На телефоне страница плотнее: те же блоки, но лист короче. */
+@media (max-width: 720px) {
+  .book {
+    --page-gap: 10px;
+  }
+}
+
 @media (max-width: 480px) {
   .page {
-    padding: 16px;
+    padding: 12px;
   }
-
 }
 
 /* Возврат к списку: узкая строка над книгой, сам разворот не двигается. */
@@ -191,12 +197,12 @@
 @media (max-width: 480px) {
   .sheet-nav {
     flex-wrap: nowrap;
-    gap: 8px;
+    gap: 6px;
   }
 
   .sheet-nav a {
     gap: 6px;
-    font-size: var(--text-caption);
+    font-size: var(--text-micro);
   }
 
   .sheet-nav__label {
@@ -208,12 +214,97 @@
   }
 
   .sheet-nav__actions {
-    gap: 8px;
+    gap: 6px;
   }
 
   .sheet-nav__btn {
     min-height: 44px;
-    padding: 0 9px;
-    letter-spacing: 0.06em;
+    padding: 0 7px;
+    font-size: var(--text-micro);
+    letter-spacing: 0.05em;
+  }
+}
+
+/* Экспорт в шапке листа: PDF и файл героя. На телефоне — иконка, чтобы
+   шапка оставалась одной строкой. */
+.sheet-export {
+  position: relative;
+}
+
+.sheet-export__btn {
+  gap: 7px;
+  padding: 0 12px;
+}
+
+.sheet-export__btn svg {
+  flex: none;
+  width: 17px;
+  height: 17px;
+}
+
+.sheet-export__label {
+  line-height: 1;
+}
+
+.sheet-export__menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 40;
+  width: 196px;
+  margin: 0;
+  padding: 4px;
+  list-style: none;
+  background-color: var(--bg-parchment);
+  border: 1px solid color-mix(in srgb, var(--accent-gold-deep) 60%, transparent);
+  box-shadow: 0 10px 24px color-mix(in srgb, black 40%, transparent);
+}
+
+.sheet-export__item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  min-height: 38px;
+  padding: 0 9px;
+  border: 0;
+  background: transparent;
+  font-family: var(--font-body);
+  font-size: var(--text-caption);
+  color: var(--text-ink-primary);
+  text-align: left;
+  cursor: pointer;
+}
+
+.sheet-export__item:hover,
+.sheet-export__item:focus-visible {
+  background: color-mix(in srgb, var(--accent-gold) 14%, transparent);
+}
+
+.sheet-export__item:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.sheet-export__item svg {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  color: var(--accent-gold-ink);
+}
+
+@media (max-width: 480px) {
+  .sheet-export__btn {
+    width: 44px;
+    padding: 0;
+    justify-content: center;
+  }
+
+  .sheet-export__label {
+    display: none;
+  }
+
+  .sheet-export__item {
+    min-height: 44px;
   }
 }

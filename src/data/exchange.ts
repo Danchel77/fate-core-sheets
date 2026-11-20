@@ -43,6 +43,10 @@ export function jsonFileName(record: CharacterRecord): string {
   return `${cleanBase(record.sheet.name) || 'Лист персонажа'}.fate.json`;
 }
 
+export function pdfFileName(record: CharacterRecord): string {
+  return `${cleanBase(record.sheet.name) || 'Лист персонажа'}.pdf`;
+}
+
 export function downloadFile(text: string, fileName: string, type = 'application/json'): void {
   downloadBlob(new Blob([text], { type }), fileName);
 }

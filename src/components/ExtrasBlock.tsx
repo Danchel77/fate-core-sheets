@@ -19,7 +19,7 @@ type GrowingAreaProps = {
 
 const DEFAULT_TITLES: [string, string] = ['Заметки I', 'Заметки II'];
 
-/** Свободное поле «Дополнений»: начинается с четырёх строк и растёт под текст. */
+/** Свободное поле «Дополнений»: начинается с трёх строк и растёт под текст. */
 function GrowingArea({
   index,
   title,
@@ -61,7 +61,7 @@ function GrowingArea({
       <textarea
         ref={areaRef}
         className="ext__area"
-        rows={4}
+        rows={3}
         value={value}
         aria-label={`Дополнение, поле ${index}`}
         placeholder={placeholder}
