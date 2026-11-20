@@ -485,18 +485,33 @@
   fill: color-mix(in srgb, var(--accent-gold-deep) 30%, transparent);
 }
 
-/* Эмблема сеттинга: медальон по форме логотипа — круг для Волка, плашка для Fate. */
+/* Эмблема сеттинга: гравированная латунная табличка с рамкой и заклёпками. */
 .setting-mark {
   position: absolute;
   left: 7px;
   bottom: 7px;
   z-index: 3;
   display: block;
-  border-radius: 50%;
-  background: color-mix(in srgb, var(--theme-cover-lo) 90%, transparent);
+  border-radius: 2px;
+  background: linear-gradient(150deg, var(--theme-cover-hi), var(--theme-cover-lo));
   box-shadow:
-    0 0 0 1px color-mix(in srgb, var(--accent-gold) 85%, transparent),
+    0 0 0 1px var(--accent-gold),
+    0 0 0 3px var(--theme-cover-lo),
+    0 0 0 4px color-mix(in srgb, var(--accent-gold) 70%, transparent),
     0 2px 5px var(--shadow-deep);
+}
+
+.setting-mark::before {
+  content: '';
+  position: absolute;
+  inset: 2px;
+  border-radius: inherit;
+  pointer-events: none;
+  background-image:
+    radial-gradient(circle 1.2px at 4px 4px, var(--accent-gold) 99%, transparent 100%),
+    radial-gradient(circle 1.2px at calc(100% - 4px) 4px, var(--accent-gold) 99%, transparent 100%),
+    radial-gradient(circle 1.2px at 4px calc(100% - 4px), var(--accent-gold) 99%, transparent 100%),
+    radial-gradient(circle 1.2px at calc(100% - 4px) calc(100% - 4px), var(--accent-gold) 99%, transparent 100%);
 }
 
 .setting-mark__edge,
@@ -513,7 +528,7 @@
 }
 
 .setting-mark__edge {
-  background-color: var(--theme-cover-lo);
+  background-color: color-mix(in srgb, var(--accent-gold) 45%, var(--theme-cover-lo));
 }
 
 .setting-mark__shape {
@@ -523,12 +538,12 @@
 .setting-mark--witcher {
   width: 34px;
   height: 34px;
+  border-radius: 50%;
 }
 
 .setting-mark--fate {
-  width: 50px;
-  height: 26px;
-  border-radius: 13px;
+  width: 56px;
+  height: 30px;
 }
 
 .hero-card__body {
@@ -792,6 +807,7 @@
   .setting-mark--witcher {
     width: 26px;
     height: 26px;
+    border-radius: 50%;
   }
 
   .setting-mark--fate {
