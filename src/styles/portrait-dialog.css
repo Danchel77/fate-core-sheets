@@ -184,8 +184,41 @@
 
 .pc__range {
   width: 100%;
-  accent-color: var(--accent-gold-deep);
+  height: 24px;
+  margin: 0;
+  appearance: none;
+  background: transparent;
   cursor: pointer;
+}
+
+.pc__range::-webkit-slider-runnable-track {
+  height: 2px;
+  border-radius: 1px;
+  background: color-mix(in srgb, var(--accent-gold-deep) 34%, transparent);
+}
+
+.pc__range::-webkit-slider-thumb {
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  margin-top: -6px;
+  border: 1px solid var(--bg-parchment);
+  border-radius: 50%;
+  background: var(--accent-gold-deep);
+}
+
+.pc__range::-moz-range-track {
+  height: 2px;
+  border-radius: 1px;
+  background: color-mix(in srgb, var(--accent-gold-deep) 34%, transparent);
+}
+
+.pc__range::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border: 1px solid var(--bg-parchment);
+  border-radius: 50%;
+  background: var(--accent-gold-deep);
 }
 
 .pc__range:focus-visible {
@@ -204,38 +237,3 @@
   }
 }
 
-/* кнопка закрытия в шапке этих окон (в окне трюка её нет) */
-
-.pd .sm__close,
-.pc .sm__close {
-  position: absolute;
-  top: 6px;
-  right: 8px;
-  z-index: 3;
-  display: grid;
-  place-items: center;
-  width: 32px;
-  height: 32px;
-  padding: 0;
-  border: 0;
-  background: none;
-  color: var(--accent-gold-ink);
-  cursor: pointer;
-}
-
-.pd .sm__close svg,
-.pc .sm__close svg {
-  width: 16px;
-  height: 16px;
-}
-
-.pd .sm__close:hover,
-.pc .sm__close:hover {
-  color: var(--accent-gold-deep);
-}
-
-.pd .sm__close:focus-visible,
-.pc .sm__close:focus-visible {
-  outline: 2px solid var(--accent-gold-ink);
-  outline-offset: 2px;
-}

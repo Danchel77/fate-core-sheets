@@ -4,6 +4,7 @@ import { createPortal } from 'react-dom';
 import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
 import { useDialogKeys } from '../hooks/useDialogKeys';
 import { refreshWithStunts } from '../data/characters';
+import { IconClose } from './icons';
 
 const PAPER = `${import.meta.env.BASE_URL}assets/textures/parchment-soft.jpg`;
 
@@ -188,6 +189,9 @@ export function StuntModal({
           <span className="sm__head-title" id={titleId}>
             {title}
           </span>
+          <button type="button" className="sm__close" aria-label="Закрыть" onClick={onClose}>
+            <IconClose />
+          </button>
         </div>
 
         <div className="sm__body">

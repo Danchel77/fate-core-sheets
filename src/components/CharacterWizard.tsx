@@ -912,7 +912,9 @@ export function CharacterWizard({ draft, onChange, onSkip, lockedSetting = false
               )}
             </div>
 
-            <footer className="sm__footer">
+            <footer
+              className={`sm__footer${hint === null && !stuntHelp && step === 1 ? ' sm__footer--first' : ''}`}
+            >
               <div className="sm__footer-left">
                 {hint === null && !stuntHelp && step === 1 && (
                   <button type="button" className="sm__ghost" onClick={onSkip}>

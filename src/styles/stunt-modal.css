@@ -94,6 +94,37 @@
   color: var(--accent-gold-ink);
 }
 
+/* Единый крестик всех окон: стоит в шапке справа. */
+.sm__close {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--accent-gold-ink);
+  cursor: pointer;
+}
+
+.sm__close svg {
+  width: 16px;
+  height: 16px;
+}
+
+.sm__close:hover {
+  color: var(--accent-gold-deep);
+}
+
+.sm__close:focus-visible {
+  outline: 2px solid var(--accent-gold-ink);
+  outline-offset: 2px;
+}
+
 /* ---------- тело ---------- */
 
 .sm__body {
@@ -150,11 +181,6 @@
   outline: none;
   border-bottom-color: var(--accent-gold-deep);
   background: color-mix(in srgb, var(--accent-gold) 7%, transparent);
-}
-
-.sm__input:focus-visible {
-  outline: 2px solid var(--accent-gold-ink);
-  outline-offset: 3px;
 }
 
 /* Две строки по умолчанию; высоту под текст ставит сам компонент. */
@@ -361,6 +387,17 @@
   cursor: not-allowed;
 }
 
+/* Опасное действие: приглушённый бордовый вместо золота. */
+.sm__primary--danger {
+  border-color: var(--accent-crimson-ink);
+  background: var(--accent-crimson-ink);
+}
+
+.sm__primary--danger:hover:not(:disabled) {
+  border-color: var(--accent-crimson-action);
+  background: var(--accent-crimson-action);
+}
+
 .sm__ghost:focus-visible,
 .sm__primary:focus-visible,
 .sm__danger:focus-visible,
@@ -451,6 +488,13 @@
   .sm__primary,
   .sm__danger {
     min-height: 44px;
+  }
+
+  .sm__close {
+    width: 44px;
+    height: 44px;
+    top: 2px;
+    right: 2px;
   }
 }
 

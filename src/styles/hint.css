@@ -18,14 +18,14 @@
   left: 0;
   right: 0;
   bottom: -1px;
-  height: 1px;
-  background: color-mix(in srgb, var(--accent-gold-deep) 58%, transparent);
+  height: 0;
+  border-bottom: 1px dotted color-mix(in srgb, var(--accent-gold-deep) 58%, transparent);
 }
 
 .hint__word:hover::after,
 .hint__word:focus-visible::after,
 .hint__word[aria-expanded='true']::after {
-  background: var(--accent-gold-deep);
+  border-bottom-color: var(--accent-gold-deep);
 }
 
 .hint__word:focus-visible {

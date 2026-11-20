@@ -897,3 +897,31 @@
     padding-right: 46px;
   }
 }
+
+/* Шаг 1 на телефоне: «Пропустить» — компактная ссылка в одной строке с «Далее». */
+@media (max-width: 560px) {
+  .sm__footer--first {
+    flex-wrap: nowrap;
+    gap: 8px;
+  }
+
+  .sm__footer--first .sm__footer-left {
+    min-height: 0;
+  }
+
+  .sm__footer--first .sm__ghost {
+    min-height: 44px;
+    padding: 0 4px;
+    border: 0;
+    background: none;
+    color: var(--text-ink-muted);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .sm__footer--first .sm__ghost:hover {
+    border: 0;
+    background: none;
+    color: var(--text-ink-primary);
+  }
+}

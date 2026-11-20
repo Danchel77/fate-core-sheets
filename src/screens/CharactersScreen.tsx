@@ -7,10 +7,10 @@ import {
   IconBraces,
   IconChevronDown,
   IconCopy,
+  IconDownload,
   IconFileDown,
   IconSearch,
   IconTrash,
-  IconUpload,
 } from '../components/icons';
 import { downloadFile, fileText, jsonFileName, parseFile, pdfFileName } from '../data/exchange';
 import { downloadBlob } from '../data/download';
@@ -303,13 +303,14 @@ export default function CharactersScreen() {
                 </div>
 
                 <button
-                  className="iconbtn"
+                  className="heroes__import"
                   type="button"
                   aria-label="Загрузить героя из файла"
                   title="Загрузить героя из файла"
                   onClick={() => importRef.current?.click()}
                 >
-                  <IconUpload />
+                  <IconDownload />
+                  <span className="heroes__import-label">Загрузить</span>
                 </button>
 
                 <button

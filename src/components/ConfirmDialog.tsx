@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
 import { useDialogKeys } from '../hooks/useDialogKeys';
+import { IconClose } from './icons';
 
 type Props = {
   title: string;
@@ -47,6 +48,9 @@ export function ConfirmDialog({ title, text, confirmLabel, onConfirm, onClose }:
           <h2 className="sm__head-title" id="confirm-title">
             {title}
           </h2>
+          <button type="button" className="sm__close" aria-label="Закрыть" onClick={onClose}>
+            <IconClose />
+          </button>
         </div>
         <div className="sm__body">
           <p className="sm__text" id="confirm-text">
@@ -59,7 +63,12 @@ export function ConfirmDialog({ title, text, confirmLabel, onConfirm, onClose }:
             <button type="button" className="sm__ghost" ref={cancelRef} onClick={onClose}>
               Отмена
             </button>
-            <button type="button" className="sm__primary" ref={confirmRef} onClick={onConfirm}>
+            <button
+              type="button"
+              className="sm__primary sm__primary--danger"
+              ref={confirmRef}
+              onClick={onConfirm}
+            >
               {confirmLabel}
             </button>
           </div>

@@ -163,6 +163,7 @@ export function PortraitCropper({ src, onCancel, onDone }: Props) {
     <div className="pc-overlay">
       <div className="sm__panel pc" role="dialog" aria-modal="true" aria-labelledby="pc-title">
         <div className="sm__head">
+          <span className="sm__texture" aria-hidden="true" />
           <span className="sm__head-title" id="pc-title">
             Кадрирование портрета
           </span>

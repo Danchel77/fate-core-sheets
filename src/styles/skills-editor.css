@@ -541,9 +541,10 @@
 
 .ske__levelbar .ske__lv-line {
   display: grid;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: auto auto;
+  justify-content: start;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
   min-height: 40px;
 }
 

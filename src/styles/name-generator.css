@@ -156,7 +156,7 @@
 .ng__history-chip {
   min-height: 32px;
   padding: 2px 10px;
-  border: 1px dashed color-mix(in srgb, var(--accent-gold-deep) 40%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent-gold-deep) 40%, transparent);
   background: transparent;
   font-family: var(--font-body);
   font-size: var(--text-caption);

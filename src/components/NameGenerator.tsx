@@ -6,7 +6,7 @@ import type { NameGender } from '../data/settings/types';
 import type { SettingId } from '../data/types';
 import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
 import { useDialogKeys } from '../hooks/useDialogKeys';
-import { IconDices } from './icons';
+import { IconClose, IconDices } from './icons';
 
 /** Сколько предыдущих имён помнить: игрок часто перегенерирует и хочет вернуться. */
 const HISTORY_LIMIT = 10;
@@ -133,6 +133,9 @@ export function NameGenerator({ setting, onPick, onClose }: Props) {
           <h2 className="sm__head-title" id="ng-title">
             Генератор имён
           </h2>
+          <button type="button" className="sm__close" aria-label="Закрыть" onClick={onClose}>
+            <IconClose />
+          </button>
         </header>
 
         <div className="sm__body ng__body">

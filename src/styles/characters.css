@@ -348,6 +348,37 @@
   height: 16px;
 }
 
+/* Импорт героя: стрелка в лоток и подпись, чтобы не путать с экспортом. */
+.heroes__import {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 34px;
+  padding: 0 10px;
+  border: 1px solid color-mix(in srgb, var(--accent-gold) 48%, transparent);
+  background: color-mix(in srgb, var(--paper-highlight) 55%, transparent);
+  color: var(--accent-gold-ink);
+  font-family: var(--font-body);
+  font-size: var(--text-caption);
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    border-color var(--transition-fast),
+    background-color var(--transition-fast);
+}
+
+.heroes__import:hover {
+  border-color: var(--accent-gold-deep);
+  background: color-mix(in srgb, var(--accent-gold) 12%, transparent);
+}
+
+.heroes__import svg {
+  width: 16px;
+  height: 16px;
+}
+
 /* Лупа занимает место шестерёнки только на телефоне. */
 .heroes__searchbtn {
   display: none;
@@ -784,6 +815,16 @@
   .iconbtn {
     width: 44px;
     height: 44px;
+  }
+
+  .heroes__import {
+    width: 44px;
+    height: 44px;
+    padding: 0;
+  }
+
+  .heroes__import-label {
+    display: none;
   }
 
   /* Шапка остаётся 40 px и на телефоне: кнопка «Войти» растянута по её высоте,
