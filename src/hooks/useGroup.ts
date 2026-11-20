@@ -66,10 +66,17 @@ export function useGroups(uid: string | null): GroupsState {
         setEvicted(true);
         setRefs((list) => list?.filter((item) => item.id !== activeId) ?? list);
         if (uid) void forgetGroup(uid, activeId);
-        setActiveId(null);
+        // Если к этому моменту уже выбрана другая группа — не сбрасываем её.
+        setActiveId((current) => (current === activeId ? null : current));
       },
     );
   }, [activeId, uid]);
+
+  // Закрытая группа обнулила активную — сразу открываем следующую.
+  useEffect(() => {
+    if (activeId || !refs || refs.length === 0) return;
+    setActiveId(refs[0].id);
+  }, [activeId, refs]);
 
   return { refs, feed, lost, evicted, activeId, setActiveId };
 }

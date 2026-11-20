@@ -41,23 +41,40 @@ function MemberPhoto({ member }: { member: GroupMember }) {
 /** Карточка игрока без героя: за столом он есть, листа ещё нет. */
 function GhostCard({
   member,
+  mine,
+  onPick,
   canRemove,
   onRemove,
 }: {
   member: GroupMember;
+  mine: boolean;
+  onPick: () => void;
   canRemove: boolean;
   onRemove: (member: GroupMember) => void;
 }) {
+  const body = (
+    <>
+      <MemberPhoto member={member} />
+      <span className="hero-card__body">
+        <span className="hero-card__name">{member.playerName}</span>
+        <span className="hero-card__rule" />
+        <span className="hero-card__concept">Герой не выбран</span>
+      </span>
+    </>
+  );
   return (
     <article className="hero-card">
-      <div className="hero-card__link">
-        <MemberPhoto member={member} />
-        <span className="hero-card__body">
-          <span className="hero-card__name">{member.playerName}</span>
-          <span className="hero-card__rule" />
-          <span className="hero-card__concept">Герой не выбран</span>
-        </span>
-      </div>
+      {mine ? (
+        <button
+          type="button"
+          className="hero-card__link hero-card__link--button"
+          onClick={onPick}
+        >
+          {body}
+        </button>
+      ) : (
+        <div className="hero-card__link">{body}</div>
+      )}
       {canRemove && (
         <BlockMenu
           label="Действия с игроком"
@@ -199,8 +216,7 @@ function GroupHead({
     <header className="heroes__head">
       <div className="heroes__lead">
         <ListTabs active="group" count={records} />
-        {group && <p className="heroes__groupname">{group.name}</p>}
-        {refs.length > 1 && (
+        {refs.length > 0 && (
           <div className="group__switch" role="tablist" aria-label="Мои группы">
             {refs.map((item) => (
               <button
@@ -434,6 +450,8 @@ export default function GroupScreen() {
                 ) : (
                   <GhostCard
                     member={member}
+                    mine={member.uid === user.uid}
+                    onPick={() => setPickerOpen(true)}
                     canRemove={isMaster && member.uid !== user.uid}
                     onRemove={setRemoveTarget}
                   />

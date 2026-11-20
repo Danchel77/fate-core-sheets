@@ -74,6 +74,18 @@
   background: color-mix(in srgb, var(--accent-gold) 12%, transparent);
 }
 
+/* Своя карточка без героя — кнопка, открывает выбор персонажа */
+.hero-card__link--button {
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  text-align: left;
+  color: inherit;
+  cursor: pointer;
+}
+
 /* Карточка игрока и подпись под ней */
 .group__item {
   min-width: 0;
@@ -379,11 +391,11 @@
 
   .group__invite {
     order: 1;
+    flex: 1 1 auto;
   }
 
   .group__more {
     order: 2;
-    margin-left: auto;
   }
 
   .group__hero {

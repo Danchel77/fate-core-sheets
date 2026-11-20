@@ -157,15 +157,6 @@ a.heroes__tab:focus-visible {
   border-bottom-color: var(--accent-gold);
 }
 
-.heroes__groupname {
-  margin: 0;
-  padding-left: 1px;
-  font-family: var(--font-body);
-  font-size: 1.05rem;
-  line-height: 1.2;
-  color: var(--text-ink-muted);
-}
-
 .heroes__count {
   font-family: var(--font-name-prata);
   font-size: var(--text-lead);
