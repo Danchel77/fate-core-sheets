@@ -70,7 +70,7 @@
   padding: 0;
   border: 1px solid color-mix(in srgb, var(--accent-gold) 48%, transparent);
   border-radius: 1px;
-  background: color-mix(in srgb, var(--bg-parchment) 68%, var(--band-ink) 32%);
+  background: var(--surface-box);
   color: var(--accent-gold-deep);
   font-family: var(--font-body);
   font-size: var(--text-lead);
@@ -114,7 +114,7 @@
 
 .str__box:hover {
   border-color: var(--accent-gold-deep);
-  background: color-mix(in srgb, var(--accent-gold) 10%, var(--bg-parchment) 90%);
+  background: color-mix(in srgb, var(--accent-gold) 10%, var(--surface-box) 90%);
 }
 
 .str__box:focus-visible {
@@ -192,7 +192,7 @@
   padding: 3px 6px;
   border: 1px solid color-mix(in srgb, var(--accent-gold) 24%, transparent);
   border-radius: 1px;
-  background: color-mix(in srgb, var(--bg-parchment) 90%, var(--text-ink-primary) 10%);
+  background: var(--surface-field);
   color: var(--text-ink-primary);
   font-family: var(--font-body);
   font-size: var(--text-body);

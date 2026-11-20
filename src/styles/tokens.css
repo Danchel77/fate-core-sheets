@@ -52,6 +52,9 @@
   --arrow-edge: #4a2318;
 
   --band-ink: #f8eed9;
+  /* Тёплая поверхность полей: та же бумага, на шаг глуше страницы. */
+  --surface-field: #eddfc6;
+  --surface-box: #f1e5d0;
   --font-name-sc: 'Cormorant SC', 'Cormorant Garamond', serif;
   --font-name-prata: 'Prata', 'Cormorant Garamond', serif;
 
@@ -103,6 +106,8 @@
   --arrow-gold-lo: #5c3a18;
   --arrow-edge: #3a2214;
   --band-ink: #f4e8d2;
+  --surface-field: #e9dabd;
+  --surface-box: #eee2c9;
   --tint-gold-sand: #c9a878;
   --tint-gold-pale: #ddc9a6;
   --coin-edge: #513517;
@@ -138,6 +143,8 @@
   --arrow-gold-lo: #6b4b1e;
   --arrow-edge: #4a2318;
   --band-ink: #f8eed9;
+  --surface-field: #efe4cd;
+  --surface-box: #f3e9d7;
   --tint-gold-sand: #c2a26a;
   --tint-gold-pale: #d9c6a2;
   --coin-edge: #6b4a20;
