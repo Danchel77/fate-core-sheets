@@ -48,3 +48,4 @@
 | Cormorant Garamond | Christian Thalmann | Google Fonts (`@fontsource/cormorant-garamond`) | OFL 1.1 |
 | PT Serif | ParaType | Google Fonts (`@fontsource/pt-serif`) | OFL 1.1 |
 | Montserrat (Black, Bold, SemiBold, Medium, Regular) | Julieta Ulanovsky, Sol Matas | https://github.com/JulietaUla/Montserrat (`public/fonts/`) | OFL 1.1 |
+| PT Sans Narrow (Regular) — только названия навыков в печатном PDF | ParaType | https://github.com/google/fonts/tree/main/ofl/ptsansnarrow (`public/fonts/`) | OFL 1.1 |

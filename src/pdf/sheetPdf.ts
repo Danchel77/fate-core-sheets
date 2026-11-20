@@ -13,7 +13,7 @@ import {
   popGraphicsState,
 } from 'pdf-lib';
 import type { Character } from '../data/types';
-import { effectiveRefresh } from '../data/characters';
+import { effectiveRefresh, mentalStress, physicalStress } from '../data/characters';
 import { embedFonts, type PdfFonts } from './fonts';
 
 const MM = 72 / 25.4;
@@ -44,6 +44,8 @@ const BLACK = rgb(0, 0, 0);
 const WHITE = rgb(1, 1, 1);
 const GREY = rgb(0.44, 0.44, 0.44);
 const LINE = rgb(0.08, 0.08, 0.08);
+/** Закрытые/бонусные ячейки: 28–30 % чёрного, как в официальном бланке. */
+const CLOSED_LINE = rgb(0.72, 0.72, 0.72);
 
 const LINE_WIDTH = 0.7;
 type PDFColor = ReturnType<typeof rgb>;
@@ -416,20 +418,24 @@ function drawSkills(page: PDFPage, character: Character, fonts: PdfFonts, overfl
     );
 
     const skills = row.value === 5 ? [] : skillsFor(character, row.value);
+    // Ёмкость ступени: 6 − ступень. Остальные ячейки закрыты и печатаются серым.
+    const capacity = 6 - row.value;
     for (let column = 0; column < 5; column += 1) {
       const x0 = SKILL_CELL_STARTS[column];
       const box = B(x0, top, x0 + SKILL_CELL_W, top + ROW_H);
-      strokeBox(page, box, LINE, 0.55);
+      const open = column < capacity;
+      strokeBox(page, box, open ? LINE : CLOSED_LINE, 0.55);
       const skill = skills[column];
       if (!skill) continue;
-      const fit = fitLine(skill, fonts.regular, box.w - 2.6, 10.2, 7);
+      // Единый кегль для всех названий: узкий шрифт держит «Внимательность» в ячейке.
+      const fit = fitLine(skill, fonts.narrow, box.w - 2.6, 8.4, 8.4);
       drawText(
         page,
         fit.text,
         box.x,
         box.y + (box.h - capMm(fit.size)) / 2,
         fit.size,
-        fonts.regular,
+        fonts.narrow,
         BLACK,
         'center',
         box.w,
@@ -454,8 +460,8 @@ function drawExtras(page: PDFPage, character: Character, fonts: PdfFonts, overfl
 
     const value = text.trim();
     if (!value) return;
-    const fit = fitParagraph(value, fonts.regular, columnWidth - 2, box.h - 5.4, 9.8, 7.2);
-    drawParagraph(page, fit.lines, x, box.y + 3.2, fit.size, fonts.regular);
+    const fit = fitParagraph(value, fonts.regular, columnWidth - 2, box.h - 5.9, 9.8, 7.2);
+    drawParagraph(page, fit.lines, x, box.y + 4.9, fit.size, fonts.regular);
     if (fit.clipped) overflow.push({ title: `Дополнения · ${title}`, text: value });
   });
 }
@@ -537,16 +543,16 @@ function drawStunts(page: PDFPage, character: Character, fonts: PdfFonts, overfl
   }
 }
 
-function drawStressTrack(page: PDFPage, top: number, fonts: PdfFonts): void {
+function drawStressTrack(page: PDFPage, top: number, open: number, fonts: PdfFonts): void {
   for (let index = 0; index < 4; index += 1) {
     const x0 = 15 + index * 9.5;
     const box = B(x0, top, x0 + 7, top + 6);
-    strokeBox(page, box, LINE, 1);
-    drawText(page, String(index + 1), box.x + 0.9, box.y + 0.4, 9.5, fonts.medium, GREY);
+    strokeBox(page, box, index < open ? LINE : CLOSED_LINE, 1);
+    drawText(page, String(index + 1), box.x + 0.5, box.y + 0.2, 18, fonts.semiBold, GREY);
   }
 }
 
-function drawStress(page: PDFPage, fonts: PdfFonts): void {
+function drawStress(page: PDFPage, character: Character, fonts: PdfFonts): void {
   const physBar = B(15, 118.2, 63.3, 121.2);
   drawBar(page, physBar, 'Физ. стресс', fonts, 9.8);
   const physTitle = 'ФИЗ. СТРЕСС';
@@ -575,8 +581,8 @@ function drawStress(page: PDFPage, fonts: PdfFonts): void {
     WHITE,
   );
 
-  drawStressTrack(page, 121.2, fonts);
-  drawStressTrack(page, 133, fonts);
+  drawStressTrack(page, 121.2, physicalStress(character), fonts);
+  drawStressTrack(page, 133, mentalStress(character), fonts);
 }
 
 function drawConsequences(
@@ -594,7 +600,7 @@ function drawConsequences(
   ];
 
   rows.forEach((row) => {
-    drawText(page, String(row.value), mapX(67.4), mapY(row.top) + 0.4, 12, fonts.medium, GREY, 'right');
+    drawText(page, String(row.value), mapX(67.6), mapY(row.top) + 0.6, 18, fonts.semiBold, BLACK, 'right');
 
     const box = B(69, row.top, 134.8, row.top + 5.8);
     strokeBox(page, box);
@@ -612,10 +618,18 @@ function drawConsequences(
   });
 
   // Второй слот «Лёгкое» — запасной из правил +5; на бланке он есть, данных пока нет.
+  // Бонусный слот закрыт: серая рамка, но цифра «2» стоит внутри, как в официальном бланке.
   const extraBox = B(135, 121.4, 204, 127.2);
-  strokeBox(page, extraBox);
-  drawText(page, '2', mapX(133.8), mapY(121.4) + 0.4, 12, fonts.medium, GREY, 'right');
-  drawFieldLabel(page, 'Лёгкое', extraBox.x + 1.6, extraBox.y + 1.1, fonts, 7.8);
+  strokeBox(page, extraBox, CLOSED_LINE);
+  drawText(page, '2', extraBox.x + 0.6, extraBox.y + 0.4, 18, fonts.semiBold, BLACK);
+  drawFieldLabel(
+    page,
+    'Лёгкое',
+    extraBox.x + 5.4,
+    extraBox.y + (extraBox.h - capMm(7.8)) / 2,
+    fonts,
+    7.8,
+  );
 }
 
 /* ------------------------------------------------------------------ */
@@ -705,7 +719,7 @@ export async function buildCharacterPdf(character: Character): Promise<Uint8Arra
   drawSkills(page, character, fonts, overflow);
   drawExtras(page, character, fonts, overflow);
   drawStunts(page, character, fonts, overflow);
-  drawStress(page, fonts);
+  drawStress(page, character, fonts);
   drawConsequences(page, character, fonts, overflow);
 
   if (overflow.length > 0) drawAppendix(doc, fonts, overflow);

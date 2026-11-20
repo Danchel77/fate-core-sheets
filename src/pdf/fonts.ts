@@ -11,6 +11,8 @@ export type PdfFonts = {
   semiBold: PDFFont;
   bold: PDFFont;
   black: PDFFont;
+  /** Узкий шрифт только для названий навыков в ячейках бланка. */
+  narrow: PDFFont;
 };
 
 const FILES: Record<keyof PdfFonts, string> = {
@@ -19,6 +21,7 @@ const FILES: Record<keyof PdfFonts, string> = {
   semiBold: 'Montserrat-SemiBold.ttf',
   bold: 'Montserrat-Bold.ttf',
   black: 'Montserrat-Black.ttf',
+  narrow: 'PT-Sans-Narrow-Regular.ttf',
 };
 
 const loaded = new Map<string, Promise<ArrayBuffer>>();
