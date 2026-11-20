@@ -837,6 +837,16 @@ a.heroes__tab:focus-visible {
   }
 }
 
+/* 1000–1300 (Steam Deck): кнопка создания встаёт в строку фильтров
+   и «Загрузить», а не висит отдельно над ними. */
+@media (min-width: 1000px) and (max-width: 1300px) {
+  .heroes__head--tools {
+    grid-template-areas:
+      'lead lead'
+      'tools action';
+  }
+}
+
 @media (max-width: 720px) {
   /* На телефоне страница списка компактнее: отступы не съедают экран. */
   .heroes {
