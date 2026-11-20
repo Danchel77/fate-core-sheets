@@ -182,8 +182,8 @@ a.heroes__tab:focus-visible {
 
 .seg {
   display: flex;
-  border: 1px solid color-mix(in srgb, var(--accent-gold) 48%, transparent);
-  background: color-mix(in srgb, var(--paper-highlight) 55%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent-gold-deep) 55%, transparent);
+  background: transparent;
 }
 
 .seg__btn {
@@ -212,8 +212,12 @@ a.heroes__tab:focus-visible {
 }
 
 .seg__btn[aria-pressed='true'] {
-  background: color-mix(in srgb, var(--accent-gold) 16%, transparent);
-  color: var(--text-ink-primary);
+  background: var(--accent-gold-deep);
+  color: var(--bg-parchment);
+}
+
+.seg__btn[aria-pressed='true'] .seg__count {
+  color: inherit;
 }
 
 .seg__count {
@@ -230,8 +234,8 @@ a.heroes__tab:focus-visible {
   gap: 7px;
   height: 34px;
   padding: 0 10px;
-  border: 1px solid color-mix(in srgb, var(--accent-gold) 48%, transparent);
-  background: color-mix(in srgb, var(--paper-highlight) 55%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent-gold-deep) 55%, transparent);
+  background: transparent;
   transition: border-color var(--transition-fast);
 }
 
@@ -279,9 +283,9 @@ a.heroes__tab:focus-visible {
   width: 172px;
   height: 34px;
   padding: 0 10px 0 11px;
-  border: 1px solid color-mix(in srgb, var(--accent-gold) 48%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent-gold-deep) 55%, transparent);
   border-radius: 0;
-  background: color-mix(in srgb, var(--paper-highlight) 55%, transparent);
+  background: transparent;
   font-family: var(--font-body);
   font-size: var(--text-caption);
   color: var(--text-ink-primary);
@@ -395,8 +399,8 @@ a.heroes__tab:focus-visible {
   gap: 6px;
   height: 34px;
   padding: 0 10px;
-  border: 1px solid color-mix(in srgb, var(--accent-gold) 48%, transparent);
-  background: color-mix(in srgb, var(--paper-highlight) 55%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent-gold-deep) 55%, transparent);
+  background: transparent;
   color: var(--accent-gold-ink);
   font-family: var(--font-body);
   font-size: var(--text-caption);
@@ -587,8 +591,8 @@ a.heroes__tab:focus-visible {
 /* На карточке эмблема переехала с портрета в свободный правый нижний угол строки уровня. */
 .hero-card__link > .setting-mark {
   left: auto;
-  right: 10px;
-  bottom: 8px;
+  right: 13px;
+  bottom: 12px;
 }
 
 /* Логотип Fate в табличке сидит низко — поднимаем его к оптическому центру. */
@@ -909,8 +913,8 @@ a.heroes__tab:focus-visible {
 
   .hero-card__link > .setting-mark {
     left: auto;
-    right: 8px;
-    bottom: 6px;
+    right: 12px;
+    bottom: 11px;
   }
 
   .setting-mark--witcher {
