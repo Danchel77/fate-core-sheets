@@ -39,19 +39,6 @@ export function sheetFromDraft(draft: WizardDraft): Character {
   };
 }
 
-/** Совсем пустой черновик не сохраняем: случайно открытое окно не оставляет пустых карточек. */
-export function isBlankDraft(draft: WizardDraft): boolean {
-  return (
-    !draft.name.trim() &&
-    !draft.concept.trim() &&
-    !draft.trouble.trim() &&
-    draft.aspects.every((text) => !text.trim()) &&
-    draft.skills.length === 0 &&
-    filledStunts(draft).length === 0 &&
-    !draft.portrait
-  );
-}
-
 /** Готовый герой раскладывается обратно в черновик: окно открывается с первого шага. */
 export function draftFromCharacter(character: Character, setting: SettingId): WizardDraft {
   return {

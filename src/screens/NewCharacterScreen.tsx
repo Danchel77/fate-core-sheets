@@ -1,11 +1,7 @@
 import { useMemo, useState } from 'react';
 import { createCharacter } from '../data/store';
 import { CharacterWizard, type WizardDraft } from '../components/CharacterWizard';
-import {
-  EMPTY_DRAFT,
-  isBlankDraft,
-  sheetFromDraft,
-} from '../components/wizardDraft';
+import { EMPTY_DRAFT, sheetFromDraft } from '../components/wizardDraft';
 import SheetScreen from './SheetScreen';
 
 /**
@@ -21,11 +17,6 @@ export default function NewCharacterScreen() {
   const finish = async () => {
     if (saving) return;
     setSaving(true);
-
-    if (isBlankDraft(draft)) {
-      window.location.hash = '#/';
-      return;
-    }
 
     const record = await createCharacter(draft.setting, sheetFromDraft(draft));
     window.location.hash = `#/hero/${record.id}`;
