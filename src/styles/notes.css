@@ -20,6 +20,58 @@
   inset: -7px -8px -2px;
 }
 
+/* ── Знак «оставить заметку» ────────────────────────────────────── */
+
+.na {
+  position: absolute;
+  top: 50%;
+  right: 17px;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  color: var(--accent-gold-ink);
+  cursor: pointer;
+  transform: translateY(-50%);
+  transition: color 140ms ease;
+  outline: none;
+}
+
+/* Пальцем проще попасть по знаку, чем кажется по его росту. */
+.na::after {
+  content: '';
+  position: absolute;
+  inset: -10px;
+}
+
+.na svg {
+  display: block;
+  width: 14px;
+  height: 14px;
+}
+
+.na:hover,
+.na:focus-visible {
+  color: var(--text-ink-primary);
+}
+
+.na:focus-visible {
+  outline: 1px solid color-mix(in srgb, var(--accent-gold) 60%, transparent);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) {
+  .na {
+    opacity: 0.72;
+  }
+
+  .na:hover,
+  .na:focus-visible {
+    opacity: 1;
+  }
+}
+
 .nm__clip {
   position: absolute;
   inset: 0;
@@ -69,14 +121,6 @@
   font-size: 0.66rem;
   line-height: 12px;
   color: var(--accent-gold-ink);
-}
-
-.nm--empty .nm__letter {
-  top: 0;
-  font-family: var(--font-body);
-  font-size: 0.68rem;
-  font-weight: 600;
-  color: color-mix(in srgb, var(--text-ink-muted) 78%, transparent);
 }
 
 .nm__count {

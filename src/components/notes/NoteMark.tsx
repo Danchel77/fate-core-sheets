@@ -20,7 +20,9 @@ type Props = {
 /** Закладка заметок: выходит из-под верхнего края плашки блока. */
 export function NoteMark({ blockId, peek, onOpen }: Props) {
   const label = LABELS[blockId];
-  const letter = peek?.author.trim().slice(0, 1).toUpperCase() ?? '';
+  /* Пустой блок не носит закладку: добавлять заметку — отдельной иконкой. */
+  if (!peek) return null;
+  const letter = peek.author.trim().slice(0, 1).toUpperCase();
   /* Внутри fieldset disabled кнопки отключаются, поэтому закладка —
      span с ролью кнопки: заметки остаются доступны на чужом листе. */
   const onKeyDown = (event: KeyboardEvent<HTMLSpanElement>) => {
@@ -33,34 +35,21 @@ export function NoteMark({ blockId, peek, onOpen }: Props) {
     <span
       role="button"
       tabIndex={0}
-      className={`nm${peek ? '' : ' nm--empty'}`}
+      className="nm"
       onClick={onOpen}
       onKeyDown={onKeyDown}
-      aria-label={
-        peek
-          ? `Заметки к блоку «${label}»: ${peek.count}`
-          : `Оставить заметку к блоку «${label}»`
-      }
+      aria-label={`Заметки к блоку «${label}»: ${peek.count}`}
     >
       <span className="nm__clip" aria-hidden="true">
         <span className="nm__tab">
-          <span className="nm__letter">{peek ? letter : '+'}</span>
-          {peek && peek.count > 1 && <b className="nm__count">{peek.count}</b>}
+          <span className="nm__letter">{letter}</span>
+          {peek.count > 1 && <b className="nm__count">{peek.count}</b>}
         </span>
       </span>
       <span className="nm__tip" role="tooltip">
-        {peek ? (
-          <>
-            <b>Заметка · {peek.author}</b>
-            <span>{peek.text}</span>
-            {peek.count > 1 && <i>ещё {peek.count - 1}</i>}
-          </>
-        ) : (
-          <>
-            <b>Заметки к блоку</b>
-            <span>Нажмите, чтобы оставить</span>
-          </>
-        )}
+        <b>Заметка · {peek.author}</b>
+        <span>{peek.text}</span>
+        {peek.count > 1 && <i>ещё {peek.count - 1}</i>}
       </span>
     </span>
   );

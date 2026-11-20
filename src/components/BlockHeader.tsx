@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import type { BlockId } from '../data/groups';
+import { NoteAdd } from './notes/NoteAdd';
 import { NoteMark } from './notes/NoteMark';
 import { useNotes } from './notes/NotesContext';
 
@@ -37,11 +38,14 @@ export function BlockHeader({ title, aside }: Props) {
       <span className="bh__title">{title}</span>
       {aside && <span className="bh__aside">{aside}</span>}
       {notes && blockId && (
-        <NoteMark
-          blockId={blockId}
-          peek={notes.peek(blockId)}
-          onOpen={() => notes.open(blockId)}
-        />
+        <>
+          <NoteMark
+            blockId={blockId}
+            peek={notes.peek(blockId)}
+            onOpen={() => notes.open(blockId)}
+          />
+          <NoteAdd blockId={blockId} onOpen={() => notes.open(blockId)} />
+        </>
       )}
     </div>
   );
