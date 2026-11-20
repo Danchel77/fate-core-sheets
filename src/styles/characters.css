@@ -672,8 +672,34 @@
 }
 
 @media (max-width: 720px) {
+  /* На телефоне страница списка компактнее: отступы не съедают экран. */
+  .heroes {
+    padding: 14px 16px;
+  }
+
+  .heroes__top {
+    margin-bottom: 10px;
+  }
+
+  .heroes__page {
+    padding: 12px 14px 16px;
+  }
+
+  .heroes__head {
+    align-items: flex-start;
+    flex-direction: column;
+    padding-bottom: 10px;
+    gap: 8px 12px;
+  }
+
   .heroes__grid {
     grid-template-columns: 1fr;
+    gap: 10px;
+    margin-top: 14px;
+  }
+
+  .heroes__foot {
+    margin-top: 10px;
   }
 
   /* Портрет и поля карточки чуть компактнее, чтобы имя получало больше ширины. */
@@ -686,11 +712,6 @@
   .hero-photo {
     width: 72px;
     height: 72px;
-  }
-
-  .heroes__head {
-    align-items: flex-start;
-    flex-direction: column;
   }
 
   .heroes__tools {

@@ -73,31 +73,31 @@ export function SheetExport({ record }: Props) {
       </button>
 
       {open && (
-        <ul className="sheet-export__menu" role="menu" aria-label="Экспорт героя">
-          <li>
-            <button
-              type="button"
-              role="menuitem"
-              className="sheet-export__item"
-              disabled={busy}
-              onClick={() => void downloadPdf()}
-            >
+        <div className="bmenu__list" role="menu" aria-label="Экспорт героя">
+          <button
+            type="button"
+            role="menuitem"
+            className="bmenu__item"
+            disabled={busy}
+            onClick={() => void downloadPdf()}
+          >
+            <span className="bmenu__icon">
               <IconFileDown />
-              <span>{busy ? 'Собираем PDF…' : 'Скачать PDF'}</span>
-            </button>
-          </li>
-          <li>
-            <button
-              type="button"
-              role="menuitem"
-              className="sheet-export__item"
-              onClick={downloadJson}
-            >
+            </span>
+            <span>{busy ? 'Собираем PDF…' : 'Скачать PDF'}</span>
+          </button>
+          <button
+            type="button"
+            role="menuitem"
+            className="bmenu__item"
+            onClick={downloadJson}
+          >
+            <span className="bmenu__icon">
               <IconBraces />
-              <span>Скачать JSON</span>
-            </button>
-          </li>
-        </ul>
+            </span>
+            <span>Скачать JSON</span>
+          </button>
+        </div>
       )}
     </div>
   );

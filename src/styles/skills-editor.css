@@ -96,7 +96,8 @@
   box-sizing: border-box;
   width: 100%;
   max-width: 100%;
-  padding: 0 14px;
+  /* Справа всегда оставлено место под крестик: имя не прыгает при его появлении. */
+  padding: 0 20px 0 14px;
   font-family: var(--font-body);
   font-size: 0.8125rem;
   line-height: 1.14;
@@ -136,11 +137,6 @@
 .ske__block--revealed .ske__del {
   opacity: 1;
   pointer-events: auto;
-}
-
-/* Крестик открывается поверх имени: чуть оставляем ему места справа. */
-.ske__block--revealed .ske__name {
-  padding-right: 22px;
 }
 
 .ske__del:hover {
@@ -470,7 +466,7 @@
 }
 
 .ske__body--big .ske__name {
-  padding: 0 14px;
+  padding: 0 26px 0 14px;
   font-size: 0.9375rem;
 }
 
@@ -520,7 +516,7 @@
   }
 
   .ske__body--big .ske__name {
-    padding: 0 16px;
+    padding: 0 26px 0 16px;
   }
 }
 

@@ -35,12 +35,14 @@ export function FatePoints({ initial, refresh, max = 10, onChange }: Props) {
       <div className="fp__head">
         <span className="fp__label">
           <Hint title="Жетоны судьбы" text={FATE_POINTS_HINT}>
-            Жетоны судьбы
+            <span className="fp__label-long">Жетоны судьбы</span>
+            <span className="fp__label-short">Жетоны</span>
           </Hint>
         </span>
         <span className="fp__refresh">
           <Hint title="Обновление" text={REFRESH_HINT}>
-            Обновление
+            <span className="fp__refresh-long">Обновление</span>
+            <span className="fp__refresh-short">Обновл.</span>
           </Hint>{' '}
           <b>{refresh}</b>
         </span>

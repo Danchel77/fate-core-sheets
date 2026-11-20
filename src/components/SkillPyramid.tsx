@@ -120,6 +120,9 @@ export function SkillPyramid({
                     title="Убрать навык"
                     onClick={(event) => {
                       event.stopPropagation();
+                      // На сенсорном листе удаляем только когда крестик уже показан:
+                      // иначе случайное касание угла плашки стирает навык.
+                      if (touch && !big && revealed !== name) return;
                       onRemove(row.value, name);
                     }}
                   >

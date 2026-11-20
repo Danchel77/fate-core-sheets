@@ -220,6 +220,13 @@
     gap: 6px;
   }
 
+  /* Ведомый навык — в одну строку с названием дорожки, чтобы не тратить строку. */
+  .str__track-head {
+    flex-direction: row;
+    align-items: baseline;
+    gap: 6px;
+  }
+
   .str__boxes {
     width: auto;
   }
