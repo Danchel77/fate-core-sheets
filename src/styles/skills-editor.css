@@ -132,15 +132,24 @@
   transition: opacity 0.12s, background 0.12s;
 }
 
-.ske__block:hover .ske__del,
-.ske__block:focus-within .ske__del,
 .ske__block--revealed .ske__del {
   opacity: 1;
   pointer-events: auto;
 }
 
-.ske__del:hover {
-  background: color-mix(in srgb, var(--accent-crimson) 14%, transparent);
+/* Наведение и клавиатурный фокус — только там, где есть настоящий курсор.
+   На сенсорном экране «залипший» hover держал крестик соседней карточки
+   и подсвечивал его сразу после появления. */
+@media (hover: hover) {
+  .ske__block:hover .ske__del,
+  .ske__block:focus-within .ske__del {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .ske__del:hover {
+    background: color-mix(in srgb, var(--accent-crimson) 14%, transparent);
+  }
 }
 
 /* Стрелка подъёма — просто крупная стрелка без фона и рамки. */

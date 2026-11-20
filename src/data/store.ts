@@ -125,7 +125,9 @@ async function switchUser(user: { uid: string } | null) {
 
   const uid = user.uid;
   pendingUid = uid;
-  publish({ ready: true, mode: 'cloud', uid, records: [], notice: null });
+  /* Пока не пришёл первый снимок облака, список пуст — не показываем
+     «Пока никого нет», а держим заставку загрузки. */
+  publish({ ready: false, mode: 'cloud', uid, records: [], notice: null });
   await loadLocal();
   await transferLocalHeroes(uid);
   if (pendingUid !== uid) return;
@@ -137,7 +139,11 @@ async function switchUser(user: { uid: string } | null) {
     },
     () => {
       if (pendingUid !== uid) return;
-      setNotice('Облако пока не принимает героев: проверьте правила доступа в Firebase.');
+      publish({
+        ...state,
+        ready: true,
+        notice: 'Облако пока не принимает героев: проверьте правила доступа в Firebase.',
+      });
     },
   );
 }

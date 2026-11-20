@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { AuthDialog } from './components/AuthDialog';
+import { SplashScreen } from './components/SplashScreen';
 import CharactersScreen from './screens/CharactersScreen';
 import NewCharacterScreen from './screens/NewCharacterScreen';
 import SheetScreen from './screens/SheetScreen';
@@ -28,7 +29,7 @@ export default function App() {
     window.scrollTo(0, 0);
   }, [hash]);
 
-  if (!ready) return null;
+  if (!ready) return <SplashScreen />;
 
   if (hash === '/new') {
     return (
