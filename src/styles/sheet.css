@@ -7,13 +7,8 @@
   align-items: center;
   justify-content: flex-start;
   padding: clamp(10px, 1.4vw, 18px);
-  background:
-    radial-gradient(
-      ellipse at 50% -10%,
-      var(--theme-table-hi, color-mix(in srgb, var(--bg-table) 72%, white 8%)),
-      transparent 60%
-    ),
-    var(--bg-table);
+  /* Стол один и тот же во всех сеттингах: шапка листа не меняет цвет. */
+  background: var(--desk);
 }
 
 /* Разворот — толстый фолиант на кожаном переплёте. Кожа выглядывает
@@ -379,7 +374,7 @@
   font-size: var(--text-body);
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: color-mix(in srgb, var(--table-ink) 78%, transparent);
+  color: color-mix(in srgb, var(--nav-ink) 78%, transparent);
   text-decoration: none;
   transition: color var(--transition-fast);
 }
@@ -397,7 +392,7 @@
 
 .sheet-nav a:hover,
 .sheet-nav a:focus-visible {
-  color: var(--arrow-gold-hi);
+  color: var(--nav-gold-hi);
 }
 
 /* Действия справа: конструктор и вход (вход пока заглушка, как в списке). */
@@ -413,13 +408,13 @@
   align-items: center;
   min-height: 40px;
   padding: 0 14px;
-  border: 1px solid color-mix(in srgb, var(--accent-gold) 52%, transparent);
+  border: 1px solid color-mix(in srgb, var(--nav-gold) 52%, transparent);
   background: transparent;
   font-family: var(--font-body);
   font-size: var(--text-caption);
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--table-ink);
+  color: var(--nav-ink);
   cursor: pointer;
   transition:
     border-color var(--transition-fast),
@@ -428,8 +423,8 @@
 
 .sheet-nav__btn:hover,
 .sheet-nav__btn:focus-visible {
-  border-color: var(--accent-gold);
-  background: color-mix(in srgb, var(--accent-gold) 14%, transparent);
+  border-color: var(--nav-gold);
+  background: color-mix(in srgb, var(--nav-gold) 14%, transparent);
 }
 
 /* На телефоне кнопки шапки листа — под палец, но шапка остаётся одной строкой. */

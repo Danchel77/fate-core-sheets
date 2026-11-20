@@ -19,6 +19,9 @@ import { openAuthDialog, useAuth } from '../firebase/authStore';
 import type { CharacterRecord, SettingId } from '../data/types';
 import { buildCharacterPdf } from '../pdf/sheetPdf';
 
+const BASE = import.meta.env.BASE_URL;
+const PAPER_TEXTURE = `url(${BASE}assets/textures/parchment-soft.jpg)`;
+
 type Filter = 'all' | SettingId;
 type SortMode = 'date' | 'name';
 
@@ -223,7 +226,7 @@ export default function CharactersScreen() {
   ];
 
   return (
-    <div className="heroes">
+    <div className="heroes" style={{ '--sheet-texture': PAPER_TEXTURE } as React.CSSProperties}>
       <header className="heroes__top">
         <a className="heroes__brand" href="#/">
           <span className="heroes__brandname">Fate Core Sheets</span>
@@ -326,6 +329,10 @@ export default function CharactersScreen() {
               </div>
             </div>
           )}
+
+          <a className="heroes__create" href="#/new">
+            Создать героя
+          </a>
         </header>
 
         <input
@@ -394,13 +401,6 @@ export default function CharactersScreen() {
           </section>
         ) : (
           <div className="heroes__grid">
-            <a className="hero-card hero-card--new" href="#/new">
-              <span className="hero-card__plus" aria-hidden="true">
-                +
-              </span>
-              <span className="hero-card__newlabel">Создать героя</span>
-            </a>
-
             {visible.map((hero) => (
               <article className="hero-card" key={hero.id}>
                 <a
@@ -411,6 +411,7 @@ export default function CharactersScreen() {
                   <HeroPortrait hero={hero} />
                   <span className="hero-card__body">
                     <span className="hero-card__name">{heroName(hero)}</span>
+                    <span className="hero-card__rule" aria-hidden="true" />
                     <span className="hero-card__concept">{hero.sheet.aspects[0]?.text ?? ''}</span>
                     <span className="hero-card__level">
                       уровень <b>{hero.sheet.level}</b>

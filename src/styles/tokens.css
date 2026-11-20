@@ -30,6 +30,11 @@
 
   /* Утверждённая палитра веб-листа (Phase 2, вариант «Золото» + бронзовое паспарту) */
   --bg-table: #221f1a;
+  /* Стол и шапка листа — всегда одни и те же, независимо от сеттинга. */
+  --desk: #221f1a;
+  --nav-ink: #e8ddc7;
+  --nav-gold: #a07b3a;
+  --nav-gold-hi: #d7a24a;
   --table-ink: #e8ddc7;
   --bg-parchment: #f5ead6;
   --text-ink-primary: #1f160f;
