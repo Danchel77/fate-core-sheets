@@ -546,6 +546,19 @@
   height: 30px;
 }
 
+/* На карточке эмблема переехала с портрета в свободный правый нижний угол строки уровня. */
+.hero-card__link > .setting-mark {
+  left: auto;
+  right: 10px;
+  bottom: 8px;
+}
+
+/* Логотип Fate в табличке сидит низко — поднимаем его к оптическому центру. */
+.hero-card__link > .setting-mark--fate .setting-mark__edge,
+.hero-card__link > .setting-mark--fate .setting-mark__shape {
+  transform: translateY(-3px);
+}
+
 .hero-card__body {
   min-width: 0;
   display: flex;
@@ -802,6 +815,12 @@
   .setting-mark {
     left: 5px;
     bottom: 5px;
+  }
+
+  .hero-card__link > .setting-mark {
+    left: auto;
+    right: 8px;
+    bottom: 6px;
   }
 
   .setting-mark--witcher {
