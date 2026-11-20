@@ -67,6 +67,11 @@
   --shadow-portrait: rgba(30, 20, 8, 0.38);
   --shadow-black-soft: rgba(0, 0, 0, 0.25);
 
+  /* Кожаный переплёт фолианта. Темы переопределяют оттенок кожи. */
+  --theme-cover: #2e2218;
+  --theme-cover-hi: #4a3726;
+  --theme-cover-lo: #17100a;
+
   --touch-target: 44px;
   --transition-fast: 120ms ease;
 }
@@ -97,6 +102,9 @@
   --tint-gold-pale: #ddc9a6;
   --coin-edge: #513517;
   --coin-highlight: #c49a58;
+  --theme-cover: #2b1a0e;
+  --theme-cover-hi: #4a2f1a;
+  --theme-cover-lo: #140b06;
   --theme-ribbon: #6b2118;
   --theme-ribbon-hi: #8a3324;
   --theme-ribbon-lo: #45130e;
@@ -129,6 +137,9 @@
   --tint-gold-pale: #d9c6a2;
   --coin-edge: #6b4a20;
   --coin-highlight: #d8b06a;
+  --theme-cover: #2b2016;
+  --theme-cover-hi: #463526;
+  --theme-cover-lo: #150f0a;
   --theme-ribbon: #2f3f5a;
   --theme-ribbon-hi: #46587a;
   --theme-ribbon-lo: #202c40;

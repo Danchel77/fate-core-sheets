@@ -74,47 +74,49 @@ export default function SheetScreen({ character, setting, record, onPatch }: Pro
         )}
       </nav>
       <div className="book-stage">
-        <div className="book-stack book-stack--1" aria-hidden="true" />
-        <div className="book-stack book-stack--2" aria-hidden="true" />
-        <div className="book-stack book-stack--3" aria-hidden="true" />
-        <span className="book-ribbon" aria-hidden="true" />
-        <main className="book" aria-label="Лист персонажа" key={revision}>
-          <article className="page page--left">
-            <CharacterBlock
-              character={character}
-              portrait={portrait}
-              onPortraitClick={() => setPortraitOpen(true)}
-              onPatch={onPatch}
-            />
-            <StressBlock
-              physical={physicalStress(character)}
-              mental={mentalStress(character)}
-              consequences={character.consequences}
-              marks={character.marks}
-              onChange={onPatch}
-            />
-            <AspectBlock aspects={character.aspects} onChange={(aspects) => onPatch?.({ aspects })} />
-          </article>
+        <div className="book-cover">
+          <div className="book-stack book-stack--1" aria-hidden="true" />
+          <div className="book-stack book-stack--2" aria-hidden="true" />
+          <div className="book-stack book-stack--3" aria-hidden="true" />
+          <main className="book" aria-label="Лист персонажа" key={revision}>
+            <article className="page page--left">
+              <CharacterBlock
+                character={character}
+                portrait={portrait}
+                onPortraitClick={() => setPortraitOpen(true)}
+                onPatch={onPatch}
+              />
+              <StressBlock
+                physical={physicalStress(character)}
+                mental={mentalStress(character)}
+                consequences={character.consequences}
+                marks={character.marks}
+                onChange={onPatch}
+              />
+              <AspectBlock aspects={character.aspects} onChange={(aspects) => onPatch?.({ aspects })} />
+            </article>
 
-          <article className="page page--right">
-            <SkillsEditor
-              setting={setting}
-              initial={character.ladder}
-              initialLevel={character.level}
-              onChange={({ ladder, level }) => onPatch?.({ ladder, level })}
-            />
-            <StuntBlock
-              stunts={character.stunts}
-              baseRefresh={character.refresh}
-              onChange={(stunts) => onPatch?.({ stunts })}
-            />
-            <ExtrasBlock
-              initial={character.extras}
-              initialTitles={character.extraTitles}
-              onChange={(extras, extraTitles) => onPatch?.({ extras, extraTitles })}
-            />
-          </article>
-        </main>
+            <article className="page page--right">
+              <SkillsEditor
+                setting={setting}
+                initial={character.ladder}
+                initialLevel={character.level}
+                onChange={({ ladder, level }) => onPatch?.({ ladder, level })}
+              />
+              <StuntBlock
+                stunts={character.stunts}
+                baseRefresh={character.refresh}
+                onChange={(stunts) => onPatch?.({ stunts })}
+              />
+              <ExtrasBlock
+                initial={character.extras}
+                initialTitles={character.extraTitles}
+                onChange={(extras, extraTitles) => onPatch?.({ extras, extraTitles })}
+              />
+            </article>
+          </main>
+        </div>
+        <span className="book-ribbon" aria-hidden="true" />
       </div>
       {portraitOpen && (
         <PortraitDialog

@@ -1,4 +1,4 @@
-/* Веб-лист персонажа: раскрытая книга на тёмном столе. */
+/* Веб-лист персонажа: раскрытый кожаный фолиант на тёмном столе. */
 
 .table {
   min-height: 100vh;
@@ -16,12 +16,48 @@
     var(--bg-table);
 }
 
-/* Разворот стоит на стопке листов; рамку вокруг книги не рисуем —
-   объём дают листы, корешок и тени страниц. */
+/* Разворот — толстый фолиант на кожаном переплёте. Кожа выглядывает
+   из-под пачки листов по всему периметру, а страницы сходятся из
+   корешка: у внутренних углов эллиптическое скругление, поэтому
+   сверху и снизу читается V-образная ложбинка. Рамку вокруг книги
+   не рисуем — объём дают кожа, обрезы и тени страниц. */
 .book-stage {
   position: relative;
   isolation: isolate;
   width: min(1560px, 100%);
+}
+
+.book-cover {
+  position: relative;
+  isolation: isolate;
+  padding: 10px 28px 32px;
+  border-radius: 10px 10px 16px 16px;
+  background: linear-gradient(
+    150deg,
+    var(--theme-cover-hi) 0%,
+    var(--theme-cover) 42%,
+    var(--theme-cover-lo) 100%
+  );
+  box-shadow:
+    0 40px 80px -34px var(--shadow-black-soft),
+    0 22px 46px -24px var(--shadow-deep),
+    inset 0 1px 0 color-mix(in srgb, var(--theme-cover-hi) 80%, transparent),
+    inset 0 -2px 6px var(--theme-cover-lo);
+  overflow: hidden;
+}
+
+/* Кожаная фактура: та же бумажная крупа, но еле заметная. */
+.book-cover::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background-image: var(--sheet-texture);
+  background-size: 260px auto;
+  opacity: 0.06;
+  mix-blend-mode: multiply;
 }
 
 .book {
@@ -33,47 +69,54 @@
   grid-template-columns: 1fr 1fr;
   grid-template-rows: repeat(3, auto);
   row-gap: var(--page-gap);
-  background-color: var(--bg-parchment);
+  background: transparent;
   color: var(--text-ink-primary);
-  box-shadow: 0 22px 46px -24px var(--shadow-deep);
 }
 
-/* Стопка листов под разворотом. Это не рамка: сверху и снизу у центра
-   вырезан полукруг, поэтому листы расходятся из корешка, как в книге. */
+/* Пачка листов между страницами и кожей: 14 px по бокам, 16 px снизу.
+   Тонкие линии — торцы листов. Сверху и снизу у центра вырезана
+   ложбинка, поэтому обрез повторяет изгиб страниц в корешок и снизу
+   распадается на две половины. */
 .book-stack {
   position: absolute;
-  inset: -4px -5px -12px;
+  inset: 10px 14px 18px;
   z-index: 0;
   pointer-events: none;
-  border-radius: 4px 4px 10px 10px;
-  background: linear-gradient(
-    to bottom,
-    var(--paper-highlight) 0%,
-    var(--bg-parchment) 42%,
-    color-mix(in srgb, var(--bg-parchment) 88%, var(--tint-gold-sand) 12%) 100%
-  );
+  border-radius: 6px 6px 12px 12px;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--paper-highlight) 82%, var(--bg-parchment)) 0 1px,
+      color-mix(in srgb, var(--text-ink-primary) 9%, transparent) 1px 2px
+    ),
+    linear-gradient(
+      to bottom,
+      var(--paper-highlight) 0%,
+      var(--bg-parchment) 45%,
+      color-mix(in srgb, var(--bg-parchment) 86%, var(--tint-gold-sand) 14%) 100%
+    );
   box-shadow:
-    0 18px 34px -18px var(--shadow-deep),
+    0 20px 40px -22px var(--shadow-deep),
     inset 0 1px 0 var(--paper-highlight),
-    inset 0 -1px 0 color-mix(in srgb, var(--accent-gold) 16%, transparent);
+    inset 0 -1px 0 color-mix(in srgb, var(--text-ink-primary) 12%, transparent);
   mask-image:
-    radial-gradient(circle 24px at 50% 0, transparent 22px, black 23px),
-    radial-gradient(circle 24px at 50% 100%, transparent 22px, black 23px);
+    radial-gradient(ellipse 38px 16px at 50% 0, transparent 94%, black 100%),
+    radial-gradient(ellipse 38px 16px at 50% 100%, transparent 94%, black 100%);
   mask-composite: intersect;
   -webkit-mask-image:
-    radial-gradient(circle 24px at 50% 0, transparent 22px, black 23px),
-    radial-gradient(circle 24px at 50% 100%, transparent 22px, black 23px);
+    radial-gradient(ellipse 38px 16px at 50% 0, transparent 94%, black 100%),
+    radial-gradient(ellipse 38px 16px at 50% 100%, transparent 94%, black 100%);
   -webkit-mask-composite: source-in;
 }
 
-/* Передний лист светлее, каждый следующий ниже — на волос темнее. */
+/* Задние листы уходят вниз на пару пикселей — обрез становится глубже. */
 .book-stack--1 {
-  transform: translate(0, 8px);
+  transform: translate(0, 2px);
   filter: brightness(0.93);
 }
 
 .book-stack--2 {
-  transform: translate(0, 4px);
+  transform: translate(0, 1px);
   filter: brightness(0.965);
 }
 
@@ -81,15 +124,16 @@
   transform: translate(0, 0);
 }
 
-/* Закладка-ляссе выходит из корешка и лежит поверх правой страницы,
-   не задевая лозунг заголовка «Навыки». */
+/* Закладка-ляссе выходит прямо из ложбинки корешка и лежит поверх
+   страниц, не задевая лозунг заголовка «Навыки». */
 .book-ribbon {
   position: absolute;
-  top: -6px;
-  left: calc(50% + 8px);
+  top: 10px;
+  left: 50%;
   z-index: 3;
   width: 18px;
   height: 128px;
+  transform: translateX(-50%);
   pointer-events: none;
   border-radius: 2px 2px 0 0;
   background: linear-gradient(
@@ -153,6 +197,7 @@
   inset: 0;
   z-index: 0;
   pointer-events: none;
+  border-radius: inherit;
   background-image: var(--sheet-texture);
   background-size: 320px auto;
   opacity: var(--theme-texture-opacity, 0.07);
@@ -180,17 +225,34 @@
   align-self: stretch;
 }
 
-/* Сгиб у корешка: мягкая тень у внутренних краёв страниц. */
+/* Страницы сходятся из корешка: у внутренних углов эллиптическое
+   скругление, поэтому сверху и снизу образуется V-образная ложбинка.
+   Внутренний край затемняется мягким цилиндром — страница уходит
+   вглубь к линии сгиба. */
 .page--left {
+  border-radius: 2px 36px 36px 2px / 2px 14px 14px 2px;
+  background-image: linear-gradient(
+    to right,
+    transparent 46%,
+    color-mix(in srgb, var(--text-ink-primary) 5%, transparent) 84%,
+    color-mix(in srgb, var(--text-ink-primary) 13%, transparent) 100%
+  );
   box-shadow:
-    inset -16px 0 20px -18px color-mix(in srgb, var(--text-ink-primary) 55%, transparent),
+    inset -18px 0 26px -18px color-mix(in srgb, var(--text-ink-primary) 55%, transparent),
     inset 0 0 0 1px color-mix(in srgb, var(--accent-gold) 20%, transparent),
     inset 0 0 46px var(--theme-vignette);
 }
 
 .page--right {
+  border-radius: 36px 2px 2px 36px / 14px 2px 2px 14px;
+  background-image: linear-gradient(
+    to left,
+    transparent 46%,
+    color-mix(in srgb, var(--text-ink-primary) 5%, transparent) 84%,
+    color-mix(in srgb, var(--text-ink-primary) 13%, transparent) 100%
+  );
   box-shadow:
-    inset 16px 0 20px -18px color-mix(in srgb, var(--text-ink-primary) 55%, transparent),
+    inset 18px 0 26px -18px color-mix(in srgb, var(--text-ink-primary) 55%, transparent),
     inset 0 0 0 1px color-mix(in srgb, var(--accent-gold) 20%, transparent),
     inset 0 0 46px var(--theme-vignette);
 }
@@ -198,6 +260,15 @@
 @media (max-width: 920px) {
   .book-stage {
     width: 100%;
+  }
+
+  .book-cover {
+    padding: 8px 20px 24px;
+    border-radius: 8px 8px 14px 14px;
+  }
+
+  .book-cover::before {
+    background-size: 220px auto;
   }
 
   .book {
@@ -213,18 +284,18 @@
   }
 
   .book-stack {
-    inset: -3px -4px -10px;
-    border-radius: 3px;
+    inset: 8px 10px 14px;
+    border-radius: 4px 4px 10px 10px;
     mask-image: none;
     -webkit-mask-image: none;
   }
 
   .book-stack--1 {
-    transform: translate(7px, 9px);
+    transform: translate(0, 2px);
   }
 
   .book-stack--2 {
-    transform: translate(4px, 5px);
+    transform: translate(0, 1px);
   }
 
   .book-stack--3 {
@@ -236,6 +307,13 @@
     display: flex;
     flex-direction: column;
     gap: var(--page-gap);
+    border-radius: 2px;
+  }
+
+  .page--left,
+  .page--right {
+    border-radius: 2px;
+    background-image: none;
     box-shadow:
       inset 0 0 0 1px color-mix(in srgb, var(--accent-gold) 20%, transparent),
       inset 0 0 46px var(--theme-vignette);
@@ -250,13 +328,6 @@
     align-self: stretch;
     height: auto;
   }
-
-  .page--left,
-  .page--right {
-    box-shadow:
-      inset 0 0 0 1px color-mix(in srgb, var(--accent-gold) 20%, transparent),
-      inset 0 0 46px var(--theme-vignette);
-  }
 }
 
 /* На телефоне страница плотнее: те же блоки, но лист короче. */
@@ -267,16 +338,12 @@
 }
 
 @media (max-width: 560px) {
+  .book-cover {
+    padding: 6px 16px 20px;
+  }
+
   .book-stack {
-    inset: -2px -3px -8px;
-  }
-
-  .book-stack--1 {
-    transform: translate(5px, 7px);
-  }
-
-  .book-stack--2 {
-    transform: translate(3px, 4px);
+    inset: 6px 8px 12px;
   }
 }
 
