@@ -7,7 +7,7 @@ import { ListTabs } from '../components/ListTabs';
 import { LoadingMark } from '../components/LoadingMark';
 import { SettingMark } from '../components/SettingMark';
 import { IconLink, IconTrash } from '../components/icons';
-import { useGroup } from '../hooks/useGroup';
+import { useGroups } from '../hooks/useGroup';
 import { useCharacters } from '../data/store';
 import { openAuthDialog, useAuth } from '../firebase/authStore';
 import {
@@ -56,7 +56,6 @@ function GhostCard({
           <span className="hero-card__name">{member.playerName}</span>
           <span className="hero-card__rule" />
           <span className="hero-card__concept">Герой не выбран</span>
-          <span className="hero-card__level">без героя</span>
         </span>
       </div>
       {canRemove && (
@@ -76,8 +75,8 @@ function GhostCard({
   );
 }
 
-/** Карточка героя — те же экслибрисы, что в списке, без ссылки на чужой лист. */
-function HeroCard({
+/** Карточка мастера без листа героя. */
+function MasterCard({
   member,
   canRemove,
   onRemove,
@@ -86,21 +85,15 @@ function HeroCard({
   canRemove: boolean;
   onRemove: (member: GroupMember) => void;
 }) {
-  const card = member.card;
-  if (!card) return null;
   return (
     <article className="hero-card">
       <div className="hero-card__link">
         <MemberPhoto member={member} />
         <span className="hero-card__body">
-          <span className="hero-card__name">{card.name}</span>
+          <span className="hero-card__name">{member.playerName}</span>
           <span className="hero-card__rule" />
-          <span className="hero-card__concept">{card.concept || 'Без концепции'}</span>
-          <span className="hero-card__level">
-            уровень <b>{card.level}</b>
-          </span>
+          <span className="hero-card__concept">Мастер игры</span>
         </span>
-        <SettingMark setting={card.setting} />
       </div>
       {canRemove && (
         <BlockMenu
@@ -119,10 +112,152 @@ function HeroCard({
   );
 }
 
+/** Карточка героя — те же экслибрисы, что в списке. Свой лист открывается. */
+function HeroCard({
+  member,
+  mine,
+  canRemove,
+  onRemove,
+}: {
+  member: GroupMember;
+  mine: boolean;
+  canRemove: boolean;
+  onRemove: (member: GroupMember) => void;
+}) {
+  const card = member.card;
+  if (!card) return null;
+  const body = (
+    <>
+      <MemberPhoto member={member} />
+      <span className="hero-card__body">
+        <span className="hero-card__name">{card.name}</span>
+        <span className="hero-card__rule" />
+        <span className="hero-card__concept">{card.concept || 'Без концепции'}</span>
+        <span className="hero-card__level">
+          уровень <b>{card.level}</b>
+        </span>
+      </span>
+      <SettingMark setting={card.setting} />
+    </>
+  );
+  return (
+    <article className="hero-card">
+      {mine && member.heroId ? (
+        <a className="hero-card__link" href={`#/hero/${member.heroId}`}>
+          {body}
+        </a>
+      ) : (
+        <div className="hero-card__link">{body}</div>
+      )}
+      {canRemove && (
+        <BlockMenu
+          label="Действия с игроком"
+          items={[
+            {
+              label: 'Убрать игрока',
+              icon: <IconTrash />,
+              danger: true,
+              onSelect: () => onRemove(member),
+            },
+          ]}
+        />
+      )}
+    </article>
+  );
+}
+
+function GroupHead({
+  records,
+  group,
+  refs,
+  activeId,
+  onSwitch,
+  onInvite,
+  onPickHero,
+  isMaster,
+  hasSeat,
+  onCloseGroup,
+  onLeave,
+  onCreateGroup,
+  onJoin,
+}: {
+  records: number;
+  group: Group | null;
+  refs: { id: string; name: string }[];
+  activeId: string | null;
+  onSwitch: (id: string) => void;
+  onInvite: () => void;
+  onPickHero: () => void;
+  isMaster: boolean;
+  hasSeat: boolean;
+  onCloseGroup: () => void;
+  onLeave: () => void;
+  onCreateGroup: () => void;
+  onJoin: () => void;
+}) {
+  return (
+    <header className="heroes__head">
+      <div className="heroes__lead">
+        <ListTabs active="group" count={records} />
+        {group && <p className="heroes__groupname">{group.name}</p>}
+        {refs.length > 1 && (
+          <div className="group__switch" role="tablist" aria-label="Мои группы">
+            {refs.map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                role="tab"
+                aria-selected={item.id === activeId}
+                className={`group__switch-item${item.id === activeId ? ' is-active' : ''}`}
+                onClick={() => onSwitch(item.id)}
+              >
+                {item.name}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+      {group && (
+        <div className="group__actions">
+          <button type="button" className="group__invite" onClick={onInvite}>
+            <IconLink />
+            Пригласить
+          </button>
+          <button type="button" className="group__hero" onClick={onPickHero}>
+            {hasSeat ? 'Поменять персонажа' : 'Добавить персонажа'}
+          </button>
+          <div className="group__more">
+            <BlockMenu
+              label="Управление группой"
+              items={[
+                { label: 'Создать группу', onSelect: onCreateGroup },
+                { label: 'Присоединиться по ссылке', onSelect: onJoin },
+                isMaster
+                  ? {
+                      label: 'Закрыть группу',
+                      icon: <IconTrash />,
+                      danger: true,
+                      onSelect: onCloseGroup,
+                    }
+                  : {
+                      label: 'Покинуть группу',
+                      icon: <IconTrash />,
+                      danger: true,
+                      onSelect: onLeave,
+                    },
+              ]}
+            />
+          </div>
+        </div>
+      )}
+    </header>
+  );
+}
+
 export default function GroupScreen() {
   const { ready: authReady, user } = useAuth();
   const { records } = useCharacters();
-  const { feed, lost } = useGroup(user?.uid ?? null);
+  const { refs, feed, lost, evicted, activeId, setActiveId } = useGroups(user?.uid ?? null);
   const [createOpen, setCreateOpen] = useState(false);
   const [joinOpen, setJoinOpen] = useState(false);
   const [pickerOpen, setPickerOpen] = useState(false);
@@ -138,7 +273,10 @@ export default function GroupScreen() {
   const me = user ? members.find((member) => member.uid === user.uid) : undefined;
   const isMaster = !!group && !!user && group.masterId === user.uid;
   const ordered = useMemo(
-    () => [...members].sort((a, b) => Number(b.uid === group?.masterId) - Number(a.uid === group?.masterId)),
+    () =>
+      [...members].sort(
+        (a, b) => Number(b.uid === group?.masterId) - Number(a.uid === group?.masterId),
+      ),
     [members, group?.masterId],
   );
 
@@ -193,44 +331,13 @@ export default function GroupScreen() {
     }
   };
 
-  const groupActions = group && user && (
-    <div className="group__actions">
-      <button type="button" className="group__invite" onClick={() => void copyInvite()}>
-        <IconLink />
-        Пригласить
-      </button>
-      <button type="button" className="group__hero" onClick={() => setPickerOpen(true)}>
-        {me?.heroId ? 'Поменять персонажа' : 'Добавить персонажа'}
-      </button>
-      <div className="group__more">
-        <BlockMenu
-          label="Управление группой"
-          items={
-            isMaster
-              ? [
-                  {
-                    label: 'Закрыть группу',
-                    icon: <IconTrash />,
-                    danger: true,
-                    onSelect: () => setCloseOpen(true),
-                  },
-                ]
-              : [
-                  {
-                    label: 'Покинуть группу',
-                    icon: <IconTrash />,
-                    danger: true,
-                    onSelect: () => setLeaveOpen(true),
-                  },
-                ]
-          }
-        />
-      </div>
-    </div>
-  );
+  const hasSeat = !!me && (!!me.heroId || me.gameMaster);
 
   return (
-    <div className="heroes group" style={{ '--sheet-texture': PAPER_TEXTURE } as React.CSSProperties}>
+    <div
+      className="heroes group"
+      style={{ '--sheet-texture': PAPER_TEXTURE } as React.CSSProperties}
+    >
       <header className="heroes__top">
         <a className="heroes__brand" href="#/">
           <span className="heroes__brandname">Fate Core Sheets</span>
@@ -239,13 +346,21 @@ export default function GroupScreen() {
       </header>
 
       <main className="heroes__page">
-        <header className="heroes__head">
-          <div className="heroes__lead">
-            <ListTabs active="group" count={records.length} />
-            {group && <p className="heroes__groupname">{group.name}</p>}
-          </div>
-          {groupActions}
-        </header>
+        <GroupHead
+          records={records.length}
+          group={group}
+          refs={refs ?? []}
+          activeId={activeId}
+          onSwitch={setActiveId}
+          onInvite={() => void copyInvite()}
+          onPickHero={() => setPickerOpen(true)}
+          isMaster={isMaster}
+          hasSeat={hasSeat}
+          onCloseGroup={() => setCloseOpen(true)}
+          onLeave={() => setLeaveOpen(true)}
+          onCreateGroup={() => setCreateOpen(true)}
+          onJoin={() => setJoinOpen(true)}
+        />
 
         {!authReady ? (
           <div className="group__loading">
@@ -258,24 +373,22 @@ export default function GroupScreen() {
               Войдите, чтобы собрать игроков и пригласить их ссылкой.
             </p>
             <div className="heroes__empty-actions">
-              <button
-                className="heroes__empty-action"
-                type="button"
-                onClick={openAuthDialog}
-              >
+              <button className="heroes__empty-action" type="button" onClick={openAuthDialog}>
                 Войти
               </button>
             </div>
           </section>
-        ) : feed.status === 'loading' ? (
+        ) : refs === null || (refs.length > 0 && !group) ? (
           <div className="group__loading">
             <LoadingMark />
           </div>
         ) : !group ? (
           <>
-            {lost && (
+            {(lost || evicted) && (
               <p className="heroes__note" role="status">
-                Вы больше не участник этой группы.
+                {lost
+                  ? 'Не получилось загрузить группы. Проверьте связь и обновите страницу.'
+                  : 'Эта группа закрыта или вас из неё убрали.'}
               </p>
             )}
             <section className="heroes__empty">
@@ -308,6 +421,13 @@ export default function GroupScreen() {
                 {member.card ? (
                   <HeroCard
                     member={member}
+                    mine={member.uid === user.uid}
+                    canRemove={isMaster && member.uid !== user.uid}
+                    onRemove={setRemoveTarget}
+                  />
+                ) : member.gameMaster ? (
+                  <MasterCard
+                    member={member}
                     canRemove={isMaster && member.uid !== user.uid}
                     onRemove={setRemoveTarget}
                   />
@@ -338,18 +458,31 @@ export default function GroupScreen() {
         </p>
       </footer>
 
-      {createOpen && <CreateGroupDialog onClose={() => setCreateOpen(false)} />}
+      {createOpen && (
+        <CreateGroupDialog
+          onClose={() => setCreateOpen(false)}
+          onCreated={(id, name) => {
+            setActiveId(id);
+            showToast(`Группа «${name}» создана`);
+          }}
+        />
+      )}
       {joinOpen && (
         <JoinLinkDialog
-          current={group}
+          groups={refs ?? []}
           onClose={() => setJoinOpen(false)}
-          onJoined={(name) => showToast(`Вы в группе «${name}»`)}
+          onJoined={(id, name) => {
+            setActiveId(id);
+            showToast(`Вы в группе «${name}»`);
+          }}
         />
       )}
       {pickerOpen && group && user && (
         <HeroPickerDialog
           group={group}
+          isMaster={isMaster}
           currentHeroId={me?.heroId ?? null}
+          gameMaster={me?.gameMaster ?? false}
           onClose={() => setPickerOpen(false)}
         />
       )}

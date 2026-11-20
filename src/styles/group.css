@@ -222,6 +222,62 @@
   color: var(--accent-gold-ink);
 }
 
+/* Переключатель групп под названием: только когда групп несколько. */
+.group__switch {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 16px;
+  margin-top: 2px;
+}
+
+.group__switch-item {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 0 0 2px;
+  border: 0;
+  border-bottom: 1px solid transparent;
+  background: none;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  color: var(--text-ink-muted);
+  cursor: pointer;
+  transition: color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.group__switch-item:hover,
+.group__switch-item:focus-visible {
+  color: var(--text-ink-primary);
+}
+
+.group__switch-item.is-active {
+  color: var(--text-ink-primary);
+  border-bottom-color: color-mix(in srgb, var(--accent-gold) 60%, transparent);
+}
+
+/* Карточка «Мастер игры» в выборе героя: без листа, с гравюрным ромбом. */
+.pick__row--gm .pick__name {
+  font-family: var(--font-name-prata);
+}
+
+.pick__gm-mark {
+  position: relative;
+  width: 48px;
+  height: 58px;
+  border: 1px solid color-mix(in srgb, var(--accent-gold) 55%, transparent);
+}
+
+.pick__gm-mark::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 12px;
+  height: 12px;
+  border: 1px solid var(--accent-gold-deep);
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+
 /* Вход по ссылке-приглашению */
 .join {
   display: flex;

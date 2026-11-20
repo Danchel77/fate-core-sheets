@@ -108,12 +108,15 @@
 }
 
 /* Вкладки разделов: «Мои персонажи» и «Группа» на месте заголовка. */
+/* Вкладки стоят на одном месте на обеих страницах: название группы и
+   переключатель групп добавляются ниже и не сдвигают их вверх. */
 .heroes__lead {
   display: flex;
   flex-direction: column;
   gap: 2px;
-  justify-content: center;
+  justify-content: flex-start;
   min-height: 56px;
+  padding-top: 13px;
 }
 
 .heroes__tabs {
@@ -870,6 +873,7 @@ a.heroes__tab:focus-visible {
 
   .heroes__lead {
     min-height: 0;
+    padding-top: 0;
   }
 
   .heroes__tabs {

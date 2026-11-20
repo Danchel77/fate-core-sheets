@@ -1,13 +1,8 @@
 import { useEffect, useState } from 'react';
 import { AccountButton } from '../components/AccountButton';
 import { LoadingMark } from '../components/LoadingMark';
-import { useGroup } from '../hooks/useGroup';
-import {
-  joinGroup,
-  leaveGroup,
-  readGroupLink,
-  type GroupLink,
-} from '../data/groups';
+import { useGroups } from '../hooks/useGroup';
+import { joinGroup, readGroupLink, type GroupLink } from '../data/groups';
 import { openAuthDialog, useAuth } from '../firebase/authStore';
 
 const BASE = import.meta.env.BASE_URL;
@@ -21,7 +16,7 @@ export default function JoinGroupScreen({ token }: { token: string }) {
   const [answer, setAnswer] = useState<Answer>('loading');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { feed } = useGroup(user?.uid ?? null);
+  const { refs } = useGroups(user?.uid ?? null);
 
   useEffect(() => {
     let alive = true;
@@ -35,7 +30,7 @@ export default function JoinGroupScreen({ token }: { token: string }) {
   }, [token]);
 
   const link = answer !== 'loading' && answer !== 'missing' ? answer : null;
-  const already = !!link && feed.status === 'ready' && feed.group.id === link.groupId;
+  const already = !!link && !!refs?.some((item) => item.id === link.groupId);
 
   const join = async () => {
     if (!user) {
@@ -46,9 +41,6 @@ export default function JoinGroupScreen({ token }: { token: string }) {
     setBusy(true);
     setError(null);
     try {
-      if (feed.status === 'ready' && feed.group.id !== link.groupId) {
-        await leaveGroup(user.uid, feed.group.id);
-      }
       await joinGroup(user, link);
       window.location.hash = '#/group';
     } catch {

@@ -6,7 +6,6 @@ import {
   getDocs,
   onSnapshot,
   setDoc,
-  updateDoc,
   writeBatch,
 } from 'firebase/firestore';
 import { db } from '../firebase/app';
@@ -14,12 +13,14 @@ import { newId } from './storage';
 import type { CharacterRecord, SettingId } from './types';
 
 /**
- * Группа за столом.
- * users/{uid} — где я состою: поля groupId и heroId (одна группа на человека).
- * groups/{id} — название и мастер.
- * groups/{id}/members/{uid} — карточка героя, которую видит стол.
- * groupLinks/{token} — публичная ссылка-приглашение: только id группы и имя.
+ * Группы за столом. Человек может состоять в нескольких группах.
+ * users/{uid} — указатель: список { id, name, heroId }.
+ * groups/{id} — название, мастер, токен приглашения.
+ * groups/{id}/members/{uid} — имя, герой и карточка-снимок для стола.
+ * groupLinks/{token} — публичная ссылка-приглашение.
  */
+
+export type GroupRef = { id: string; name: string; heroId: string | null };
 
 export type Group = {
   id: string;
@@ -43,14 +44,20 @@ export type GroupMember = {
   card: GroupCard | null;
   portrait: string | null;
   joinedAt: number;
+  /** Карточка «Мастер игры»: мастер за столом без листа героя. */
+  gameMaster: boolean;
 };
 
 export type GroupLink = { groupId: string; name: string; masterId: string };
 
-export type GroupFeed =
-  | { status: 'loading' }
-  | { status: 'none' }
-  | { status: 'ready'; group: Group; members: GroupMember[] };
+export type GroupFeed = {
+  status: 'loading' | 'ready';
+  group: Group | null;
+  members: GroupMember[];
+};
+
+/** Сколько групп может быть у одного аккаунта. */
+export const MAX_GROUPS = 12;
 
 type UserLike = { uid: string; displayName?: string | null; email?: string | null };
 
@@ -65,6 +72,8 @@ const membersCol = (id: string) => collection(database(), 'groups', id, 'members
 const memberRef = (groupId: string, uid: string) =>
   doc(database(), 'groups', groupId, 'members', uid);
 const linkRef = (token: string) => doc(database(), 'groupLinks', token);
+
+const TOKEN_RE = /^[A-Za-z0-9_-]{6,64}$/;
 
 function newToken(): string {
   const bytes = new Uint8Array(12);
@@ -81,21 +90,52 @@ export function playerName(user: UserLike): string {
   return at > 0 ? email.slice(0, at) : 'Игрок';
 }
 
-function toGroup(id: string, data: Record<string, unknown>): Group | null {
-  if (typeof data.name !== 'string' || typeof data.masterId !== 'string') return null;
-  return {
-    id,
-    name: data.name,
-    masterId: data.masterId,
-    inviteToken: typeof data.inviteToken === 'string' ? data.inviteToken : '',
-    createdAt: typeof data.createdAt === 'number' ? data.createdAt : 0,
-  };
+/** Ссылка-приглашение: её копирует «Пригласить» и открывает JoinGroupScreen. */
+export function inviteLink(token: string): string {
+  const { origin, pathname } = window.location;
+  return `${origin}${pathname}#/g/${token}`;
 }
 
-function toMember(uid: string, data: Record<string, unknown>): GroupMember {
-  const card = data.card as GroupCard | null | undefined;
+/** Токен из вставленной ссылки: принимаем и голый код, и адрес с параметром. */
+export function parseInviteToken(input: string): string | null {
+  const text = input.trim();
+  if (!text) return null;
+  if (TOKEN_RE.test(text)) return text;
+  try {
+    const url = new URL(text.includes('://') ? text : `https://x/${text}`);
+    const fromQuery = url.searchParams.get('invite') ?? url.searchParams.get('code');
+    const hash = url.hash.match(/#\/g\/([^/?#]+)/)?.[1];
+    const tail = url.pathname.split('/').filter(Boolean).pop();
+    const token = hash ?? fromQuery ?? tail ?? '';
+    return TOKEN_RE.test(token) ? token : null;
+  } catch {
+    return null;
+  }
+}
+
+/* ---------- чтение ---------- */
+
+function readRefs(data: unknown): GroupRef[] {
+  const raw = (data as { groups?: unknown } | null)?.groups;
+  if (!Array.isArray(raw)) return [];
+  const refs: GroupRef[] = [];
+  for (const item of raw) {
+    if (!item || typeof item !== 'object') continue;
+    const value = item as { id?: unknown; name?: unknown; heroId?: unknown };
+    if (typeof value.id !== 'string' || !value.id) continue;
+    refs.push({
+      id: value.id,
+      name: typeof value.name === 'string' ? value.name : 'Группа',
+      heroId: typeof value.heroId === 'string' ? value.heroId : null,
+    });
+  }
+  return refs;
+}
+
+function memberFrom(uid: string, data: Record<string, unknown> | undefined): GroupMember {
+  const card = data?.card as Record<string, unknown> | null | undefined;
   const validCard =
-    card && typeof card === 'object' && typeof card.name === 'string'
+    card && typeof card.name === 'string'
       ? {
           name: card.name,
           setting: (card.setting === 'fate' ? 'fate' : 'witcher') as SettingId,
@@ -105,136 +145,142 @@ function toMember(uid: string, data: Record<string, unknown>): GroupMember {
       : null;
   return {
     uid,
-    playerName: typeof data.playerName === 'string' ? data.playerName : 'Игрок',
-    heroId: typeof data.heroId === 'string' ? data.heroId : null,
+    playerName: typeof data?.playerName === 'string' ? data.playerName : 'Игрок',
+    heroId: typeof data?.heroId === 'string' ? data.heroId : null,
     card: validCard,
-    portrait: typeof data.portrait === 'string' ? data.portrait : null,
-    joinedAt: typeof data.joinedAt === 'number' ? data.joinedAt : 0,
+    portrait: typeof data?.portrait === 'string' ? data.portrait : null,
+    joinedAt: typeof data?.joinedAt === 'number' ? data.joinedAt : 0,
+    gameMaster: data?.gameMaster === true,
   };
 }
 
-/** Слежение за своей группой. Пока группа не пришла — тишина, без пустого экрана. */
-export function subscribeMyGroup(
+/** Старый указатель хранил одну группу: переносим её в список при чтении. */
+async function migrateLegacy(uid: string, groupId: string, heroId: string | null): Promise<GroupRef[]> {
+  let name = 'Группа';
+  try {
+    const snapshot = await getDoc(groupRef(groupId));
+    if (snapshot.exists() && typeof snapshot.data().name === 'string') {
+      name = snapshot.data().name;
+    }
+  } catch {
+    /* без сети останется имя по умолчанию */
+  }
+  const refs: GroupRef[] = [{ id: groupId, name, heroId }];
+  await writeRefs(uid, refs).catch(() => undefined);
+  return refs;
+}
+
+/** Список моих групп: указатель users/{uid}. */
+export function subscribeMyGroups(
   uid: string,
-  next: (feed: GroupFeed) => void,
-  onLost: () => void,
+  next: (refs: GroupRef[]) => void,
+  onError: () => void,
 ): () => void {
-  let stopInner: (() => void) | null = null;
-  let currentGroupId: string | null = null;
-
-  const stop = () => {
-    stopInner?.();
-    stopInner = null;
-    currentGroupId = null;
-  };
-
-  const dropPointer = () => {
-    void deleteDoc(pointerRef(uid)).catch(() => undefined);
-  };
-
-  const watch = (groupId: string) => {
-    currentGroupId = groupId;
-    let group: Group | null = null;
-    let members: GroupMember[] | null = null;
-    let lost = false;
-
-    const emit = () => {
-      if (lost) return;
-      if (!group || !members) return;
-      next({ status: 'ready', group, members });
-    };
-
-    const lose = () => {
-      if (lost) return;
-      lost = true;
-      stop();
-      dropPointer();
-      onLost();
-    };
-
-    const unsubGroup = onSnapshot(
-      groupRef(groupId),
-      (snapshot) => {
-        if (!snapshot.exists()) {
-          if (currentGroupId === groupId) lose();
-          return;
-        }
-        group = toGroup(snapshot.id, snapshot.data());
-        if (!group) {
-          lose();
-          return;
-        }
-        emit();
-      },
-      () => {
-        if (currentGroupId === groupId) lose();
-      },
-    );
-
-    const unsubMembers = onSnapshot(
-      membersCol(groupId),
-      (snapshot) => {
-        const list = snapshot.docs.map((item) => toMember(item.id, item.data()));
-        list.sort((a, b) => a.joinedAt - b.joinedAt);
-        members = list;
-        /* Меня убрали из группы: моей записи больше нет. */
-        if (!list.some((member) => member.uid === uid)) {
-          lose();
-          return;
-        }
-        emit();
-      },
-      () => {
-        if (currentGroupId === groupId) lose();
-      },
-    );
-
-    stopInner = () => {
-      unsubGroup();
-      unsubMembers();
-    };
-  };
-
-  const unsubPointer = onSnapshot(
+  return onSnapshot(
     pointerRef(uid),
     (snapshot) => {
       if (!snapshot.exists()) {
-        stop();
-        next({ status: 'none' });
+        next([]);
         return;
       }
-      const groupId = snapshot.data().groupId;
-      if (typeof groupId !== 'string' || !groupId) {
-        stop();
-        next({ status: 'none' });
+      const data = snapshot.data();
+      if (Array.isArray(data.groups)) {
+        next(readRefs(data));
         return;
       }
-      if (groupId === currentGroupId) return;
-      stop();
-      next({ status: 'loading' });
-      watch(groupId);
+      const legacyId = typeof data.groupId === 'string' ? data.groupId : '';
+      if (!legacyId) {
+        next([]);
+        return;
+      }
+      void migrateLegacy(
+        uid,
+        legacyId,
+        typeof data.heroId === 'string' ? data.heroId : null,
+      ).then(next);
     },
-    () => {
-      next({ status: 'none' });
+    () => onError(),
+  );
+}
+
+/** Одна группа со столом; если группу закрыли — onGone. */
+export function subscribeGroup(
+  groupId: string,
+  next: (feed: GroupFeed) => void,
+  onGone: () => void,
+): () => void {
+  let group: Group | null = null;
+  let members: GroupMember[] = [];
+  let stopped = false;
+
+  const stop = () => {
+    if (stopped) return;
+    stopped = true;
+    onGone();
+  };
+  const emit = () => {
+    if (stopped || !group) return;
+    next({
+      status: 'ready',
+      group,
+      members: [...members].sort(
+        (a, b) => Number(b.uid === group?.masterId) - Number(a.uid === group?.masterId),
+      ),
+    });
+  };
+
+  const unsubscribeGroup = onSnapshot(
+    groupRef(groupId),
+    (snapshot) => {
+      if (stopped) return;
+      if (!snapshot.exists()) {
+        stop();
+        return;
+      }
+      const data = snapshot.data();
+      group = {
+        id: groupId,
+        name: typeof data.name === 'string' ? data.name : 'Группа',
+        masterId: typeof data.masterId === 'string' ? data.masterId : '',
+        inviteToken: typeof data.inviteToken === 'string' ? data.inviteToken : '',
+        createdAt: typeof data.createdAt === 'number' ? data.createdAt : 0,
+      };
+      emit();
+    },
+    (error) => {
+      if (error.code === 'permission-denied') stop();
+    },
+  );
+
+  const unsubscribeMembers = onSnapshot(
+    membersCol(groupId),
+    (snapshot) => {
+      if (stopped) return;
+      members = snapshot.docs.map((item) => memberFrom(item.id, item.data()));
+      emit();
+    },
+    (error) => {
+      if (error.code === 'permission-denied') stop();
     },
   );
 
   return () => {
-    stop();
-    unsubPointer();
+    stopped = true;
+    unsubscribeGroup();
+    unsubscribeMembers();
   };
 }
 
-/** Ссылка-приглашение: открывается кем угодно, данных героев в ней нет. */
+/** Публичная ссылка-приглашение: id, имя и мастер. */
 export async function readGroupLink(token: string): Promise<GroupLink | null> {
   try {
     const snapshot = await getDoc(linkRef(token));
     if (!snapshot.exists()) return null;
     const data = snapshot.data();
-    if (typeof data.groupId !== 'string' || typeof data.name !== 'string') return null;
+    if (typeof data.groupId !== 'string' || !data.groupId) return null;
     return {
       groupId: data.groupId,
-      name: data.name,
+      name: typeof data.name === 'string' ? data.name : 'Группа',
       masterId: typeof data.masterId === 'string' ? data.masterId : '',
     };
   } catch {
@@ -242,71 +288,178 @@ export async function readGroupLink(token: string): Promise<GroupLink | null> {
   }
 }
 
-/** Новая группа: мастер — создатель; сразу же его пустая карточка за столом. */
+/* ---------- запись ---------- */
+
+async function myRefs(uid: string): Promise<GroupRef[]> {
+  const snapshot = await getDoc(pointerRef(uid));
+  return snapshot.exists() ? readRefs(snapshot.data()) : [];
+}
+
+function writeRefs(uid: string, refs: GroupRef[]) {
+  return setDoc(pointerRef(uid), { uid, groups: refs }, { merge: true });
+}
+
+/** Новая группа; мастер сразу садится за стол без героя. */
 export async function createGroup(user: UserLike, name: string): Promise<string> {
+  const refs = await myRefs(user.uid);
+  if (refs.length >= MAX_GROUPS) throw new Error('GROUP_LIMIT');
+
   const groupId = newId();
   const token = newToken();
-  const now = Date.now();
-
-  await setDoc(groupRef(groupId), {
-    name,
-    masterId: user.uid,
-    inviteToken: token,
-    createdAt: now,
-  });
-
+  const createdAt = Date.now();
   const batch = writeBatch(database());
-  batch.set(linkRef(token), { groupId, name, masterId: user.uid });
+  batch.set(groupRef(groupId), { name, masterId: user.uid, inviteToken: token, createdAt });
+  batch.set(linkRef(token), { groupId, name, masterId: user.uid, createdAt });
   batch.set(memberRef(groupId, user.uid), {
+    uid: user.uid,
     playerName: playerName(user),
     heroId: null,
     card: null,
     portrait: null,
-    joinedAt: now,
+    gameMaster: false,
+    joinedAt: createdAt,
   });
-  batch.set(pointerRef(user.uid), { groupId, heroId: null });
+  batch.set(
+    pointerRef(user.uid),
+    { uid: user.uid, groups: [...refs, { id: groupId, name, heroId: null }] },
+    { merge: true },
+  );
   await batch.commit();
   return groupId;
 }
 
-/** Вход по ссылке: меняем только своё место за столом. */
+/** Вступить в чужую группу по ссылке. */
 export async function joinGroup(user: UserLike, link: GroupLink): Promise<void> {
+  const refs = await myRefs(user.uid);
+  if (refs.some((item) => item.id === link.groupId)) return;
+  if (refs.length >= MAX_GROUPS) throw new Error('GROUP_LIMIT');
+
   const batch = writeBatch(database());
+  batch.set(memberRef(link.groupId, user.uid), {
+    uid: user.uid,
+    playerName: playerName(user),
+    heroId: null,
+    card: null,
+    portrait: null,
+    gameMaster: false,
+    joinedAt: Date.now(),
+  });
   batch.set(
-    memberRef(link.groupId, user.uid),
-    {
-      playerName: playerName(user),
-      heroId: null,
-      card: null,
-      portrait: null,
-      joinedAt: Date.now(),
-    },
+    pointerRef(user.uid),
+    { uid: user.uid, groups: [...refs, { id: link.groupId, name: link.name, heroId: null }] },
     { merge: true },
   );
-  batch.set(pointerRef(user.uid), { groupId: link.groupId, heroId: null }, { merge: true });
   await batch.commit();
 }
 
-/** Выйти: сначала указатель (экран сразу чистый), потом место за столом. */
+/** Покинуть группу: место за столом и запись в указателе. */
 export async function leaveGroup(uid: string, groupId: string): Promise<void> {
-  await deleteDoc(pointerRef(uid));
-  await deleteDoc(memberRef(groupId, uid));
+  const refs = await myRefs(uid);
+  const batch = writeBatch(database());
+  batch.delete(memberRef(groupId, uid));
+  batch.set(
+    pointerRef(uid),
+    { uid, groups: refs.filter((item) => item.id !== groupId) },
+    { merge: true },
+  );
+  await batch.commit();
 }
 
-/** Мастер убирает игрока: его указатель подчистит его же браузер. */
+/** Мастер убирает игрока; его клиент сам выкинет группу из указателя. */
 export async function removeMember(groupId: string, memberUid: string): Promise<void> {
   await deleteDoc(memberRef(groupId, memberUid));
 }
 
-/** Мастер закрывает группу: стол, места, приглашение. */
+/** Забыть группу в своём указателе (закрыли или убрали). */
+export async function forgetGroup(uid: string, groupId: string): Promise<void> {
+  try {
+    const refs = await myRefs(uid);
+    await writeRefs(uid, refs.filter((item) => item.id !== groupId));
+  } catch {
+    /* без сети указатель догонит в следующий раз */
+  }
+}
+
+/** Мастер закрывает группу: стол, места, приглашение, своя запись. */
 export async function closeGroup(group: Group): Promise<void> {
   const snapshot = await getDocs(membersCol(group.id));
+  const masterSnap = await getDoc(pointerRef(group.masterId)).catch(() => null);
+  const refs = masterSnap?.exists() ? readRefs(masterSnap.data()) : [];
   const batch = writeBatch(database());
   snapshot.docs.forEach((item) => batch.delete(item.ref));
   batch.delete(groupRef(group.id));
   if (group.inviteToken) batch.delete(linkRef(group.inviteToken));
+  if (masterSnap?.exists()) {
+    batch.set(
+      pointerRef(group.masterId),
+      { uid: group.masterId, groups: refs.filter((item) => item.id !== group.id) },
+      { merge: true },
+    );
+  }
   await batch.commit();
-  await deleteDoc(pointerRef(group.masterId)).catch(() => undefined);
+}
+
+/** Привязать или сменить своего героя; «Мастер игры» — карточка без листа. */
+export async function setMyHero(
+  uid: string,
+  groupId: string,
+  record: CharacterRecord | null,
+  gameMaster = false,
+): Promise<void> {
+  const portrait = record ? await makePortraitThumb(record.sheet.portrait) : null;
+  const snapshot = await getDoc(pointerRef(uid)).catch(() => null);
+  const refs = snapshot?.exists() ? readRefs(snapshot.data()) : [];
+  const batch = writeBatch(database());
+  batch.set(
+    memberRef(groupId, uid),
+    {
+      heroId: record?.id ?? null,
+      card: record ? cardFrom(record) : null,
+      portrait,
+      gameMaster: !record && gameMaster,
+    },
+    { merge: true },
+  );
+  if (snapshot?.exists()) {
+    batch.set(
+      pointerRef(uid),
+      {
+        uid,
+        groups: refs.map((item) =>
+          item.id === groupId ? { ...item, heroId: record?.id ?? null } : item,
+        ),
+      },
+      { merge: true },
+    );
+  }
+  await batch.commit();
+}
+
+/* Карточка за столом подтягивается, пока лист правят: в облако пишется
+   только текст, портрет — при привязке героя. */
+export async function syncGroupCard(uid: string, record: CharacterRecord): Promise<void> {
+  try {
+    const refs = await myRefs(uid);
+    const attached = refs.filter((item) => item.heroId === record.id);
+    if (!attached.length) return;
+    const batch = writeBatch(database());
+    attached.forEach((item) => batch.update(memberRef(item.id, uid), { card: cardFrom(record) }));
+    await batch.commit();
+  } catch {
+    /* без сети карточка догонит в следующий раз */
+  }
+}
+
+/** Удалённого героя отвязываем от всех групп, где он стоял за столом. */
+export async function clearAttachedHero(uid: string, heroId: string): Promise<void> {
+  try {
+    const refs = await myRefs(uid);
+    for (const item of refs.filter((ref) => ref.heroId === heroId)) {
+      await setMyHero(uid, item.id, null);
+    }
+  } catch {
+    /* без сети отвяжется при следующем сохранении */
+  }
 }
 
 /** Карточка для стола: миниатюра портрета, чтобы чужие листы не читать целиком. */
@@ -351,85 +504,4 @@ function cardFrom(record: CharacterRecord): GroupCard {
     concept: record.sheet.aspects[0]?.text ?? '',
     level: record.sheet.level,
   };
-}
-
-/** Привязать или сменить своего героя. Портрет переносим уменьшенной копией. */
-export async function setMyHero(
-  uid: string,
-  groupId: string,
-  record: CharacterRecord | null,
-): Promise<void> {
-  const portrait = record ? await makePortraitThumb(record.sheet.portrait) : null;
-  const batch = writeBatch(database());
-  batch.update(memberRef(groupId, uid), {
-    heroId: record?.id ?? null,
-    card: record ? cardFrom(record) : null,
-    portrait,
-  });
-  batch.update(pointerRef(uid), { heroId: record?.id ?? null });
-  await batch.commit();
-}
-
-/* Карточка за столом подтягивается, пока лист правят: в облако пишется
-   только текст, портрет — при привязке героя. */
-type Membership = { uid: string; groupId: string; heroId: string | null };
-
-let membership: Membership | null = null;
-
-export function rememberMembership(value: Membership | null): void {
-  membership = value;
-}
-
-/** Если страница группы не открыта, место за столом добираем из указателя. */
-async function ensureMembership(uid: string): Promise<Membership | null> {
-  if (membership?.uid === uid) return membership;
-  try {
-    const snapshot = await getDoc(pointerRef(uid));
-    if (!snapshot.exists()) return null;
-    const data = snapshot.data();
-    if (typeof data.groupId !== 'string' || !data.groupId) return null;
-    membership = {
-      uid,
-      groupId: data.groupId,
-      heroId: typeof data.heroId === 'string' ? data.heroId : null,
-    };
-    return membership;
-  } catch {
-    return null;
-  }
-}
-
-export async function syncGroupCard(uid: string, record: CharacterRecord): Promise<void> {
-  const known = await ensureMembership(uid);
-  if (!known || known.heroId !== record.id) return;
-  try {
-    await updateDoc(memberRef(known.groupId, uid), { card: cardFrom(record) });
-  } catch {
-    /* без сети карточка догонит в следующий раз */
-  }
-}
-
-/** Героя удалили: со стола убираем только карточку, место игрока остаётся. */
-export async function clearAttachedHero(uid: string, heroId: string): Promise<void> {
-  const known = await ensureMembership(uid);
-  if (!known || known.heroId !== heroId) return;
-  try {
-    await setMyHero(uid, known.groupId, null);
-  } catch {
-    /* группа уже закрыта или игрока убрали */
-  }
-}
-
-export function inviteLink(token: string): string {
-  return `${window.location.origin}${window.location.pathname}#/g/${token}`;
-}
-
-/** Из вставленной ссылки достаём код; голый код тоже принимаем. */
-export function parseInviteToken(text: string): string | null {
-  const value = text.trim();
-  if (!value) return null;
-  const fromLink = /#\/g\/([^/\s?#]+)/.exec(value);
-  if (fromLink) return decodeURIComponent(fromLink[1]);
-  if (/^[a-z0-9]{8,64}$/i.test(value)) return value;
-  return null;
 }

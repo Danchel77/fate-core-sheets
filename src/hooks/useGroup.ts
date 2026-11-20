@@ -1,50 +1,75 @@
 import { useEffect, useState } from 'react';
-import { rememberMembership, subscribeMyGroup, type GroupFeed } from '../data/groups';
+import {
+  forgetGroup,
+  subscribeGroup,
+  subscribeMyGroups,
+  type GroupFeed,
+  type GroupRef,
+} from '../data/groups';
 
-/**
- * Своя группа: «loading» → «none» или «ready».
- * lost — группу закрыли или меня из неё убрали: показываем пустое состояние с пояснением.
- */
-export function useGroup(uid: string | null): { feed: GroupFeed; lost: boolean } {
-  const [feed, setFeed] = useState<GroupFeed>({ status: uid ? 'loading' : 'none' });
+export type GroupsState = {
+  /** Список групп; null — ещё читаем указатель. */
+  refs: GroupRef[] | null;
+  /** Стол активной группы. */
+  feed: GroupFeed;
+  /** Указатель не прочитался (сеть или правила). */
+  lost: boolean;
+  /** Группу закрыли или убрали игрока — карточка пропала со стола. */
+  evicted: boolean;
+  activeId: string | null;
+  setActiveId: (id: string) => void;
+};
+
+const emptyFeed: GroupFeed = { status: 'loading', group: null, members: [] };
+
+/** Группы за столом: список, активная и её стол. */
+export function useGroups(uid: string | null): GroupsState {
+  const [refs, setRefs] = useState<GroupRef[] | null>(null);
   const [lost, setLost] = useState(false);
+  const [evicted, setEvicted] = useState(false);
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const [feed, setFeed] = useState<GroupFeed>(emptyFeed);
 
   useEffect(() => {
+    setRefs(null);
     setLost(false);
+    setEvicted(false);
+    setActiveId(null);
+    setFeed(emptyFeed);
     if (!uid) {
-      setFeed({ status: 'none' });
-      rememberMembership(null);
+      setRefs([]);
       return;
     }
-
-    let alive = true;
-    setFeed({ status: 'loading' });
-
-    const stop = subscribeMyGroup(
+    return subscribeMyGroups(
       uid,
-      (next) => {
-        if (!alive) return;
-        setFeed(next);
-        if (next.status === 'ready') {
-          const mine = next.members.find((member) => member.uid === uid);
-          rememberMembership({ uid, groupId: next.group.id, heroId: mine?.heroId ?? null });
-        } else if (next.status === 'none') {
-          rememberMembership(null);
-        }
+      (list) => {
+        setRefs(list);
+        setActiveId((current) =>
+          current && list.some((item) => item.id === current) ? current : (list[0]?.id ?? null),
+        );
       },
       () => {
-        if (!alive) return;
         setLost(true);
-        setFeed({ status: 'none' });
-        rememberMembership(null);
+        setRefs([]);
+        setActiveId(null);
       },
     );
-
-    return () => {
-      alive = false;
-      stop();
-    };
   }, [uid]);
 
-  return { feed, lost };
+  useEffect(() => {
+    if (!activeId) return;
+    setFeed(emptyFeed);
+    return subscribeGroup(
+      activeId,
+      (next) => setFeed(next),
+      () => {
+        setEvicted(true);
+        setRefs((list) => list?.filter((item) => item.id !== activeId) ?? list);
+        if (uid) void forgetGroup(uid, activeId);
+        setActiveId(null);
+      },
+    );
+  }, [activeId, uid]);
+
+  return { refs, feed, lost, evicted, activeId, setActiveId };
 }

@@ -8,11 +8,12 @@ import { useCharacters } from '../data/store';
 import {
   createGroup,
   joinGroup,
-  leaveGroup,
+  MAX_GROUPS,
   parseInviteToken,
   readGroupLink,
   setMyHero,
   type Group,
+  type GroupRef,
 } from '../data/groups';
 import { IconClose } from './icons';
 
@@ -67,7 +68,13 @@ function GroupModal({ title, onClose, children, footer }: ShellProps) {
 }
 
 /** Новая группа: только название. */
-export function CreateGroupDialog({ onClose }: { onClose: () => void }) {
+export function CreateGroupDialog({
+  onClose,
+  onCreated,
+}: {
+  onClose: () => void;
+  onCreated?: (id: string, name: string) => void;
+}) {
   const { user } = useAuth();
   const [name, setName] = useState('');
   const [busy, setBusy] = useState(false);
@@ -81,10 +88,15 @@ export function CreateGroupDialog({ onClose }: { onClose: () => void }) {
     setBusy(true);
     setError(null);
     try {
-      await createGroup(user, clean);
+      const id = await createGroup(user, clean);
+      onCreated?.(id, clean);
       onClose();
-    } catch {
-      setError('Не получилось создать группу. Проверьте связь и попробуйте ещё раз.');
+    } catch (error) {
+      setError(
+        error instanceof Error && error.message === 'GROUP_LIMIT'
+          ? `В одном аккаунте можно быть в ${MAX_GROUPS} группах. Покиньте одну, чтобы создать новую.`
+          : 'Не получилось создать группу. Проверьте связь и попробуйте ещё раз.',
+      );
       setBusy(false);
     }
   };
@@ -126,15 +138,15 @@ export function CreateGroupDialog({ onClose }: { onClose: () => void }) {
   );
 }
 
-/** Вход по ссылке-приглашению. Если уже в группе — сначала выходим из старой. */
+/** Вход по ссылке-приглашению: добавляем группу к своим. */
 export function JoinLinkDialog({
-  current,
+  groups,
   onClose,
   onJoined,
 }: {
-  current: Group | null;
+  groups: GroupRef[];
   onClose: () => void;
-  onJoined?: (name: string) => void;
+  onJoined?: (id: string, name: string) => void;
 }) {
   const { user } = useAuth();
   const [value, setValue] = useState('');
@@ -159,16 +171,20 @@ export function JoinLinkDialog({
         setBusy(false);
         return;
       }
-      if (current?.id === link.groupId) {
+      if (groups.some((item) => item.id === link.groupId)) {
+        onJoined?.(link.groupId, link.name);
         onClose();
         return;
       }
-      if (current) await leaveGroup(user.uid, current.id);
       await joinGroup(user, link);
-      onJoined?.(link.name);
+      onJoined?.(link.groupId, link.name);
       onClose();
-    } catch {
-      setError('Не получилось присоединиться. Проверьте связь и попробуйте ещё раз.');
+    } catch (error) {
+      setError(
+        error instanceof Error && error.message === 'GROUP_LIMIT'
+          ? `В одном аккаунте можно быть в ${MAX_GROUPS} группах. Покиньте одну, чтобы вступить в новую.`
+          : 'Не получилось присоединиться. Проверьте связь и попробуйте ещё раз.',
+      );
       setBusy(false);
     }
   };
@@ -209,14 +225,18 @@ export function JoinLinkDialog({
   );
 }
 
-/** Выбор героя: свой лист или «без героя». */
+/** Выбор героя: свой лист, «Мастер игры» (мастеру) или «без героя». */
 export function HeroPickerDialog({
   group,
+  isMaster,
   currentHeroId,
+  gameMaster,
   onClose,
 }: {
   group: Group;
+  isMaster: boolean;
   currentHeroId: string | null;
+  gameMaster: boolean;
   onClose: () => void;
 }) {
   const { user } = useAuth();
@@ -224,13 +244,13 @@ export function HeroPickerDialog({
   const [busyId, setBusyId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const choose = async (id: string | null) => {
+  const choose = async (id: string | null, gm = false) => {
     if (!user || busyId) return;
-    setBusyId(id ?? 'none');
+    setBusyId(id ?? (gm ? 'gm' : 'none'));
     setError(null);
     try {
       const record = id ? records.find((item) => item.id === id) ?? null : null;
-      await setMyHero(user.uid, group.id, record);
+      await setMyHero(user.uid, group.id, record, gm);
       onClose();
     } catch {
       setError('Не получилось поставить героя за стол. Попробуйте ещё раз.');
@@ -251,9 +271,22 @@ export function HeroPickerDialog({
       }
     >
       <div className="pick">
+        {isMaster && (
+          <button
+            type="button"
+            className={`pick__row pick__row--gm${!currentHeroId && gameMaster ? ' is-active' : ''}`}
+            onClick={() => void choose(null, true)}
+            disabled={busyId !== null}
+          >
+            <span className="pick__gm-mark" aria-hidden="true" />
+            <span className="pick__body">
+              <span className="pick__name">Мастер игры</span>
+            </span>
+          </button>
+        )}
         <button
           type="button"
-          className={`pick__row pick__row--none${currentHeroId ? '' : ' is-active'}`}
+          className={`pick__row pick__row--none${!currentHeroId && !gameMaster ? ' is-active' : ''}`}
           onClick={() => void choose(null)}
           disabled={busyId !== null}
         >
@@ -262,8 +295,6 @@ export function HeroPickerDialog({
           </span>
           <span className="pick__body">
             <span className="pick__name">Без героя</span>
-            <span className="pick__concept">Просто смотреть за столом</span>
-            {!currentHeroId && <span className="pick__mark">За столом</span>}
           </span>
         </button>
 
