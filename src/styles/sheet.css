@@ -491,3 +491,25 @@
     display: none;
   }
 }
+
+/* Плашка «ссылка скопирована»: короткое подтверждение поверх стола. */
+.sheet-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 26px;
+  z-index: 60;
+  max-width: calc(100% - 32px);
+  padding: 10px 18px;
+  border: 1px solid color-mix(in srgb, var(--accent-gold) 55%, transparent);
+  border-radius: 2px;
+  background: var(--bg-parchment);
+  box-shadow:
+    0 2px 0 color-mix(in srgb, var(--text-ink-primary) 12%, transparent),
+    0 8px 24px var(--shadow-black-soft);
+  font-family: var(--font-body);
+  font-size: var(--text-caption);
+  letter-spacing: 0.05em;
+  text-align: center;
+  color: var(--text-ink-primary);
+  transform: translateX(-50%);
+}

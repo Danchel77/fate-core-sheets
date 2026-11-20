@@ -8,18 +8,12 @@ import { StressBlock } from '../components/StressBlock';
 import { ExtrasBlock } from '../components/ExtrasBlock';
 import { IconArrowLeft } from '../components/icons';
 import { PortraitDialog } from '../components/PortraitDialog';
-import { ShareDialog } from '../components/ShareDialog';
 import { SheetExport } from '../components/SheetExport';
 import { CharacterWizard, type WizardDraft } from '../components/CharacterWizard';
 import { draftFromCharacter, patchFromDraft } from '../components/wizardDraft';
 import { physicalStress, mentalStress } from '../data/characters';
 import { openAuthDialog } from '../firebase/authStore';
-import {
-  reShareCharacter,
-  revokeShare,
-  shareCharacter,
-  useCharacters,
-} from '../data/store';
+import { shareCharacter, useCharacters } from '../data/store';
 import type { Character, CharacterPatch, CharacterRecord, SettingId } from '../data/types';
 
 const BASE = import.meta.env.BASE_URL;
@@ -32,10 +26,10 @@ type Props = {
   record?: CharacterRecord;
   /** Правка листа уходит в хранилище сразу, без кнопки «Сохранить». */
   onPatch?: (patch: CharacterPatch) => void;
-  /** Чужой лист: без правок, конструктора и экспорта; только назад и «Добавить себе». */
+  /** Чужой лист: без правок и конструктора; в шапке — пометка владельца. */
   readOnly?: boolean;
-  /** Дополнительный блок под книгой — кнопка на чужом листе. */
-  footer?: ReactNode;
+  /** Пометка в шапке: на чужом листе «лист другого игрока» и «Добавить себе». */
+  header?: ReactNode;
 };
 
 function shareUrl(token: string): string {
@@ -49,21 +43,26 @@ export default function SheetScreen({
   record,
   onPatch,
   readOnly = false,
-  footer,
+  header,
 }: Props) {
   const [portrait, setPortrait] = useState(character.portrait);
   const [portraitOpen, setPortraitOpen] = useState(false);
   const [editor, setEditor] = useState<WizardDraft | null>(null);
   const [revision, setRevision] = useState(0);
-  const [shareOpen, setShareOpen] = useState(false);
-  const [shareLink, setShareLink] = useState<string | null>(null);
   const [shareBusy, setShareBusy] = useState(false);
-  const [shareError, setShareError] = useState<string | null>(null);
+  const [toast, setToast] = useState<string | null>(null);
   const { mode } = useCharacters();
 
   useEffect(() => {
     setPortrait(character.portrait);
   }, [character.portrait]);
+
+  /* Сообщение о ссылке живёт пару секунд и само гаснет. */
+  useEffect(() => {
+    if (!toast) return;
+    const timer = window.setTimeout(() => setToast(null), 2600);
+    return () => window.clearTimeout(timer);
+  }, [toast]);
 
   const changePortrait = (next: string) => {
     setPortrait(next);
@@ -79,70 +78,38 @@ export default function SheetScreen({
     setRevision((value) => value + 1);
   };
 
-  const createShare = async () => {
-    if (!record || shareBusy) return;
-    setShareBusy(true);
-    setShareError(null);
+  /* Ссылка не открывает окно: она сразу ложится в буфер, а мы показываем плашку. */
+  const copyShare = async (token: string) => {
     try {
-      const token = await shareCharacter(record.id);
-      setShareLink(shareUrl(token));
-      setShareOpen(true);
-    } catch (error) {
-      if (error instanceof Error && error.message === 'share-needs-auth') {
-        setShareError('Ссылку создаёт только владелец с аккаунтом. Войдите, чтобы поделиться.');
-        openAuthDialog();
-      } else {
-        setShareError('Не получилось создать ссылку. Проверьте связь и правила доступа в Firebase.');
-      }
-      setShareOpen(true);
-    } finally {
-      setShareBusy(false);
+      await navigator.clipboard.writeText(shareUrl(token));
+      setToast('Ссылка скопирована в буфер обмена');
+    } catch {
+      setToast('Не удалось скопировать ссылку');
     }
   };
 
   const openShare = () => {
-    if (!record) return;
-    /* Ссылка — только у владельца с аккаунтом: без входа сразу зовём войти,
-       окно ссылки не открываем, чтобы не было двух окон разом. */
+    if (!record || shareBusy) return;
+    /* Ссылку создаёт только владелец с аккаунтом: без входа сразу зовём войти. */
     if (mode !== 'cloud') {
       openAuthDialog();
       return;
     }
     if (record.share) {
-      setShareLink(shareUrl(record.share));
-      setShareError(null);
-      setShareOpen(true);
+      void copyShare(record.share);
       return;
     }
-    void createShare();
-  };
-
-  const newShare = async () => {
-    if (!record || shareBusy) return;
     setShareBusy(true);
-    setShareError(null);
-    try {
-      const token = await reShareCharacter(record.id);
-      setShareLink(shareUrl(token));
-    } catch {
-      setShareError('Не получилось создать новую ссылку. Проверьте связь.');
-    } finally {
-      setShareBusy(false);
-    }
-  };
-
-  const revoke = async () => {
-    if (!record || shareBusy) return;
-    setShareBusy(true);
-    try {
-      await revokeShare(record.id);
-      setShareOpen(false);
-      setShareLink(null);
-    } catch {
-      setShareError('Не получилось отозвать ссылку. Проверьте связь.');
-    } finally {
-      setShareBusy(false);
-    }
+    shareCharacter(record.id)
+      .then((token) => copyShare(token))
+      .catch((error) => {
+        if (error instanceof Error && error.message === 'share-needs-auth') {
+          openAuthDialog();
+        } else {
+          setToast('Не получилось создать ссылку');
+        }
+      })
+      .finally(() => setShareBusy(false));
   };
 
   const pages = (
@@ -197,10 +164,9 @@ export default function SheetScreen({
           <span className="sheet-nav__label">Мои персонажи</span>
           <span className="sheet-nav__label-short">Персонажи</span>
         </a>
+        {header}
         <div className="sheet-nav__actions">
-          {!readOnly && record && (
-            <SheetExport record={record} onShare={openShare} />
-          )}
+          {record && <SheetExport record={record} onShare={readOnly ? undefined : openShare} />}
           {!readOnly && onPatch && (
             <button type="button" className="sheet-nav__btn" onClick={openEditor}>
               Конструктор
@@ -223,7 +189,6 @@ export default function SheetScreen({
         </div>
         <span className="book-ribbon" aria-hidden="true" />
       </div>
-      {footer}
       {portraitOpen && !readOnly && (
         <PortraitDialog
           src={portrait}
@@ -240,15 +205,10 @@ export default function SheetScreen({
           lockedSetting
         />
       )}
-      {shareOpen && (
-        <ShareDialog
-          link={shareLink ?? ''}
-          busy={shareBusy}
-          error={shareError}
-          onNew={() => void newShare()}
-          onRevoke={() => void revoke()}
-          onClose={() => setShareOpen(false)}
-        />
+      {toast && (
+        <div className="sheet-toast" role="status">
+          {toast}
+        </div>
       )}
     </div>
   );

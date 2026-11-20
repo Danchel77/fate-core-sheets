@@ -3,6 +3,7 @@ import { AccountButton } from '../components/AccountButton';
 import { IconArrowLeft } from '../components/icons';
 import { readShare, type SharedHero } from '../data/cloud';
 import { createCharacter, useCharacters } from '../data/store';
+import type { CharacterRecord } from '../data/types';
 import SheetLoading from './SheetLoading';
 import SheetScreen from './SheetScreen';
 
@@ -87,24 +88,35 @@ export default function SharedScreen({ token }: Props) {
     }
   };
 
+  /* Запись нужна только для экспорта: страница показывает чужого героя без
+     хранения, а PDF/JSON собираются из его листа и сеттинга. */
+  const sharedRecord: CharacterRecord = {
+    id: `shared-${token}`,
+    setting: hero.setting,
+    createdAt: '',
+    updatedAt: '',
+    sheet: hero.sheet,
+  };
+
   return (
     <SheetScreen
       character={hero.sheet}
       setting={hero.setting}
+      record={sharedRecord}
       readOnly
-      footer={
-        <div className="shared-add">
-          <p className="shared-add__text">
-            Это лист другого игрока: правки видны только у владельца.
-          </p>
+      header={
+        <div className="shared-note">
+          <span className="shared-note__text">
+            Лист другого игрока · правки видит только владелец
+          </span>
           {addedId ? (
-            <a className="shared-add__btn" href={`#/hero/${addedId}`}>
+            <a className="shared-note__btn" href={`#/hero/${addedId}`}>
               Открыть мой лист
             </a>
           ) : (
             <button
               type="button"
-              className="shared-add__btn"
+              className="shared-note__btn"
               onClick={() => void add()}
               disabled={adding || !ready}
             >

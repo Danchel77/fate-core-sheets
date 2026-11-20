@@ -237,52 +237,6 @@ export async function shareCharacter(id: string): Promise<string> {
   return token;
 }
 
-/** Новая ссылка: старая копия удаляется, у героя появляется новый код. */
-export async function reShareCharacter(id: string): Promise<string> {
-  const current = state.records.find((record) => record.id === id);
-  if (!current) throw new Error('Герой не найден');
-  if (current.share) {
-    try {
-      await unpublishShare(current.share);
-    } catch {
-      /* старую ссылку уже могли отозвать */
-    }
-    const cleared: CharacterRecord = {
-      id: current.id,
-      setting: current.setting,
-      createdAt: current.createdAt,
-      updatedAt: new Date().toISOString(),
-      sheet: current.sheet,
-    };
-    publish({ ...state, records: state.records.map((item) => (item.id === id ? cleared : item)) });
-    if (state.mode === 'cloud' && state.uid) {
-      await writeCloud(state.uid, cleared).catch(() => undefined);
-    }
-  }
-  return shareCharacter(id);
-}
-
-/** Отзыв: ссылка перестаёт открываться, публичная копия удаляется. */
-export async function revokeShare(id: string): Promise<void> {
-  const current = state.records.find((record) => record.id === id);
-  if (!current?.share) return;
-  const token = current.share;
-  const next: CharacterRecord = {
-    id: current.id,
-    setting: current.setting,
-    createdAt: current.createdAt,
-    updatedAt: new Date().toISOString(),
-    sheet: current.sheet,
-  };
-  publish({ ...state, records: state.records.map((item) => (item.id === id ? next : item)) });
-  try {
-    await unpublishShare(token);
-    if (state.mode === 'cloud' && state.uid) await writeCloud(state.uid, next);
-  } catch {
-    setNotice('Не удалось отозвать ссылку. Проверьте связь.');
-  }
-}
-
 function newShareToken(): string {
   const bytes = new Uint8Array(12);
   crypto.getRandomValues(bytes);

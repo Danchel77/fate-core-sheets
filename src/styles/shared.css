@@ -1,19 +1,56 @@
 /* ── Лист по чужой ссылке ────────────────────────────────────────── */
 
-/* Окно ссылки: пояснение над адресом. */
-.sm__lead {
-  margin: 0 0 14px;
+/* Пометка в шапке: чужой лист и «Добавить себе». */
+.shared-note {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  padding: 3px 5px 3px 12px;
+  border: 1px solid color-mix(in srgb, var(--accent-gold) 40%, transparent);
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--bg-parchment) 94%, transparent);
+}
+
+.shared-note__text {
   font-family: var(--font-body);
-  font-size: var(--text-body);
-  line-height: 1.45;
+  font-size: var(--text-caption);
+  letter-spacing: 0.05em;
   color: var(--text-ink-muted);
 }
 
-/* Сам адрес: чуть мельче и с разрядкой, чтобы было видно, что это ссылка. */
-.sm__input--link {
+.shared-note__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid var(--accent-gold-deep);
+  border-radius: 2px;
+  background: var(--accent-gold-deep);
+  font-family: var(--font-body);
   font-size: var(--text-caption);
-  letter-spacing: 0.02em;
-  color: var(--accent-gold-ink);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--bg-parchment);
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+.shared-note__btn:hover {
+  background: var(--accent-gold-ink);
+}
+
+.shared-note__btn:focus-visible {
+  outline: 2px solid var(--accent-gold-ink);
+  outline-offset: 2px;
+}
+
+.shared-note__btn:disabled {
+  opacity: 0.55;
+  cursor: default;
 }
 
 /* Только чтение: поля не трогаются, но не выглядят «выключенными».
@@ -35,65 +72,6 @@
 
 .sheet-lock .bmenu {
   display: none;
-}
-
-/* «Добавить себе» под книгой. */
-.shared-add {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  gap: 10px 18px;
-  width: min(760px, calc(100% - 32px));
-  margin: 18px auto 0;
-  padding: 14px 18px;
-  border: 1px solid color-mix(in srgb, var(--accent-gold) 45%, transparent);
-  border-radius: 2px;
-  background: var(--bg-parchment);
-  box-shadow: 0 2px 0 color-mix(in srgb, var(--text-ink-primary) 12%, transparent);
-  text-align: center;
-}
-
-.shared-add__text {
-  margin: 0;
-  font-family: var(--font-body);
-  font-size: var(--text-caption);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--text-ink-muted);
-}
-
-.shared-add__btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 40px;
-  padding: 0 18px;
-  border: 1px solid var(--accent-gold-deep);
-  border-radius: 2px;
-  background: var(--accent-gold-deep);
-  font-family: var(--font-body);
-  font-size: var(--text-caption);
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--bg-parchment);
-  cursor: pointer;
-  transition: background-color var(--transition-fast);
-}
-
-.shared-add__btn:hover {
-  background: var(--accent-gold-ink);
-}
-
-.shared-add__btn:focus-visible {
-  outline: 2px solid var(--accent-gold-ink);
-  outline-offset: 2px;
-}
-
-.shared-add__btn:disabled {
-  opacity: 0.55;
-  cursor: default;
 }
 
 /* Битый или отозванный адрес. */
@@ -148,14 +126,13 @@
 }
 
 @media (max-width: 720px) {
-  .shared-add {
-    flex-direction: column;
-    gap: 10px;
-    width: calc(100% - 20px);
-    padding: 12px 14px;
+  .shared-note {
+    order: 3;
+    flex-basis: 100%;
+    justify-content: space-between;
   }
 
-  .shared-add__btn {
-    width: 100%;
+  .shared-note__text {
+    flex: 1 1 auto;
   }
 }
