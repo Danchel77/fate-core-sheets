@@ -238,7 +238,7 @@
   width: 7px;
   pointer-events: none;
   background: repeating-linear-gradient(
-    to bottom,
+    to right,
     var(--stack-sheet) 0 1px,
     var(--stack-seam) 1px 2px
   );
@@ -297,7 +297,7 @@
     transform: none;
     pointer-events: none;
     background: repeating-linear-gradient(
-      to bottom,
+      to right,
       var(--stack-sheet) 0 1px,
       var(--stack-seam) 1px 2px
     );

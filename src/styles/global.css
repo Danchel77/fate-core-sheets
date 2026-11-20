@@ -12,6 +12,79 @@ html {
   background-color: var(--bg-table);
   /* Место под ползунок прокрутки занято всегда: страница не прыгает при фильтрах. */
   scrollbar-gutter: stable;
+  /* Ползунок — тонкий и в цвет приложения, а не системный белый. */
+  scrollbar-width: thin;
+  scrollbar-color: var(--accent-gold-deep) var(--bg-table);
+}
+
+/* Бегунок основной прокрутки — латунный, дорожка — цвет стола. */
+html::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+html::-webkit-scrollbar-track {
+  background: var(--bg-table);
+}
+
+html::-webkit-scrollbar-thumb {
+  background: color-mix(
+    in srgb,
+    var(--accent-gold-deep) 70%,
+    var(--text-ink-primary) 30%
+  );
+  border: 2px solid var(--bg-table);
+  border-radius: 8px;
+}
+
+/* Тонкие ползунки во внутренних полях: дорожка прозрачная (пергамент),
+   бегунок — латунный. На телефоне ползунки ниже скрыты. */
+.arow__text,
+.str__slot-line,
+.ext__area,
+.sm__body,
+.wiz__page,
+.spick__body,
+textarea {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(
+      in srgb,
+      var(--accent-gold-deep) 72%,
+      transparent
+    )
+    transparent;
+}
+
+.arow__text::-webkit-scrollbar,
+.str__slot-line::-webkit-scrollbar,
+.ext__area::-webkit-scrollbar,
+.sm__body::-webkit-scrollbar,
+.wiz__page::-webkit-scrollbar,
+.spick__body::-webkit-scrollbar,
+textarea::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.arow__text::-webkit-scrollbar-track,
+.str__slot-line::-webkit-scrollbar-track,
+.ext__area::-webkit-scrollbar-track,
+.sm__body::-webkit-scrollbar-track,
+.wiz__page::-webkit-scrollbar-track,
+.spick__body::-webkit-scrollbar-track,
+textarea::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.arow__text::-webkit-scrollbar-thumb,
+.str__slot-line::-webkit-scrollbar-thumb,
+.ext__area::-webkit-scrollbar-thumb,
+.sm__body::-webkit-scrollbar-thumb,
+.wiz__page::-webkit-scrollbar-thumb,
+.spick__body::-webkit-scrollbar-thumb,
+textarea::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--accent-gold-deep) 60%, transparent);
+  border-radius: 8px;
 }
 
 body {
@@ -78,6 +151,9 @@ summary,
   html,
   body,
   textarea,
+  .arow__text,
+  .str__slot-line,
+  .ext__area,
   .sm__body,
   .wiz__page,
   .spick__body {
@@ -88,6 +164,9 @@ summary,
   html::-webkit-scrollbar,
   body::-webkit-scrollbar,
   textarea::-webkit-scrollbar,
+  .arow__text::-webkit-scrollbar,
+  .str__slot-line::-webkit-scrollbar,
+  .ext__area::-webkit-scrollbar,
   .sm__body::-webkit-scrollbar,
   .wiz__page::-webkit-scrollbar,
   .spick__body::-webkit-scrollbar {
