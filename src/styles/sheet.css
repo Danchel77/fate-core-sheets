@@ -10,27 +10,123 @@
   background:
     radial-gradient(
       ellipse at 50% -10%,
-      color-mix(in srgb, var(--bg-table) 72%, white 8%),
+      var(--theme-table-hi, color-mix(in srgb, var(--bg-table) 72%, white 8%)),
       transparent 60%
     ),
     var(--bg-table);
 }
 
+/* Разворот стоит на стопке листов; рамку вокруг книги не рисуем —
+   объём дают листы, корешок и тени страниц. */
+.book-stage {
+  position: relative;
+  isolation: isolate;
+  width: min(1560px, 100%);
+}
+
 .book {
   --page-gap: 14px;
-  width: min(1560px, 100%);
+  position: relative;
+  z-index: 1;
+  width: 100%;
   display: grid;
   grid-template-columns: 1fr 1fr;
   grid-template-rows: repeat(3, auto);
   row-gap: var(--page-gap);
-  border: 2px solid var(--accent-gold);
-  outline: 1px solid color-mix(in srgb, var(--accent-gold) 55%, transparent);
-  outline-offset: 3px;
   background-color: var(--bg-parchment);
   color: var(--text-ink-primary);
+  box-shadow: 0 22px 46px -24px var(--shadow-deep);
+}
+
+/* Стопка листов под разворотом. Это не рамка: сверху и снизу у центра
+   вырезан полукруг, поэтому листы расходятся из корешка, как в книге. */
+.book-stack {
+  position: absolute;
+  inset: -4px -5px -12px;
+  z-index: 0;
+  pointer-events: none;
+  border-radius: 4px 4px 10px 10px;
+  background: linear-gradient(
+    to bottom,
+    var(--paper-highlight) 0%,
+    var(--bg-parchment) 42%,
+    color-mix(in srgb, var(--bg-parchment) 88%, var(--tint-gold-sand) 12%) 100%
+  );
   box-shadow:
-    0 24px 60px color-mix(in srgb, black 55%, transparent),
-    0 4px 14px color-mix(in srgb, black 35%, transparent);
+    0 18px 34px -18px var(--shadow-deep),
+    inset 0 1px 0 var(--paper-highlight),
+    inset 0 -1px 0 color-mix(in srgb, var(--accent-gold) 16%, transparent);
+  mask-image:
+    radial-gradient(circle 24px at 50% 0, transparent 22px, black 23px),
+    radial-gradient(circle 24px at 50% 100%, transparent 22px, black 23px);
+  mask-composite: intersect;
+  -webkit-mask-image:
+    radial-gradient(circle 24px at 50% 0, transparent 22px, black 23px),
+    radial-gradient(circle 24px at 50% 100%, transparent 22px, black 23px);
+  -webkit-mask-composite: source-in;
+}
+
+/* Передний лист светлее, каждый следующий ниже — на волос темнее. */
+.book-stack--1 {
+  transform: translate(0, 8px);
+  filter: brightness(0.93);
+}
+
+.book-stack--2 {
+  transform: translate(0, 4px);
+  filter: brightness(0.965);
+}
+
+.book-stack--3 {
+  transform: translate(0, 0);
+}
+
+/* Закладка-ляссе выходит из корешка и лежит поверх правой страницы,
+   не задевая лозунг заголовка «Навыки». */
+.book-ribbon {
+  position: absolute;
+  top: -6px;
+  left: calc(50% + 8px);
+  z-index: 3;
+  width: 18px;
+  height: 128px;
+  pointer-events: none;
+  border-radius: 2px 2px 0 0;
+  background: linear-gradient(
+    to right,
+    var(--theme-ribbon-lo),
+    var(--theme-ribbon) 38%,
+    var(--theme-ribbon-hi) 68%,
+    var(--theme-ribbon-lo)
+  );
+  box-shadow:
+    0 6px 12px var(--shadow-soft),
+    inset 1px 0 0 var(--highlight-warm-soft),
+    inset -1px 0 0 var(--shadow-warm);
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 58% 100%, 50% 86%, 42% 100%, 0 100%);
+}
+
+/* Тонкая линия переплёта по центру: на развороте есть, на телефоне нет. */
+.book::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  z-index: 2;
+  width: 2px;
+  transform: translateX(-50%);
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    color-mix(in srgb, var(--text-ink-primary) 22%, transparent) 10%,
+    color-mix(in srgb, var(--text-ink-primary) 22%, transparent) 90%,
+    transparent
+  );
+  box-shadow:
+    -1px 0 0 color-mix(in srgb, var(--paper-highlight) 40%, transparent),
+    1px 0 0 color-mix(in srgb, var(--shadow-deep) 30%, transparent);
 }
 
 /* Обе страницы тянутся на все три строки книги: их ряды — общая сетка.
@@ -38,11 +134,34 @@
    и «Дополнения» — тоже, без фиксированной высоты и пустых резервов. */
 .page {
   grid-row: 1 / -1;
+  position: relative;
+  isolation: isolate;
   display: grid;
   grid-template-rows: subgrid;
   row-gap: var(--page-gap);
   padding: clamp(20px, 2.6vw, 34px);
-  background: color-mix(in srgb, var(--bg-parchment) 72%, transparent);
+  background-color: var(--bg-parchment);
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--accent-gold) 20%, transparent),
+    inset 0 0 46px var(--theme-vignette);
+}
+
+/* Бумага: деликатная фактура поверх страницы, под содержимым. */
+.page::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image: var(--sheet-texture);
+  background-size: 320px auto;
+  opacity: var(--theme-texture-opacity, 0.07);
+  mix-blend-mode: multiply;
+}
+
+.page > * {
+  position: relative;
+  z-index: 1;
 }
 
 /* Блоки не растягиваются: пирамида и персонаж живут своей высотой.
@@ -61,22 +180,55 @@
   align-self: stretch;
 }
 
+/* Сгиб у корешка: мягкая тень у внутренних краёв страниц. */
 .page--left {
-  border-right: 1px solid color-mix(in srgb, var(--accent-gold) 45%, transparent);
-  box-shadow: inset -16px 0 20px -18px
-    color-mix(in srgb, var(--text-ink-primary) 55%, transparent);
+  box-shadow:
+    inset -16px 0 20px -18px color-mix(in srgb, var(--text-ink-primary) 55%, transparent),
+    inset 0 0 0 1px color-mix(in srgb, var(--accent-gold) 20%, transparent),
+    inset 0 0 46px var(--theme-vignette);
 }
 
 .page--right {
-  box-shadow: inset 16px 0 20px -18px
-    color-mix(in srgb, var(--text-ink-primary) 55%, transparent);
+  box-shadow:
+    inset 16px 0 20px -18px color-mix(in srgb, var(--text-ink-primary) 55%, transparent),
+    inset 0 0 0 1px color-mix(in srgb, var(--accent-gold) 20%, transparent),
+    inset 0 0 46px var(--theme-vignette);
 }
 
 @media (max-width: 920px) {
+  .book-stage {
+    width: 100%;
+  }
+
   .book {
     grid-template-columns: 1fr;
     grid-template-rows: none;
     row-gap: 0;
+  }
+
+  /* На телефоне это не разворот, а стопка листов: без закладки и корешка. */
+  .book::after,
+  .book-ribbon {
+    display: none;
+  }
+
+  .book-stack {
+    inset: -3px -4px -10px;
+    border-radius: 3px;
+    mask-image: none;
+    -webkit-mask-image: none;
+  }
+
+  .book-stack--1 {
+    transform: translate(7px, 9px);
+  }
+
+  .book-stack--2 {
+    transform: translate(4px, 5px);
+  }
+
+  .book-stack--3 {
+    transform: translate(0, 0);
   }
 
   .page {
@@ -84,6 +236,9 @@
     display: flex;
     flex-direction: column;
     gap: var(--page-gap);
+    box-shadow:
+      inset 0 0 0 1px color-mix(in srgb, var(--accent-gold) 20%, transparent),
+      inset 0 0 46px var(--theme-vignette);
   }
 
   .page > .cblock,
@@ -96,14 +251,11 @@
     height: auto;
   }
 
-  .page--left {
-    border-right: 0;
-    border-bottom: 1px solid color-mix(in srgb, var(--accent-gold) 40%, transparent);
-    box-shadow: none;
-  }
-
+  .page--left,
   .page--right {
-    box-shadow: none;
+    box-shadow:
+      inset 0 0 0 1px color-mix(in srgb, var(--accent-gold) 20%, transparent),
+      inset 0 0 46px var(--theme-vignette);
   }
 }
 
@@ -111,6 +263,20 @@
 @media (max-width: 720px) {
   .book {
     --page-gap: 10px;
+  }
+}
+
+@media (max-width: 560px) {
+  .book-stack {
+    inset: -2px -3px -8px;
+  }
+
+  .book-stack--1 {
+    transform: translate(5px, 7px);
+  }
+
+  .book-stack--2 {
+    transform: translate(3px, 4px);
   }
 }
 

@@ -1,7 +1,10 @@
 /*
  * tokens.css — единственный источник шрифтов, размеров, отступов и цветов.
- * Цвета и палитра добавляются в Phase 2, после утверждения визуального стиля.
  * Ни один другой файл не содержит hex-значений и font-family.
+ *
+ * Темы сеттингов: data-theme живёт на листе персонажа (.table).
+ * Список, окна входа и конструктора остаются на базовой палитре.
+ * Печать (pdf-lib) от этих токенов не зависит: бланк всегда чёрно-белый.
  */
 
 :root {
@@ -66,4 +69,69 @@
 
   --touch-target: 44px;
   --transition-fast: 120ms ease;
+}
+
+/* Тема «Ведьмак»: старый бестиарий. Тёплый дымный пергамент, морёный дуб,
+   сургуч и старая бронза; ч/б печать не затрагивается. */
+[data-theme='witcher'] {
+  --bg-table: #17130f;
+  --theme-table-hi: #3a2a1a;
+  --table-ink: #efe2c8;
+  --bg-parchment: #efe3c9;
+  --paper-highlight: #fdf6e6;
+  --text-ink-primary: #241a11;
+  --text-ink-muted: #55412b;
+  --accent-gold: #9a6b2f;
+  --accent-gold-deep: #7a4f22;
+  --accent-gold-ink: #5c3a18;
+  --accent-gold-action: #a06f2e;
+  --accent-crimson: #5b1e17;
+  --accent-crimson-action: #7a2a1e;
+  --accent-crimson-ink: #4a1710;
+  --arrow-gold-hi: #c99a52;
+  --arrow-gold-mid: #9a6b2f;
+  --arrow-gold-lo: #5c3a18;
+  --arrow-edge: #3a2214;
+  --band-ink: #f4e8d2;
+  --tint-gold-sand: #c9a878;
+  --tint-gold-pale: #ddc9a6;
+  --coin-edge: #513517;
+  --coin-highlight: #c49a58;
+  --theme-ribbon: #6b2118;
+  --theme-ribbon-hi: #8a3324;
+  --theme-ribbon-lo: #45130e;
+  --theme-texture-opacity: 0.1;
+  --theme-vignette: color-mix(in srgb, #6b4a20 16%, transparent);
+}
+
+/* Тема Fate: светлое издание, графитовый стол, индиго и матовая латунь. */
+[data-theme='fate'] {
+  --bg-table: #161d1e;
+  --theme-table-hi: #2a3535;
+  --table-ink: #e9e2d3;
+  --bg-parchment: #f7f0df;
+  --paper-highlight: #fffdf7;
+  --text-ink-primary: #1f1a12;
+  --text-ink-muted: #4a3a26;
+  --accent-gold: #a07b3a;
+  --accent-gold-deep: #8a6524;
+  --accent-gold-ink: #6b4b1e;
+  --accent-gold-action: #b07c22;
+  --accent-crimson: #4a2318;
+  --accent-crimson-action: #a83727;
+  --accent-crimson-ink: #711f16;
+  --arrow-gold-hi: #d7a24a;
+  --arrow-gold-mid: #b07c22;
+  --arrow-gold-lo: #6b4b1e;
+  --arrow-edge: #4a2318;
+  --band-ink: #f8eed9;
+  --tint-gold-sand: #c2a26a;
+  --tint-gold-pale: #d9c6a2;
+  --coin-edge: #6b4a20;
+  --coin-highlight: #d8b06a;
+  --theme-ribbon: #2f3f5a;
+  --theme-ribbon-hi: #46587a;
+  --theme-ribbon-lo: #202c40;
+  --theme-texture-opacity: 0.07;
+  --theme-vignette: color-mix(in srgb, #6b4a20 10%, transparent);
 }
