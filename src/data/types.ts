@@ -36,6 +36,8 @@ export type CharacterRecord = {
   createdAt: string;
   updatedAt: string;
   sheet: Character;
+  /** Код публичной ссылки: shared/{share}. Только у героя в аккаунте. */
+  share?: string;
 };
 
 /** Правка листа: блок отдаёт только изменившиеся поля. */

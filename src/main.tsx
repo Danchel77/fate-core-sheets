@@ -32,6 +32,7 @@ import './styles/wizard.css';
 import './styles/auth.css';
 import './styles/name-generator.css';
 import './styles/loading.css';
+import './styles/shared.css';
 
 const rootElement = document.getElementById('root');
 

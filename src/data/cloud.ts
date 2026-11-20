@@ -1,4 +1,4 @@
-import { collection, deleteDoc, doc, onSnapshot, setDoc } from 'firebase/firestore';
+import { collection, deleteDoc, doc, getDoc, onSnapshot, setDoc } from 'firebase/firestore';
 import { db } from '../firebase/app';
 import type { CharacterRecord, SettingId } from './types';
 
@@ -6,6 +6,46 @@ import type { CharacterRecord, SettingId } from './types';
 function heroRef(uid: string, id: string) {
   if (!db) throw new Error('Firebase не настроен');
   return doc(db, 'users', uid, 'heroes', id);
+}
+
+/** Публичная копия героя для ссылки: shared/{token}. Читают все, пишет только владелец. */
+function shareRef(token: string) {
+  if (!db) throw new Error('Firebase не настроен');
+  return doc(db, 'shared', token);
+}
+
+export type SharedHero = {
+  owner: string;
+  setting: SettingId;
+  sheet: CharacterRecord['sheet'];
+};
+
+/** Перезаписывает публичную копию — вызывается при каждой правке героя со ссылкой. */
+export async function publishShare(owner: string, token: string, record: CharacterRecord): Promise<void> {
+  await setDoc(shareRef(token), {
+    owner,
+    setting: record.setting,
+    createdAt: record.createdAt,
+    updatedAt: record.updatedAt,
+    sheet: record.sheet,
+  });
+}
+
+export async function unpublishShare(token: string): Promise<void> {
+  await deleteDoc(shareRef(token));
+}
+
+/** Чтение чужой ссылки: без входа, без подписки. null — ссылки нет. */
+export async function readShare(token: string): Promise<SharedHero | null> {
+  if (!db) throw new Error('Firebase не настроен');
+  const snapshot = await getDoc(shareRef(token));
+  if (!snapshot.exists()) return null;
+  const data = snapshot.data();
+  const setting = data.setting as SettingId | undefined;
+  const sheet = data.sheet as CharacterRecord['sheet'] | undefined;
+  if (setting !== 'fate' && setting !== 'witcher') return null;
+  if (!sheet || typeof sheet !== 'object') return null;
+  return { owner: typeof data.owner === 'string' ? data.owner : '', setting, sheet };
 }
 
 function toRecord(id: string, data: Record<string, unknown>): CharacterRecord | null {
@@ -19,6 +59,7 @@ function toRecord(id: string, data: Record<string, unknown>): CharacterRecord | 
     createdAt: typeof data.createdAt === 'string' ? data.createdAt : new Date(0).toISOString(),
     updatedAt: typeof data.updatedAt === 'string' ? data.updatedAt : new Date(0).toISOString(),
     sheet,
+    share: typeof data.share === 'string' && data.share ? data.share : undefined,
   };
 }
 
@@ -49,6 +90,7 @@ export async function writeCloud(uid: string, record: CharacterRecord): Promise<
     createdAt: record.createdAt,
     updatedAt: record.updatedAt,
     sheet: record.sheet,
+    share: record.share ?? null,
   });
 }
 

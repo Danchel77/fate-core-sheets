@@ -3,14 +3,16 @@ import { downloadBlob } from '../data/download';
 import { downloadFile, fileText, jsonFileName, pdfFileName } from '../data/exchange';
 import type { CharacterRecord } from '../data/types';
 import { buildCharacterPdf } from '../pdf/sheetPdf';
-import { IconBraces, IconFileDown } from './icons';
+import { IconBraces, IconFileDown, IconLink } from './icons';
 
 type Props = {
   record: CharacterRecord;
+  /** Открыть окно публичной ссылки; без обработчика пункт не показывается. */
+  onShare?: () => void;
 };
 
-/** Экспорт прямо с листа: PDF и файл героя, без возврата к списку. */
-export function SheetExport({ record }: Props) {
+/** Экспорт прямо с листа: PDF, файл героя и ссылка, без возврата к списку. */
+export function SheetExport({ record, onShare }: Props) {
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -97,6 +99,22 @@ export function SheetExport({ record }: Props) {
             </span>
             <span>Скачать JSON</span>
           </button>
+          {onShare && (
+            <button
+              type="button"
+              role="menuitem"
+              className="bmenu__item"
+              onClick={() => {
+                setOpen(false);
+                onShare();
+              }}
+            >
+              <span className="bmenu__icon">
+                <IconLink />
+              </span>
+              <span>Поделиться ссылкой</span>
+            </button>
+          )}
         </div>
       )}
     </div>

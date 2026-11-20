@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from 'react';
 import { initAuth, onAuthChange } from '../firebase/authStore';
-import { deleteCloud, subscribeCloud, writeCloud } from './cloud';
+import { deleteCloud, publishShare, subscribeCloud, unpublishShare, writeCloud } from './cloud';
 import { newId, readAll, removeOne, writeOne } from './storage';
 import type { Character, CharacterPatch, CharacterRecord, SettingId } from './types';
 
@@ -76,7 +76,9 @@ function scheduleCloudWrite(uid: string, record: CharacterRecord) {
   if (previous) window.clearTimeout(previous.timer);
   const timer = window.setTimeout(() => {
     pending.delete(record.id);
-    void writeCloud(uid, record).catch(() => setNotice('Не удалось сохранить в облако. Попробуем ещё раз.'));
+    void writeCloud(uid, record)
+      .then(() => (record.share ? publishShare(uid, record.share, record) : undefined))
+      .catch(() => setNotice('Не удалось сохранить в облако. Попробуем ещё раз.'));
   }, 700);
   pending.set(record.id, { uid, record, timer });
 }
@@ -84,7 +86,9 @@ function scheduleCloudWrite(uid: string, record: CharacterRecord) {
 function flushPending() {
   pending.forEach(({ uid, record, timer }) => {
     window.clearTimeout(timer);
-    void writeCloud(uid, record).catch(() => undefined);
+    void writeCloud(uid, record)
+      .then(() => (record.share ? publishShare(uid, record.share, record) : undefined))
+      .catch(() => undefined);
   });
   pending.clear();
 }
@@ -213,7 +217,80 @@ export async function updateCharacter(id: string, patch: CharacterPatch): Promis
   await writeOne(record);
 }
 
+/** Публичная ссылка: только у героя в аккаунте. Возвращает код для #/s/<код>. */
+export async function shareCharacter(id: string): Promise<string> {
+  const current = state.records.find((record) => record.id === id);
+  if (!current) throw new Error('Герой не найден');
+  if (current.share) return current.share;
+  if (state.mode !== 'cloud' || !state.uid) throw new Error('share-needs-auth');
+  const uid = state.uid;
+  const token = newShareToken();
+  const record: CharacterRecord = { ...current, share: token, updatedAt: new Date().toISOString() };
+  publish({ ...state, records: state.records.map((item) => (item.id === id ? record : item)) });
+  try {
+    await writeCloud(uid, record);
+    await publishShare(uid, token, record);
+  } catch (error) {
+    publish({ ...state, records: state.records.map((item) => (item.id === id ? current : item)) });
+    throw error;
+  }
+  return token;
+}
+
+/** Новая ссылка: старая копия удаляется, у героя появляется новый код. */
+export async function reShareCharacter(id: string): Promise<string> {
+  const current = state.records.find((record) => record.id === id);
+  if (!current) throw new Error('Герой не найден');
+  if (current.share) {
+    try {
+      await unpublishShare(current.share);
+    } catch {
+      /* старую ссылку уже могли отозвать */
+    }
+    const cleared: CharacterRecord = {
+      id: current.id,
+      setting: current.setting,
+      createdAt: current.createdAt,
+      updatedAt: new Date().toISOString(),
+      sheet: current.sheet,
+    };
+    publish({ ...state, records: state.records.map((item) => (item.id === id ? cleared : item)) });
+    if (state.mode === 'cloud' && state.uid) {
+      await writeCloud(state.uid, cleared).catch(() => undefined);
+    }
+  }
+  return shareCharacter(id);
+}
+
+/** Отзыв: ссылка перестаёт открываться, публичная копия удаляется. */
+export async function revokeShare(id: string): Promise<void> {
+  const current = state.records.find((record) => record.id === id);
+  if (!current?.share) return;
+  const token = current.share;
+  const next: CharacterRecord = {
+    id: current.id,
+    setting: current.setting,
+    createdAt: current.createdAt,
+    updatedAt: new Date().toISOString(),
+    sheet: current.sheet,
+  };
+  publish({ ...state, records: state.records.map((item) => (item.id === id ? next : item)) });
+  try {
+    await unpublishShare(token);
+    if (state.mode === 'cloud' && state.uid) await writeCloud(state.uid, next);
+  } catch {
+    setNotice('Не удалось отозвать ссылку. Проверьте связь.');
+  }
+}
+
+function newShareToken(): string {
+  const bytes = new Uint8Array(12);
+  crypto.getRandomValues(bytes);
+  return Array.from(bytes, (byte) => byte.toString(36).padStart(2, '0')).join('');
+}
+
 export async function deleteCharacter(id: string): Promise<void> {
+  const target = state.records.find((record) => record.id === id);
   const pendingWrite = pending.get(id);
   if (pendingWrite) {
     window.clearTimeout(pendingWrite.timer);
@@ -222,6 +299,13 @@ export async function deleteCharacter(id: string): Promise<void> {
   publish({ ...state, records: state.records.filter((record) => record.id !== id) });
 
   if (state.mode === 'cloud' && state.uid) {
+    if (target?.share) {
+      try {
+        await unpublishShare(target.share);
+      } catch {
+        /* без сети публичная копия останется до следующего отзыва */
+      }
+    }
     try {
       await deleteCloud(state.uid, id);
     } catch {

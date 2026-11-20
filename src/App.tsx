@@ -3,11 +3,12 @@ import { AuthDialog } from './components/AuthDialog';
 import CharactersScreen from './screens/CharactersScreen';
 import CharactersLoading from './screens/CharactersLoading';
 import NewCharacterScreen from './screens/NewCharacterScreen';
+import SharedScreen from './screens/SharedScreen';
 import SheetLoading from './screens/SheetLoading';
 import SheetScreen from './screens/SheetScreen';
 import { findCharacter, initStore, updateCharacter, useCharacters } from './data/store';
 
-/** Адреса: #/ — список героев, #/hero/<id> — лист, #/new — новый герой. */
+/** Адреса: #/ — список героев, #/hero/<id> — лист, #/s/<код> — чужой лист по ссылке, #/new — новый герой. */
 function readHash() {
   return window.location.hash.replace(/^#/, '');
 }
@@ -31,6 +32,21 @@ export default function App() {
   }, [hash]);
 
   const match = /^\/hero\/([^/]+)$/.exec(hash);
+  const shareMatch = /^\/s\/([^/]+)$/.exec(hash);
+
+  /* Чужая ссылка не зависит от своего списка: показываем её сразу,
+     а «Добавить себе» внизу дождётся хранилища. */
+  if (shareMatch) {
+    return (
+      <>
+        <SharedScreen
+          key={shareMatch[1]}
+          token={decodeURIComponent(shareMatch[1])}
+        />
+        <AuthDialog />
+      </>
+    );
+  }
 
   /* Пока хранилище не ответило, показываем ту страницу, куда шли:
      список — свой список, лист — свой фолиант. Пустая страница и
