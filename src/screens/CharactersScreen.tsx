@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { AccountButton } from '../components/AccountButton';
+import { ListTabs } from '../components/ListTabs';
 import { BlockMenu } from '../components/BlockMenu';
 import { ConfirmDialog } from '../components/ConfirmDialog';
 import { SettingMark } from '../components/SettingMark';
@@ -235,9 +236,9 @@ export default function CharactersScreen() {
 
       <main className="heroes__page">
         <header className="heroes__head">
-          <h1 className="heroes__title">
-            Мои персонажи <span className="heroes__count">({records.length})</span>
-          </h1>
+          <div className="heroes__lead">
+            <ListTabs active="characters" count={records.length} />
+          </div>
 
           {records.length > 0 && (
             <div className="heroes__tools">

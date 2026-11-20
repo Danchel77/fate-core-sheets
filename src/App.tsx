@@ -2,13 +2,15 @@ import { useEffect, useState } from 'react';
 import { AuthDialog } from './components/AuthDialog';
 import CharactersScreen from './screens/CharactersScreen';
 import CharactersLoading from './screens/CharactersLoading';
+import GroupScreen from './screens/GroupScreen';
+import JoinGroupScreen from './screens/JoinGroupScreen';
 import NewCharacterScreen from './screens/NewCharacterScreen';
 import SharedScreen from './screens/SharedScreen';
 import SheetLoading from './screens/SheetLoading';
 import SheetScreen from './screens/SheetScreen';
 import { findCharacter, initStore, updateCharacter, useCharacters } from './data/store';
 
-/** Адреса: #/ — список героев, #/hero/<id> — лист, #/s/<код> — чужой лист по ссылке, #/new — новый герой. */
+/** Адреса: #/ — список героев, #/hero/<id> — лист, #/s/<код> — чужой лист по ссылке, #/group — группа за столом, #/g/<код> — вход по приглашению, #/new — новый герой. */
 function readHash() {
   return window.location.hash.replace(/^#/, '');
 }
@@ -33,6 +35,7 @@ export default function App() {
 
   const match = /^\/hero\/([^/]+)$/.exec(hash);
   const shareMatch = /^\/s\/([^/]+)$/.exec(hash);
+  const joinMatch = /^\/g\/([^/]+)$/.exec(hash);
 
   /* Чужая ссылка не зависит от своего списка: показываем её сразу,
      а «Добавить себе» внизу дождётся хранилища. */
@@ -43,6 +46,26 @@ export default function App() {
           key={shareMatch[1]}
           token={decodeURIComponent(shareMatch[1])}
         />
+        <AuthDialog />
+      </>
+    );
+  }
+
+  /* Группа и приглашение не зависят от списка героев: показываем их сразу,
+     а вход в аккаунт окно дождётся само. */
+  if (joinMatch) {
+    return (
+      <>
+        <JoinGroupScreen key={joinMatch[1]} token={decodeURIComponent(joinMatch[1])} />
+        <AuthDialog />
+      </>
+    );
+  }
+
+  if (hash === '/group') {
+    return (
+      <>
+        <GroupScreen />
         <AuthDialog />
       </>
     );

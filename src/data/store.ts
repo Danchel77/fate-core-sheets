@@ -1,6 +1,7 @@
 import { useSyncExternalStore } from 'react';
 import { initAuth, onAuthChange } from '../firebase/authStore';
 import { deleteCloud, publishShare, subscribeCloud, unpublishShare, writeCloud } from './cloud';
+import { clearAttachedHero, syncGroupCard } from './groups';
 import { newId, readAll, removeOne, writeOne } from './storage';
 import type { Character, CharacterPatch, CharacterRecord, SettingId } from './types';
 
@@ -77,7 +78,10 @@ function scheduleCloudWrite(uid: string, record: CharacterRecord) {
   const timer = window.setTimeout(() => {
     pending.delete(record.id);
     void writeCloud(uid, record)
-      .then(() => (record.share ? publishShare(uid, record.share, record) : undefined))
+      .then(() => {
+        if (record.share) void publishShare(uid, record.share, record);
+        void syncGroupCard(uid, record);
+      })
       .catch(() => setNotice('Не удалось сохранить в облако. Попробуем ещё раз.'));
   }, 700);
   pending.set(record.id, { uid, record, timer });
@@ -87,7 +91,10 @@ function flushPending() {
   pending.forEach(({ uid, record, timer }) => {
     window.clearTimeout(timer);
     void writeCloud(uid, record)
-      .then(() => (record.share ? publishShare(uid, record.share, record) : undefined))
+      .then(() => {
+        if (record.share) void publishShare(uid, record.share, record);
+        void syncGroupCard(uid, record);
+      })
       .catch(() => undefined);
   });
   pending.clear();
@@ -265,6 +272,7 @@ export async function deleteCharacter(id: string): Promise<void> {
     } catch {
       setNotice('Не удалось удалить героя из облака. Проверьте связь.');
     }
+    void clearAttachedHero(state.uid, id);
     return;
   }
 

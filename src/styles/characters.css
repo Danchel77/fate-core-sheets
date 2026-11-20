@@ -107,16 +107,60 @@
   border-bottom: 1px solid color-mix(in srgb, var(--accent-gold) 46%, transparent);
 }
 
-.heroes__title {
-  margin: 0;
+/* Вкладки разделов: «Мои персонажи» и «Группа» на месте заголовка. */
+.heroes__lead {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  justify-content: center;
+  min-height: 56px;
+}
+
+.heroes__tabs {
   display: flex;
   align-items: baseline;
+  gap: 22px;
+}
+
+.heroes__tab {
+  display: inline-flex;
+  align-items: baseline;
   gap: 8px;
+  margin: 0;
+  padding-bottom: 3px;
+  border-bottom: 2px solid transparent;
   font-family: var(--font-display);
-  font-size: var(--text-display);
+  font-size: 1.4rem;
   font-weight: 600;
   line-height: 1.05;
+  color: var(--text-ink-muted);
+  text-decoration: none;
+  transition:
+    color var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+a.heroes__tab:hover {
   color: var(--text-ink-primary);
+}
+
+a.heroes__tab:focus-visible {
+  outline: 2px solid var(--accent-gold-ink);
+  outline-offset: 3px;
+}
+
+.heroes__tab.is-active {
+  color: var(--text-ink-primary);
+  border-bottom-color: var(--accent-gold);
+}
+
+.heroes__groupname {
+  margin: 0;
+  padding-left: 1px;
+  font-family: var(--font-body);
+  font-size: 1.05rem;
+  line-height: 1.2;
+  color: var(--text-ink-muted);
 }
 
 .heroes__count {
@@ -783,6 +827,18 @@
     flex-direction: column;
     padding-bottom: 10px;
     gap: 8px 12px;
+  }
+
+  .heroes__lead {
+    min-height: 0;
+  }
+
+  .heroes__tabs {
+    gap: 18px;
+  }
+
+  .heroes__tab {
+    font-size: 1.22rem;
   }
 
   .heroes__grid {
