@@ -9,7 +9,7 @@ import SheetScreen from './SheetScreen';
 const BASE = import.meta.env.BASE_URL;
 const PAPER_TEXTURE = `url(${BASE}assets/textures/parchment-soft.jpg)`;
 
-type Props = { token: string };
+type Props = { token: string | null };
 type Status =
   | { kind: 'loading' }
   | { kind: 'missing' }
@@ -24,6 +24,10 @@ export default function SharedScreen({ token }: Props) {
   const [addedId, setAddedId] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!token) {
+      setStatus({ kind: 'missing' });
+      return;
+    }
     let alive = true;
     setStatus({ kind: 'loading' });
     readShare(token)
@@ -81,7 +85,7 @@ export default function SharedScreen({ token }: Props) {
   /* Запись нужна только для экспорта: страница показывает чужого героя без
      хранения, а PDF/JSON собираются из его листа и сеттинга. */
   const sharedRecord: CharacterRecord = {
-    id: `shared-${token}`,
+    id: `shared-${token ?? ''}`,
     setting: hero.setting,
     createdAt: '',
     updatedAt: '',

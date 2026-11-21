@@ -11,7 +11,7 @@ const PAPER_TEXTURE = `url(${BASE}assets/textures/parchment-soft.jpg)`;
 type Answer = 'loading' | GroupLink | 'missing';
 
 /** Вход по ссылке-приглашению: сначала показываем, куда зовут, потом пускаем. */
-export default function JoinGroupScreen({ token }: { token: string }) {
+export default function JoinGroupScreen({ token }: { token: string | null }) {
   const { ready: authReady, user } = useAuth();
   const [answer, setAnswer] = useState<Answer>('loading');
   const [busy, setBusy] = useState(false);
@@ -19,6 +19,10 @@ export default function JoinGroupScreen({ token }: { token: string }) {
   const { refs } = useGroups(user?.uid ?? null);
 
   useEffect(() => {
+    if (!token) {
+      setAnswer('missing');
+      return;
+    }
     let alive = true;
     setAnswer('loading');
     void readGroupLink(token).then((link) => {

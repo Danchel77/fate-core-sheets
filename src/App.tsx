@@ -16,6 +16,15 @@ function readHash() {
   return window.location.hash.replace(/^#/, '');
 }
 
+/** Адрес мог быть скопирован с обрывком вроде «%»: такой код не должен ронять страницу. */
+function decodePart(raw: string): string | null {
+  try {
+    return decodeURIComponent(raw);
+  } catch {
+    return null;
+  }
+}
+
 export default function App() {
   const [hash, setHash] = useState(readHash);
   const { ready } = useCharacters();
@@ -46,7 +55,7 @@ export default function App() {
       <>
         <SharedScreen
           key={shareMatch[1]}
-          token={decodeURIComponent(shareMatch[1])}
+          token={decodePart(shareMatch[1])}
         />
         <AuthDialog />
       </>
@@ -58,7 +67,7 @@ export default function App() {
   if (joinMatch) {
     return (
       <>
-        <JoinGroupScreen key={joinMatch[1]} token={decodeURIComponent(joinMatch[1])} />
+        <JoinGroupScreen key={joinMatch[1]} token={decodePart(joinMatch[1])} />
         <AuthDialog />
       </>
     );
@@ -69,7 +78,7 @@ export default function App() {
       <>
         <GroupSheetScreen
           key={groupHeroMatch[1]}
-          memberUid={decodeURIComponent(groupHeroMatch[1])}
+          memberUid={decodePart(groupHeroMatch[1]) ?? ''}
         />
         <AuthDialog />
       </>
@@ -107,7 +116,8 @@ export default function App() {
     );
   }
 
-  const hero = match ? findCharacter(decodeURIComponent(match[1])) : undefined;
+  const heroId = match ? decodePart(match[1]) : null;
+  const hero = heroId ? findCharacter(heroId) : undefined;
 
   return (
     <>
