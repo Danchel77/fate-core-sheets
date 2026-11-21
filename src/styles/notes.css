@@ -31,7 +31,7 @@
   place-items: center;
   width: 20px;
   height: 20px;
-  color: var(--accent-gold-ink);
+  color: var(--text-ink-primary);
   cursor: pointer;
   transform: translateY(-50%);
   transition: color 140ms ease;
@@ -47,8 +47,8 @@
 
 .na svg {
   display: block;
-  width: 14px;
-  height: 14px;
+  width: 15px;
+  height: 15px;
 }
 
 .na:hover,

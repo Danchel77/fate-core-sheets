@@ -34,18 +34,19 @@ export function NoteAdd({ blockId, onOpen }: Props) {
       onKeyDown={onKeyDown}
       aria-label={`Оставить заметку к блоку «${LABELS[blockId]}»`}
     >
-      <svg
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.6"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        aria-hidden="true"
-      >
-        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-        <path d="M14 2v6h6" />
-        <path d="M8 14h6" />
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path
+          d="M6 2.6h7.1L20 9.5v11.9a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V3.6a1 1 0 0 1 1-1Z"
+          fill="currentColor"
+        />
+        <path d="M13.1 2.6 20 9.5h-6.9Z" fill="var(--bg-parchment)" />
+        <path
+          d="M8.5 13.6h7M8.5 17.1h4.6"
+          fill="none"
+          stroke="var(--bg-parchment)"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+        />
       </svg>
     </span>
   );
