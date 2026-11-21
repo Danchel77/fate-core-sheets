@@ -1,7 +1,9 @@
 /* Страница «Мои персонажи»: пергаментный лист на тёмном столе.
    Цвета и шрифты — только из tokens.css. */
 
-.heroes {
+/* Общий каркас для списка персонажей и входа по ссылке-приглашению. */
+.heroes,
+.join {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
@@ -164,7 +166,8 @@ a.heroes__tab:focus-visible {
   color: var(--accent-gold-ink);
 }
 
-.heroes__tools {
+.heroes__tools,
+.group__actions {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
@@ -502,7 +505,8 @@ a.heroes__tab:focus-visible {
   overflow: hidden;
 }
 
-.hero-photo img {
+.hero-photo img,
+.pick__photo img {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -628,7 +632,8 @@ a.heroes__tab:focus-visible {
   margin: 5px 0;
 }
 
-.hero-card__rule::before {
+.hero-card__rule::before,
+.ablock__divider::before {
   content: '';
   position: absolute;
   left: 0;

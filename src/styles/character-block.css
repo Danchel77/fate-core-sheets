@@ -116,7 +116,8 @@
   pointer-events: none;
 }
 
-.bh__texture {
+.bh__texture,
+.sm__texture {
   position: absolute;
   inset: 0;
   background-position: center;

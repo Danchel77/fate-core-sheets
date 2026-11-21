@@ -72,16 +72,6 @@
   overflow: hidden;
 }
 
-.sm__texture {
-  position: absolute;
-  inset: 0;
-  background-position: center;
-  background-size: 280px auto;
-  opacity: 0.16;
-  mix-blend-mode: multiply;
-  pointer-events: none;
-}
-
 .sm__head-title {
   position: relative;
   z-index: 2;

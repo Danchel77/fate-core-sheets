@@ -18,7 +18,6 @@
   --text-body: 0.9375rem;    /* 15px — основной текст */
   --text-lead: 1.125rem;     /* 18px — подзаголовки */
   --text-display: 1.75rem;   /* 28px — имя персонажа, крупные заголовки */
-  --lh-tight: 1.15;
   --lh-body: 1.45;
 
   /* Базовые размеры для сброса документа */
@@ -88,7 +87,6 @@
    сургуч и старая бронза; ч/б печать не затрагивается. */
 [data-theme='witcher'] {
   --bg-table: #17130f;
-  --theme-table-hi: #3a2a1a;
   --table-ink: #efe2c8;
   --bg-parchment: #efe3c9;
   --paper-highlight: #fdf6e6;
@@ -125,7 +123,6 @@
 /* Тема Fate: светлое издание, графитовый стол, индиго и матовая латунь. */
 [data-theme='fate'] {
   --bg-table: #161d1e;
-  --theme-table-hi: #2a3535;
   --table-ink: #e9e2d3;
   --bg-parchment: #f7f0df;
   --paper-highlight: #fffdf7;

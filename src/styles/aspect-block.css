@@ -63,17 +63,6 @@
   margin: 0 10px 0 14px;
 }
 
-.ablock__divider::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 50%;
-  height: 2px;
-  margin-top: -1px;
-  background: color-mix(in srgb, var(--accent-gold-deep) 80%, transparent);
-}
-
 .ablock__divider span {
   position: absolute;
   left: 50%;
