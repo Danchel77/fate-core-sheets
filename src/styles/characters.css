@@ -468,6 +468,13 @@ a.heroes__tab:focus-visible {
   z-index: 1;
 }
 
+/* Открытое меню действий должно лежать поверх соседних карточек:
+   карточка создаёт свой слой (isolation), поэтому поднимаем её целиком. */
+.hero-card:focus-within,
+.hero-card:has(.bmenu__list) {
+  z-index: 20;
+}
+
 .hero-card:hover {
   box-shadow:
     inset 0 0 0 1px var(--accent-gold-deep),
@@ -926,8 +933,8 @@ a.heroes__tab:focus-visible {
 
   .hero-card__link > .setting-mark {
     left: auto;
-    right: 12px;
-    bottom: 11px;
+    right: 18px;
+    bottom: 13px;
   }
 
   .setting-mark--witcher {
