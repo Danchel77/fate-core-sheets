@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from 'react';
 import { downloadBlob } from '../data/download';
 import { downloadFile, fileText, jsonFileName, pdfFileName } from '../data/exchange';
 import type { CharacterRecord } from '../data/types';
-import { buildCharacterPdf } from '../pdf/sheetPdf';
 import { IconBraces, IconFileDown, IconLink } from './icons';
 
 type Props = {
@@ -42,6 +41,8 @@ export function SheetExport({ record, onShare }: Props) {
     if (busy) return;
     setBusy(true);
     try {
+      /* Библиотеки PDF весят больше мегабайта: грузим их только при экспорте. */
+      const { buildCharacterPdf } = await import('../pdf/sheetPdf');
       const bytes = await buildCharacterPdf(record.sheet);
       downloadBlob(new Blob([bytes], { type: 'application/pdf' }), pdfFileName(record));
       setOpen(false);

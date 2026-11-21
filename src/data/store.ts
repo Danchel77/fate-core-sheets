@@ -69,6 +69,35 @@ function setNotice(notice: string | null) {
   publish({ ...state, notice });
 }
 
+/* --- отложенная запись в браузер: на каждый ввод не нужно трогать IndexedDB --- */
+
+const LOCAL_WRITE_DELAY = 300;
+const pendingLocal = new Map<string, { record: CharacterRecord; timer: number }>();
+
+function scheduleLocalWrite(record: CharacterRecord) {
+  const previous = pendingLocal.get(record.id);
+  if (previous) window.clearTimeout(previous.timer);
+  const timer = window.setTimeout(() => {
+    pendingLocal.delete(record.id);
+    void writeOne(record);
+  }, LOCAL_WRITE_DELAY);
+  pendingLocal.set(record.id, { record, timer });
+}
+
+async function flushLocalWrites(): Promise<void> {
+  const records = [...pendingLocal.values()].map((item) => item.record);
+  pendingLocal.forEach(({ timer }) => window.clearTimeout(timer));
+  pendingLocal.clear();
+  await Promise.all(records.map((record) => writeOne(record)));
+}
+
+function dropLocalWrite(id: string) {
+  const pendingWrite = pendingLocal.get(id);
+  if (!pendingWrite) return;
+  window.clearTimeout(pendingWrite.timer);
+  pendingLocal.delete(id);
+}
+
 /* --- отложенная запись в облако: правка на каждый ввод не должна бить по сети --- */
 
 const pending = new Map<string, { uid: string; record: CharacterRecord; timer: number }>();
@@ -127,6 +156,7 @@ async function switchUser(user: { uid: string } | null) {
     cloudUnsub = null;
   }
   flushPending();
+  await flushLocalWrites();
 
   if (!user) {
     await loadLocal();
@@ -171,7 +201,15 @@ export function initStore(): void {
   onAuthChange((user) => {
     void switchUser(user);
   });
-  window.addEventListener('pagehide', flushPending);
+  window.addEventListener('pagehide', () => {
+    void flushLocalWrites();
+    flushPending();
+  });
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState !== 'hidden') return;
+    void flushLocalWrites();
+    flushPending();
+  });
 }
 
 export function findCharacter(id: string): CharacterRecord | undefined {
@@ -222,7 +260,7 @@ export async function updateCharacter(id: string, patch: CharacterPatch): Promis
   }
 
   localRecords = localRecords.map((item) => (item.id === id ? record : item));
-  await writeOne(record);
+  scheduleLocalWrite(record);
 }
 
 /** Публичная ссылка: только у героя в аккаунте. Возвращает код для #/s/<код>. */
@@ -252,6 +290,7 @@ export async function deleteCharacter(id: string): Promise<void> {
     window.clearTimeout(pendingWrite.timer);
     pending.delete(id);
   }
+  dropLocalWrite(id);
   publish({ ...state, records: state.records.filter((record) => record.id !== id) });
 
   if (state.mode === 'cloud' && state.uid) {

@@ -64,8 +64,9 @@ function asText(value: unknown): string {
   return typeof value === 'string' ? value : '';
 }
 
-/** Портрет приходит картинкой в тексте; совсем огромные файлы не принимаем. */
-const MAX_PORTRAIT = 3_000_000;
+/** Портрет приходит картинкой в тексте. Держим его в пределах, при которых
+    запись целиком помещается в документ Firestore (1 МиБ). */
+const MAX_PORTRAIT = 700_000;
 
 function asPortrait(value: unknown): string {
   if (typeof value !== 'string') return '';

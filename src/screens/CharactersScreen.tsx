@@ -21,7 +21,6 @@ import { downloadBlob } from '../data/download';
 import { createCharacter, deleteCharacter, useCharacters } from '../data/store';
 import { openAuthDialog, useAuth } from '../firebase/authStore';
 import type { CharacterRecord, SettingId } from '../data/types';
-import { buildCharacterPdf } from '../pdf/sheetPdf';
 
 const BASE = import.meta.env.BASE_URL;
 const PAPER_TEXTURE = `url(${BASE}assets/textures/parchment-soft.jpg)`;
@@ -145,6 +144,8 @@ export default function CharactersScreen() {
     if (pdfBusy) return;
     setPdfBusy(hero.id);
     try {
+      /* Библиотеки PDF весят больше мегабайта: грузим их только при экспорте. */
+      const { buildCharacterPdf } = await import('../pdf/sheetPdf');
       const bytes = await buildCharacterPdf(hero.sheet);
       downloadBlob(new Blob([bytes], { type: 'application/pdf' }), pdfFileName(hero));
     } catch (error) {
