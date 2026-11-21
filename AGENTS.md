@@ -89,7 +89,7 @@ Definition of Done относится к **утверждённому экран
 /src/styles/auth.css  стили окна входа и меню аватара
 /src/data             types.ts (типы листа и записи), characters.ts (списки навыков, стресс, обновление, createEmptyCharacter, ladderFromPicks), download.ts (скачивание файла), storage.ts (IndexedDB через idb), store.ts (подписка, режимы local/cloud, перенос в аккаунт), cloud.ts (Firestore-подписка и запись), exchange.ts (файл героя, импорт и экспорт), skills.ts (одна строка о каждом навыке), settings/ (конфигурации сеттингов: навыки 18, народы, имена, королевства)
 /src/pdf              fonts.ts (встраивание Montserrat), sheetPdf.ts (сборка печатного бланка и листа «Продолжение»)
-/public/assets        textures/ frames/ portraits/ logos/ + CREDITS.md
+/public/assets        textures/ frames/ logos/ + CREDITS.md
 /.scratch             временные скрипты/скриншоты; в git не входит, после проверки удаляется
 ```
 

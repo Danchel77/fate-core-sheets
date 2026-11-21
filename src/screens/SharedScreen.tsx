@@ -1,6 +1,5 @@
 import { useEffect, useState, type CSSProperties } from 'react';
-import { AccountButton } from '../components/AccountButton';
-import { IconArrowLeft } from '../components/icons';
+import { SheetNavHome } from '../components/SheetNavHome';
 import { readShare, type SharedHero } from '../data/cloud';
 import { createCharacter, useCharacters } from '../data/store';
 import type { CharacterRecord } from '../data/types';
@@ -48,16 +47,7 @@ export default function SharedScreen({ token }: Props) {
         className="table"
         style={{ '--sheet-texture': PAPER_TEXTURE } as CSSProperties}
       >
-        <nav className="sheet-nav">
-          <a href="#/">
-            <IconArrowLeft />
-            <span className="sheet-nav__label">Мои персонажи</span>
-            <span className="sheet-nav__label-short">Персонажи</span>
-          </a>
-          <div className="sheet-nav__actions">
-            <AccountButton variant="sheet" />
-          </div>
-        </nav>
+        <SheetNavHome />
         <div className="shared-error">
           <p className="shared-error__title">
             {status.kind === 'missing' ? 'Ссылка не работает' : 'Не удалось открыть лист'}

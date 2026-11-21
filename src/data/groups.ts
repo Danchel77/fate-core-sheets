@@ -13,6 +13,8 @@ import {
 } from 'firebase/firestore';
 import { db } from '../firebase/app';
 import { newId } from './storage';
+import { heroDisplayName } from './characters';
+import { newToken } from './token';
 import type { Character, CharacterRecord, SettingId } from './types';
 
 /**
@@ -33,7 +35,7 @@ export type Group = {
   createdAt: number;
 };
 
-export type GroupCard = {
+type GroupCard = {
   name: string;
   setting: SettingId;
   concept: string;
@@ -95,12 +97,6 @@ const memberRef = (groupId: string, uid: string) =>
 const linkRef = (token: string) => doc(database(), 'groupLinks', token);
 
 const TOKEN_RE = /^[A-Za-z0-9_-]{6,64}$/;
-
-function newToken(): string {
-  const bytes = new Uint8Array(12);
-  crypto.getRandomValues(bytes);
-  return Array.from(bytes, (byte) => byte.toString(36).padStart(2, '0')).join('');
-}
 
 /** Имя за столом: из аккаунта, иначе — часть почты до «@». */
 export function playerName(user: UserLike): string {
@@ -537,7 +533,7 @@ async function makePortraitThumb(portrait: string): Promise<string | null> {
 
 function cardFrom(record: CharacterRecord): GroupCard {
   return {
-    name: record.sheet.name.trim() || 'Безымянный герой',
+    name: heroDisplayName(record.sheet.name),
     setting: record.setting,
     concept: record.sheet.aspects[0]?.text ?? '',
     level: record.sheet.level,

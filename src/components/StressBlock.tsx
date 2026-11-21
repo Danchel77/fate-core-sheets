@@ -1,9 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
-import type { Character, CharacterPatch, StressMarks } from '../data/types';
+import type { CharacterPatch, Consequence, StressMarks } from '../data/types';
 import { BlockHeader } from './BlockHeader';
 import { Hint } from './Hint';
-
-type Consequence = Character['consequences'][number];
 
 type Props = {
   physical: number;

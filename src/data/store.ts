@@ -3,6 +3,7 @@ import { initAuth, onAuthChange } from '../firebase/authStore';
 import { deleteCloud, publishShare, subscribeCloud, unpublishShare, writeCloud } from './cloud';
 import { clearAttachedHero, syncGroupCard } from './groups';
 import { newId, readAll, removeOne, writeOne } from './storage';
+import { newToken } from './token';
 import type { Character, CharacterPatch, CharacterRecord, SettingId } from './types';
 
 /**
@@ -10,7 +11,7 @@ import type { Character, CharacterPatch, CharacterRecord, SettingId } from './ty
  * облако становится главным, а браузер хранит только героев без входа.
  */
 type StoreMode = 'local' | 'cloud';
-export type CharactersState = {
+type CharactersState = {
   ready: boolean;
   mode: StoreMode;
   uid: string | null;
@@ -231,7 +232,7 @@ export async function shareCharacter(id: string): Promise<string> {
   if (current.share) return current.share;
   if (state.mode !== 'cloud' || !state.uid) throw new Error('share-needs-auth');
   const uid = state.uid;
-  const token = newShareToken();
+  const token = newToken();
   const record: CharacterRecord = { ...current, share: token, updatedAt: new Date().toISOString() };
   publish({ ...state, records: state.records.map((item) => (item.id === id ? record : item)) });
   try {
@@ -242,12 +243,6 @@ export async function shareCharacter(id: string): Promise<string> {
     throw error;
   }
   return token;
-}
-
-function newShareToken(): string {
-  const bytes = new Uint8Array(12);
-  crypto.getRandomValues(bytes);
-  return Array.from(bytes, (byte) => byte.toString(36).padStart(2, '0')).join('');
 }
 
 export async function deleteCharacter(id: string): Promise<void> {

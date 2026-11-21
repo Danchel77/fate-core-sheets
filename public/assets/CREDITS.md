@@ -16,14 +16,6 @@
 |---|---|---|---|
 | `frames/ornament-corner.svg` | S. H. Redmond | https://commons.wikimedia.org/wiki/File:Ornamental_corner_by_S._H._Redmond_01.svg | Public domain |
 
-## Портреты (только для пробника, не для продакшена)
-
-| Файл | Автор | Источник | Лицензия |
-|---|---|---|---|
-| `portraits/geralt.jpg` (кроп, обесцвечивание и тонировка исходника) | Sergey Galyonkin | https://commons.wikimedia.org/wiki/File:Vladislav_as_Geralt_from_Witcher_3_at_Igromir_2013.jpg | CC BY-SA 2.0 |
-
-Портрет — заглушка для демонстрации рамки. Исходник: косплей «Vladislav as Geralt», Igromir 2013. Производная (кроп + сепия) распространяется на тех же условиях CC BY-SA 2.0.
-
 ## Логотипы сеттингов
 
 | Файл | Что это | Источник | Лицензия |

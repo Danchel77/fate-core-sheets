@@ -5,6 +5,7 @@ import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
 import { useDialogKeys } from '../hooks/useDialogKeys';
 import { useAuth } from '../firebase/authStore';
 import { useCharacters } from '../data/store';
+import { heroDisplayName } from '../data/characters';
 import {
   createGroup,
   joinGroup,
@@ -15,6 +16,7 @@ import {
   type Group,
   type GroupRef,
 } from '../data/groups';
+import { HeroSilhouette } from './HeroSilhouette';
 import { IconClose } from './icons';
 
 const PAPER = `${import.meta.env.BASE_URL}assets/textures/parchment-soft.jpg`;
@@ -312,14 +314,11 @@ export function HeroPickerDialog({
                 {record.sheet.portrait ? (
                   <img src={record.sheet.portrait} alt="" />
                 ) : (
-                  <svg viewBox="0 0 64 64" aria-hidden="true">
-                    <circle cx="32" cy="23" r="11.5" />
-                    <path d="M32 38c-11.4 0-19.6 7.4-21.6 18.4-.2 1.2.8 2.2 2 2.2h39.2c1.2 0 2.2-1 2-2.2C51.6 45.4 43.4 38 32 38Z" />
-                  </svg>
+                  <HeroSilhouette />
                 )}
               </span>
               <span className="pick__body">
-                <span className="pick__name">{record.sheet.name.trim() || 'Безымянный герой'}</span>
+                <span className="pick__name">{heroDisplayName(record.sheet.name)}</span>
                 <span className="pick__concept">{record.sheet.aspects[0]?.text || 'Без концепции'}</span>
                 {active && <span className="pick__mark">За столом</span>}
               </span>

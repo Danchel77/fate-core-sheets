@@ -7,6 +7,11 @@ export const SKILLS: Record<SettingId, string[]> = {
   witcher: SETTINGS.witcher.skills,
 };
 
+/** Имя героя для карточек и подписей: без имени он всё равно должен быть узнаваем. */
+export function heroDisplayName(name: string): string {
+  return name.trim() || 'Безымянный герой';
+}
+
 /** Числа из правил: стартовое обновление, бесплатные трюки и предел. */
 export const STARTING_REFRESH = 3;
 const FREE_STUNTS = 3;
@@ -14,13 +19,13 @@ export const MAX_STUNTS = 5;
 const STARTING_FATE_POINTS = 3;
 
 /** Сколько ячеек стресса даёт навык: 0 → 2, +1/+2 → 3, +3 и выше → 4. */
-export function stressCells(skill: number): number {
+function stressCells(skill: number): number {
   if (skill >= 3) return 4;
   if (skill >= 1) return 3;
   return 2;
 }
 
-export function skillValue(ladder: LadderRow[], name: string): number {
+function skillValue(ladder: LadderRow[], name: string): number {
   return ladder.find((row) => row.skills.includes(name))?.value ?? 0;
 }
 

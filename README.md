@@ -50,7 +50,7 @@ src/components/       блоки листа: CharacterBlock, AspectBlock, Skills
 src/screens/          SheetScreen — единственный экран, собранный веб-лист
 src/data/             demoCharacter.ts — демо-герой
 src/styles/           tokens.css — единственный источник цветов и шрифтов
-public/assets/        textures/ frames/ portraits/ + CREDITS.md
+public/assets/        textures/ frames/ logos/ + CREDITS.md
 ```
 
 `references/` — мудборд (в git не входит), `.scratch/` — временные скрипты и скриншоты (не коммитятся, после проверки удаляются).

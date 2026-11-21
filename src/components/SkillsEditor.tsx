@@ -8,7 +8,7 @@ import { SkillPyramid, type PyramidRow } from './SkillPyramid';
 import { SKILLS } from '../data/characters';
 import type { SettingId } from '../data/types';
 
-export type InitRow = { value: number; skills: string[] };
+type InitRow = { value: number; skills: string[] };
 
 type Row = PyramidRow;
 

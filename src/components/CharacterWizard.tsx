@@ -42,7 +42,7 @@ type HintId = 'concept' | 'trouble' | 'aspects';
 type StepNo = 1 | 2 | 3 | 4;
 
 /** Навык, поставленный на ступень пирамиды. */
-export type SkillPick = { name: string; value: number };
+type SkillPick = { name: string; value: number };
 
 /** Сколько карточек помещается на ступени: +4 — одна, +3 — две и так далее. */
 const capFor = (value: number) => Math.max(0, 5 - value);

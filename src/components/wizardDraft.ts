@@ -15,7 +15,7 @@ export const EMPTY_DRAFT: WizardDraft = {
 };
 
 /** Пустые карточки трюков в лист не попадают: добавленная, но не заполненная строка — не трюк. */
-export function filledStunts(draft: WizardDraft): Stunt[] {
+function filledStunts(draft: WizardDraft): Stunt[] {
   return draft.stunts
     .map((stunt) => ({ name: stunt.name.trim(), text: stunt.text.trim() }))
     .filter((stunt) => stunt.name.length > 0 || stunt.text.length > 0);

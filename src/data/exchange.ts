@@ -6,9 +6,9 @@ import type { Character, CharacterRecord, SettingId } from './types';
  * Файл героя. Версия растёт, если состав данных меняется несовместимо:
  * старые файлы при этом продолжают открываться.
  */
-export const FILE_VERSION = 2;
+const FILE_VERSION = 2;
 
-export type CharacterFile = {
+type CharacterFile = {
   app: 'fate-core-sheets';
   version: number;
   exportedAt: string;

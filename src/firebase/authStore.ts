@@ -10,7 +10,7 @@ import {
 import { useSyncExternalStore } from 'react';
 import { auth, googleProvider } from './app';
 
-export type AuthState = { ready: boolean; user: User | null };
+type AuthState = { ready: boolean; user: User | null };
 
 let state: AuthState = { ready: false, user: null };
 const listeners = new Set<() => void>();
@@ -44,10 +44,6 @@ export function initAuth(): void {
 
 export function useAuth(): AuthState {
   return useSyncExternalStore(subscribe, () => state, () => state);
-}
-
-export function getUser(): User | null {
-  return state.user;
 }
 
 /** Подписка на смену пользователя без хука (для хранилища). */

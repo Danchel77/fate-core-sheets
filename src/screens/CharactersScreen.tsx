@@ -4,6 +4,8 @@ import { ListTabs } from '../components/ListTabs';
 import { BlockMenu } from '../components/BlockMenu';
 import { ConfirmDialog } from '../components/ConfirmDialog';
 import { SettingMark } from '../components/SettingMark';
+import { HeroSilhouette } from '../components/HeroSilhouette';
+import { SiteFooter } from '../components/SiteFooter';
 import {
   IconBraces,
   IconChevronDown,
@@ -14,6 +16,7 @@ import {
   IconTrash,
 } from '../components/icons';
 import { downloadFile, fileText, jsonFileName, parseFile, pdfFileName } from '../data/exchange';
+import { heroDisplayName } from '../data/characters';
 import { downloadBlob } from '../data/download';
 import { createCharacter, deleteCharacter, useCharacters } from '../data/store';
 import { openAuthDialog, useAuth } from '../firebase/authStore';
@@ -64,9 +67,8 @@ function saveView(view: SavedView) {
   }
 }
 
-/** Имя для карточки: без имени герой всё равно должен быть узнаваем. */
 function heroName(hero: CharacterRecord) {
-  return hero.sheet.name.trim() || 'Безымянный герой';
+  return heroDisplayName(hero.sheet.name);
 }
 
 function HeroPortrait({ hero }: { hero: CharacterRecord }) {
@@ -76,10 +78,7 @@ function HeroPortrait({ hero }: { hero: CharacterRecord }) {
       {photo ? (
         <img src={photo} alt="" />
       ) : (
-        <svg className="hero-photo__figure" viewBox="0 0 64 64" aria-hidden="true">
-          <circle cx="32" cy="23" r="11.5" />
-          <path d="M32 38c-11.4 0-19.6 7.4-21.6 18.4-.2 1.2.8 2.2 2 2.2h39.2c1.2 0 2.2-1 2-2.2C51.6 45.4 43.4 38 32 38Z" />
-        </svg>
+        <HeroSilhouette className="hero-photo__figure" />
       )}
     </span>
   );
@@ -426,12 +425,7 @@ export default function CharactersScreen() {
         )}
       </main>
 
-      <footer className="heroes__foot">
-        <p>
-          Fate Core Sheets — неофициальный инструмент. Fate Core © Evil Hat Productions, «Ведьмак» ©
-          CD Projekt Red. Права на сеттинги и торговые марки принадлежат их правообладателям.
-        </p>
-      </footer>
+      <SiteFooter />
 
       {pendingDelete && (
         <ConfirmDialog

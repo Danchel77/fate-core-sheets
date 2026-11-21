@@ -7,7 +7,7 @@ import {
   type GroupRef,
 } from '../data/groups';
 
-export type GroupsState = {
+type GroupsState = {
   /** Список групп; null — ещё читаем указатель. */
   refs: GroupRef[] | null;
   /** Стол активной группы. */

@@ -1,7 +1,6 @@
 import type { CSSProperties } from 'react';
-import { AccountButton } from '../components/AccountButton';
 import { LoadingMark } from '../components/LoadingMark';
-import { IconArrowLeft } from '../components/icons';
+import { SheetNavHome } from '../components/SheetNavHome';
 
 const BASE = import.meta.env.BASE_URL;
 const PAPER_TEXTURE = `url(${BASE}assets/textures/parchment-soft.jpg)`;
@@ -15,16 +14,7 @@ export default function SheetLoading() {
       style={{ '--sheet-texture': PAPER_TEXTURE } as CSSProperties}
       aria-busy="true"
     >
-      <nav className="sheet-nav">
-        <a href="#/">
-          <IconArrowLeft />
-          <span className="sheet-nav__label">Мои персонажи</span>
-          <span className="sheet-nav__label-short">Персонажи</span>
-        </a>
-        <div className="sheet-nav__actions">
-          <AccountButton variant="sheet" />
-        </div>
-      </nav>
+      <SheetNavHome />
 
       <div className="book-stage">
         <div className="book-cover">
