@@ -16,7 +16,7 @@ Do not guess project requirements, rules, or visual styles. Always read the rele
 3. **Продуктовые решения — не молча.** Если не зафиксированы поведение, объём, хранение, маршрут или функция — задай 1–3 вопроса. Внешний вид нового экрана решается иначе: покажи 3 временных варианта и дай выбрать. Запрет на «красивое молча» относится к продакшену без выбора, а не к самим вариантам.
 4. **Не добавляй то, о чём не просили.** Новые страницы, маршруты, хранилище, библиотеки, анимации и декоративные элементы не появляются без решения. Если пользователь прямо заказал экран или блок (например, список персонажей), это уже разрешение на его дизайн и необходимые для него компоненты.
 5. **Временные страницы сравнения удаляются.** После выбора варианта страница, её CSS, маршрут и тестовые данные убираются; в репозитории остаётся только утверждённое.
-6. **Не выдавай желаемое за реализованное.** Сверяйся с кодом и `HANDOFF.md` §1 — там актуальный список того, что есть. Не реализованы: ИИ, слот «Лёгкое последствие», отдельное хранилище портретов; правило заметок `notes` публикует пользователь. Облако и обмен требуют разовой настройки правил в консоли Firebase (текст — `HANDOFF.md` §5) — это настройка проекта, а не сбой интерфейса.
+6. **Не выдавай желаемое за реализованное.** Сверяйся с кодом и `HANDOFF.md` §1 — там актуальный список того, что есть. Не реализованы: ИИ, слот «Лёгкое последствие», отдельное хранилище портретов. Облако и обмен требуют разовой настройки правил в консоли Firebase (текст — `HANDOFF.md` §5); правило заметок `notes` опубликовано, исправленное правило приглашений `groupLinks` публикует пользователь — это настройка проекта, а не сбой интерфейса.
 
 ## 2. Core Operating Rules (STRICT)
 
@@ -77,7 +77,7 @@ Definition of Done относится к **утверждённому экран
 /src                  приложение (React + TS)
 /src/styles/tokens.css  единственный источник цветов и шрифтов
 /src/styles/characters.css  стили списка персонажей
-/src/components       блоки листа: CharacterBlock, AspectBlock, SkillsEditor, SkillPyramid, SkillPicker, StuntBlock, StressBlock, ExtrasBlock, FatePoints, BlockMenu, Hint, PortraitPlate, PortraitDialog, PortraitCropper, BlockHeader, CharacterWizard; общие: SettingMark, icons
+/src/components       блоки листа: CharacterBlock, AspectBlock, SkillsEditor, SkillPyramid, SkillPicker, StuntBlock, StressBlock, ExtrasBlock, FatePoints, BlockMenu, Hint, PortraitPlate, PortraitDialog, PortraitCropper, BlockHeader, CharacterWizard; общие: HeroSilhouette, SiteFooter, SheetNavHome, ErrorBoundary, SettingMark, icons
 /src/screens          CharactersScreen — список (#/), SheetScreen — лист героя (#/hero/<id>), NewCharacterScreen — новый герой (#/new)
 /src/components/CharacterWizard.tsx  окно конструктора: шаги 1–4, справки, выбор навыка, подвал, кубик генератора имён
 /src/components/NameGenerator.tsx     окно генератора имён: пол, народ, история 10 вариантов
@@ -87,7 +87,7 @@ Definition of Done относится к **утверждённому экран
 /src/styles/wizard.css  стили окна конструктора
 /src/styles/name-generator.css  стили окна генератора имён
 /src/styles/auth.css  стили окна входа и меню аватара
-/src/data             types.ts (типы листа и записи), characters.ts (списки навыков, стресс, обновление, createEmptyCharacter, ladderFromPicks), download.ts (скачивание файла), storage.ts (IndexedDB через idb), store.ts (подписка, режимы local/cloud, перенос в аккаунт), cloud.ts (Firestore-подписка и запись), exchange.ts (файл героя, импорт и экспорт), skills.ts (одна строка о каждом навыке), settings/ (конфигурации сеттингов: навыки 18, народы, имена, королевства)
+/src/data             types.ts (типы листа и записи), characters.ts (списки навыков, стресс, обновление, createEmptyCharacter, ladderFromPicks), download.ts (скачивание файла), storage.ts (IndexedDB через idb), store.ts (подписка, режимы local/cloud, перенос в аккаунт), cloud.ts (Firestore-подписка и запись), exchange.ts (файл героя, импорт и экспорт), token.ts (код ссылки), skills.ts (одна строка о каждом навыке), settings/ (конфигурации сеттингов: навыки 18, народы, имена, королевства)
 /src/pdf              fonts.ts (встраивание Montserrat), sheetPdf.ts (сборка печатного бланка и листа «Продолжение»)
 /public/assets        textures/ frames/ logos/ + CREDITS.md
 /.scratch             временные скрипты/скриншоты; в git не входит, после проверки удаляется
