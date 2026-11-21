@@ -1,6 +1,7 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import '@fontsource/cormorant-garamond/cyrillic-400.css';
 import '@fontsource/cormorant-garamond/cyrillic-600.css';
 import '@fontsource/cormorant-garamond/latin-400.css';
@@ -44,6 +45,8 @@ if (!rootElement) {
 
 createRoot(rootElement).render(
   <StrictMode>
-    <App />
+    <ErrorBoundary>
+      <App />
+    </ErrorBoundary>
   </StrictMode>,
 );

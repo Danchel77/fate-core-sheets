@@ -721,6 +721,14 @@ a.heroes__tab:focus-visible {
 
 /* ---------- пустое состояние ---------- */
 
+.app-crash {
+  display: grid;
+  place-content: center;
+  min-height: 100dvh;
+  padding: 24px;
+  text-align: center;
+}
+
 .heroes__empty {
   margin-top: 22px;
   padding: clamp(46px, 7vw, 84px) 24px;

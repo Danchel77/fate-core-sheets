@@ -14,6 +14,24 @@ interface SheetDB extends DBSchema {
 const memory = new Map<string, CharacterRecord>();
 let connection: Promise<IDBPDatabase<SheetDB>> | null = null;
 let broken = false;
+const brokenListeners = new Set<() => void>();
+
+/** Сообщить, что браузер перестал сохранять героев на диск. */
+export function onStorageBroken(listener: () => void): () => void {
+  if (broken) {
+    listener();
+    return () => undefined;
+  }
+  brokenListeners.add(listener);
+  return () => brokenListeners.delete(listener);
+}
+
+function markBroken() {
+  if (broken) return;
+  broken = true;
+  brokenListeners.forEach((listener) => listener());
+  brokenListeners.clear();
+}
 
 function connect(): Promise<IDBPDatabase<SheetDB>> {
   if (!connection) {
@@ -43,7 +61,7 @@ export async function readAll(): Promise<CharacterRecord[]> {
     records.forEach((record) => memory.set(record.id, record));
     return records;
   } catch {
-    broken = true;
+    markBroken();
     return [...memory.values()];
   }
 }
@@ -55,7 +73,7 @@ export async function writeOne(record: CharacterRecord): Promise<void> {
     const db = await connect();
     await db.put(STORE, record);
   } catch {
-    broken = true;
+    markBroken();
   }
 }
 
@@ -66,6 +84,6 @@ export async function removeOne(id: string): Promise<void> {
     const db = await connect();
     await db.delete(STORE, id);
   } catch {
-    broken = true;
+    markBroken();
   }
 }

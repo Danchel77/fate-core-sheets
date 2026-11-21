@@ -125,7 +125,15 @@ export default function CharactersScreen() {
   );
 
   const [pdfBusy, setPdfBusy] = useState<string | null>(null);
+  const [pdfError, setPdfError] = useState<string | null>(null);
   const [importError, setImportError] = useState<string | null>(null);
+
+  /* Ошибка PDF живёт плашкой пару секунд и гаснет сама. */
+  useEffect(() => {
+    if (!pdfError) return;
+    const timer = window.setTimeout(() => setPdfError(null), 4000);
+    return () => window.clearTimeout(timer);
+  }, [pdfError]);
   const importRef = useRef<HTMLInputElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
 
@@ -150,7 +158,7 @@ export default function CharactersScreen() {
       downloadBlob(new Blob([bytes], { type: 'application/pdf' }), pdfFileName(hero));
     } catch (error) {
       console.error('Не удалось собрать PDF', error);
-      window.alert('Не удалось собрать PDF. Попробуйте ещё раз.');
+      setPdfError('Не удалось собрать PDF. Попробуйте ещё раз.');
     } finally {
       setPdfBusy(null);
     }
@@ -427,6 +435,12 @@ export default function CharactersScreen() {
       </main>
 
       <SiteFooter />
+
+      {pdfError && (
+        <div className="sheet-toast" role="status">
+          {pdfError}
+        </div>
+      )}
 
       {pendingDelete && (
         <ConfirmDialog

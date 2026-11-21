@@ -2,7 +2,7 @@ import { useSyncExternalStore } from 'react';
 import { initAuth, onAuthChange } from '../firebase/authStore';
 import { deleteCloud, publishShare, subscribeCloud, unpublishShare, writeCloud } from './cloud';
 import { clearAttachedHero, syncGroupCard } from './groups';
-import { newId, readAll, removeOne, writeOne } from './storage';
+import { newId, onStorageBroken, readAll, removeOne, writeOne } from './storage';
 import { newToken } from './token';
 import type { Character, CharacterPatch, CharacterRecord, SettingId } from './types';
 
@@ -26,6 +26,7 @@ let localReady: Promise<void> | null = null;
 let cloudUnsub: (() => void) | null = null;
 let pendingUid: string | null = null;
 let initialized = false;
+let storageIssue: string | null = null;
 
 function publish(next: CharactersState) {
   state = next;
@@ -60,7 +61,7 @@ function loadLocal(): Promise<void> {
   return localReady;
 }
 
-function publishLocal(notice: string | null = null) {
+function publishLocal(notice: string | null = storageIssue) {
   publish({ ready: true, mode: 'local', uid: null, records: sortByNewest(localRecords), notice });
 }
 
@@ -109,8 +110,14 @@ function scheduleCloudWrite(uid: string, record: CharacterRecord) {
     pending.delete(record.id);
     void writeCloud(uid, record)
       .then(() => {
-        if (record.share) void publishShare(uid, record.share, record);
-        void syncGroupCard(uid, record);
+        if (record.share) {
+          void publishShare(uid, record.share, record).catch(() =>
+            setNotice('Лист сохранён, но публичная копия не обновилась.'),
+          );
+        }
+        void syncGroupCard(uid, record).catch(() =>
+          setNotice('Лист сохранён, но карточка в группе не обновилась.'),
+        );
       })
       .catch(() => setNotice('Не удалось сохранить в облако. Попробуем ещё раз.'));
   }, 700);
@@ -122,8 +129,14 @@ function flushPending() {
     window.clearTimeout(timer);
     void writeCloud(uid, record)
       .then(() => {
-        if (record.share) void publishShare(uid, record.share, record);
-        void syncGroupCard(uid, record);
+        if (record.share) {
+          void publishShare(uid, record.share, record).catch(() =>
+            setNotice('Лист сохранён, но публичная копия не обновилась.'),
+          );
+        }
+        void syncGroupCard(uid, record).catch(() =>
+          setNotice('Лист сохранён, но карточка в группе не обновилась.'),
+        );
       })
       .catch(() => undefined);
   });
@@ -177,7 +190,7 @@ async function switchUser(user: { uid: string } | null) {
     uid,
     (records) => {
       if (pendingUid !== uid) return;
-      publish({ ready: true, mode: 'cloud', uid, records: sortByNewest(records), notice: null });
+      publish({ ready: true, mode: 'cloud', uid, records: sortByNewest(records), notice: storageIssue });
     },
     () => {
       if (pendingUid !== uid) return;
@@ -194,6 +207,10 @@ async function switchUser(user: { uid: string } | null) {
 export function initStore(): void {
   if (initialized) return;
   initialized = true;
+  onStorageBroken(() => {
+    storageIssue = 'Браузер не может сохранить героев на диск: они останутся до закрытия страницы.';
+    setNotice(storageIssue);
+  });
   initAuth();
   /* Список показываем только после ответа Firebase о входе: иначе герои
      из браузера мелькнут перед облаком. Тишину до ответа занимает
@@ -298,7 +315,7 @@ export async function deleteCharacter(id: string): Promise<void> {
       try {
         await unpublishShare(target.share);
       } catch {
-        /* без сети публичная копия останется до следующего отзыва */
+        setNotice('Герой удалён, но публичная копия могла остаться доступной.');
       }
     }
     try {

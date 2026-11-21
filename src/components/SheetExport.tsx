@@ -8,10 +8,12 @@ type Props = {
   record: CharacterRecord;
   /** Открыть окно публичной ссылки; без обработчика пункт не показывается. */
   onShare?: () => void;
+  /** Показать ошибку сбора PDF плашкой на листе. */
+  onError?: (message: string) => void;
 };
 
 /** Экспорт прямо с листа: PDF, файл героя и ссылка, без возврата к списку. */
-export function SheetExport({ record, onShare }: Props) {
+export function SheetExport({ record, onShare, onError }: Props) {
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -48,7 +50,7 @@ export function SheetExport({ record, onShare }: Props) {
       setOpen(false);
     } catch (error) {
       console.error('Не удалось собрать PDF', error);
-      window.alert('Не удалось собрать PDF. Попробуйте ещё раз.');
+      onError?.('Не удалось собрать PDF. Попробуйте ещё раз.');
     } finally {
       setBusy(false);
     }
