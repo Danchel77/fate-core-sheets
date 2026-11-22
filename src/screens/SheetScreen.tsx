@@ -9,6 +9,7 @@ import { ExtrasBlock } from '../components/ExtrasBlock';
 import { IconArrowLeft } from '../components/icons';
 import { PortraitDialog } from '../components/PortraitDialog';
 import { SheetExport } from '../components/SheetExport';
+import { preloadPdfPreview } from '../components/SheetDownload';
 import { CharacterWizard, type WizardDraft } from '../components/CharacterWizard';
 import { draftFromCharacter, patchFromDraft } from '../components/wizardDraft';
 import { physicalStress, mentalStress } from '../data/characters';
@@ -55,6 +56,12 @@ export default function SheetScreen({
   const [shareBusy, setShareBusy] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const { mode } = useCharacters();
+
+  /* Пока лист открыт, тихо готовим PDF.js: окно скачивания откроется быстрее. */
+  useEffect(() => {
+    const timer = window.setTimeout(preloadPdfPreview, 2000);
+    return () => window.clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     setPortrait(character.portrait);

@@ -21,8 +21,95 @@ type PdfPreview = {
   pages: string[];
 };
 
+/** Готовые превью живут, пока жива запись: повторное открытие окна не собирает PDF заново. */
+const pdfCache = new WeakMap<CharacterRecord, PdfPreview>();
+
+/** Превью показывается шириной около 470 px; 1,2 достаточно и на экране с удвоенной плотностью. */
+const PDF_PREVIEW_SCALE = 1.2;
+
+/** 3020 px давали 2,8–3,1 МБ. 1,08 оставляет ~1630 px и около 1 МБ без видимой разницы на экране. */
+const PNG_PIXEL_RATIO = 1.08;
+
 /** Ширина макета: на телефоне книга всё равно снимается широким разворотом. */
 const FRAME_WIDTH = 1520;
+
+const pdfPending = new WeakMap<CharacterRecord, Promise<PdfPreview>>();
+
+let pdfjsPreloaded = false;
+
+/** Заранее тянет PDF.js и воркер: первое открытие окна перестаёт ждать загрузку. */
+export function preloadPdfPreview(): void {
+  if (pdfjsPreloaded) return;
+  pdfjsPreloaded = true;
+  void import('pdfjs-dist')
+    .then((pdfjs) => {
+      pdfjs.GlobalWorkerOptions.workerSrc = pdfWorker;
+      return fetch(pdfWorker, { cache: 'force-cache' });
+    })
+    .catch(() => {
+      /* Предзагрузка не обязательна: при ошибке PDF.js загрузится при открытии окна. */
+    });
+}
+
+/** Собирает бланк и рисует его страницы; результат хранится, пока жива запись. */
+async function buildPdfPreview(record: CharacterRecord): Promise<PdfPreview> {
+  const { buildCharacterPdf } = await import('../pdf/sheetPdf');
+  const bytes = await buildCharacterPdf(record.sheet);
+
+  const pdfjs = await import('pdfjs-dist');
+  pdfjs.GlobalWorkerOptions.workerSrc = pdfWorker;
+  const pdfDocument: PDFDocumentProxy = await pdfjs
+    .getDocument({ data: bytes.slice() })
+    .promise;
+
+  const pages: string[] = [];
+  try {
+    for (let number = 1; number <= pdfDocument.numPages; number += 1) {
+      const page = await pdfDocument.getPage(number);
+      const viewport = page.getViewport({ scale: PDF_PREVIEW_SCALE });
+      const canvas = window.document.createElement('canvas');
+      canvas.width = Math.ceil(viewport.width);
+      canvas.height = Math.ceil(viewport.height);
+      const context = canvas.getContext('2d');
+      if (!context) throw new Error('Нет холста для страницы PDF');
+      await page.render({ canvasContext: context, viewport }).promise;
+      pages.push(canvas.toDataURL('image/png'));
+    }
+  } finally {
+    await pdfDocument.destroy();
+  }
+
+  return { status: 'ready', bytes, pages };
+}
+
+function requestPdfPreview(record: CharacterRecord): Promise<PdfPreview> {
+  const ready = pdfCache.get(record);
+  if (ready?.status === 'ready') return Promise.resolve(ready);
+
+  let pending = pdfPending.get(record);
+  if (!pending) {
+    pending = buildPdfPreview(record).then(
+      (result) => {
+        pdfCache.set(record, result);
+        pdfPending.delete(record);
+        return result;
+      },
+      (cause) => {
+        pdfPending.delete(record);
+        throw cause;
+      },
+    );
+    pdfPending.set(record, pending);
+  }
+  return pending;
+}
+
+/** Начинает готовить бланк, как только открыли меню «Экспорт»: к выбору пункта он уже готов. */
+export function prewarmPdfPreview(record: CharacterRecord): void {
+  void requestPdfPreview(record).catch(() => {
+    /* Ошибку покажет само окно, если пользователь дойдёт до скачивания. */
+  });
+}
 
 const PAPER = `${import.meta.env.BASE_URL}assets/textures/parchment-soft.jpg`;
 
@@ -181,48 +268,31 @@ export function SheetDownload({ record, onClose }: Props) {
   useEffect(() => {
     let cancelled = false;
 
-    const preparePdf = async () => {
-      setPdf({ status: 'loading', bytes: null, pages: [] });
-      try {
-        const { buildCharacterPdf } = await import('../pdf/sheetPdf');
-        const bytes = await buildCharacterPdf(record.sheet);
-        if (cancelled) return;
+    if (pdfAttempt > 0) {
+      pdfCache.delete(record);
+      pdfPending.delete(record);
+    }
 
-        const pdfjs = await import('pdfjs-dist');
-        pdfjs.GlobalWorkerOptions.workerSrc = pdfWorker;
-        const pdfDocument: PDFDocumentProxy = await pdfjs
-          .getDocument({ data: bytes.slice() })
-          .promise;
-        const pages: string[] = [];
-        try {
-          for (let number = 1; number <= pdfDocument.numPages; number += 1) {
-            const page = await pdfDocument.getPage(number);
-            const viewport = page.getViewport({ scale: 2 });
-            const canvas = window.document.createElement('canvas');
-            canvas.width = Math.ceil(viewport.width);
-            canvas.height = Math.ceil(viewport.height);
-            const context = canvas.getContext('2d');
-            if (!context) throw new Error('Нет холста для страницы PDF');
-            await page.render({ canvasContext: context, viewport }).promise;
-            pages.push(canvas.toDataURL('image/png'));
-            if (cancelled) return;
-          }
-        } finally {
-          await pdfDocument.destroy();
-        }
+    const cached = pdfAttempt === 0 ? pdfCache.get(record) : undefined;
+    if (cached?.status === 'ready') {
+      setPdf(cached);
+      return;
+    }
 
-        if (!cancelled) setPdf({ status: 'ready', bytes, pages });
-      } catch (cause) {
+    setPdf({ status: 'loading', bytes: null, pages: [] });
+    void requestPdfPreview(record)
+      .then((result) => {
+        if (!cancelled) setPdf(result);
+      })
+      .catch((cause) => {
         console.error('Не удалось показать PDF', cause);
         if (!cancelled) setPdf({ status: 'error', bytes: null, pages: [] });
-      }
-    };
+      });
 
-    void preparePdf();
     return () => {
       cancelled = true;
     };
-  }, [record.sheet, pdfAttempt]);
+  }, [record, pdfAttempt]);
 
   useEffect(() => {
     const box = previewRef.current;
@@ -301,7 +371,7 @@ export function SheetDownload({ record, onClose }: Props) {
 
       const { toBlob } = await import('html-to-image');
       const blob = await toBlob(table, {
-        pixelRatio: 2,
+        pixelRatio: PNG_PIXEL_RATIO,
         backgroundColor: undefined,
         cacheBust: true,
       });

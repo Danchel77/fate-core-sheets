@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { downloadFile, fileText, jsonFileName } from '../data/exchange';
 import type { CharacterRecord } from '../data/types';
 import { IconBraces, IconFileDown, IconLink } from './icons';
-import { SheetDownload } from './SheetDownload';
+import { prewarmPdfPreview, SheetDownload } from './SheetDownload';
 
 type Props = {
   record: CharacterRecord;
@@ -52,7 +52,10 @@ export function SheetExport({ record, onShare }: Props) {
         aria-expanded={open}
         aria-label="Экспорт героя"
         title="Экспорт"
-        onClick={() => setOpen((value) => !value)}
+        onClick={() => {
+          if (!open) prewarmPdfPreview(record);
+          setOpen((value) => !value);
+        }}
       >
         <IconFileDown />
         <span className="sheet-export__label">Экспорт</span>
