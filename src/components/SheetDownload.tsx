@@ -134,7 +134,9 @@ const EXPORT_CSS = `
   .ske__up,
   .ske__lvsteps,
   .ske__lv-free,
-  .stk__empty {
+  .stk__empty,
+  .na,
+  .nm {
     display: none !important;
   }
   .hint__word { border-bottom: 0 !important; }
@@ -181,7 +183,7 @@ function prepareClone(source: HTMLElement): HTMLElement {
   clone.classList.add('is-export');
 
   clone
-    .querySelectorAll('.sheet-nav, .sheet-toast, .bmenu, .ske__slot, .ske__del, .ske__up, .ske__lvsteps, .ske__lv-free, .stk__empty')
+    .querySelectorAll('.sheet-nav, .sheet-toast, .bmenu, .ske__slot, .ske__del, .ske__up, .ske__lvsteps, .ske__lv-free, .stk__empty, .na, .nm')
     .forEach((node) => node.remove());
 
   // Плейсхолдеры подсказывают, что вписать; на готовой странице они лишние.

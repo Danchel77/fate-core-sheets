@@ -4,6 +4,7 @@ import { NotesProvider, type NotePeek, type NotesApi } from '../components/notes
 import { useGroups } from '../hooks/useGroup';
 import { playerName, subscribeNotes, type BlockId, type GroupNote } from '../data/groups';
 import { useAuth } from '../firebase/authStore';
+import type { CharacterRecord } from '../data/types';
 import SheetScreen from './SheetScreen';
 
 type Props = { memberUid: string };
@@ -62,6 +63,28 @@ export default function GroupSheetScreen({ memberUid }: Props) {
 
   const isMaster = Boolean(group && user && group.masterId === user.uid);
 
+  /* Экспорт чужого листа: файл собирается из того же снимка, что видит мастер.
+     Своей записи в хранилище здесь нет, поэтому даём SheetScreen готовую запись.
+     Портрет в снимке намеренно пустой — подставляем миниатюру из карточки. */
+  const character = useMemo(() => {
+    if (!member?.sheet) return null;
+    return {
+      ...member.sheet,
+      portrait: member.sheet.portrait || member.portrait || '',
+    };
+  }, [member?.sheet, member?.portrait]);
+
+  const record = useMemo<CharacterRecord | null>(() => {
+    if (!character || !member?.setting) return null;
+    return {
+      id: member.heroId ?? member.uid,
+      setting: member.setting,
+      createdAt: '',
+      updatedAt: '',
+      sheet: character,
+    };
+  }, [character, member?.heroId, member?.setting, member?.uid]);
+
   if (!authReady || !user) {
     return (
       <div className="table group-sheet" data-theme="witcher">
@@ -72,7 +95,7 @@ export default function GroupSheetScreen({ memberUid }: Props) {
     );
   }
 
-  if (!member?.sheet || !member.setting) {
+  if (!character || !member?.setting) {
     return (
       <div className="table group-sheet" data-theme="witcher">
         <div className="group-sheet__fallback">
@@ -89,8 +112,9 @@ export default function GroupSheetScreen({ memberUid }: Props) {
     <>
       <NotesProvider api={api}>
         <SheetScreen
-          character={member.sheet}
+          character={character}
           setting={member.setting}
+          record={record ?? undefined}
           readOnly
           back={{ href: '#/group', label: 'Группа за столом', short: 'Группа' }}
           header={
