@@ -198,11 +198,9 @@ export function RulesDialog({ onClose }: Props) {
             aria-hidden="true"
             style={{ backgroundImage: `url(${PAPER})` }}
           />
-          <p className="rules__eyebrow">Fate Core</p>
           <h2 className="rules__title" id={titleId}>
-            Правила
+            Правила <span className="rules__title-brand">Fate Core</span>
           </h2>
-          <p className="rules__subtitle">Краткая шпаргалка для игрока и Мастера</p>
           <button
             ref={closeRef}
             type="button"
@@ -243,7 +241,6 @@ export function RulesDialog({ onClose }: Props) {
           tabIndex={0}
         >
           <div className="rules__inner">
-            <p className="rules__intro">Шпаргалка общая для Fate и «Ведьмака».</p>
             {sections.map((section) => (
               <Section key={section.title} section={section} />
             ))}

@@ -31,9 +31,9 @@
 .rules__head {
   position: relative;
   flex: none;
-  padding: 20px 64px 0 32px;
+  padding: 15px 64px 13px;
   overflow: hidden;
-  text-align: left;
+  text-align: center;
   background: color-mix(in srgb, var(--bg-parchment) 82%, var(--accent-gold) 18%);
 }
 
@@ -48,24 +48,13 @@
   opacity: 0.16;
 }
 
-.rules__eyebrow,
-.rules__title,
-.rules__subtitle {
+.rules__title {
   position: relative;
   z-index: 1;
-}
-
-.rules__eyebrow {
-  margin: 0 0 3px;
-  font-family: var(--font-body);
-  font-size: var(--text-caption);
-  font-weight: 700;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--accent-gold-ink);
-}
-
-.rules__title {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.5em;
   margin: 0;
   font-family: var(--font-display);
   font-size: 2.05rem;
@@ -74,12 +63,13 @@
   color: var(--text-ink-primary);
 }
 
-.rules__subtitle {
-  margin: 5px 0 16px;
+.rules__title-brand {
   font-family: var(--font-body);
-  font-size: var(--text-caption);
-  line-height: 1.4;
-  color: var(--text-ink-muted);
+  font-size: 0.62em;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent-gold-ink);
 }
 
 .rules__close {
@@ -92,18 +82,22 @@
 .rules__tabs {
   position: relative;
   z-index: 1;
-  display: flex;
+  display: grid;
   flex: none;
-  gap: 30px;
-  padding: 0 32px;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  padding: 0;
   background: color-mix(in srgb, var(--bg-parchment) 92%, var(--accent-gold) 8%);
   border-bottom: 1px solid color-mix(in srgb, var(--accent-gold) 55%, transparent);
 }
 
 .rules__tab {
+  width: 100%;
   margin-bottom: -1px;
-  padding: 10px 1px 9px;
+  padding: 12px 10px 10px;
   border: 0;
+  border-left: 1px solid color-mix(in srgb, var(--accent-gold) 22%, transparent);
+  text-align: center;
   border-bottom: 2px solid transparent;
   background: none;
   font-family: var(--font-display);
@@ -117,6 +111,10 @@
     border-color var(--transition-fast);
 }
 
+.rules__tab:first-child {
+  border-left: 0;
+}
+
 .rules__tab:hover {
   color: var(--text-ink-primary);
 }
@@ -127,8 +125,10 @@
 }
 
 .rules__tab[aria-selected='true'] {
-  color: var(--accent-gold-ink);
+  color: var(--text-ink-primary);
+  background: color-mix(in srgb, var(--accent-gold) 7%, transparent);
   border-bottom-color: var(--accent-gold-deep);
+  box-shadow: inset 0 -1px 0 var(--accent-gold-deep);
 }
 
 /* ---------- текст ---------- */
@@ -140,7 +140,7 @@
   overscroll-behavior: contain;
   scrollbar-width: thin;
   scrollbar-color: var(--accent-gold) transparent;
-  padding: 24px 36px 34px;
+  padding: 20px 36px 34px;
   outline: none;
 }
 
@@ -152,14 +152,6 @@
 .rules__inner {
   max-width: 880px;
   margin: 0 auto;
-}
-
-.rules__intro {
-  margin: 0 0 4px;
-  font-family: var(--font-body);
-  font-size: 0.95rem;
-  line-height: 1.55;
-  color: var(--text-ink-muted);
 }
 
 .rules__section {
@@ -177,15 +169,15 @@
   font-size: 1.58rem;
   font-weight: 600;
   line-height: 1.2;
-  color: var(--accent-gold-ink);
+  color: var(--text-ink-primary);
 }
 
 .rules__subhead {
-  margin: 18px 0 8px;
-  font-family: var(--font-display);
-  font-size: 1.18rem;
-  font-weight: 600;
-  line-height: 1.25;
+  margin: 20px 0 8px;
+  font-family: var(--font-body);
+  font-size: 1.02rem;
+  font-weight: 700;
+  line-height: 1.4;
   color: var(--text-ink-primary);
 }
 
@@ -195,6 +187,7 @@
   font-size: 1rem;
   line-height: 1.62;
   color: var(--text-ink-primary);
+  text-wrap: pretty;
 }
 
 .rules__section p:last-child {
@@ -246,7 +239,7 @@
 .rules__section code {
   padding: 0 0.25em;
   border: 1px solid color-mix(in srgb, var(--accent-gold) 38%, transparent);
-  background: color-mix(in srgb, var(--paper-highlight) 65%, transparent);
+  background: color-mix(in srgb, var(--surface-field) 74%, transparent);
   font-size: 0.88em;
   color: var(--accent-gold-ink);
 }
@@ -255,7 +248,8 @@
   margin: 12px 0 14px;
   padding: 10px 14px;
   border-left: 3px solid var(--accent-gold-deep);
-  background: color-mix(in srgb, var(--paper-highlight) 72%, var(--accent-gold) 9%);
+  background: color-mix(in srgb, var(--surface-field) 78%, var(--accent-gold) 5%);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent-gold) 16%, transparent);
   font-size: 0.96rem;
 }
 
@@ -272,35 +266,37 @@
 .rules__tablewrap {
   margin: 10px 0 14px;
   overflow-x: auto;
-  border: 1px solid color-mix(in srgb, var(--accent-gold) 42%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent-gold) 38%, transparent);
+  background: color-mix(in srgb, var(--surface-field) 46%, var(--bg-parchment));
 }
 
 .rules__table {
   width: 100%;
   min-width: 480px;
   border-collapse: collapse;
-  background: color-mix(in srgb, var(--paper-highlight) 38%, transparent);
+  background: color-mix(in srgb, var(--surface-field) 34%, var(--bg-parchment));
   font-family: var(--font-body);
-  font-size: 0.88rem;
-  line-height: 1.42;
+  font-size: 0.92rem;
+  line-height: 1.5;
 }
 
 .rules__table th {
-  padding: 7px 9px;
+  padding: 8px 11px;
   border-bottom: 1px solid color-mix(in srgb, var(--accent-gold) 46%, transparent);
-  background: color-mix(in srgb, var(--accent-gold) 13%, transparent);
+  background: color-mix(in srgb, var(--surface-field) 82%, var(--accent-gold) 8%);
   font-size: 0.76rem;
   font-weight: 700;
   letter-spacing: 0.04em;
   text-align: left;
   text-transform: uppercase;
-  color: var(--accent-gold-ink);
+  color: var(--text-ink-primary);
 }
 
 .rules__table td {
-  padding: 7px 9px;
+  padding: 8px 11px;
   border-bottom: 1px solid color-mix(in srgb, var(--accent-gold) 22%, transparent);
   vertical-align: top;
+  text-wrap: pretty;
 }
 
 .rules__table tr:last-child td {
@@ -367,20 +363,15 @@
   }
 
   .rules__head {
-    padding: 16px 52px 0 18px;
+    padding: 14px 52px 12px;
   }
 
   .rules__title {
-    font-size: 1.7rem;
+    font-size: 1.65rem;
   }
 
-  .rules__subtitle {
-    margin-bottom: 12px;
-  }
-
-  .rules__tabs {
-    gap: 20px;
-    padding: 0 18px;
+  .rules__tab {
+    padding: 12px 8px 10px;
   }
 
   .rules__body {
@@ -432,9 +423,9 @@
 
   .rules__table tr {
     margin: 0 0 10px;
-    padding: 8px 10px;
-    border: 1px solid color-mix(in srgb, var(--accent-gold) 42%, transparent);
-    background: color-mix(in srgb, var(--paper-highlight) 38%, transparent);
+    padding: 9px 12px;
+    border: 1px solid color-mix(in srgb, var(--accent-gold) 38%, transparent);
+    background: color-mix(in srgb, var(--surface-field) 46%, var(--bg-parchment));
   }
 
   .rules__table tr:last-child {
@@ -442,10 +433,8 @@
   }
 
   .rules__table td {
-    display: grid;
-    grid-template-columns: 88px minmax(0, 1fr);
-    gap: 8px;
-    padding: 2px 0;
+    display: block;
+    padding: 3px 0;
     border: 0;
   }
 
@@ -457,12 +446,13 @@
 
   .rules__cell-label {
     display: block;
+    margin-bottom: 1px;
     font-size: 0.66rem;
     font-weight: 700;
     letter-spacing: 0.04em;
     line-height: 1.35;
     text-transform: uppercase;
-    color: var(--accent-gold-ink);
+    color: var(--text-ink-muted);
   }
 
   .heroes__top-actions {
