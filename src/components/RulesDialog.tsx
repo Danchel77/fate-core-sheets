@@ -3,7 +3,8 @@ import type { KeyboardEvent as ReactKeyboardEvent, MouseEvent as ReactMouseEvent
 import { createPortal } from 'react-dom';
 import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
 import { useDialogKeys } from '../hooks/useDialogKeys';
-import { masterRules, playerRules, type RulesBlock, type RulesItem, type RulesSection } from '../data/rules';
+import { masterRules, playerRules, RULE_HINTS, type RulesBlock, type RulesItem, type RulesSection } from '../data/rules';
+import { Hint } from './Hint';
 import { IconBookOpen, IconClose } from './icons';
 
 const PAPER = `${import.meta.env.BASE_URL}assets/textures/parchment-soft.jpg`;
@@ -15,14 +16,25 @@ const TABS: { id: TabId; label: string }[] = [
   { id: 'master', label: 'Мастеру' },
 ];
 
-const INLINE = /(\*\*[^*]+\*\*|\*[^*]+\*|`[^`]+`)/g;
+const INLINE = /(\{\{[^}]+\}\}|\*\*[^*]+\*\*|\*[^*]+\*|`[^`]+`)/g;
 
-/** Жирный, курсив и код внутри абзацев: разметки в данных немного. */
+/** Жирный, курсив, код и подсказки-термины внутри абзацев. */
 function Rich({ text }: { text: string }) {
   return (
     <>
       {text.split(INLINE).map((part, index) => {
         if (!part) return null;
+        if (part.startsWith('{{') && part.endsWith('}}')) {
+          const term = part.slice(2, -2);
+          const hint = RULE_HINTS[term] ?? RULE_HINTS[term.toLowerCase()];
+          return hint ? (
+            <Hint key={index} title={hint.title} text={hint.text}>
+              {term}
+            </Hint>
+          ) : (
+            <span key={index}>{term}</span>
+          );
+        }
         if (part.startsWith('**') && part.endsWith('**')) {
           return <strong key={index}>{part.slice(2, -2)}</strong>;
         }

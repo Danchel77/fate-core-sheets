@@ -164,12 +164,13 @@ export function Hint({ title, text, children }: Props) {
     const onResize = () => close();
 
     document.addEventListener('pointerdown', onPointerDown);
-    document.addEventListener('keydown', onKeyDown);
+    /* Фаза перехвата: иначе окно, открытое раньше подсказки, закроется первым. */
+    document.addEventListener('keydown', onKeyDown, true);
     window.addEventListener('resize', onResize);
 
     return () => {
       document.removeEventListener('pointerdown', onPointerDown);
-      document.removeEventListener('keydown', onKeyDown);
+      document.removeEventListener('keydown', onKeyDown, true);
       window.removeEventListener('resize', onResize);
     };
   }, [open, close]);
