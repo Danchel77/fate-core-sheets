@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { SKILL_HINTS } from '../data/skills';
 import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
 import { useDialogKeys } from '../hooks/useDialogKeys';
@@ -24,7 +25,7 @@ export function SkillPicker({ rank, skills, note, onPick, onClose }: Props) {
     closeRef.current?.focus({ preventScroll: true });
   }, []);
 
-  return (
+  return createPortal(
     <div
       className="spick-overlay"
       onPointerDown={(event) => {
@@ -68,6 +69,7 @@ export function SkillPicker({ rank, skills, note, onPick, onClose }: Props) {
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
