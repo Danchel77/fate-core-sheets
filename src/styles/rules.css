@@ -1,0 +1,490 @@
+/* Окно правил: большая книга-шпаргалка с двумя вкладками.
+   Цвета и шрифты — только из tokens.css. */
+
+.rules {
+  z-index: 330;
+  padding: 20px;
+}
+
+.rules__panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: min(1120px, 100%);
+  height: min(86dvh, 920px);
+  overflow: hidden;
+  background: var(--bg-parchment);
+  border: 1px solid color-mix(in srgb, var(--accent-gold-deep) 74%, transparent);
+  box-shadow:
+    0 30px 76px color-mix(in srgb, var(--text-ink-primary) 58%, transparent),
+    0 6px 18px color-mix(in srgb, var(--text-ink-primary) 34%, transparent);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .rules__panel {
+    animation: sm-rise 180ms ease-out;
+  }
+}
+
+/* ---------- шапка ---------- */
+
+.rules__head {
+  position: relative;
+  flex: none;
+  padding: 20px 64px 0 32px;
+  overflow: hidden;
+  text-align: left;
+  background: color-mix(in srgb, var(--bg-parchment) 82%, var(--accent-gold) 18%);
+}
+
+.rules__texture {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-position: center;
+  background-size: cover;
+  mix-blend-mode: multiply;
+  opacity: 0.16;
+}
+
+.rules__eyebrow,
+.rules__title,
+.rules__subtitle {
+  position: relative;
+  z-index: 1;
+}
+
+.rules__eyebrow {
+  margin: 0 0 3px;
+  font-family: var(--font-body);
+  font-size: var(--text-caption);
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent-gold-ink);
+}
+
+.rules__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 2.05rem;
+  font-weight: 600;
+  line-height: 1.08;
+  color: var(--text-ink-primary);
+}
+
+.rules__subtitle {
+  margin: 5px 0 16px;
+  font-family: var(--font-body);
+  font-size: var(--text-caption);
+  line-height: 1.4;
+  color: var(--text-ink-muted);
+}
+
+.rules__close {
+  top: 10px;
+  right: 12px;
+}
+
+/* ---------- вкладки ---------- */
+
+.rules__tabs {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex: none;
+  gap: 30px;
+  padding: 0 32px;
+  background: color-mix(in srgb, var(--bg-parchment) 92%, var(--accent-gold) 8%);
+  border-bottom: 1px solid color-mix(in srgb, var(--accent-gold) 55%, transparent);
+}
+
+.rules__tab {
+  margin-bottom: -1px;
+  padding: 10px 1px 9px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: none;
+  font-family: var(--font-display);
+  font-size: 1.22rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--text-ink-muted);
+  cursor: pointer;
+  transition:
+    color var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.rules__tab:hover {
+  color: var(--text-ink-primary);
+}
+
+.rules__tab:focus-visible {
+  outline: 2px solid var(--accent-gold-ink);
+  outline-offset: 3px;
+}
+
+.rules__tab[aria-selected='true'] {
+  color: var(--accent-gold-ink);
+  border-bottom-color: var(--accent-gold-deep);
+}
+
+/* ---------- текст ---------- */
+
+.rules__body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: var(--accent-gold) transparent;
+  padding: 24px 36px 34px;
+  outline: none;
+}
+
+.rules__body:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--accent-gold) 60%, transparent);
+  outline-offset: -4px;
+}
+
+.rules__inner {
+  max-width: 880px;
+  margin: 0 auto;
+}
+
+.rules__intro {
+  margin: 0 0 4px;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  line-height: 1.55;
+  color: var(--text-ink-muted);
+}
+
+.rules__section {
+  padding: 22px 0 18px;
+  border-top: 1px solid color-mix(in srgb, var(--accent-gold) 32%, transparent);
+}
+
+.rules__section:first-of-type {
+  border-top: 0;
+}
+
+.rules__section-title {
+  margin: 0 0 12px;
+  font-family: var(--font-display);
+  font-size: 1.58rem;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--accent-gold-ink);
+}
+
+.rules__subhead {
+  margin: 18px 0 8px;
+  font-family: var(--font-display);
+  font-size: 1.18rem;
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--text-ink-primary);
+}
+
+.rules__section p {
+  margin: 0 0 10px;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  line-height: 1.62;
+  color: var(--text-ink-primary);
+}
+
+.rules__section p:last-child {
+  margin-bottom: 0;
+}
+
+.rules__section p.rules__lead {
+  font-size: 1.04rem;
+}
+
+.rules__list {
+  margin: 0 0 12px;
+  padding-left: 23px;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--text-ink-primary);
+}
+
+.rules__list:last-child {
+  margin-bottom: 0;
+}
+
+.rules__list li::marker {
+  color: var(--accent-gold-deep);
+}
+
+.rules__item {
+  margin: 5px 0;
+  padding-left: 2px;
+}
+
+.rules__item--sub {
+  margin-left: 14px;
+  list-style-type: circle;
+}
+
+.rules__list strong,
+.rules__section p strong {
+  color: var(--text-ink-primary);
+  font-weight: 700;
+}
+
+.rules__list em,
+.rules__section p em {
+  color: var(--text-ink-muted);
+}
+
+.rules__section code {
+  padding: 0 0.25em;
+  border: 1px solid color-mix(in srgb, var(--accent-gold) 38%, transparent);
+  background: color-mix(in srgb, var(--paper-highlight) 65%, transparent);
+  font-size: 0.88em;
+  color: var(--accent-gold-ink);
+}
+
+.rules__section p.rules__callout {
+  margin: 12px 0 14px;
+  padding: 10px 14px;
+  border-left: 3px solid var(--accent-gold-deep);
+  background: color-mix(in srgb, var(--paper-highlight) 72%, var(--accent-gold) 9%);
+  font-size: 0.96rem;
+}
+
+.rules__section p.rules__example {
+  margin: 8px 0 10px;
+  padding-left: 13px;
+  border-left: 2px solid color-mix(in srgb, var(--accent-gold) 48%, transparent);
+  font-style: italic;
+  color: var(--text-ink-muted);
+}
+
+/* ---------- таблицы ---------- */
+
+.rules__tablewrap {
+  margin: 10px 0 14px;
+  overflow-x: auto;
+  border: 1px solid color-mix(in srgb, var(--accent-gold) 42%, transparent);
+}
+
+.rules__table {
+  width: 100%;
+  min-width: 480px;
+  border-collapse: collapse;
+  background: color-mix(in srgb, var(--paper-highlight) 38%, transparent);
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  line-height: 1.42;
+}
+
+.rules__table th {
+  padding: 7px 9px;
+  border-bottom: 1px solid color-mix(in srgb, var(--accent-gold) 46%, transparent);
+  background: color-mix(in srgb, var(--accent-gold) 13%, transparent);
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-align: left;
+  text-transform: uppercase;
+  color: var(--accent-gold-ink);
+}
+
+.rules__table td {
+  padding: 7px 9px;
+  border-bottom: 1px solid color-mix(in srgb, var(--accent-gold) 22%, transparent);
+  vertical-align: top;
+}
+
+.rules__table tr:last-child td {
+  border-bottom: 0;
+}
+
+.rules__cell-label {
+  display: none;
+}
+
+/* ---------- кнопки в шапках ---------- */
+
+.heroes__top-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.rules-open {
+  flex: none;
+}
+
+/* В тёмной шапке списка кнопка должна читаться как соседние действия,
+   а не как светлый квадрат на тёмном фоне. */
+.heroes__top .rules-open {
+  border-color: color-mix(in srgb, var(--accent-gold) 52%, transparent);
+  background: transparent;
+  color: var(--table-ink);
+}
+
+.heroes__top .rules-open:hover {
+  border-color: var(--accent-gold);
+  background: color-mix(in srgb, var(--accent-gold) 14%, transparent);
+}
+
+.heroes__top .rules-open svg {
+  width: 18px;
+  height: 18px;
+}
+
+.sheet-nav__btn--icon {
+  width: 40px;
+  padding: 0;
+  justify-content: center;
+}
+
+.sheet-nav__btn--icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* ---------- телефон ---------- */
+
+@media (max-width: 720px) {
+  .rules {
+    padding: 0;
+  }
+
+  .rules__panel {
+    width: 100%;
+    height: 100dvh;
+    border: 0;
+    box-shadow: none;
+  }
+
+  .rules__head {
+    padding: 16px 52px 0 18px;
+  }
+
+  .rules__title {
+    font-size: 1.7rem;
+  }
+
+  .rules__subtitle {
+    margin-bottom: 12px;
+  }
+
+  .rules__tabs {
+    gap: 20px;
+    padding: 0 18px;
+  }
+
+  .rules__body {
+    padding: 18px 18px 26px;
+  }
+
+  .rules__section {
+    padding: 18px 0 14px;
+  }
+
+  .rules__section-title {
+    font-size: 1.4rem;
+  }
+
+  /* На телефоне таблица разбирается на карточки: пять колонок
+     в 320 px не читаются, а прокрутка вбок прячет половину. */
+  .rules__tablewrap {
+    margin: 10px 0 14px;
+    overflow: visible;
+    border: 0;
+  }
+
+  .rules__table {
+    display: block;
+    min-width: 0;
+    border-collapse: separate;
+    background: none;
+    font-size: 0.9rem;
+  }
+
+  .rules__table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .rules__table tbody,
+  .rules__table tr,
+  .rules__table td {
+    display: block;
+    width: 100%;
+  }
+
+  .rules__table tr {
+    margin: 0 0 10px;
+    padding: 8px 10px;
+    border: 1px solid color-mix(in srgb, var(--accent-gold) 42%, transparent);
+    background: color-mix(in srgb, var(--paper-highlight) 38%, transparent);
+  }
+
+  .rules__table tr:last-child {
+    margin-bottom: 0;
+  }
+
+  .rules__table td {
+    display: grid;
+    grid-template-columns: 88px minmax(0, 1fr);
+    gap: 8px;
+    padding: 2px 0;
+    border: 0;
+  }
+
+  .rules__table td:first-child {
+    margin-bottom: 4px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid color-mix(in srgb, var(--accent-gold) 22%, transparent);
+  }
+
+  .rules__cell-label {
+    display: block;
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    line-height: 1.35;
+    text-transform: uppercase;
+    color: var(--accent-gold-ink);
+  }
+
+  .heroes__top-actions {
+    gap: 8px;
+  }
+
+  .sheet-nav__btn--icon {
+    width: 44px;
+    height: 44px;
+  }
+
+  /* На телефоне подпись «Персонажи» больше не помещается рядом с четырьмя
+     действиями. Оставляем стрелку; подпись остаётся для чтения с экрана. */
+  .sheet-nav__label-short {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+  }
+}

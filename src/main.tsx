@@ -28,6 +28,7 @@ import './styles/stunt-block.css';
 import './styles/block-menu.css';
 import './styles/hint.css';
 import './styles/stunt-modal.css';
+import './styles/rules.css';
 import './styles/skill-picker.css';
 import './styles/portrait-dialog.css';
 import './styles/wizard.css';

@@ -8,6 +8,7 @@ import { StressBlock } from '../components/StressBlock';
 import { ExtrasBlock } from '../components/ExtrasBlock';
 import { IconArrowLeft } from '../components/icons';
 import { PortraitDialog } from '../components/PortraitDialog';
+import { RulesButton } from '../components/RulesDialog';
 import { SheetExport } from '../components/SheetExport';
 import { preloadPdfPreview } from '../components/SheetDownload';
 import { CharacterWizard, type WizardDraft } from '../components/CharacterWizard';
@@ -177,6 +178,7 @@ export default function SheetScreen({
         {header}
         <div className="sheet-nav__actions">
           {record && <SheetExport record={record} onShare={readOnly ? undefined : openShare} />}
+          <RulesButton variant="sheet" />
           {!readOnly && onPatch && (
             <button type="button" className="sheet-nav__btn" onClick={openEditor}>
               Конструктор

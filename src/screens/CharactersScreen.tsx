@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { AccountButton } from '../components/AccountButton';
+import { RulesButton } from '../components/RulesDialog';
 import { ListTabs } from '../components/ListTabs';
 import { BlockMenu } from '../components/BlockMenu';
 import { ConfirmDialog } from '../components/ConfirmDialog';
@@ -239,7 +240,10 @@ export default function CharactersScreen() {
         <a className="heroes__brand" href="#/">
           <span className="heroes__brandname">Fate Core Sheets</span>
         </a>
-        <AccountButton />
+        <div className="heroes__top-actions">
+          <RulesButton />
+          <AccountButton />
+        </div>
       </header>
 
       <main className="heroes__page">
