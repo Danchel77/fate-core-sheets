@@ -79,6 +79,14 @@
   display: none;
 }
 
+/* На чужом листе нечего нажимать: убираем крестики, подъём и пустые слоты навыков. */
+.sheet-lock .ske__del,
+.sheet-lock .ske__up,
+.sheet-lock .ske__slot,
+.sheet-lock .ske__lvsteps {
+  display: none;
+}
+
 /* Битый или отозванный адрес. */
 .shared-error {
   display: flex;
