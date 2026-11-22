@@ -1,6 +1,8 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import type { MouseEvent as ReactMouseEvent } from 'react';
 import { createPortal } from 'react-dom';
+import type { PDFDocumentProxy } from 'pdfjs-dist';
+import pdfWorker from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
 import { useDialogKeys } from '../hooks/useDialogKeys';
 import { downloadBlob } from '../data/download';
@@ -11,6 +13,12 @@ import { IconClose } from './icons';
 type Props = {
   record: CharacterRecord;
   onClose: () => void;
+};
+
+type PdfPreview = {
+  status: 'loading' | 'ready' | 'error';
+  bytes: Uint8Array | null;
+  pages: string[];
 };
 
 /** Ширина макета: на телефоне книга всё равно снимается широким разворотом. */
@@ -97,6 +105,12 @@ function prepareClone(source: HTMLElement): HTMLElement {
     node.setAttribute('aria-pressed', 'false');
   });
 
+  // В картинке стресс показывается пустым: отметки — для игры за столом, не для обложки.
+  clone.querySelectorAll('.str__box.is-filled').forEach((node) => {
+    node.classList.remove('is-filled');
+    node.setAttribute('aria-pressed', 'false');
+  });
+
   return clone;
 }
 
@@ -146,6 +160,8 @@ export function SheetDownload({ record, onClose }: Props) {
   const [ready, setReady] = useState(false);
   const [busy, setBusy] = useState<'pdf' | 'png' | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [pdf, setPdf] = useState<PdfPreview>({ status: 'loading', bytes: null, pages: [] });
+  const [pdfAttempt, setPdfAttempt] = useState(0);
 
   const rawId = useId();
   const id = rawId.replace(/:/g, '');
@@ -161,6 +177,52 @@ export function SheetDownload({ record, onClose }: Props) {
       if (previous && document.contains(previous)) previous.focus();
     };
   }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const preparePdf = async () => {
+      setPdf({ status: 'loading', bytes: null, pages: [] });
+      try {
+        const { buildCharacterPdf } = await import('../pdf/sheetPdf');
+        const bytes = await buildCharacterPdf(record.sheet);
+        if (cancelled) return;
+
+        const pdfjs = await import('pdfjs-dist');
+        pdfjs.GlobalWorkerOptions.workerSrc = pdfWorker;
+        const pdfDocument: PDFDocumentProxy = await pdfjs
+          .getDocument({ data: bytes.slice() })
+          .promise;
+        const pages: string[] = [];
+        try {
+          for (let number = 1; number <= pdfDocument.numPages; number += 1) {
+            const page = await pdfDocument.getPage(number);
+            const viewport = page.getViewport({ scale: 2 });
+            const canvas = window.document.createElement('canvas');
+            canvas.width = Math.ceil(viewport.width);
+            canvas.height = Math.ceil(viewport.height);
+            const context = canvas.getContext('2d');
+            if (!context) throw new Error('Нет холста для страницы PDF');
+            await page.render({ canvasContext: context, viewport }).promise;
+            pages.push(canvas.toDataURL('image/png'));
+            if (cancelled) return;
+          }
+        } finally {
+          await pdfDocument.destroy();
+        }
+
+        if (!cancelled) setPdf({ status: 'ready', bytes, pages });
+      } catch (cause) {
+        console.error('Не удалось показать PDF', cause);
+        if (!cancelled) setPdf({ status: 'error', bytes: null, pages: [] });
+      }
+    };
+
+    void preparePdf();
+    return () => {
+      cancelled = true;
+    };
+  }, [record.sheet, pdfAttempt]);
 
   useEffect(() => {
     const box = previewRef.current;
@@ -214,8 +276,11 @@ export function SheetDownload({ record, onClose }: Props) {
     setBusy('pdf');
     setError(null);
     try {
-      const { buildCharacterPdf } = await import('../pdf/sheetPdf');
-      const bytes = await buildCharacterPdf(record.sheet);
+      let bytes = pdf.bytes;
+      if (!bytes) {
+        const { buildCharacterPdf } = await import('../pdf/sheetPdf');
+        bytes = await buildCharacterPdf(record.sheet);
+      }
       downloadBlob(new Blob([bytes], { type: 'application/pdf' }), pdfFileName(record));
       onClose();
     } catch (cause) {
@@ -282,28 +347,47 @@ export function SheetDownload({ record, onClose }: Props) {
         <div className="sm__body">
           <section className="dl__section">
             <h3 className="sm__label">Бумажный бланк</h3>
-            <p className="sm__note">
-              Официальный бланк на A4 — для печати и игры за столом. Стресс и последствия
-              переносятся как на бумаге.
-            </p>
+
+            <div className="dl__pdf" aria-busy={pdf.status === 'loading'}>
+              {pdf.status === 'ready' &&
+                pdf.pages.map((page, index) => (
+                  <img
+                    key={index}
+                    className="dl__pdf-page"
+                    src={page}
+                    alt={`Страница ${index + 1}`}
+                  />
+                ))}
+              {pdf.status === 'loading' && <span className="dl__loading">Готовим PDF…</span>}
+              {pdf.status === 'error' && (
+                <span className="dl__loading">
+                  Не удалось показать бланк.
+                  <button
+                    type="button"
+                    className="sm__ghost"
+                    onClick={() => setPdfAttempt((value) => value + 1)}
+                  >
+                    Повторить
+                  </button>
+                </span>
+              )}
+            </div>
+
             <div className="dl__actions">
               <button
                 type="button"
                 className="sm__primary"
-                disabled={busy !== null}
+                disabled={busy !== null || pdf.status === 'loading'}
                 onClick={() => void downloadPdf()}
               >
                 {busy === 'pdf' ? 'Собираем PDF…' : 'Скачать PDF'}
               </button>
             </div>
+
           </section>
 
           <section className="dl__section">
             <h3 className="sm__label">Книга</h3>
-            <p className="sm__note">
-              Разворот как на сайте: кожаная обложка, ляссе и страницы. Без шапки и служебных
-              кнопок; жетоны судьбы — пустые кружки. Фон прозрачный.
-            </p>
 
             <div
               ref={previewRef}
@@ -342,12 +426,12 @@ export function SheetDownload({ record, onClose }: Props) {
               </button>
             </div>
 
-            {error && <p className="sm__note sm__note--warn">{error}</p>}
           </section>
+
+          {error && <p className="sm__note sm__note--warn">{error}</p>}
         </div>
 
         <footer className="sm__footer">
-          <span className="sm__count">Файлы сохраняются в папку загрузок.</span>
           <div className="sm__actions">
             <button type="button" className="sm__ghost" onClick={onClose}>
               Закрыть
