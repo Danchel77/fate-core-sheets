@@ -199,7 +199,7 @@ export function RulesDialog({ onClose }: Props) {
             style={{ backgroundImage: `url(${PAPER})` }}
           />
           <h2 className="rules__title" id={titleId}>
-            Правила <span className="rules__title-brand">Fate Core</span>
+            Правила Fate Core
           </h2>
           <button
             ref={closeRef}

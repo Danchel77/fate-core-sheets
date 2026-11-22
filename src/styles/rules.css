@@ -63,14 +63,6 @@
   color: var(--text-ink-primary);
 }
 
-.rules__title-brand {
-  font-family: var(--font-body);
-  font-size: 0.62em;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--accent-gold-ink);
-}
 
 .rules__close {
   top: 10px;
