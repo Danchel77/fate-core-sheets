@@ -47,6 +47,10 @@ export function pdfFileName(record: CharacterRecord): string {
   return `${cleanBase(record.sheet.name) || 'Лист персонажа'}.pdf`;
 }
 
+export function pngFileName(record: CharacterRecord): string {
+  return `${cleanBase(record.sheet.name) || 'Лист персонажа'} — лист.png`;
+}
+
 export function downloadFile(text: string, fileName: string, type = 'application/json'): void {
   downloadBlob(new Blob([text], { type }), fileName);
 }

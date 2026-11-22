@@ -17,6 +17,7 @@ import '@fontsource/prata/latin-400.css';
 import './styles/global.css';
 import './styles/characters.css';
 import './styles/sheet.css';
+import './styles/sheet-download.css';
 import './styles/character-block.css';
 import './styles/portrait-plate.css';
 import './styles/aspect-block.css';

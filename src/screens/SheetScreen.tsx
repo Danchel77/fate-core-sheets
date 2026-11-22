@@ -169,7 +169,7 @@ export default function SheetScreen({
         </a>
         {header}
         <div className="sheet-nav__actions">
-          {record && <SheetExport record={record} onShare={readOnly ? undefined : openShare} onError={setToast} />}
+          {record && <SheetExport record={record} onShare={readOnly ? undefined : openShare} />}
           {!readOnly && onPatch && (
             <button type="button" className="sheet-nav__btn" onClick={openEditor}>
               Конструктор

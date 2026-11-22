@@ -1,21 +1,19 @@
 import { useEffect, useRef, useState } from 'react';
-import { downloadBlob } from '../data/download';
-import { downloadFile, fileText, jsonFileName, pdfFileName } from '../data/exchange';
+import { downloadFile, fileText, jsonFileName } from '../data/exchange';
 import type { CharacterRecord } from '../data/types';
 import { IconBraces, IconFileDown, IconLink } from './icons';
+import { SheetDownload } from './SheetDownload';
 
 type Props = {
   record: CharacterRecord;
   /** Открыть окно публичной ссылки; без обработчика пункт не показывается. */
   onShare?: () => void;
-  /** Показать ошибку сбора PDF плашкой на листе. */
-  onError?: (message: string) => void;
 };
 
-/** Экспорт прямо с листа: PDF, файл героя и ссылка, без возврата к списку. */
-export function SheetExport({ record, onShare, onError }: Props) {
+/** Экспорт прямо с листа: окно скачивания, файл героя и ссылка. */
+export function SheetExport({ record, onShare }: Props) {
   const [open, setOpen] = useState(false);
-  const [busy, setBusy] = useState(false);
+  const [downloadOpen, setDownloadOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
 
@@ -38,23 +36,6 @@ export function SheetExport({ record, onShare, onError }: Props) {
       document.removeEventListener('keydown', onKey);
     };
   }, [open]);
-
-  const downloadPdf = async () => {
-    if (busy) return;
-    setBusy(true);
-    try {
-      /* Библиотеки PDF весят больше мегабайта: грузим их только при экспорте. */
-      const { buildCharacterPdf } = await import('../pdf/sheetPdf');
-      const bytes = await buildCharacterPdf(record.sheet);
-      downloadBlob(new Blob([bytes], { type: 'application/pdf' }), pdfFileName(record));
-      setOpen(false);
-    } catch (error) {
-      console.error('Не удалось собрать PDF', error);
-      onError?.('Не удалось собрать PDF. Попробуйте ещё раз.');
-    } finally {
-      setBusy(false);
-    }
-  };
 
   const downloadJson = () => {
     downloadFile(fileText(record), jsonFileName(record));
@@ -83,13 +64,15 @@ export function SheetExport({ record, onShare, onError }: Props) {
             type="button"
             role="menuitem"
             className="bmenu__item"
-            disabled={busy}
-            onClick={() => void downloadPdf()}
+            onClick={() => {
+              setOpen(false);
+              setDownloadOpen(true);
+            }}
           >
             <span className="bmenu__icon">
               <IconFileDown />
             </span>
-            <span>{busy ? 'Собираем PDF…' : 'Скачать PDF'}</span>
+            <span>Скачать лист</span>
           </button>
           <button
             type="button"
@@ -119,6 +102,16 @@ export function SheetExport({ record, onShare, onError }: Props) {
             </button>
           )}
         </div>
+      )}
+
+      {downloadOpen && (
+        <SheetDownload
+          record={record}
+          onClose={() => {
+            setDownloadOpen(false);
+            window.requestAnimationFrame(() => triggerRef.current?.focus());
+          }}
+        />
       )}
     </div>
   );
