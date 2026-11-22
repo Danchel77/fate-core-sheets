@@ -262,7 +262,7 @@ export function RulesButton({ variant = 'list' }: { variant?: 'list' | 'sheet' }
       <button
         ref={triggerRef}
         type="button"
-        className={variant === 'sheet' ? 'sheet-nav__btn sheet-nav__btn--icon rules-open' : 'iconbtn rules-open'}
+        className={variant === 'sheet' ? 'sheet-nav__btn rules-open rules-open--sheet' : 'rules-open rules-open--list'}
         aria-label="Правила"
         aria-haspopup="dialog"
         aria-expanded={open}
@@ -270,6 +270,7 @@ export function RulesButton({ variant = 'list' }: { variant?: 'list' | 'sheet' }
         onClick={() => setOpen(true)}
       >
         <IconBookOpen />
+        <span className="rules-open__label">Правила</span>
       </button>
       {open && (
         <RulesDialog

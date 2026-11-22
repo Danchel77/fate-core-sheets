@@ -316,7 +316,45 @@
 }
 
 .rules-open {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   flex: none;
+  gap: 7px;
+  font-family: var(--font-body);
+  cursor: pointer;
+}
+
+.rules-open svg {
+  flex: none;
+  width: 17px;
+  height: 17px;
+}
+
+.rules-open__label {
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.rules-open--list {
+  height: 34px;
+  padding: 0 10px;
+  border: 1px solid color-mix(in srgb, var(--accent-gold) 52%, transparent);
+  background: transparent;
+  font-size: var(--text-caption);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--table-ink);
+}
+
+.rules-open--list:hover {
+  border-color: var(--accent-gold);
+  background: color-mix(in srgb, var(--accent-gold) 14%, transparent);
+}
+
+.rules-open--sheet {
+  gap: 7px;
+  padding: 0 12px;
 }
 
 /* В тёмной шапке списка кнопка должна читаться как соседние действия,
@@ -333,17 +371,6 @@
 }
 
 .heroes__top .rules-open svg {
-  width: 18px;
-  height: 18px;
-}
-
-.sheet-nav__btn--icon {
-  width: 40px;
-  padding: 0;
-  justify-content: center;
-}
-
-.sheet-nav__btn--icon svg {
   width: 18px;
   height: 18px;
 }
@@ -459,11 +486,6 @@
     gap: 8px;
   }
 
-  .sheet-nav__btn--icon {
-    width: 44px;
-    height: 44px;
-  }
-
   /* На телефоне подпись «Персонажи» больше не помещается рядом с четырьмя
      действиями. Оставляем стрелку; подпись остаётся для чтения с экрана. */
   .sheet-nav__label-short {
@@ -476,5 +498,51 @@
     clip: rect(0 0 0 0);
     white-space: nowrap;
     border: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .rules-open--list,
+  .rules-open--sheet {
+    width: 44px;
+    height: 44px;
+    padding: 0;
+  }
+
+  .rules-open__label {
+    display: none;
+  }
+}
+
+@media (max-width: 720px) {
+  .sheet-nav__label {
+    display: none;
+  }
+
+  .sheet-nav__label-short {
+    display: inline;
+  }
+
+  .rules-open--sheet {
+    width: 44px;
+    padding: 0;
+  }
+
+  .rules-open--sheet .rules-open__label {
+    display: none;
+  }
+
+  .rules-open--list {
+    height: 44px;
+  }
+}
+
+@media (max-width: 400px) {
+  .heroes__top {
+    gap: 2px;
+  }
+
+  .heroes__top-actions {
+    gap: 4px;
   }
 }
