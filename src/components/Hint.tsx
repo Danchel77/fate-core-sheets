@@ -6,6 +6,7 @@ import {
   useRef,
   useState,
   type ReactNode,
+  type RefObject,
 } from 'react';
 import { createPortal } from 'react-dom';
 
@@ -28,9 +29,9 @@ const MARGIN = 10;
 const GAP = 10;
 const POINTER_SIZE = 5.5;
 
-type Side = 'right' | 'left' | 'top' | 'bottom';
+export type Side = 'right' | 'left' | 'top' | 'bottom';
 
-type Pos = {
+export type HintPos = {
   top: number;
   left: number;
   side: Side;
@@ -46,6 +47,72 @@ type Props = {
   children: ReactNode;
 };
 
+/** Плашка подсказки. Вынесена отдельно, чтобы её могли показывать и другие элементы листа. */
+export function HintPopover({
+  id,
+  title,
+  text,
+  pos,
+  popRef,
+  onPointerEnter,
+  onPointerLeave,
+  passive = false,
+}: {
+  id: string;
+  title: string;
+  text: string;
+  pos: HintPos | null;
+  popRef: RefObject<HTMLDivElement | null>;
+  onPointerEnter?: () => void;
+  onPointerLeave?: () => void;
+  passive?: boolean;
+}) {
+  return createPortal(
+    <div
+      ref={popRef}
+      id={id}
+      role="tooltip"
+      className={`hint-pop hint-pop--${pos?.side ?? 'right'}`}
+      style={{
+        top: pos?.top ?? 0,
+        left: pos?.left ?? 0,
+        visibility: pos ? 'visible' : 'hidden',
+        pointerEvents: passive ? 'none' : undefined,
+      }}
+      onPointerEnter={onPointerEnter}
+      onPointerLeave={onPointerLeave}
+    >
+      <span
+        className="hint-pop__texture"
+        aria-hidden="true"
+        style={{ backgroundImage: `url(${TEXTURE})` }}
+      />
+      {CORNERS.map((corner) => (
+        <i
+          key={corner}
+          className={`hint-pop__corner hint-pop__corner--${corner}`}
+          aria-hidden="true"
+          style={cornerMask}
+        />
+      ))}
+      <span className="hint-pop__title">{title}</span>
+      <span className="hint-pop__text">{text}</span>
+      <span
+        className="hint-pop__pointer"
+        aria-hidden="true"
+        style={
+          pos
+            ? pos.side === 'top' || pos.side === 'bottom'
+              ? { left: pos.offsetX - POINTER_SIZE }
+              : { top: pos.offset - POINTER_SIZE }
+            : undefined
+        }
+      />
+    </div>,
+    document.body,
+  );
+}
+
 /**
  * Слово-подсказка: затухающее подчёркивание, по наведению или клику справа
  * всплывает плашка в духе листа. Плашка рендерится в портал поверх страницы,
@@ -60,7 +127,7 @@ export function Hint({ title, text, children }: Props) {
   const canHover = useRef(false);
 
   const [open, setOpen] = useState(false);
-  const [pos, setPos] = useState<Pos | null>(null);
+  const [pos, setPos] = useState<HintPos | null>(null);
 
   useEffect(() => {
     canHover.current = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
@@ -227,50 +294,17 @@ export function Hint({ title, text, children }: Props) {
         {children}
       </button>
 
-      {open &&
-        createPortal(
-          <div
-            ref={popRef}
-            id={id}
-            role="tooltip"
-            className={`hint-pop hint-pop--${pos?.side ?? 'right'}`}
-            style={{
-              top: pos?.top ?? 0,
-              left: pos?.left ?? 0,
-              visibility: pos ? 'visible' : 'hidden',
-            }}
-            onPointerEnter={clearTimer}
-            onPointerLeave={scheduleClose}
-          >
-            <span
-              className="hint-pop__texture"
-              aria-hidden="true"
-              style={{ backgroundImage: `url(${TEXTURE})` }}
-            />
-            {CORNERS.map((corner) => (
-              <i
-                key={corner}
-                className={`hint-pop__corner hint-pop__corner--${corner}`}
-                aria-hidden="true"
-                style={cornerMask}
-              />
-            ))}
-            <span className="hint-pop__title">{title}</span>
-            <span className="hint-pop__text">{text}</span>
-            <span
-              className="hint-pop__pointer"
-              aria-hidden="true"
-              style={
-                pos
-                  ? pos.side === 'top' || pos.side === 'bottom'
-                    ? { left: pos.offsetX - POINTER_SIZE }
-                    : { top: pos.offset - POINTER_SIZE }
-                  : undefined
-              }
-            />
-          </div>,
-          document.body,
-        )}
+      {open && (
+        <HintPopover
+          id={id}
+          title={title}
+          text={text}
+          pos={pos}
+          popRef={popRef}
+          onPointerEnter={clearTimer}
+          onPointerLeave={scheduleClose}
+        />
+      )}
     </>
   );
 }

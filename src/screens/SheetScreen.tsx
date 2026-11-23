@@ -148,6 +148,7 @@ export default function SheetScreen({
           initial={character.ladder}
           initialLevel={character.level}
           onChange={({ ladder, level }) => onPatch?.({ ladder, level })}
+          readOnly={readOnly}
         />
         <StuntBlock
           stunts={character.stunts}

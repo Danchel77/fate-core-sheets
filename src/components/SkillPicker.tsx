@@ -13,12 +13,14 @@ type Props = {
   skills: string[];
   /** Строка под заголовком: на листе — стоимость в очках. */
   note?: string;
+  /** Заголовок окна. По умолчанию — «Навык на +N». */
+  title?: string;
   onPick: (name: string) => void;
   onClose: () => void;
 };
 
 /** Окно выбора навыка: одно и то же в конструкторе и на листе персонажа. */
-export function SkillPicker({ rank, setting, skills, note, onPick, onClose }: Props) {
+export function SkillPicker({ rank, setting, skills, note, title, onPick, onClose }: Props) {
   const settingHints = settingConfig(setting).skillHints;
   const closeRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -39,7 +41,7 @@ export function SkillPicker({ rank, setting, skills, note, onPick, onClose }: Pr
       <div ref={panelRef} className="spick" role="dialog" aria-modal="true" aria-labelledby="spick-title">
         <div className="spick__head">
           <span className="spick__title" id="spick-title">
-            Навык на +{rank}
+            {title ?? `Навык на +${rank}`}
           </span>
           <button
             ref={closeRef}

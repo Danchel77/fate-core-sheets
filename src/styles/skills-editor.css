@@ -92,6 +92,15 @@
   background: color-mix(in srgb, var(--bg-parchment) 84%, var(--tint-gold-pale) 16%);
 }
 
+.ske__block--editable {
+  cursor: pointer;
+}
+
+.ske__block--editable:focus-visible {
+  outline: 1px dashed color-mix(in srgb, var(--accent-gold) 70%, transparent);
+  outline-offset: 2px;
+}
+
 .ske__name {
   box-sizing: border-box;
   width: 100%;

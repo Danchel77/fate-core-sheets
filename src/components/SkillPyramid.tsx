@@ -1,4 +1,5 @@
-import { type ReactNode, useEffect, useId, useState } from 'react';
+import { type ReactNode, useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
+import { HintPopover, type HintPos } from './Hint';
 
 export type PyramidRow = { value: number; skills: string[] };
 
@@ -20,7 +21,15 @@ type Props = {
   slotTitle?: (value: number) => string;
   /** Крупный вариант для конструктора: карточки выше, ступень шире. */
   big?: boolean;
+  /** Описание навыка для плашки при наведении. */
+  describe?: (name: string) => string | undefined;
+  /** Открыть замену стоящего навыка. Если не передан, карточка не редактируется. */
+  onEdit?: (value: number, name: string) => void;
 };
+
+const TIP_DELAY = 500;
+const TIP_GAP = 10;
+const TIP_MARGIN = 10;
 
 /** Стрелка «поднять навык»: простое древко и треугольник, золото с тиснением. */
 function UpArrow() {
@@ -62,10 +71,100 @@ export function SkillPyramid({
   topAside,
   slotTitle,
   big = false,
+  describe,
+  onEdit,
 }: Props) {
   /* На тач-экране карточка сама раскрывает свой крестик; на десктопе — наведение. */
   const [touch, setTouch] = useState(false);
   const [revealed, setRevealed] = useState<string | null>(null);
+  const [tip, setTip] = useState<{ name: string; text: string; rect: DOMRect } | null>(null);
+  const [tipPos, setTipPos] = useState<HintPos | null>(null);
+  const tipRef = useRef<HTMLDivElement>(null);
+  const tipTimer = useRef<number | null>(null);
+  const tipCloseTimer = useRef<number | null>(null);
+  const tipId = useId();
+
+  const clearTipTimers = () => {
+    if (tipTimer.current !== null) window.clearTimeout(tipTimer.current);
+    if (tipCloseTimer.current !== null) window.clearTimeout(tipCloseTimer.current);
+    tipTimer.current = null;
+    tipCloseTimer.current = null;
+  };
+
+  const closeTip = () => {
+    clearTipTimers();
+    setTip(null);
+    setTipPos(null);
+  };
+
+  const showTip = (name: string, text: string, element: HTMLElement) => {
+    clearTipTimers();
+    setTip({ name, text, rect: element.getBoundingClientRect() });
+  };
+
+  const scheduleTip = (name: string, text: string, element: HTMLElement) => {
+    clearTipTimers();
+    if (!text) return;
+    tipTimer.current = window.setTimeout(() => {
+      tipTimer.current = null;
+      setTip({ name, text, rect: element.getBoundingClientRect() });
+    }, TIP_DELAY);
+  };
+
+  const scheduleTipClose = () => {
+    if (tipCloseTimer.current !== null) window.clearTimeout(tipCloseTimer.current);
+    tipCloseTimer.current = window.setTimeout(() => {
+      tipCloseTimer.current = null;
+      setTip(null);
+      setTipPos(null);
+    }, 140);
+  };
+
+  useLayoutEffect(() => {
+    if (!tip) {
+      setTipPos(null);
+      return;
+    }
+    const pop = tipRef.current;
+    if (!pop) return;
+    const p = pop.getBoundingClientRect();
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    let side: HintPos['side'] = 'bottom';
+    let top = tip.rect.bottom + TIP_GAP;
+    if (top + p.height > vh - TIP_MARGIN) {
+      if (tip.rect.top - TIP_GAP - p.height > TIP_MARGIN) {
+        side = 'top';
+        top = tip.rect.top - TIP_GAP - p.height;
+      } else {
+        top = Math.max(TIP_MARGIN, vh - p.height - TIP_MARGIN);
+      }
+    }
+    let left = tip.rect.left + tip.rect.width / 2 - p.width / 2;
+    left = Math.min(Math.max(TIP_MARGIN, left), vw - p.width - TIP_MARGIN);
+    const offsetX = Math.min(
+      Math.max(16, tip.rect.left + tip.rect.width / 2 - left),
+      p.width - 16,
+    );
+    setTipPos({
+      top: top + window.scrollY,
+      left: left + window.scrollX,
+      side,
+      offset: 0,
+      offsetX,
+    });
+  }, [tip]);
+
+  useEffect(() => {
+    if (!tip) return;
+    const onMove = () => closeTip();
+    window.addEventListener('scroll', onMove, true);
+    window.addEventListener('resize', onMove);
+    return () => {
+      window.removeEventListener('scroll', onMove, true);
+      window.removeEventListener('resize', onMove);
+    };
+  }, [tip]);
 
   useEffect(() => {
     const query = window.matchMedia('(hover: none)');
@@ -78,7 +177,10 @@ export function SkillPyramid({
   useEffect(() => {
     const clear = (event: PointerEvent) => {
       const target = event.target;
-      if (!(target instanceof Element) || !target.closest('.ske__grid')) setRevealed(null);
+      if (!(target instanceof Element) || !target.closest('.ske__grid')) {
+        setRevealed(null);
+        closeTip();
+      }
     };
     document.addEventListener('pointerdown', clear);
     return () => document.removeEventListener('pointerdown', clear);
@@ -104,13 +206,54 @@ export function SkillPyramid({
             <div className="ske__grid">
               {row.skills.map((name) => (
                 <span
-                  className={`ske__block${revealed === name ? ' ske__block--revealed' : ''}`}
+                  className={`ske__block${revealed === name ? ' ske__block--revealed' : ''}${
+                    onEdit ? ' ske__block--editable' : ''
+                  }`}
                   key={`${row.value}-${name}`}
-                  onClick={
-                    touch
-                      ? () => setRevealed((current) => (current === name ? null : name))
-                      : undefined
-                  }
+                  role={onEdit ? 'button' : undefined}
+                  tabIndex={onEdit ? 0 : undefined}
+                  aria-label={onEdit ? `Навык ${name}. Открыть замену` : undefined}
+                  onPointerEnter={(event) => {
+                    if (!touch) scheduleTip(name, describe?.(name) ?? '', event.currentTarget);
+                  }}
+                  onPointerLeave={() => {
+                    if (!touch) scheduleTipClose();
+                  }}
+                  onFocus={(event) => {
+                    if (!touch && event.target === event.currentTarget) {
+                      showTip(name, describe?.(name) ?? '', event.currentTarget);
+                    }
+                  }}
+                  onBlur={(event) => {
+                    if (event.target === event.currentTarget) closeTip();
+                  }}
+                  onKeyDown={(event) => {
+                    if (!onEdit || event.target !== event.currentTarget) return;
+                    if (event.key === 'Enter' || event.key === ' ') {
+                      event.preventDefault();
+                      closeTip();
+                      setRevealed(null);
+                      onEdit(row.value, name);
+                    }
+                  }}
+                  onClick={(event) => {
+                    if (touch) {
+                      if (tip?.name === name) {
+                        closeTip();
+                        setRevealed(null);
+                        onEdit?.(row.value, name);
+                        return;
+                      }
+                      setRevealed(name);
+                      showTip(name, describe?.(name) ?? '', event.currentTarget);
+                      return;
+                    }
+                    if (onEdit) {
+                      closeTip();
+                      setRevealed(null);
+                      onEdit(row.value, name);
+                    }
+                  }}
                 >
                   <span className="ske__name">{name}</span>
                   <button
@@ -123,6 +266,8 @@ export function SkillPyramid({
                       // На сенсорном листе удаляем только когда крестик уже показан:
                       // иначе случайное касание угла плашки стирает навык.
                       if (touch && !big && revealed !== name) return;
+                      closeTip();
+                      setRevealed(null);
                       onRemove(row.value, name);
                     }}
                   >
@@ -136,6 +281,8 @@ export function SkillPyramid({
                       title="Поднять на ступень (1 очко)"
                       onClick={(event) => {
                         event.stopPropagation();
+                        closeTip();
+                        setRevealed(null);
                         onRaise(row.value, name);
                       }}
                     >
@@ -173,6 +320,16 @@ export function SkillPyramid({
           </div>
         );
       })}
+      {tip && (
+        <HintPopover
+          id={tipId}
+          title={tip.name}
+          text={tip.text}
+          pos={tipPos}
+          popRef={tipRef}
+          passive
+        />
+      )}
     </div>
   );
 }

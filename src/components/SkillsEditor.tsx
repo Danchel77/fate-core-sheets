@@ -6,6 +6,8 @@ import { Hint } from './Hint';
 import { SkillPicker } from './SkillPicker';
 import { SkillPyramid, type PyramidRow } from './SkillPyramid';
 import { SKILLS } from '../data/characters';
+import { settingConfig } from '../data/settings';
+import { SKILL_HINTS } from '../data/skills';
 import type { SettingId } from '../data/types';
 
 type InitRow = { value: number; skills: string[] };
@@ -18,6 +20,8 @@ type Props = {
   initialLevel?: number;
   /** Пирамида и уровень: лист сохраняет правку сразу. */
   onChange?: (patch: { ladder: InitRow[]; level: number }) => void;
+  /** Чужой лист: можно смотреть описание, но нельзя менять навыки. */
+  readOnly?: boolean;
 };
 
 const MAX_SKILL_RANK = 6;
@@ -84,10 +88,14 @@ function LevelArrow({ direction }: { direction: 'up' | 'down' }) {
 }
 
 /** Интерактивная пирамида навыков: слоты стартовой пирамиды, уровень и свободные очки. */
-export function SkillsEditor({ setting, initial, initialLevel = 4, onChange }: Props) {
+export function SkillsEditor({ setting, initial, initialLevel = 4, onChange, readOnly = false }: Props) {
   const [rows, setRows] = useState<Row[]>(() => buildRows(initial));
   const [level, setLevel] = useState(initialLevel);
   const [menuRank, setMenuRank] = useState<number | null>(null);
+  const [replacing, setReplacing] = useState<{ rank: number; name: string } | null>(null);
+
+  const settingHints = settingConfig(setting).skillHints;
+  const describe = (name: string) => settingHints?.[name] ?? SKILL_HINTS[name];
 
   const publish = (nextRows: Row[], nextLevel: number) => {
     onChange?.({
@@ -143,6 +151,21 @@ export function SkillsEditor({ setting, initial, initialLevel = 4, onChange }: P
     );
     setRows(next);
     setMenuRank(null);
+    publish(next, level);
+  };
+
+  const replaceSkill = (name: string) => {
+    if (!replacing) return;
+    const next = rows.map((row) =>
+      row.value === replacing.rank
+        ? {
+            ...row,
+            skills: row.skills.map((skill) => (skill === replacing.name ? name : skill)),
+          }
+        : row,
+    );
+    setRows(next);
+    setReplacing(null);
     publish(next, level);
   };
 
@@ -269,9 +292,21 @@ export function SkillsEditor({ setting, initial, initialLevel = 4, onChange }: P
         cap={baseCap}
         isReady={(value) => free >= value}
         canRaise={canRaise}
-        onSlot={setMenuRank}
+        onSlot={(value) => {
+          setReplacing(null);
+          setMenuRank(value);
+        }}
         onRemove={remove}
         onRaise={raise}
+        describe={describe}
+        onEdit={
+          readOnly
+            ? undefined
+            : (rank, name) => {
+                setMenuRank(null);
+                setReplacing({ rank, name });
+              }
+        }
         extraSlot={extraSlot}
         slotTitle={(value) =>
           free >= value
@@ -289,6 +324,18 @@ export function SkillsEditor({ setting, initial, initialLevel = 4, onChange }: P
           note={`Стоимость: ${menuRank} ${pointsWord(menuRank)}`}
           onPick={(name) => addSkill(menuRank, name)}
           onClose={() => setMenuRank(null)}
+        />
+      )}
+
+      {replacing && (
+        <SkillPicker
+          setting={setting}
+          rank={replacing.rank}
+          skills={[...available]}
+          title={`Заменить «${replacing.name}»`}
+          note={`Стоимость не изменится: ${replacing.rank} ${pointsWord(replacing.rank)}`}
+          onPick={replaceSkill}
+          onClose={() => setReplacing(null)}
         />
       )}
     </section>
