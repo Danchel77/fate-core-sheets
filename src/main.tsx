@@ -32,6 +32,7 @@ import './styles/rules.css';
 import './styles/skill-picker.css';
 import './styles/portrait-dialog.css';
 import './styles/wizard.css';
+import './styles/ai-review.css';
 import './styles/auth.css';
 import './styles/name-generator.css';
 import './styles/loading.css';

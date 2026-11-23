@@ -1,0 +1,222 @@
+/* Карточка проверки аспекта/трюка в конструкторе. */
+
+.ai-review-wrap {
+  display: contents;
+}
+
+.ai-review__check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 34px;
+  padding: 4px 12px;
+  border: 1px solid color-mix(in srgb, var(--accent-gold) 52%, transparent);
+  background: color-mix(in srgb, var(--paper-highlight) 46%, transparent);
+  font-family: var(--font-body);
+  font-size: var(--text-caption);
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--accent-gold-ink);
+  cursor: pointer;
+}
+
+.ai-review__check svg {
+  width: 15px;
+  height: 15px;
+}
+
+.ai-review__check:hover:not(:disabled) {
+  border-color: var(--accent-gold-deep);
+  color: var(--accent-gold-deep);
+}
+
+.ai-review__check:disabled {
+  cursor: default;
+  opacity: 0.55;
+}
+
+.ai-review__check:focus-visible {
+  outline: 2px solid var(--accent-gold-deep);
+  outline-offset: 2px;
+}
+
+.ai-review__error {
+  margin: 6px 0 0;
+  font-family: var(--font-body);
+  font-size: var(--text-caption);
+  line-height: 1.4;
+  color: var(--danger-ink, #8b3a2f);
+}
+
+.ai-review {
+  margin-top: 8px;
+  border: 1px solid color-mix(in srgb, var(--accent-gold) 38%, transparent);
+  background: color-mix(in srgb, var(--paper-highlight) 42%, transparent);
+  font-family: var(--font-body);
+  color: var(--text-ink-primary);
+}
+
+.ai-review__head {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr) 24px;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 44px;
+  padding: 9px 12px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.ai-review__head:focus-visible {
+  outline: 2px solid var(--accent-gold-deep);
+  outline-offset: -2px;
+}
+
+.ai-review__score {
+  display: flex;
+  align-items: baseline;
+  gap: 1px;
+  font-family: var(--font-display);
+  color: var(--accent-gold-deep);
+}
+
+.ai-review__score strong {
+  font-size: var(--text-display);
+  font-weight: 600;
+  line-height: 1;
+}
+
+.ai-review__score > span {
+  font-family: var(--font-body);
+  font-size: var(--text-caption);
+  color: var(--text-ink-muted);
+}
+
+.ai-review__verdict {
+  font-size: var(--text-body);
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.ai-review__chev {
+  width: 16px;
+  height: 16px;
+  color: var(--accent-gold-ink);
+  transition: transform var(--transition-fast);
+}
+
+.ai-review.is-collapsed .ai-review__chev {
+  transform: rotate(-90deg);
+}
+
+.ai-review__body {
+  padding: 0 12px 12px;
+}
+
+.ai-review__block + .ai-review__block {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid color-mix(in srgb, var(--accent-gold) 22%, transparent);
+}
+
+.ai-review__block h4 {
+  margin: 0 0 5px;
+  font-family: var(--font-body);
+  font-size: var(--text-micro);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent-gold-ink);
+}
+
+.ai-review__block ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ai-review__block li {
+  position: relative;
+  padding-left: 13px;
+  font-size: var(--text-caption);
+  line-height: 1.45;
+}
+
+.ai-review__block li + li {
+  margin-top: 4px;
+}
+
+.ai-review__block li::before {
+  content: '·';
+  position: absolute;
+  left: 0;
+  color: var(--accent-gold-deep);
+}
+
+.ai-review__overlap,
+.ai-review__example {
+  margin: 10px 0 0;
+  padding-top: 9px;
+  border-top: 1px solid color-mix(in srgb, var(--accent-gold) 22%, transparent);
+  font-size: var(--text-caption);
+  line-height: 1.45;
+}
+
+.ai-review__overlap {
+  color: var(--text-ink-muted);
+}
+
+.ai-review__example span {
+  display: inline-block;
+  margin-right: 4px;
+  font-size: var(--text-micro);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent-gold-ink);
+}
+
+/* Пара «Как придумать…» + «Проверить» под полем. */
+.wiz__checkrow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 6px 12px;
+}
+
+.wiz__checkrow .ai-review,
+.wiz__checkrow .ai-review__error {
+  grid-column: 1 / -1;
+}
+
+.wiz__checkrow .wiz__hint-link {
+  min-width: 0;
+}
+
+/* Карточка трюка: проверка занимает отдельную строку под описанием. */
+.wiz__stunt-review {
+  grid-column: 1 / -1;
+}
+
+.wiz__stunt {
+  grid-template-columns: minmax(0, 1fr) 28px;
+}
+
+.wiz__stunt-review .ai-review {
+  margin-top: 6px;
+}
+
+@media (max-width: 720px) {
+  .wiz__checkrow {
+    align-items: flex-start;
+  }
+
+  .ai-review__check {
+    min-height: 40px;
+  }
+}

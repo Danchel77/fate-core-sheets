@@ -6,6 +6,7 @@ import { NameGenerator } from './NameGenerator';
 import { PortraitPlate } from './PortraitPlate';
 import { SettingMark } from './SettingMark';
 import { PortraitCropper } from './PortraitCropper';
+import { AiReview } from './AiReview';
 import { SkillPicker } from './SkillPicker';
 import { SkillPyramid } from './SkillPyramid';
 import {
@@ -129,10 +130,13 @@ function GrowTextarea({
 type AspectFieldsProps = {
   values: string[];
   onChange: (index: number, value: string) => void;
+  setting: SettingId;
+  concept: string;
+  trouble: string;
 };
 
 /** Три строки аспектов: без подписей, примеры — в подсказке поля. */
-function AspectFields({ values, onChange }: AspectFieldsProps) {
+function AspectFields({ values, onChange, setting, concept, trouble }: AspectFieldsProps) {
   return (
     <div className="wiz__aspects">
       {ASPECT_EXAMPLES.map((example, index) => (
@@ -144,6 +148,15 @@ function AspectFields({ values, onChange }: AspectFieldsProps) {
             placeholder={example}
             maxLength={100}
             ariaLabel={`Аспект ${index + 1}`}
+          />
+          <AiReview
+            kind="aspect"
+            setting={setting}
+            label={`Аспект ${index + 1}`}
+            text={values[index]}
+            concept={concept}
+            trouble={trouble}
+            aspects={values.filter((_, i) => i !== index)}
           />
         </div>
       ))}
@@ -537,7 +550,13 @@ export function CharacterWizard({ draft, onChange, onSkip, lockedSetting = false
 
                   {hint === 'aspects' ? (
                     <div className="wiz__page-field">
-                      <AspectFields values={aspects} onChange={setAspect} />
+                      <AspectFields
+                        values={aspects}
+                        onChange={setAspect}
+                        setting={setting}
+                        concept={concept}
+                        trouble={trouble}
+                      />
                     </div>
                   ) : (
                     <div className="wiz__page-field">
@@ -654,14 +673,25 @@ export function CharacterWizard({ draft, onChange, onSkip, lockedSetting = false
                           </Hint>
                           .
                         </p>
-                        <button
-                          type="button"
-                          className="wiz__hint-link"
-                          onClick={() => setHint('concept')}
-                        >
-                          <span>Как придумать концепцию</span>
-                          <IconArrowRight />
-                        </button>
+                        <div className="wiz__checkrow">
+                          <button
+                            type="button"
+                            className="wiz__hint-link"
+                            onClick={() => setHint('concept')}
+                          >
+                            <span>Как придумать концепцию</span>
+                            <IconArrowRight />
+                          </button>
+                          <AiReview
+                            kind="concept"
+                            setting={setting}
+                            label="Концепция"
+                            text={concept}
+                            concept=""
+                            trouble={trouble}
+                            aspects={aspects}
+                          />
+                        </div>
                       </div>
 
                       <div className="sm__field wiz__field-gap">
@@ -685,14 +715,25 @@ export function CharacterWizard({ draft, onChange, onSkip, lockedSetting = false
                           </Hint>
                           .
                         </p>
-                        <button
-                          type="button"
-                          className="wiz__hint-link"
-                          onClick={() => setHint('trouble')}
-                        >
-                          <span>Как придумать проблему</span>
-                          <IconArrowRight />
-                        </button>
+                        <div className="wiz__checkrow">
+                          <button
+                            type="button"
+                            className="wiz__hint-link"
+                            onClick={() => setHint('trouble')}
+                          >
+                            <span>Как придумать проблему</span>
+                            <IconArrowRight />
+                          </button>
+                          <AiReview
+                            kind="trouble"
+                            setting={setting}
+                            label="Проблема"
+                            text={trouble}
+                            concept={concept}
+                            trouble=""
+                            aspects={aspects}
+                          />
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -720,7 +761,13 @@ export function CharacterWizard({ draft, onChange, onSkip, lockedSetting = false
 
                   <div className="wiz__col">
                     <span className="sm__label">Ещё три аспекта</span>
-                    <AspectFields values={aspects} onChange={setAspect} />
+                    <AspectFields
+                      values={aspects}
+                      onChange={setAspect}
+                      setting={setting}
+                      concept={concept}
+                      trouble={trouble}
+                    />
                     <button
                       type="button"
                       className="wiz__hint-link"
@@ -868,6 +915,17 @@ export function CharacterWizard({ draft, onChange, onSkip, lockedSetting = false
                           >
                             <IconClose />
                           </button>
+                          <div className="wiz__stunt-review">
+                            <AiReview
+                              kind="stunt"
+                              setting={setting}
+                              label={`Трюк ${index + 1}`}
+                              text={[stunt.name, stunt.text].filter(Boolean).join('\n')}
+                              concept={concept}
+                              trouble={trouble}
+                              aspects={aspects}
+                            />
+                          </div>
                         </article>
                       ))}
 

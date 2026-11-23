@@ -9,6 +9,8 @@ const app = firebaseConfigured
     : initializeApp(FIREBASE_CONFIG)
   : null;
 
+export const firebaseApp = app;
+
 export const auth = app ? getAuth(app) : null;
 
 /** Облако с офлайн-кэшем: без сети герои открываются из памяти браузера. */

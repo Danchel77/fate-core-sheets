@@ -95,6 +95,15 @@ export default function App() {
     );
   }
 
+  if (hash === '/new') {
+    return (
+      <>
+        <NewCharacterScreen />
+        <AuthDialog />
+      </>
+    );
+  }
+
   /* Пока хранилище не ответило, показываем ту страницу, куда шли:
      список — свой список, лист — свой фолиант. Пустая страница и
      отдельная заставка не мелькают. */
@@ -102,15 +111,6 @@ export default function App() {
     return (
       <>
         {match ? <SheetLoading /> : <CharactersLoading />}
-        <AuthDialog />
-      </>
-    );
-  }
-
-  if (hash === '/new') {
-    return (
-      <>
-        <NewCharacterScreen />
         <AuthDialog />
       </>
     );
