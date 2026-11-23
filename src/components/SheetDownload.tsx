@@ -418,47 +418,6 @@ export function SheetDownload({ record, onClose }: Props) {
 
         <div className="sm__body">
           <section className="dl__section">
-            <h3 className="sm__label">Бумажный бланк</h3>
-
-            <div className="dl__pdf" aria-busy={pdf.status === 'loading'}>
-              {pdf.status === 'ready' &&
-                pdf.pages.map((page, index) => (
-                  <img
-                    key={index}
-                    className="dl__pdf-page"
-                    src={page}
-                    alt={`Страница ${index + 1}`}
-                  />
-                ))}
-              {pdf.status === 'loading' && <span className="dl__loading">Готовим PDF…</span>}
-              {pdf.status === 'error' && (
-                <span className="dl__loading">
-                  Не удалось показать бланк.
-                  <button
-                    type="button"
-                    className="sm__ghost"
-                    onClick={() => setPdfAttempt((value) => value + 1)}
-                  >
-                    Повторить
-                  </button>
-                </span>
-              )}
-            </div>
-
-            <div className="dl__actions">
-              <button
-                type="button"
-                className="sm__primary"
-                disabled={busy !== null || pdf.status === 'loading'}
-                onClick={() => void downloadPdf()}
-              >
-                {busy === 'pdf' ? 'Собираем PDF…' : 'Скачать PDF'}
-              </button>
-            </div>
-
-          </section>
-
-          <section className="dl__section">
             <h3 className="sm__label">Книга</h3>
 
             <div
@@ -495,6 +454,47 @@ export function SheetDownload({ record, onClose }: Props) {
                 onClick={() => void downloadPng()}
               >
                 {busy === 'png' ? 'Сохраняем…' : 'Скачать PNG'}
+              </button>
+            </div>
+
+          </section>
+
+          <section className="dl__section">
+            <h3 className="sm__label">Бумажный бланк</h3>
+
+            <div className="dl__pdf" aria-busy={pdf.status === 'loading'}>
+              {pdf.status === 'ready' &&
+                pdf.pages.map((page, index) => (
+                  <img
+                    key={index}
+                    className="dl__pdf-page"
+                    src={page}
+                    alt={`Страница ${index + 1}`}
+                  />
+                ))}
+              {pdf.status === 'loading' && <span className="dl__loading">Готовим PDF…</span>}
+              {pdf.status === 'error' && (
+                <span className="dl__loading">
+                  Не удалось показать бланк.
+                  <button
+                    type="button"
+                    className="sm__ghost"
+                    onClick={() => setPdfAttempt((value) => value + 1)}
+                  >
+                    Повторить
+                  </button>
+                </span>
+              )}
+            </div>
+
+            <div className="dl__actions">
+              <button
+                type="button"
+                className="sm__primary"
+                disabled={busy !== null || pdf.status === 'loading'}
+                onClick={() => void downloadPdf()}
+              >
+                {busy === 'pdf' ? 'Собираем PDF…' : 'Скачать PDF'}
               </button>
             </div>
 

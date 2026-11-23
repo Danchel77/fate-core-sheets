@@ -202,7 +202,7 @@ export function AuthDialog() {
                 className="sm__input auth__input"
                 type="password"
                 autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
-                placeholder={mode === 'register' ? 'Не короче шести знаков' : undefined}
+                placeholder={mode === 'register' ? 'Не короче шести знаков…' : undefined}
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
               />
@@ -217,7 +217,7 @@ export function AuthDialog() {
                     className="sm__input auth__input"
                     type="password"
                     autoComplete="new-password"
-                    placeholder={mode === 'register' ? 'Повторите пароль' : undefined}
+                    placeholder={mode === 'register' ? 'Повторите пароль…' : undefined}
                     value={repeat}
                     onChange={(event) => setRepeat(event.target.value)}
                   />

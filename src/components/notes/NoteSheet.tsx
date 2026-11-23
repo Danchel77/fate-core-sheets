@@ -231,7 +231,7 @@ export function NoteSheet({ groupId, heroId, blockId, notes, me, onClose }: Prop
               value={draft}
               maxLength={MAX_TEXT}
               rows={3}
-              placeholder="Что сказать по этому блоку?"
+              placeholder="Что сказать по этому блоку…"
               onChange={(event) => setDraft(event.target.value)}
             />
             <div className="note-dialog__actions">

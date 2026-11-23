@@ -222,7 +222,7 @@ export function StuntModal({
                 className="sm__input sm__textarea"
                 value={text}
                 onChange={(event) => setText(event.target.value)}
-                placeholder="Например: +2 к Внимательности, когда выслеживаю чудовище."
+                placeholder="Например: +2 к Внимательности, когда выслеживаю чудовище…"
                 rows={2}
                 maxLength={240}
                 required

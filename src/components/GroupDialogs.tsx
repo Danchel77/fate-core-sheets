@@ -128,7 +128,7 @@ export function CreateGroupDialog({
             className="sm__input"
             value={name}
             onChange={(event) => setName(event.target.value)}
-            placeholder="Например: Проклятые земли"
+            placeholder="Например: Проклятые земли…"
             maxLength={40}
             autoComplete="off"
             autoFocus
@@ -216,7 +216,7 @@ export function JoinLinkDialog({
             className="sm__input"
             value={value}
             onChange={(event) => setValue(event.target.value)}
-            placeholder="Вставьте ссылку от мастера"
+            placeholder="Вставьте ссылку от мастера…"
             autoComplete="off"
             autoFocus
           />

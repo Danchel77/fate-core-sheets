@@ -472,8 +472,8 @@ export function CharacterWizard({ draft, onChange, onSkip, lockedSetting = false
   const pageFieldValue = hint === 'concept' ? concept : trouble;
   const pageFieldPlaceholder =
     hint === 'concept'
-      ? 'Кто он и чем живёт — одной фразой'
-      : 'Что то и дело втягивает его в неприятности';
+      ? 'Кто он и чем живёт — одной фразой…'
+      : 'Что то и дело втягивает его в неприятности…';
   const setPageFieldValue = hint === 'concept' ? setConcept : setTrouble;
 
   return (
@@ -847,7 +847,7 @@ export function CharacterWizard({ draft, onChange, onSkip, lockedSetting = false
                             type="text"
                             value={stunt.name}
                             maxLength={48}
-                            placeholder="Название трюка"
+                            placeholder="Название трюка…"
                             aria-label={`Название трюка ${index + 1}`}
                             onChange={(event) => updateStunt(index, { name: event.target.value })}
                           />
@@ -856,7 +856,7 @@ export function CharacterWizard({ draft, onChange, onSkip, lockedSetting = false
                             rows={2}
                             value={stunt.text}
                             maxLength={240}
-                            placeholder="Что даёт и при каком условии работает"
+                            placeholder="Что даёт и при каком условии работает…"
                             aria-label={`Описание трюка ${index + 1}`}
                             onChange={(event) => updateStunt(index, { text: event.target.value })}
                           />

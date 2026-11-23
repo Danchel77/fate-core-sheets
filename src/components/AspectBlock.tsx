@@ -11,8 +11,8 @@ const HINTS: Record<string, string> = {
 };
 
 const PLACEHOLDERS: Record<string, string> = {
-  'Концепция': 'Кто вы одной фразой?',
-  'Проблема': 'Что вечно втягивает вас в беду?',
+  'Концепция': 'Кто вы одной фразой…',
+  'Проблема': 'Что вечно втягивает вас в беду…',
 };
 
 const FREE_PLACEHOLDERS = [
