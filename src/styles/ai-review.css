@@ -59,8 +59,8 @@
 
 .ai-review__head {
   display: grid;
-  grid-template-columns: 52px minmax(0, 1fr) 24px;
-  align-items: center;
+  grid-template-columns: 58px minmax(0, 1fr) 24px;
+  align-items: baseline;
   gap: 10px;
   width: 100%;
   min-height: 44px;
@@ -83,12 +83,13 @@
   gap: 1px;
   font-family: var(--font-display);
   color: var(--accent-gold-deep);
+  line-height: 0.9;
 }
 
 .ai-review__score strong {
-  font-size: var(--text-display);
+  font-size: 2.5rem;
   font-weight: 600;
-  line-height: 1;
+  line-height: 0.9;
 }
 
 .ai-review__score > span {
@@ -106,6 +107,8 @@
 .ai-review__chev {
   width: 16px;
   height: 16px;
+  justify-self: end;
+  align-self: center;
   color: var(--accent-gold-ink);
   transition: transform var(--transition-fast);
 }
@@ -116,6 +119,32 @@
 
 .ai-review__body {
   padding: 0 12px 12px;
+}
+
+.ai-review__block ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ai-review__block li {
+  position: relative;
+  padding-left: 14px;
+}
+
+.ai-review__block li + li {
+  margin-top: 4px;
+}
+
+.ai-review__block li::before {
+  content: '';
+  position: absolute;
+  left: 1px;
+  top: 0.56em;
+  width: 7px;
+  height: 7px;
+  background: var(--accent-gold-deep);
+  transform: rotate(45deg);
 }
 
 .ai-review__block + .ai-review__block {
