@@ -27,7 +27,7 @@ type Props = {
   onEdit?: (value: number, name: string) => void;
 };
 
-const TIP_DELAY = 500;
+const TIP_DELAY = 800;
 const TIP_GAP = 10;
 const TIP_MARGIN = 10;
 
@@ -104,6 +104,10 @@ export function SkillPyramid({
 
   const scheduleTip = (name: string, text: string, element: HTMLElement) => {
     clearTipTimers();
+    // Старая плашка не должна висеть, пока ждём новую: иначе при быстром
+    // переводе мыши с навыка на навык остаётся описание предыдущего.
+    setTip(null);
+    setTipPos(null);
     if (!text) return;
     tipTimer.current = window.setTimeout(() => {
       tipTimer.current = null;
@@ -112,7 +116,9 @@ export function SkillPyramid({
   };
 
   const scheduleTipClose = () => {
-    if (tipCloseTimer.current !== null) window.clearTimeout(tipCloseTimer.current);
+    // Отложенное открытие могло ещё не сработать; без отмены плашка
+    // появится уже после того, как мышь ушла с навыка.
+    clearTipTimers();
     tipCloseTimer.current = window.setTimeout(() => {
       tipCloseTimer.current = null;
       setTip(null);
