@@ -86,7 +86,7 @@ function buildUserMessage(input: ReviewInput): string {
 
 type AiModule = typeof import('firebase/ai');
 
-const MODEL_IDS = ['gemini-4-hydrogen', 'gemini-3.8-flash'] as const;
+const MODEL_IDS = ['gemini-4-hydrogen', 'gemini-3.8-flash', 'gemini-3.5-flash-lite'] as const;
 const modelCache = new Map<string, Promise<import('firebase/ai').GenerativeModel>>();
 
 async function createModel(modelId: string) {
