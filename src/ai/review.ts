@@ -108,15 +108,19 @@ async function createModel(modelId: string) {
       example: Schema.string({ nullable: true }),
     },
   });
-  return getGenerativeModel(ai, {
-    model: modelId,
-    systemInstruction: SYSTEM_PROMPT,
-    generationConfig: {
-      responseMimeType: 'application/json',
-      responseSchema: schema,
-      thinkingConfig: { thinkingLevel: ThinkingLevel.MEDIUM },
+  return getGenerativeModel(
+    ai,
+    {
+      model: modelId,
+      systemInstruction: SYSTEM_PROMPT,
+      generationConfig: {
+        responseMimeType: 'application/json',
+        responseSchema: schema,
+        thinkingConfig: { thinkingLevel: ThinkingLevel.MEDIUM },
+      },
     },
-  });
+    { timeout: 20000 },
+  );
 }
 
 function getModel(modelId: string) {
@@ -137,8 +141,12 @@ function isPermissionError(error: unknown): boolean {
   return /permission denied|permission_denied|\b403\b/i.test(errorText(error));
 }
 
+function isQuotaError(error: unknown): boolean {
+  return /RESOURCE_EXHAUSTED|\b429\b|quota/i.test(errorText(error));
+}
+
 function isOverloaded(error: unknown): boolean {
-  return /\b(429|500|503|504)\b|high demand|overload|temporarily|unavailable/i.test(errorText(error));
+  return /\b(500|503|504)\b|high demand|overload|temporarily|unavailable/i.test(errorText(error));
 }
 
 function parseResult(raw: string): ReviewResult {
@@ -199,6 +207,9 @@ export async function reviewElement(input: ReviewInput): Promise<ReviewResult> {
         if (isPermissionError(error)) {
           throw new Error('Проверка пока не подключена. Включите Firebase AI Logic и App Check в консоли Firebase.');
         }
+        if (isQuotaError(error)) {
+          throw new Error('На сегодня бесплатный лимит проверок исчерпан. Попробуйте завтра или включите оплату в Firebase.');
+        }
         if (isOverloaded(error)) break;
       }
     }
@@ -221,6 +232,7 @@ export function reviewErrorMessage(error: unknown): string {
     if (error.message.includes('Сначала заполните')) return error.message;
     if (error.message.includes('Модель сейчас перегружена')) return error.message;
     if (error.message.includes('Проверка сейчас недоступна')) return error.message;
+    if (error.message.includes('лимит проверок')) return error.message;
     if (error.message.includes('совет') || error.message.includes('оценка') || error.message.includes('JSON')) {
       return 'Не удалось разобрать ответ. Попробуйте ещё раз.';
     }
