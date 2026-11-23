@@ -1,7 +1,15 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { IconChevronDown, IconSparkles } from './icons';
+import { IconChevronDown, IconCopy, IconSparkles } from './icons';
 import { openAuthDialog, useAuth } from '../firebase/authStore';
-import { reviewElement, reviewErrorMessage, type ReviewInput, type ReviewResult } from '../ai/review';
+import {
+  buildManualPrompt,
+  QuotaError,
+  reviewElement,
+  reviewErrorMessage,
+  type ReviewInput,
+  type ReviewResult,
+} from '../ai/review';
+import { setQuotaUntil, useQuotaUntil } from '../ai/quota';
 import '../styles/ai-review.css';
 
 type Props = {
@@ -20,33 +28,29 @@ type State =
   | { status: 'ready'; result: ReviewResult }
   | { status: 'error'; message: string };
 
-const DAILY_LIMIT = 10;
-
-function limitKey(uid: string): string {
-  const day = new Date().toISOString().slice(0, 10);
-  return `fate-ai-reviews:${uid}:${day}`;
-}
-
-function usedToday(uid: string): number {
-  try {
-    const raw = localStorage.getItem(limitKey(uid));
-    const value = raw ? Number(raw) : 0;
-    return Number.isFinite(value) && value > 0 ? value : 0;
-  } catch {
-    return 0;
-  }
-}
-
-function countCheck(uid: string): void {
-  try {
-    localStorage.setItem(limitKey(uid), String(usedToday(uid) + 1));
-  } catch {
-    /* приватный режим — лимит не сохранится */
-  }
-}
-
 function capitalise(text: string): string {
   return text ? text.charAt(0).toUpperCase() + text.slice(1) : text;
+}
+
+async function writeClipboard(text: string): Promise<void> {
+  if (navigator.clipboard?.writeText) {
+    try {
+      await navigator.clipboard.writeText(text);
+      return;
+    } catch {
+      /* ниже — запасной способ */
+    }
+  }
+  const area = document.createElement('textarea');
+  area.value = text;
+  area.setAttribute('readonly', '');
+  area.style.position = 'fixed';
+  area.style.opacity = '0';
+  document.body.appendChild(area);
+  area.select();
+  const copied = document.execCommand('copy');
+  document.body.removeChild(area);
+  if (!copied) throw new Error('clipboard');
 }
 
 function ReviewCard({ result }: { result: ReviewResult }) {
@@ -106,8 +110,19 @@ function ReviewCard({ result }: { result: ReviewResult }) {
 export function AiReview({ kind, setting, label, text, concept, trouble, aspects }: Props) {
   const { ready, user } = useAuth();
   const [state, setState] = useState<State>({ status: 'idle' });
+  const quotaUntil = useQuotaUntil();
+  const [copied, setCopied] = useState(false);
+  const [copyError, setCopyError] = useState<string | null>(null);
   const pendingAuth = useRef(false);
+  const copiedTimer = useRef<number | null>(null);
   const filled = text.trim().length > 0;
+  const quotaActive = quotaUntil !== null && quotaUntil > Date.now();
+
+  useEffect(() => {
+    return () => {
+      if (copiedTimer.current !== null) window.clearTimeout(copiedTimer.current);
+    };
+  }, []);
 
   const run = useCallback(async () => {
     if (!user) {
@@ -119,22 +134,40 @@ export function AiReview({ kind, setting, label, text, concept, trouble, aspects
       setState({ status: 'error', message: 'Сначала заполните поле.' });
       return;
     }
-    if (usedToday(user.uid) >= DAILY_LIMIT) {
-      setState({ status: 'error', message: 'На сегодня проверки закончились. Попробуйте завтра.' });
-      return;
-    }
+    if (quotaUntil !== null && quotaUntil > Date.now()) return;
     setState({ status: 'loading' });
+    setCopied(false);
+    setCopyError(null);
     try {
       const result = await reviewElement({ kind, setting, text, concept, trouble, aspects });
-      countCheck(user.uid);
       setState({ status: 'ready', result });
     } catch (error) {
+      if (error instanceof QuotaError) {
+        setQuotaUntil(error.resetAt);
+        setState({ status: 'idle' });
+        return;
+      }
       setState({ status: 'error', message: reviewErrorMessage(error) });
     }
-  }, [aspects, concept, filled, kind, setting, text, trouble, user]);
+  }, [aspects, concept, filled, kind, setting, text, trouble, user, quotaUntil]);
+
+  const copyPrompt = useCallback(async () => {
+    if (!filled) return;
+    setCopyError(null);
+    try {
+      await writeClipboard(buildManualPrompt({ kind, setting, text, concept, trouble, aspects }));
+      setCopied(true);
+      if (copiedTimer.current !== null) window.clearTimeout(copiedTimer.current);
+      copiedTimer.current = window.setTimeout(() => setCopied(false), 4000);
+    } catch {
+      setCopyError('Не удалось скопировать. Попробуйте ещё раз.');
+    }
+  }, [aspects, concept, filled, kind, setting, text, trouble]);
 
   useEffect(() => {
     setState({ status: 'idle' });
+    setCopied(false);
+    setCopyError(null);
     pendingAuth.current = false;
   }, [text, concept, trouble, aspects]);
 
@@ -146,19 +179,46 @@ export function AiReview({ kind, setting, label, text, concept, trouble, aspects
   }, [ready, run, user]);
 
   const busy = state.status === 'loading';
+  const copyLabel = copied ? 'Скопировано' : 'Скопировать промпт';
 
   return (
     <div className="ai-review-wrap">
-      <button
-        type="button"
-        className="ai-review__check"
-        onClick={() => void run()}
-        disabled={busy || !filled}
-        aria-label={`${label}: проверить`}
-      >
-        <IconSparkles />
-        {busy ? 'Проверяем…' : 'Проверить'}
-      </button>
+      <div className="ai-review__actions">
+        {!quotaActive && (
+          <button
+            type="button"
+            className="ai-review__check"
+            onClick={() => void run()}
+            disabled={busy || !filled}
+            aria-label={`${label}: проверить`}
+          >
+            <IconSparkles />
+            {busy ? 'Проверяем…' : 'Проверить'}
+          </button>
+        )}
+        <button
+          type="button"
+          className={`ai-review__copy${quotaActive ? ' ai-review__copy--primary' : ''}`}
+          onClick={() => void copyPrompt()}
+          disabled={!filled}
+          aria-label={`${label}: скопировать промпт для нейросети`}
+        >
+          <IconCopy />
+          {copyLabel}
+        </button>
+      </div>
+
+      {copied && (
+        <p className="ai-review__copied" role="status">
+          Промпт скопирован. Вставьте его в Gemini или другой чат.
+        </p>
+      )}
+
+      {copyError && (
+        <p className="ai-review__error" role="alert">
+          {copyError}
+        </p>
+      )}
 
       {state.status === 'error' && (
         <p className="ai-review__error" role="alert">

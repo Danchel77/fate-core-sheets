@@ -7,6 +7,7 @@ import { PortraitPlate } from './PortraitPlate';
 import { SettingMark } from './SettingMark';
 import { PortraitCropper } from './PortraitCropper';
 import { AiReview } from './AiReview';
+import { formatQuotaReset, useQuotaUntil } from '../ai/quota';
 import { SkillPicker } from './SkillPicker';
 import { SkillPyramid } from './SkillPyramid';
 import {
@@ -334,6 +335,7 @@ type Props = {
 export function CharacterWizard({ draft, onChange, onSkip, lockedSetting = false }: Props) {
   const [step, setStep] = useState<StepNo>(1);
   const [hint, setHint] = useState<HintId | null>(null);
+  const quotaUntil = useQuotaUntil();
   const [cropSrc, setCropSrc] = useState<string | null>(null);
   const [pickValue, setPickValue] = useState<number | null>(null);
   /* Справка шага «Трюки» открывается рядом с полями, а не вместо них. */
@@ -539,6 +541,13 @@ export function CharacterWizard({ draft, onChange, onSkip, lockedSetting = false
                 );
               })}
             </ol>
+
+            {quotaUntil !== null && quotaUntil > Date.now() && (
+              <p className="wiz__quota" role="status">
+                Бесплатные проверки закончились. Они снова появятся {formatQuotaReset(quotaUntil)}.
+                Пока можно скопировать промпт и проверить текст в любой нейросети.
+              </p>
+            )}
 
             <div className="sm__body" ref={bodyRef}>
               {hint !== null ? (

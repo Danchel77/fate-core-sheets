@@ -23,6 +23,16 @@ export type ReviewResult = {
   example: string | null;
 };
 
+export class QuotaError extends Error {
+  readonly resetAt: number;
+
+  constructor(resetAt: number) {
+    super('На сегодня бесплатный лимит проверок исчерпан.');
+    this.name = 'QuotaError';
+    this.resetAt = resetAt;
+  }
+}
+
 const KIND_LABEL: Record<ReviewKind, string> = {
   concept: 'концепция',
   trouble: 'проблема',
@@ -76,12 +86,55 @@ function buildUserMessage(input: ReviewInput): string {
     `Концепция: ${input.concept.trim() || '—'}`,
     `Проблема: ${input.trouble.trim() || '—'}`,
   ];
-  if (input.aspects.length > 0) {
+  const aspects = input.aspects.map((aspect) => aspect.trim()).filter(Boolean);
+  if (aspects.length > 0) {
     lines.push('Другие аспекты:');
-    input.aspects.forEach((aspect, index) => lines.push(`${index + 1}. ${aspect}`));
+    aspects.forEach((aspect, index) => lines.push(`${index + 1}. ${aspect}`));
   }
   lines.push('', 'Сравни проверяемый текст с уже заполненным и укажи overlap, если он повторяет смысл другого элемента.');
   return lines.join('\n');
+}
+
+function pacificOffsetMs(at: number): number {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/Los_Angeles',
+    hour12: false,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+  }).formatToParts(new Date(at));
+  const get = (type: string): number => Number(parts.find((part) => part.type === type)?.value ?? 0);
+  const asUtc = Date.UTC(
+    get('year'),
+    get('month') - 1,
+    get('day'),
+    get('hour') === 24 ? 0 : get('hour'),
+    get('minute'),
+    get('second'),
+  );
+  return asUtc - at;
+}
+
+function nextPacificMidnight(now: number): number {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/Los_Angeles',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).formatToParts(new Date(now));
+  const get = (type: string): number => Number(parts.find((part) => part.type === type)?.value ?? 0);
+  const targetLocal = Date.UTC(get('year'), get('month') - 1, get('day') + 1);
+  return targetLocal - pacificOffsetMs(targetLocal);
+}
+
+function quotaResetAt(error: unknown): number {
+  const text = errorText(error);
+  const match = text.match(/retryDelay\D{0,12}(\d+)s/i);
+  if (match) return Date.now() + Number(match[1]) * 1000 + 5000;
+  return nextPacificMidnight(Date.now());
 }
 
 type AiModule = typeof import('firebase/ai');
@@ -128,6 +181,7 @@ function getModel(modelId: string) {
   if (!model) {
     model = createModel(modelId);
     modelCache.set(modelId, model);
+    void model.catch(() => modelCache.delete(modelId));
   }
   return model;
 }
@@ -189,6 +243,7 @@ function parseResult(raw: string): ReviewResult {
 export async function reviewElement(input: ReviewInput): Promise<ReviewResult> {
   if (!input.text.trim()) throw new Error('Сначала заполните поле.');
   let lastError: unknown = null;
+  let quotaReset = 0;
   for (const modelId of MODEL_IDS) {
     let model: import('firebase/ai').GenerativeModel;
     try {
@@ -208,18 +263,37 @@ export async function reviewElement(input: ReviewInput): Promise<ReviewResult> {
           throw new Error('Проверка пока не подключена. Включите Firebase AI Logic и App Check в консоли Firebase.');
         }
         if (isQuotaError(error)) {
-          throw new Error('На сегодня бесплатный лимит проверок исчерпан. Попробуйте завтра или включите оплату в Firebase.');
+          quotaReset = Math.max(quotaReset, quotaResetAt(error));
+          break;
         }
         if (isOverloaded(error)) break;
       }
     }
     await new Promise((resolve) => setTimeout(resolve, 250));
   }
+  if (quotaReset > 0) throw new QuotaError(quotaReset);
   console.error('AI review failed', lastError);
   if (lastError && isOverloaded(lastError)) {
     throw new Error('Модель сейчас перегружена. Попробуйте через минуту.');
   }
   throw new Error('Проверка сейчас недоступна. Попробуйте позже.');
+}
+
+const MANUAL_INSTRUCTION = `Ответь обычным текстом, без JSON и без markdown, в таком порядке:
+Оценка: X/5
+Вердикт: ...
+Что хорошо:
+1. ...
+2. ...
+Что усилить:
+1. ...
+2. ...
+Пересечение: ... (или «нет»)
+Пример: ... (или «—»)`;
+
+export function buildManualPrompt(input: ReviewInput): string {
+  const rules = SYSTEM_PROMPT.replace(/\n\nОтвет — только JSON[\s\S]*$/, '');
+  return `${rules}\n\n${MANUAL_INSTRUCTION}\n\n${buildUserMessage(input)}`;
 }
 
 export function reviewErrorMessage(error: unknown): string {

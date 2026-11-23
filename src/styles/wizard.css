@@ -925,3 +925,15 @@
     color: var(--text-ink-primary);
   }
 }
+
+.wiz__quota {
+  margin: 0 0 16px;
+  padding: 10px 12px 10px 14px;
+  border: 1px solid color-mix(in srgb, var(--accent-gold) 34%, transparent);
+  border-left: 3px solid var(--accent-gold);
+  background: color-mix(in srgb, var(--paper-highlight) 58%, transparent);
+  font-family: var(--font-body);
+  font-size: var(--text-caption);
+  line-height: 1.45;
+  color: var(--text-ink);
+}
