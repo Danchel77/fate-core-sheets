@@ -15,6 +15,7 @@ import { db } from '../firebase/app';
 import { newId } from './storage';
 import { heroDisplayName } from './characters';
 import { newToken } from './token';
+import { migrateCharacter } from './skillMigration';
 import type { Character, CharacterRecord, SettingId } from './types';
 
 /**
@@ -165,13 +166,14 @@ function memberFrom(uid: string, data: Record<string, unknown> | undefined): Gro
     sheet && typeof sheet === 'object' && Array.isArray(sheet.aspects)
       ? (sheet as unknown as Character)
       : null;
+  const setting = data?.setting === 'fate' || data?.setting === 'witcher' ? data.setting : null;
   return {
     uid,
     playerName: typeof data?.playerName === 'string' ? data.playerName : 'Игрок',
     heroId: typeof data?.heroId === 'string' ? data.heroId : null,
     card: validCard,
-    sheet: validSheet,
-    setting: data?.setting === 'fate' || data?.setting === 'witcher' ? data.setting : null,
+    sheet: validSheet && setting ? migrateCharacter(setting, validSheet).sheet : validSheet,
+    setting,
     portrait: typeof data?.portrait === 'string' ? data.portrait : null,
     joinedAt: typeof data?.joinedAt === 'number' ? data.joinedAt : 0,
     gameMaster: data?.gameMaster === true,

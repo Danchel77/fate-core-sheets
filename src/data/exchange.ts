@@ -1,5 +1,6 @@
 import { downloadBlob } from './download';
 import { createEmptyCharacter } from './characters';
+import { migrateCharacter } from './skillMigration';
 import type { Character, CharacterRecord, SettingId } from './types';
 
 /**
@@ -159,5 +160,5 @@ export function parseFile(text: string): { setting: SettingId; sheet: Character 
     }),
   };
 
-  return { setting, sheet };
+  return { setting, sheet: migrateCharacter(setting, sheet).sheet };
 }

@@ -283,6 +283,7 @@ export function SkillsEditor({ setting, initial, initialLevel = 4, onChange }: P
 
       {menuRank !== null && (
         <SkillPicker
+          setting={setting}
           rank={menuRank}
           skills={[...available]}
           note={`Стоимость: ${menuRank} ${pointsWord(menuRank)}`}

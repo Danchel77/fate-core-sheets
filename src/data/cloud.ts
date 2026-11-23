@@ -1,5 +1,6 @@
 import { collection, deleteDoc, doc, getDoc, onSnapshot, setDoc } from 'firebase/firestore';
 import { db } from '../firebase/app';
+import { migrateCharacter } from './skillMigration';
 import type { CharacterRecord, SettingId } from './types';
 
 /** Герои аккаунта: users/{uid}/heroes/{id}. Читать и писать может только владелец. */
@@ -45,7 +46,11 @@ export async function readShare(token: string): Promise<SharedHero | null> {
   const sheet = data.sheet as CharacterRecord['sheet'] | undefined;
   if (setting !== 'fate' && setting !== 'witcher') return null;
   if (!sheet || typeof sheet !== 'object') return null;
-  return { owner: typeof data.owner === 'string' ? data.owner : '', setting, sheet };
+  return {
+    owner: typeof data.owner === 'string' ? data.owner : '',
+    setting,
+    sheet: migrateCharacter(setting, sheet).sheet,
+  };
 }
 
 function toRecord(id: string, data: Record<string, unknown>): CharacterRecord | null {
@@ -58,7 +63,7 @@ function toRecord(id: string, data: Record<string, unknown>): CharacterRecord | 
     setting,
     createdAt: typeof data.createdAt === 'string' ? data.createdAt : new Date(0).toISOString(),
     updatedAt: typeof data.updatedAt === 'string' ? data.updatedAt : new Date(0).toISOString(),
-    sheet,
+    sheet: migrateCharacter(setting, sheet).sheet,
     share: typeof data.share === 'string' && data.share ? data.share : undefined,
   };
 }

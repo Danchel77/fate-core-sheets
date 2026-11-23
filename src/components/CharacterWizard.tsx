@@ -973,6 +973,7 @@ export function CharacterWizard({ draft, onChange, onSkip, lockedSetting = false
 
       {pickValue !== null && (
         <SkillPicker
+          setting={setting}
           rank={pickValue}
           skills={freeSkills}
           onPick={(skillName) => {

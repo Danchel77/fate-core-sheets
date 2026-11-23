@@ -1,12 +1,15 @@
 import { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
+import { settingConfig } from '../data/settings';
 import { SKILL_HINTS } from '../data/skills';
+import type { SettingId } from '../data/types';
 import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
 import { useDialogKeys } from '../hooks/useDialogKeys';
 import { IconClose } from './icons';
 
 type Props = {
   rank: number;
+  setting: SettingId;
   skills: string[];
   /** Строка под заголовком: на листе — стоимость в очках. */
   note?: string;
@@ -15,7 +18,8 @@ type Props = {
 };
 
 /** Окно выбора навыка: одно и то же в конструкторе и на листе персонажа. */
-export function SkillPicker({ rank, skills, note, onPick, onClose }: Props) {
+export function SkillPicker({ rank, setting, skills, note, onPick, onClose }: Props) {
+  const settingHints = settingConfig(setting).skillHints;
   const closeRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   useBodyScrollLock();
@@ -62,7 +66,10 @@ export function SkillPicker({ rank, skills, note, onPick, onClose }: Props) {
                   onClick={() => onPick(name)}
                 >
                   <span className="spick__name">{name}</span>
-                  {SKILL_HINTS[name] && <span className="spick__desc">{SKILL_HINTS[name]}</span>}
+                  {(() => {
+                    const description = settingHints?.[name] ?? SKILL_HINTS[name];
+                    return description ? <span className="spick__desc">{description}</span> : null;
+                  })()}
                 </button>
               ))}
             </div>

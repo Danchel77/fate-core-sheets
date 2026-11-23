@@ -21,6 +21,8 @@ export type SettingConfig = {
   id: SettingId;
   title: string;
   skills: string[];
+  /** Подсказки, которые отличаются от общего списка (например, «Скрытность» в «Ведьмаке»). */
+  skillHints?: Record<string, string>;
   nameGroups: NameGroup[];
   kingdoms: string[];
 };

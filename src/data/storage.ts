@@ -1,4 +1,5 @@
 import { openDB, type DBSchema, type IDBPDatabase } from 'idb';
+import { migrateCharacter } from './skillMigration';
 import type { CharacterRecord } from './types';
 
 /** Хранилище героев: база в браузере, таблица characters, ключ — id героя. */
@@ -57,7 +58,10 @@ export async function readAll(): Promise<CharacterRecord[]> {
   if (broken) return [...memory.values()];
   try {
     const db = await connect();
-    const records = await db.getAll(STORE);
+    const records = (await db.getAll(STORE)).map((record) => {
+      const sheet = migrateCharacter(record.setting, record.sheet).sheet;
+      return sheet === record.sheet ? record : { ...record, sheet };
+    });
     records.forEach((record) => memory.set(record.id, record));
     return records;
   } catch {
