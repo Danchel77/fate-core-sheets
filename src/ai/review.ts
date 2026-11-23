@@ -86,41 +86,59 @@ function buildUserMessage(input: ReviewInput): string {
 
 type AiModule = typeof import('firebase/ai');
 
-let modelPromise: Promise<import('firebase/ai').GenerativeModel> | null = null;
+const MODEL_IDS = ['gemini-4-hydrogen', 'gemini-3.8-flash'] as const;
+const modelCache = new Map<string, Promise<import('firebase/ai').GenerativeModel>>();
 
-async function getModel() {
+async function createModel(modelId: string) {
   if (!firebaseApp) throw new Error('Firebase не настроен.');
-  if (!modelPromise) {
-    modelPromise = (async () => {
-      await ensureAppCheck();
-      const { GoogleAIBackend, Schema, ThinkingLevel, getAI, getGenerativeModel } =
-        (await import('firebase/ai')) as AiModule;
-      const ai = getAI(firebaseApp, { backend: new GoogleAIBackend() });
-      const advice = Schema.object({
-        properties: { what: Schema.string(), how: Schema.string() },
-      });
-      const schema = Schema.object({
-        properties: {
-          score: Schema.integer(),
-          verdict: Schema.string(),
-          strengths: Schema.array({ items: Schema.string() }),
-          advice: Schema.array({ items: advice }),
-          overlap: Schema.string({ nullable: true }),
-          example: Schema.string({ nullable: true }),
-        },
-      });
-      return getGenerativeModel(ai, {
-        model: 'gemini-4-hydrogen',
-        systemInstruction: SYSTEM_PROMPT,
-        generationConfig: {
-          responseMimeType: 'application/json',
-          responseSchema: schema,
-          thinkingConfig: { thinkingLevel: ThinkingLevel.MEDIUM },
-        },
-      });
-    })();
+  await ensureAppCheck();
+  const { GoogleAIBackend, Schema, ThinkingLevel, getAI, getGenerativeModel } =
+    (await import('firebase/ai')) as AiModule;
+  const ai = getAI(firebaseApp, { backend: new GoogleAIBackend() });
+  const advice = Schema.object({
+    properties: { what: Schema.string(), how: Schema.string() },
+  });
+  const schema = Schema.object({
+    properties: {
+      score: Schema.integer(),
+      verdict: Schema.string(),
+      strengths: Schema.array({ items: Schema.string() }),
+      advice: Schema.array({ items: advice }),
+      overlap: Schema.string({ nullable: true }),
+      example: Schema.string({ nullable: true }),
+    },
+  });
+  return getGenerativeModel(ai, {
+    model: modelId,
+    systemInstruction: SYSTEM_PROMPT,
+    generationConfig: {
+      responseMimeType: 'application/json',
+      responseSchema: schema,
+      thinkingConfig: { thinkingLevel: ThinkingLevel.MEDIUM },
+    },
+  });
+}
+
+function getModel(modelId: string) {
+  let model = modelCache.get(modelId);
+  if (!model) {
+    model = createModel(modelId);
+    modelCache.set(modelId, model);
   }
-  return modelPromise;
+  return model;
+}
+
+function errorText(error: unknown): string {
+  if (error instanceof Error) return `${error.name} ${error.message}`;
+  return String(error);
+}
+
+function isPermissionError(error: unknown): boolean {
+  return /permission denied|permission_denied|\b403\b/i.test(errorText(error));
+}
+
+function isOverloaded(error: unknown): boolean {
+  return /\b(429|500|503|504)\b|high demand|overload|temporarily|unavailable/i.test(errorText(error));
 }
 
 function parseResult(raw: string): ReviewResult {
@@ -162,21 +180,33 @@ function parseResult(raw: string): ReviewResult {
 
 export async function reviewElement(input: ReviewInput): Promise<ReviewResult> {
   if (!input.text.trim()) throw new Error('Сначала заполните поле.');
-  const model = await getModel();
   let lastError: unknown = null;
-  for (let attempt = 0; attempt < 2; attempt += 1) {
+  for (const modelId of MODEL_IDS) {
+    let model: import('firebase/ai').GenerativeModel;
     try {
-      const response = await model.generateContent(buildUserMessage(input));
-      const raw = response.response.text().trim();
-      return parseResult(raw);
+      model = await getModel(modelId);
     } catch (error) {
       lastError = error;
+      continue;
     }
+    const tries = modelId === MODEL_IDS[0] ? 2 : 1;
+    for (let attempt = 0; attempt < tries; attempt += 1) {
+      try {
+        const response = await model.generateContent(buildUserMessage(input));
+        return parseResult(response.response.text().trim());
+      } catch (error) {
+        lastError = error;
+        if (isPermissionError(error)) {
+          throw new Error('Проверка пока не подключена. Включите Firebase AI Logic и App Check в консоли Firebase.');
+        }
+        if (isOverloaded(error)) break;
+      }
+    }
+    await new Promise((resolve) => setTimeout(resolve, 250));
   }
   console.error('AI review failed', lastError);
-  if (lastError instanceof Error && lastError.message.startsWith('Модель')) throw lastError;
-  if (lastError instanceof Error && /permission denied|\b403\b/i.test(lastError.message)) {
-    throw new Error('Проверка пока не подключена. Включите Firebase AI Logic и App Check в консоли Firebase.');
+  if (lastError && isOverloaded(lastError)) {
+    throw new Error('Модель сейчас перегружена. Попробуйте через минуту.');
   }
   throw new Error('Проверка сейчас недоступна. Попробуйте позже.');
 }
@@ -189,7 +219,9 @@ export function reviewErrorMessage(error: unknown): string {
       return 'Проверка пока не подключена. Включите Firebase AI Logic и App Check в консоли Firebase.';
     }
     if (error.message.includes('Сначала заполните')) return error.message;
-    if (error.message.includes('Модель') || error.message.includes('совет') || error.message.includes('оценка')) {
+    if (error.message.includes('Модель сейчас перегружена')) return error.message;
+    if (error.message.includes('Проверка сейчас недоступна')) return error.message;
+    if (error.message.includes('совет') || error.message.includes('оценка') || error.message.includes('JSON')) {
       return 'Не удалось разобрать ответ. Попробуйте ещё раз.';
     }
   }
