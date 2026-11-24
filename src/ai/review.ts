@@ -1,7 +1,7 @@
 import { firebaseApp } from '../firebase/app';
 import { ensureAppCheck } from '../firebase/appCheck';
 
-export type ReviewKind = 'concept' | 'trouble' | 'aspects' | 'stunt';
+export type ReviewKind = 'concept' | 'trouble' | 'aspects' | 'stunts';
 
 export type ReviewInput = {
   kind: ReviewKind;
@@ -9,7 +9,7 @@ export type ReviewInput = {
   text: string;
   concept: string;
   trouble: string;
-  aspects: string[];
+  items: string[];
 };
 
 export type ReviewAdvice = { what: string; how: string };
@@ -42,7 +42,7 @@ const KIND_LABEL: Record<ReviewKind, string> = {
   concept: 'концепция',
   trouble: 'проблема',
   aspects: 'три свободных аспекта',
-  stunt: 'трюк',
+  stunts: 'три трюка',
 };
 
 /**
@@ -54,8 +54,8 @@ const RULES = `Ты — редактор листа персонажа Fate Core
 ЧТО СМОТРЕТЬ
 Концепция: кто герой и чем занимается; есть ли вторая сторона — повод призвать и повод навязать неприятность. Оценивай текст сам по себе и ничего с ним не сравнивай.
 Проблема: конкретный порок, враг, долг или проклятие, которое будет мешать; не цель и не следствие профессии. Сверяй только с концепцией: проблема не должна её пересказывать.
-Свободные аспекты: правдивая фраза, которая работает в обе стороны; не лозунг, не навык, не трюк. Их проверяют по три сразу: заполненные сверяй с концепцией, проблемой и между собой — смысл не должен повторяться.
-Трюк: узкий приём с условием; не заменяет навык и не срабатывает всегда. Сверяй с концепцией.
+Свободные аспекты: правдивая фраза, которая работает в обе стороны; не лозунг, не навык, не трюк. Проверяются по три сразу: заполненные сверяй с концепцией, проблемой и между собой — смысл не должен повторяться.
+Трюки: узкий приём с условием; не заменяет навык и не срабатывает всегда. Проверяются по три сразу: сверяй с концепцией и проблемой, между собой — не повторяйся.
 
 КАК ПИСАТЬ
 Вердикт — 2–4 слова: суть оценки, без цифр и без слова «оценка».
@@ -69,11 +69,13 @@ const RULES = `Ты — редактор листа персонажа Fate Core
 Не предлагай больше двух правок и не давай советов «в общем».
 Если в тексте не хватает нужной детали, скажи об этом в «что усилить», а не в вердикте.
 
-ТРИ АСПЕКТА СРАЗУ
-Заполненному аспекту — одна правка с готовой заменой, до 20 слов.
-Пустому полю — ровно два варианта до 10 слов: первый спокойнее, второй смелее.
-Варианты не должны повторять концепцию, проблему и уже написанные аспекты.
+ПО ТРИ СРАЗУ
+Свободные аспекты и трюки проверяются по три сразу, одним ответом.
+Заполненному — одна правка с готовой заменой, до 20 слов; для трюка правка — переписанный трюк с названием и эффектом.
+Пустому полю — ровно два варианта до 10 слов: первый спокойнее, второй смелее. Для трюка вариант — название и эффект.
+Варианты не должны повторять концепцию, проблему и уже написанное в соседних полях.
 Каждый вариант — законченная фраза для листа, без пояснений в скобках.
+Отдельного примера и строки пересечения здесь нет: повтор с соседом назови прямо в правке.
 
 ОЦЕНКА
 5 — играть можно сразу. 4 — одна деталь просит правки. 3 — провисает одна сторона. 2 — лозунг, навык или общее место. 1 — не по теме или противоречит Fate.`;
@@ -94,15 +96,15 @@ const SYSTEM_PROMPT_BATCH = `${RULES}\n\n${JSON_ANSWER_BATCH}`;
 /**
  * Что показывать модели вместе с проверяемым текстом.
  * Концепция — вершина листа: её прорабатывают отдельно, ничего не сравнивая.
- * Проблема опирается только на концепцию, свободный аспект — на всё, что выше
- * и рядом. Трюк сверяется с концепцией.
+ * Проблема опирается только на концепцию; свободные аспекты и трюки, которые
+ * растут уже из неё, — на концепцию и проблему.
  */
 function buildContext(input: ReviewInput): string[] {
   if (input.kind === 'concept') return [];
   const lines: string[] = [];
   const concept = input.concept.trim();
   if (concept) lines.push(`Концепция: ${concept}`);
-  if (input.kind === 'trouble' || input.kind === 'stunt') return lines;
+  if (input.kind === 'trouble') return lines;
   const trouble = input.trouble.trim();
   if (trouble) lines.push(`Проблема: ${trouble}`);
   return lines;
@@ -110,14 +112,15 @@ function buildContext(input: ReviewInput): string[] {
 
 function buildUserMessage(input: ReviewInput): string {
   const setting = input.setting === 'witcher' ? 'Ведьмак' : 'Fate Core';
-  if (input.kind === 'aspects') {
+  if (input.kind === 'aspects' || input.kind === 'stunts') {
+    const noun = input.kind === 'aspects' ? 'Аспект' : 'Трюк';
     const lines = [
       `Тип проверки: ${KIND_LABEL[input.kind]}.`,
       `Сеттинг: ${setting}.`,
-      'Проверяемые аспекты:',
+      `Проверяемые ${input.kind === 'aspects' ? 'аспекты' : 'трюки'}:`,
     ];
-    input.aspects.slice(0, 3).forEach((text, index) => {
-      lines.push(`Аспект ${index + 1}: ${text.trim() || '(пусто)'}`);
+    input.items.slice(0, 3).forEach((text, index) => {
+      lines.push(`${noun} ${index + 1}: ${text.trim() || '(пусто)'}`);
     });
     const context = buildContext(input);
     if (context.length > 0) lines.push('', 'Что уже есть у героя:', ...context);
@@ -329,7 +332,7 @@ function parseBatch(raw: string, texts: string[]): BatchResult {
   const slots: BatchSlot[] = texts.slice(0, 3).map((text, index) => {
     const item = parsed.get(index);
     if (text.trim()) {
-      if (!item?.advice) throw new Error('Не хватает правки для аспекта.');
+      if (!item?.advice) throw new Error('Не хватает правки.');
       return { slot: index, advice: item.advice, options: [] };
     }
     if (!item || item.options.length === 0) throw new Error('Не хватает вариантов для пустого поля.');
@@ -338,8 +341,9 @@ function parseBatch(raw: string, texts: string[]): BatchResult {
   return { score, verdict: data.verdict.trim(), slots };
 }
 
-export async function reviewAspects(input: ReviewInput): Promise<BatchResult> {
-  const texts = input.aspects.slice(0, 3);
+/** Один запрос на три свободных аспекта или три трюка. */
+export async function reviewBatch(input: ReviewInput): Promise<BatchResult> {
+  const texts = input.items.slice(0, 3);
   if (!texts.some((text) => text.trim())) throw new Error('Сначала заполните хотя бы одно поле.');
   let lastError: unknown = null;
   let quotaReset = 0;
@@ -419,16 +423,16 @@ export async function reviewElement(input: ReviewInput): Promise<ReviewResult> {
 
 /** Ручная проверка: тот же разбор, но обычным текстом для чужого чата. */
 function manualFormat(kind: ReviewKind): string {
-  if (kind === 'aspects') {
+  if (kind === 'aspects' || kind === 'stunts') {
+    const what = kind === 'aspects' ? 'аспекты' : 'трюки';
+    const one = kind === 'aspects' ? 'аспект' : 'трюк';
     return `Ответь обычным текстом, без JSON и markdown, строго по шаблону и без вступлений:
 Оценка: X/5
 Вердикт: ...
-Заполненные аспекты:
-1. <аспект> — готовая замена.
-2. <аспект> — готовая замена.
+Заполненные ${what} — по строке на каждый:
+<номер>. <${one}> — готовая замена.
 Пустые поля — по два варианта на каждое:
-3. <номер поля>: первый вариант / второй вариант
-Пример: ... (или «—»)`;
+<номер>. первый вариант / второй вариант`;
   }
   const overlap = kind === 'concept' ? '' : 'Пересечение: ... (или «нет»)\n';
   return `Ответь обычным текстом, без JSON и markdown, строго по шаблону и без вступлений:

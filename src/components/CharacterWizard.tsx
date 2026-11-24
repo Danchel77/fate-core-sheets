@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import { Hint } from './Hint';
 import { FATE_POINTS_HINT, REFRESH_HINT } from './FatePoints';
@@ -7,6 +7,9 @@ import { PortraitPlate } from './PortraitPlate';
 import { SettingMark } from './SettingMark';
 import { PortraitCropper } from './PortraitCropper';
 import { AiReview } from './AiReview';
+
+/** Проверки одиночных блоков не получают списка: ссылка должна быть стабильной. */
+const NO_ITEMS: string[] = [];
 import { formatQuotaReset, useQuotaUntil } from '../ai/quota';
 import { SkillPicker } from './SkillPicker';
 import { SkillPyramid } from './SkillPyramid';
@@ -339,6 +342,11 @@ export function CharacterWizard({ draft, onChange, onSkip, lockedSetting = false
   const photo = draft.portrait;
   const skills = draft.skills;
   const stunts = draft.stunts;
+  /* Тексты трюков идут в проверку одним списком: одна кнопка на все три. */
+  const stuntTexts = useMemo(
+    () => stunts.map((stunt) => [stunt.name, stunt.text].filter(Boolean).join(' — ')),
+    [stunts],
+  );
 
   const setSetting = (next: SettingId) => onChange({ setting: next });
   const setName = (next: string) => onChange({ name: next });
@@ -680,7 +688,7 @@ export function CharacterWizard({ draft, onChange, onSkip, lockedSetting = false
                             text={concept}
                             concept=""
                             trouble={trouble}
-                            aspects={aspects}
+                            items={NO_ITEMS}
                           />
                         </div>
                       </div>
@@ -722,7 +730,7 @@ export function CharacterWizard({ draft, onChange, onSkip, lockedSetting = false
                             text={trouble}
                             concept={concept}
                             trouble=""
-                            aspects={aspects}
+                            items={NO_ITEMS}
                           />
                         </div>
                       </div>
@@ -769,7 +777,7 @@ export function CharacterWizard({ draft, onChange, onSkip, lockedSetting = false
                         text=""
                         concept={concept}
                         trouble={trouble}
-                        aspects={aspects}
+                        items={aspects}
                       />
                     </div>
                   </div>
@@ -881,8 +889,7 @@ export function CharacterWizard({ draft, onChange, onSkip, lockedSetting = false
                   <div className="wiz__col">
                     <div className="wiz__stunts">
                       {stunts.map((stunt, index) => (
-                        <div className="wiz__stunt-box" key={index}>
-                          <article className="wiz__stunt">
+                        <article className="wiz__stunt" key={index}>
                             <input
                               ref={(field) => {
                                 stuntRefs.current[index] = field;
@@ -912,19 +919,7 @@ export function CharacterWizard({ draft, onChange, onSkip, lockedSetting = false
                             >
                               <IconClose />
                             </button>
-                          </article>
-                          <div className="wiz__stunt-review">
-                            <AiReview
-                              kind="stunt"
-                              setting={setting}
-                              label={`Трюк ${index + 1}`}
-                              text={[stunt.name, stunt.text].filter(Boolean).join('\n')}
-                              concept={concept}
-                              trouble={trouble}
-                              aspects={aspects}
-                            />
-                          </div>
-                        </div>
+                        </article>
                       ))}
 
                       {stunts.length < MAX_STUNTS && (
@@ -954,14 +949,25 @@ export function CharacterWizard({ draft, onChange, onSkip, lockedSetting = false
                       )}
                     </div>
                     {!stuntHelp && (
-                      <button
-                        type="button"
-                        className="wiz__hint-link"
-                        onClick={() => setStuntHelp(true)}
-                      >
-                        Как придумать трюк
-                        <IconArrowRight />
-                      </button>
+                      <div className="wiz__checkrow">
+                        <button
+                          type="button"
+                          className="wiz__hint-link"
+                          onClick={() => setStuntHelp(true)}
+                        >
+                          Как придумать трюк
+                          <IconArrowRight />
+                        </button>
+                        <AiReview
+                          kind="stunts"
+                          setting={setting}
+                          label="Трюки"
+                          text=""
+                          concept={concept}
+                          trouble={trouble}
+                          items={stuntTexts}
+                        />
+                      </div>
                     )}
                   </div>
                 </div>

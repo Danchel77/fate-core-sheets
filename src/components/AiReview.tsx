@@ -4,7 +4,7 @@ import { openAuthDialog, useAuth } from '../firebase/authStore';
 import {
   buildManualPrompt,
   QuotaError,
-  reviewAspects,
+  reviewBatch,
   reviewElement,
   reviewErrorMessage,
   type BatchResult,
@@ -21,7 +21,7 @@ type Props = {
   text: string;
   concept: string;
   trouble: string;
-  aspects: string[];
+  items: string[];
 };
 
 type State =
@@ -126,8 +126,8 @@ function ReviewCard({ result }: { result: ReviewResult }) {
   );
 }
 
-/** Разбор трёх свободных аспектов: правки по строке и варианты для пустых полей. */
-function BatchCard({ batch }: { batch: BatchResult }) {
+/** Разбор трёх аспектов или трёх трюков: правки по строке и варианты для пустых полей. */
+function BatchCard({ batch, noun }: { batch: BatchResult; noun: string }) {
   const [collapsed, setCollapsed] = useState(false);
   const fixes = batch.slots.filter((slot) => slot.advice !== null);
   const drafts = batch.slots.filter((slot) => slot.advice === null);
@@ -149,7 +149,10 @@ function BatchCard({ batch }: { batch: BatchResult }) {
               <ul>
                 {fixes.map((slot) => (
                   <li key={slot.slot}>
-                    <b>Аспект {slot.slot + 1}.</b> {slot.advice}
+                    <b>
+                      {noun} {slot.slot + 1}.
+                    </b>{' '}
+                    {slot.advice}
                   </li>
                 ))}
               </ul>
@@ -162,7 +165,9 @@ function BatchCard({ batch }: { batch: BatchResult }) {
               <ul>
                 {drafts.map((slot) => (
                   <li key={slot.slot} className="ai-review__draft">
-                    <b>Аспект {slot.slot + 1}.</b>
+                    <b>
+                      {noun} {slot.slot + 1}.
+                    </b>
                     <ul className="ai-review__options">
                       {slot.options.map((option) => (
                         <li key={option}>{option}</li>
@@ -179,7 +184,7 @@ function BatchCard({ batch }: { batch: BatchResult }) {
   );
 }
 
-export function AiReview({ kind, setting, label, text, concept, trouble, aspects }: Props) {
+export function AiReview({ kind, setting, label, text, concept, trouble, items }: Props) {
   const { ready, user } = useAuth();
   const [state, setState] = useState<State>({ status: 'idle' });
   const quotaUntil = useQuotaUntil();
@@ -190,8 +195,9 @@ export function AiReview({ kind, setting, label, text, concept, trouble, aspects
   const menuRef = useRef<HTMLDivElement>(null);
   const moreRef = useRef<HTMLButtonElement>(null);
   const copiedTimer = useRef<number | null>(null);
-  const batch = kind === 'aspects';
-  const filled = batch ? aspects.some((value) => value.trim().length > 0) : text.trim().length > 0;
+  const batch = kind === 'aspects' || kind === 'stunts';
+  const noun = kind === 'stunts' ? 'Трюк' : 'Аспект';
+  const filled = batch ? items.some((value) => value.trim().length > 0) : text.trim().length > 0;
   const quotaActive = quotaUntil !== null && quotaUntil > Date.now();
 
   useEffect(() => {
@@ -237,10 +243,10 @@ export function AiReview({ kind, setting, label, text, concept, trouble, aspects
     setState({ status: 'loading' });
     setCopied(false);
     setCopyError(null);
-    const input: ReviewInput = { kind, setting, text, concept, trouble, aspects };
+    const input: ReviewInput = { kind, setting, text, concept, trouble, items };
     try {
       if (batch) {
-        setState({ status: 'batch', batch: await reviewAspects(input) });
+        setState({ status: 'batch', batch: await reviewBatch(input) });
       } else {
         setState({ status: 'ready', review: await reviewElement(input) });
       }
@@ -252,27 +258,27 @@ export function AiReview({ kind, setting, label, text, concept, trouble, aspects
       }
       setState({ status: 'error', message: reviewErrorMessage(error) });
     }
-  }, [aspects, batch, concept, filled, kind, setting, text, trouble, user, quotaUntil]);
+  }, [items, batch, concept, filled, kind, setting, text, trouble, user, quotaUntil]);
 
   const copyPrompt = useCallback(async () => {
     if (!filled) return;
     setCopyError(null);
     try {
-      await writeClipboard(buildManualPrompt({ kind, setting, text, concept, trouble, aspects }));
+      await writeClipboard(buildManualPrompt({ kind, setting, text, concept, trouble, items }));
       setCopied(true);
       if (copiedTimer.current !== null) window.clearTimeout(copiedTimer.current);
       copiedTimer.current = window.setTimeout(() => setCopied(false), 4000);
     } catch {
       setCopyError('Не удалось скопировать. Попробуйте ещё раз.');
     }
-  }, [aspects, concept, filled, kind, setting, text, trouble]);
+  }, [items, concept, filled, kind, setting, text, trouble]);
 
   useEffect(() => {
     setState({ status: 'idle' });
     setCopied(false);
     setCopyError(null);
     pendingAuth.current = false;
-  }, [text, concept, trouble, aspects]);
+  }, [text, concept, trouble, items]);
 
   useEffect(() => {
     if (ready && user && pendingAuth.current) {
@@ -364,7 +370,7 @@ export function AiReview({ kind, setting, label, text, concept, trouble, aspects
       )}
 
       {state.status === 'ready' && <ReviewCard result={state.review} />}
-      {state.status === 'batch' && <BatchCard batch={state.batch} />}
+      {state.status === 'batch' && <BatchCard batch={state.batch} noun={noun} />}
     </div>
   );
 }
