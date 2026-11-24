@@ -230,28 +230,14 @@
   transform: rotate(45deg);
 }
 
-.ai-review__options {
-  margin: 2px 0 0;
-  padding: 0;
+.ai-review__slot-text {
+  color: var(--text-ink-primary);
 }
 
-.ai-review__options li {
-  padding-left: 13px;
-}
-
-.ai-review__options li + li {
-  margin-top: 2px;
-}
-
-.ai-review__options li::before {
-  content: '—';
-  top: 0;
-  left: 0;
-  width: auto;
-  height: auto;
-  background: none;
-  transform: none;
-  color: var(--accent-gold-deep);
+.ai-review__slot-note {
+  display: block;
+  margin-top: 1px;
+  color: var(--text-ink-muted);
 }
 
 .ai-review__block--issues li::before {

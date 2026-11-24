@@ -127,11 +127,20 @@ function ReviewCard({ result }: { result: ReviewResult }) {
   );
 }
 
-/** Разбор трёх аспектов или трёх трюков: правки по строке и варианты для пустых полей. */
-function BatchCard({ batch, noun }: { batch: BatchResult; noun: string }) {
+/** Разбор трёх аспектов или трёх трюков: по строке на поле и общий блок правок. */
+function BatchCard({
+  batch,
+  noun,
+  genitive,
+  items,
+}: {
+  batch: BatchResult;
+  noun: string;
+  genitive: string;
+  items: string[];
+}) {
   const [collapsed, setCollapsed] = useState(false);
-  const fixes = batch.slots.filter((slot) => slot.advice !== null);
-  const drafts = batch.slots.filter((slot) => slot.advice === null);
+  const fixes = batch.slots.filter((slot) => slot.variants.length > 0);
 
   return (
     <article className={`ai-review${collapsed ? ' is-collapsed' : ''}`}>
@@ -144,36 +153,34 @@ function BatchCard({ batch, noun }: { batch: BatchResult; noun: string }) {
 
       {!collapsed && (
         <div className="ai-review__body">
-          {fixes.length > 0 && (
-            <div className="ai-review__block">
-              <h4>Что усилить</h4>
-              <ul>
-                {fixes.map((slot) => (
+          <div className="ai-review__block">
+            <h4>Разбор</h4>
+            <ul>
+              {batch.slots.map((slot) => {
+                const text = items[slot.slot]?.trim();
+                return (
                   <li key={slot.slot}>
                     <b>
                       {noun} {slot.slot + 1}.
                     </b>{' '}
-                    {slot.advice}
+                    <span className="ai-review__slot-text">{text ? `«${text}»` : '(пусто)'}</span>
+                    <span className="ai-review__slot-note">{slot.note}</span>
                   </li>
-                ))}
-              </ul>
-            </div>
-          )}
+                );
+              })}
+            </ul>
+          </div>
 
-          {drafts.length > 0 && (
-            <div className="ai-review__block">
-              <h4>Чего не хватает</h4>
+          {fixes.length > 0 && (
+            <div className="ai-review__block ai-review__block--better">
+              <h4>Что предлагаю</h4>
               <ul>
-                {drafts.map((slot) => (
-                  <li key={slot.slot} className="ai-review__draft">
-                    <b>
-                      {noun} {slot.slot + 1}.
-                    </b>
-                    <ul className="ai-review__options">
-                      {slot.options.map((option) => (
-                        <li key={option}>{option}</li>
-                      ))}
-                    </ul>
+                {fixes.map((slot) => (
+                  <li key={slot.slot}>
+                    {items[slot.slot]?.trim()
+                      ? `Вместо ${genitive} ${slot.slot + 1}`
+                      : `Для пустого поля ${slot.slot + 1}`}{' '}
+                    — {slot.variants.join(' / ')}
                   </li>
                 ))}
               </ul>
@@ -198,6 +205,7 @@ export function AiReview({ kind, setting, label, text, concept, trouble, items }
   const copiedTimer = useRef<number | null>(null);
   const batch = kind === 'aspects' || kind === 'stunts';
   const noun = kind === 'stunts' ? 'Трюк' : 'Аспект';
+  const genitive = kind === 'stunts' ? 'трюка' : 'аспекта';
   const filled = batch ? items.some((value) => value.trim().length > 0) : text.trim().length > 0;
   const quotaActive = quotaUntil !== null && quotaUntil > Date.now();
 
@@ -371,7 +379,9 @@ export function AiReview({ kind, setting, label, text, concept, trouble, items }
       )}
 
       {state.status === 'ready' && <ReviewCard result={state.review} />}
-      {state.status === 'batch' && <BatchCard batch={state.batch} noun={noun} />}
+      {state.status === 'batch' && (
+        <BatchCard batch={state.batch} noun={noun} genitive={genitive} items={items} />
+      )}
     </div>
   );
 }

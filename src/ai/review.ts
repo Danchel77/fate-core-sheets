@@ -24,7 +24,7 @@ export type ReviewResult = {
 };
 
 /** Разбор трёх свободных аспектов: правка для заполненного, варианты для пустого. */
-export type BatchSlot = { slot: number; advice: string | null; options: string[] };
+export type BatchSlot = { slot: number; note: string; variants: string[] };
 
 export type BatchResult = { score: number; verdict: string; slots: BatchSlot[] };
 
@@ -119,12 +119,12 @@ const ASPECTS_BRIEF = `ТРИ СВОБОДНЫХ АСПЕКТА
 — размытые: «Тяжёлое прошлое», «Загадочный странник» — непонятно ни то, ни другое;
 — навык или лозунг вместо фразы: «Лучший фехтовальщик Севера», «Всегда прав».
 
-Три поля проверяются вместе: заполненные сверяй с концепцией и проблемой и между собой — смысл не должен повторяться; для пустых предложи идеи в духе уже заполненных, а не копии соседей.
+Три поля проверяются вместе: заполненные сверяй с концепцией и проблемой и между собой — смысл не должен повторяться.
 
 КАК ОТВЕЧАТЬ
 Вердикт — 2–4 слова: суть оценки, без цифр и без слова «оценка».
-Что усилить — для каждого заполненного поля, с его номером: что не так (до 8 слов), через тире готовая замена до 20 слов — фраза, которую можно вписать в лист как есть. Если аспект повторяет соседний, скажи об этом здесь.
-Чего не хватает — для каждого пустого поля, с его номером: ровно два варианта до 10 слов, первый спокойнее, второй смелее. Каждый — законченная фраза для листа, без пояснений в скобках.
+Разбор — ровно три пункта, по одному на каждое поле, с его номером: до 12 слов о том, что не так. Рабочий аспект не придумывай заново — скажи, что он рабочий и замечаний нет. Пустое поле называй пустым.
+Варианты — только там, где они нужны: один переписанный аспект до 18 слов, если у аспекта есть косяки; два новых до 10 слов, если аспект не годится совсем или поле пустое. Рабочий аспект не переделывай.
 Не выдумывай фактов о герое, которых нет в тексте.`;
 
 const STUNTS_BRIEF = `ТРИ ТРЮКА
@@ -148,8 +148,8 @@ const STUNTS_BRIEF = `ТРИ ТРЮКА
 
 КАК ОТВЕЧАТЬ
 Вердикт — 2–4 слова: суть оценки, без цифр и без слова «оценка».
-Что усилить — для каждой заполненной карточки, с её номером: что не так (до 8 слов), через тире переписанный трюк до 20 слов — название и эффект.
-Чего не хватает — для каждой пустой карточки, с её номером: ровно два варианта до 10 слов, каждый — название и эффект.
+Разбор — ровно три пункта, по одному на каждую карточку, с её номером: до 12 слов о том, что не так. Рабочий трюк не придумывай заново — скажи, что он рабочий и замечаний нет. Пустую карточку называй пустой.
+Варианты — только там, где они нужны: один переписанный трюк до 20 слов (название и эффект), если есть косяки; два новых, если трюк не годится совсем или карточка пуста. Рабочий трюк не переделывай.
 Не выдумывай фактов о герое, которых нет в тексте.`;
 
 const KIND_BRIEF: Record<ReviewKind, string> = {
@@ -164,10 +164,10 @@ const JSON_SINGLE = (withOverlap: boolean): string => `Ответ — тольк
 score — оценка 1–5. verdict — вердикт. strengths — «что хорошо», ровно 2. issues — «что не так», 1–3 коротких пункта без готовых замен. variants — «как будет лучше», ровно 2 переписанных варианта целиком.${withOverlap ? ' overlap — что совпало с концепцией, или null.' : ''} Других полей нет.`;
 
 const JSON_BATCH = `Ответ — только JSON без markdown и текста вокруг:
-{"score":3,"verdict":"два поля рабочие","slots":[{"slot":0,"advice":"готовая замена","options":[]},{"slot":1,"advice":null,"options":["первый вариант","второй вариант"]}]}
+{"score":3,"verdict":"два рабочих, третий общий","slots":[{"slot":0,"note":"рабочий аспект, замечаний нет","variants":[]},{"slot":1,"note":"повторяет проблему","variants":["переписанный аспект"]},{"slot":2,"note":"общее место","variants":["новый вариант","второй вариант"]}]}
 score — оценка 1–5. verdict — вердикт. slots — ровно три, по порядку: slot 0, 1, 2.
-Заполненное поле: advice — готовая замена, options — [].
-Пустое поле: advice — null, options — ровно два варианта.`;
+note — разбор поля: что не так или что замечаний нет; пустое поле — «пусто».
+variants — 0 вариантов у рабочего поля; 1 — если нужна правка; 2 — если поле не годится или пустое.`;
 
 function systemPrompt(kind: ReviewKind): string {
   const brief = KIND_BRIEF[kind];
@@ -401,23 +401,22 @@ function parseBatch(raw: string, texts: string[]): BatchResult {
     const record = item as Record<string, unknown>;
     const slot = record.slot;
     if (typeof slot !== 'number' || !Number.isInteger(slot)) return;
-    const advice = typeof record.advice === 'string' ? record.advice.trim() : '';
-    const options = Array.isArray(record.options)
-      ? record.options
-          .filter((option): option is string => typeof option === 'string')
-          .map((option) => option.trim())
+    const note = typeof record.note === 'string' ? record.note.trim() : '';
+    const variants = Array.isArray(record.variants)
+      ? record.variants
+          .filter((variant): variant is string => typeof variant === 'string')
+          .map((variant) => variant.trim())
           .filter(Boolean)
       : [];
-    parsed.set(slot, { slot, advice: advice || null, options });
+    if (!note) return;
+    parsed.set(slot, { slot, note, variants });
   });
   const slots: BatchSlot[] = texts.slice(0, 3).map((text, index) => {
     const item = parsed.get(index);
-    if (text.trim()) {
-      if (!item?.advice) throw new Error('Не хватает правки.');
-      return { slot: index, advice: item.advice, options: [] };
-    }
-    if (!item || item.options.length === 0) throw new Error('Не хватает вариантов для пустого поля.');
-    return { slot: index, advice: null, options: item.options.slice(0, 2) };
+    if (!item) throw new Error('Не хватает разбора одного из полей.');
+    if (text.trim()) return { slot: index, note: item.note, variants: item.variants.slice(0, 2) };
+    if (item.variants.length === 0) throw new Error('Не хватает вариантов для пустого поля.');
+    return { slot: index, note: item.note, variants: item.variants.slice(0, 2) };
   });
   return { score, verdict: data.verdict.trim(), slots };
 }
@@ -509,12 +508,17 @@ function manualAnswer(kind: ReviewKind): string {
 Оценка: X/5
 Вердикт: ...`;
   if (kind === 'aspects' || kind === 'stunts') {
-    const one = kind === 'aspects' ? 'Аспект' : 'Трюк';
+    const one = kind === 'aspects' ? 'аспекта' : 'трюка';
+    const One = kind === 'aspects' ? 'Аспект' : 'Трюк';
     return `${head}
-Что усилить — для каждого заполненного, с его номером:
-— ${one} <номер>. <что не так> — <готовая замена>.
-Чего не хватает — для каждого пустого, по два варианта с его номером:
-— ${one} <номер>. <первый вариант> / <второй вариант>`;
+Разбор — три строки, по одной на каждое поле, с его номером; текст игрока повтори дословно, пустое поле помечай словом «пусто»:
+— ${One} 1: <текст игрока> — <что не так или «рабочий, замечаний нет»>.
+— ${One} 2: <текст игрока> — <что не так>.
+— ${One} 3: <текст игрока> — <что не так>.
+Что предлагаю — только для полей, которым нужна правка или которые пусты; с номером поля:
+— вместо ${one} 2: <переписанный текст>.
+— вместо ${one} 3: <первый вариант> / <второй вариант>.
+Если поле рабочее, в «что предлагаю» его не вписывай. Если пустых полей нет, строк про пустые не добавляй.`;
   }
   const overlap = kind === 'concept' ? '' : 'Пересечение: ... (или «нет»)\n';
   return `${head}
