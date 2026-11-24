@@ -12,15 +12,15 @@ export type ReviewInput = {
   items: string[];
 };
 
-export type ReviewAdvice = { what: string; how: string };
-
 export type ReviewResult = {
   score: number;
   verdict: string;
   strengths: string[];
-  advice: ReviewAdvice[];
+  /** Что конкретно не так: 1–3 коротких пункта, без готовых замен. */
+  issues: string[];
+  /** Как будет лучше: ровно два переписанных варианта целиком. */
+  variants: string[];
   overlap: string | null;
-  example: string | null;
 };
 
 /** Разбор трёх свободных аспектов: правка для заполненного, варианты для пустого. */
@@ -75,9 +75,9 @@ const CONCEPT_BRIEF = `КОНЦЕПЦИЯ
 КАК ОТВЕЧАТЬ
 Вердикт — 2–4 слова: суть оценки, без цифр и без слова «оценка».
 Что хорошо — ровно 2 пункта до 14 слов: деталь из текста и что она даёт за столом. Не пересказывай текст и не повторяй одну мысль дважды.
-Что усилить — ровно 2 пункта: сначала что не так (до 8 слов), через тире готовая замена или добавка до 18 слов, которую можно вписать в лист как есть.
-Пример — весь текст, переписанный с учётом правок.
-Не выдумывай фактов о герое, которых нет в тексте. Если не хватает детали, скажи об этом в правке, а не в вердикте.`;
+Что не так — 1–3 пункта до 10 слов: конкретный промах, без готовых замен и без «надо бы».
+Как будет лучше — ровно 2 варианта до 18 слов: переписанный текст целиком, чтобы можно было вписать в лист как есть; варианты не повторяют друг друга.
+Не выдумывай фактов о герое, которых нет в тексте. Если не хватает детали, скажи об этом в «что не так», а не в вердикте.`;
 
 const TROUBLE_BRIEF = `ПРОБЛЕМА
 Проблема — второй обязательный аспект: что осложняет герою жизнь. Она не должна решаться раз и навсегда: если бы герой мог от неё избавиться, он бы уже это сделал. Проверяешь вместе с концепцией: проблема не должна её пересказывать.
@@ -99,9 +99,9 @@ const TROUBLE_BRIEF = `ПРОБЛЕМА
 КАК ОТВЕЧАТЬ
 Вердикт — 2–4 слова: суть оценки, без цифр и без слова «оценка».
 Что хорошо — ровно 2 пункта до 14 слов: деталь из текста и что она даёт за столом.
-Что усилить — ровно 2 пункта: сначала что не так (до 8 слов), через тире готовая замена до 18 слов.
+Что не так — 1–3 пункта до 10 слов: конкретный промах, без готовых замен и без «надо бы».
+Как будет лучше — ровно 2 варианта до 18 слов: переписанная проблема целиком, чтобы можно было вписать в лист как есть; варианты не повторяют друг друга.
 Пересечение — если проблема пересказывает концепцию: назови, что именно совпадает. Иначе «нет».
-Пример — проблема, переписанная с учётом правок.
 Не выдумывай фактов о герое, которых нет в тексте.`;
 
 const ASPECTS_BRIEF = `ТРИ СВОБОДНЫХ АСПЕКТА
@@ -160,8 +160,8 @@ const KIND_BRIEF: Record<ReviewKind, string> = {
 };
 
 const JSON_SINGLE = (withOverlap: boolean): string => `Ответ — только JSON без markdown и текста вокруг:
-{"score":4,"verdict":"живая концепция","strengths":["...","..."],"advice":[{"what":"...","how":"..."},{"what":"...","how":"..."}],${withOverlap ? '"overlap":null,' : ''}"example":"..."}
-score — оценка 1–5. verdict — вердикт. strengths — «что хорошо». advice — «что усилить»: what — что не так, how — готовая замена.${withOverlap ? ' overlap — что совпало с концепцией, или null.' : ''} example — переписанный текст или null. Других полей нет.`;
+{"score":3,"verdict":"живая концепция","strengths":["...","..."],"issues":["...","..."],"variants":["...","..."],${withOverlap ? '"overlap":null,' : ''}}
+score — оценка 1–5. verdict — вердикт. strengths — «что хорошо», ровно 2. issues — «что не так», 1–3 коротких пункта без готовых замен. variants — «как будет лучше», ровно 2 переписанных варианта целиком.${withOverlap ? ' overlap — что совпало с концепцией, или null.' : ''} Других полей нет.`;
 
 const JSON_BATCH = `Ответ — только JSON без markdown и текста вокруг:
 {"score":3,"verdict":"два поля рабочие","slots":[{"slot":0,"advice":"готовая замена","options":[]},{"slot":1,"advice":null,"options":["первый вариант","второй вариант"]}]}
@@ -293,13 +293,9 @@ async function createModel(modelId: string, kind: ReviewKind) {
           score: Schema.integer(),
           verdict: Schema.string(),
           strengths: Schema.array({ items: Schema.string() }),
-          advice: Schema.array({
-            items: Schema.object({
-              properties: { what: Schema.string(), how: Schema.string() },
-            }),
-          }),
+          issues: Schema.array({ items: Schema.string() }),
+          variants: Schema.array({ items: Schema.string() }),
           ...(kind === 'trouble' ? { overlap: Schema.string({ nullable: true }) } : {}),
-          example: Schema.string({ nullable: true }),
         },
       });
   return getGenerativeModel(
@@ -362,24 +358,26 @@ function parseResult(raw: string): ReviewResult {
   if (!Array.isArray(data.strengths) || data.strengths.length !== 2) {
     throw new Error('Не две сильные стороны.');
   }
-  if (!Array.isArray(data.advice) || data.advice.length !== 2) {
-    throw new Error('Не два совета.');
+  if (!Array.isArray(data.issues) || data.issues.length < 1 || data.issues.length > 3) {
+    throw new Error('Нет разбора слабых сторон.');
+  }
+  if (!Array.isArray(data.variants) || data.variants.length !== 2) {
+    throw new Error('Не два варианта.');
   }
   const strengths = data.strengths.map((item) => {
     if (typeof item !== 'string' || !item.trim()) throw new Error('Пустая сильная сторона.');
     return item.trim();
   });
-  const advice = data.advice.map((item) => {
-    if (typeof item !== 'object' || item === null) throw new Error('Некорректный совет.');
-    const record = item as Record<string, unknown>;
-    if (typeof record.what !== 'string' || typeof record.how !== 'string') {
-      throw new Error('Некорректный совет.');
-    }
-    return { what: record.what.trim(), how: record.how.trim() };
+  const issues = data.issues.map((item) => {
+    if (typeof item !== 'string' || !item.trim()) throw new Error('Пустая слабая сторона.');
+    return item.trim();
+  });
+  const variants = data.variants.map((item) => {
+    if (typeof item !== 'string' || !item.trim()) throw new Error('Пустой вариант.');
+    return item.trim();
   });
   const overlap = data.overlap === null ? null : typeof data.overlap === 'string' ? data.overlap.trim() : null;
-  const example = data.example === null ? null : typeof data.example === 'string' ? data.example.trim() : null;
-  return { score, verdict: data.verdict.trim(), strengths, advice, overlap, example };
+  return { score, verdict: data.verdict.trim(), strengths, issues, variants, overlap };
 }
 
 function parseBatch(raw: string, texts: string[]): BatchResult {
@@ -523,10 +521,13 @@ function manualAnswer(kind: ReviewKind): string {
 Что хорошо:
 — ...
 — ...
-Что усилить:
-— <что не так> — <готовая замена>.
-— <что не так> — <готовая замена>.
-${overlap}Пример: ...`;
+Что не так:
+— ...
+— ...
+Как будет лучше:
+— ...
+— ...
+${overlap}`;
 }
 
 export function buildManualPrompt(input: ReviewInput): string {

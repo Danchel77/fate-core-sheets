@@ -102,24 +102,25 @@ function ReviewCard({ result }: { result: ReviewResult }) {
             </ul>
           </div>
 
-          <div className="ai-review__block">
-            <h4>Что усилить</h4>
+          <div className="ai-review__block ai-review__block--issues">
+            <h4>Что не так</h4>
             <ul>
-              {result.advice.map((item) => (
-                <li key={`${item.what}-${item.how}`}>
-                  <b>{item.what}</b> {item.how}
-                </li>
+              {result.issues.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="ai-review__block ai-review__block--better">
+            <h4>Как будет лучше</h4>
+            <ul>
+              {result.variants.map((item) => (
+                <li key={item}>{item}</li>
               ))}
             </ul>
           </div>
 
           {result.overlap && <p className="ai-review__overlap">{result.overlap}</p>}
-
-          {result.example && (
-            <p className="ai-review__example">
-              <span>Пример</span> {result.example}
-            </p>
-          )}
         </div>
       )}
     </article>
