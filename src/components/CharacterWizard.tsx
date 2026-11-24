@@ -131,13 +131,10 @@ function GrowTextarea({
 type AspectFieldsProps = {
   values: string[];
   onChange: (index: number, value: string) => void;
-  setting: SettingId;
-  concept: string;
-  trouble: string;
 };
 
 /** Три строки аспектов: без подписей, примеры — в подсказке поля. */
-function AspectFields({ values, onChange, setting, concept, trouble }: AspectFieldsProps) {
+function AspectFields({ values, onChange }: AspectFieldsProps) {
   return (
     <div className="wiz__aspects">
       {ASPECT_EXAMPLES.map((example, index) => (
@@ -149,15 +146,6 @@ function AspectFields({ values, onChange, setting, concept, trouble }: AspectFie
             placeholder={example}
             maxLength={100}
             ariaLabel={`Аспект ${index + 1}`}
-          />
-          <AiReview
-            kind="aspect"
-            setting={setting}
-            label={`Аспект ${index + 1}`}
-            text={values[index]}
-            concept={concept}
-            trouble={trouble}
-            aspects={values.filter((_, i) => i !== index)}
           />
         </div>
       ))}
@@ -559,13 +547,7 @@ export function CharacterWizard({ draft, onChange, onSkip, lockedSetting = false
 
                   {hint === 'aspects' ? (
                     <div className="wiz__page-field">
-                      <AspectFields
-                        values={aspects}
-                        onChange={setAspect}
-                        setting={setting}
-                        concept={concept}
-                        trouble={trouble}
-                      />
+                      <AspectFields values={aspects} onChange={setAspect} />
                     </div>
                   ) : (
                     <div className="wiz__page-field">
@@ -770,21 +752,26 @@ export function CharacterWizard({ draft, onChange, onSkip, lockedSetting = false
 
                   <div className="wiz__col">
                     <span className="sm__label">Ещё три аспекта</span>
-                    <AspectFields
-                      values={aspects}
-                      onChange={setAspect}
-                      setting={setting}
-                      concept={concept}
-                      trouble={trouble}
-                    />
-                    <button
-                      type="button"
-                      className="wiz__hint-link"
-                      onClick={() => setHint('aspects')}
-                    >
-                      <span>Как придумать аспект</span>
-                      <IconArrowRight />
-                    </button>
+                    <AspectFields values={aspects} onChange={setAspect} />
+                    <div className="wiz__checkrow">
+                      <button
+                        type="button"
+                        className="wiz__hint-link"
+                        onClick={() => setHint('aspects')}
+                      >
+                        <span>Как придумать аспект</span>
+                        <IconArrowRight />
+                      </button>
+                      <AiReview
+                        kind="aspects"
+                        setting={setting}
+                        label="Аспекты"
+                        text=""
+                        concept={concept}
+                        trouble={trouble}
+                        aspects={aspects}
+                      />
+                    </div>
                   </div>
                 </div>
               ) : step === 3 ? (
@@ -894,36 +881,38 @@ export function CharacterWizard({ draft, onChange, onSkip, lockedSetting = false
                   <div className="wiz__col">
                     <div className="wiz__stunts">
                       {stunts.map((stunt, index) => (
-                        <article className="wiz__stunt" key={index}>
-                          <input
-                            ref={(field) => {
-                              stuntRefs.current[index] = field;
-                            }}
-                            className="sm__input wiz__stunt-name"
-                            type="text"
-                            value={stunt.name}
-                            maxLength={48}
-                            placeholder="Название трюка…"
-                            aria-label={`Название трюка ${index + 1}`}
-                            onChange={(event) => updateStunt(index, { name: event.target.value })}
-                          />
-                          <textarea
-                            className="sm__input sm__textarea wiz__stunt-text"
-                            rows={2}
-                            value={stunt.text}
-                            maxLength={240}
-                            placeholder="Что даёт и при каком условии работает…"
-                            aria-label={`Описание трюка ${index + 1}`}
-                            onChange={(event) => updateStunt(index, { text: event.target.value })}
-                          />
-                          <button
-                            type="button"
-                            className="wiz__stunt-remove"
-                            aria-label={`Удалить трюк ${index + 1}`}
-                            onClick={() => removeStunt(index)}
-                          >
-                            <IconClose />
-                          </button>
+                        <div className="wiz__stunt-box" key={index}>
+                          <article className="wiz__stunt">
+                            <input
+                              ref={(field) => {
+                                stuntRefs.current[index] = field;
+                              }}
+                              className="sm__input wiz__stunt-name"
+                              type="text"
+                              value={stunt.name}
+                              maxLength={48}
+                              placeholder="Название трюка…"
+                              aria-label={`Название трюка ${index + 1}`}
+                              onChange={(event) => updateStunt(index, { name: event.target.value })}
+                            />
+                            <textarea
+                              className="sm__input sm__textarea wiz__stunt-text"
+                              rows={2}
+                              value={stunt.text}
+                              maxLength={240}
+                              placeholder="Что даёт и при каком условии работает…"
+                              aria-label={`Описание трюка ${index + 1}`}
+                              onChange={(event) => updateStunt(index, { text: event.target.value })}
+                            />
+                            <button
+                              type="button"
+                              className="wiz__stunt-remove"
+                              aria-label={`Удалить трюк ${index + 1}`}
+                              onClick={() => removeStunt(index)}
+                            >
+                              <IconClose />
+                            </button>
+                          </article>
                           <div className="wiz__stunt-review">
                             <AiReview
                               kind="stunt"
@@ -935,7 +924,7 @@ export function CharacterWizard({ draft, onChange, onSkip, lockedSetting = false
                               aspects={aspects}
                             />
                           </div>
-                        </article>
+                        </div>
                       ))}
 
                       {stunts.length < MAX_STUNTS && (

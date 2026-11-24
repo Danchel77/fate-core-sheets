@@ -9,8 +9,8 @@
   align-items: center;
   justify-content: center;
   gap: 6px;
-  min-height: 34px;
-  padding: 4px 12px;
+  height: 32px;
+  padding: 3px 24px 3px 10px;
   border: 1px solid color-mix(in srgb, var(--accent-gold) 52%, transparent);
   background: color-mix(in srgb, var(--paper-highlight) 46%, transparent);
   font-family: var(--font-body);
@@ -42,8 +42,10 @@
 }
 
 .ai-review__actions {
-  display: flex;
+  position: relative;
+  display: inline-flex;
   flex-wrap: wrap;
+  max-width: 100%;
   align-items: center;
   gap: 6px;
 }
@@ -53,8 +55,8 @@
   align-items: center;
   justify-content: center;
   gap: 6px;
-  min-height: 34px;
-  padding: 4px 10px;
+  height: 32px;
+  padding: 3px 10px;
   border: 1px solid transparent;
   background: transparent;
   font-family: var(--font-body);
@@ -109,7 +111,7 @@
   font-family: var(--font-body);
   font-size: var(--text-caption);
   line-height: 1.4;
-  color: var(--danger-ink, #8b3a2f);
+  color: var(--accent-crimson-ink);
 }
 
 .ai-review {
@@ -228,6 +230,30 @@
   transform: rotate(45deg);
 }
 
+.ai-review__options {
+  margin: 2px 0 0;
+  padding: 0;
+}
+
+.ai-review__options li {
+  padding-left: 13px;
+}
+
+.ai-review__options li + li {
+  margin-top: 2px;
+}
+
+.ai-review__options li::before {
+  content: '—';
+  top: 0;
+  left: 0;
+  width: auto;
+  height: auto;
+  background: none;
+  transform: none;
+  color: var(--accent-gold-deep);
+}
+
 .ai-review__overlap,
 .ai-review__example {
   margin: 10px 0 0;
@@ -251,59 +277,149 @@
   color: var(--accent-gold-ink);
 }
 
-/* Пара «Как придумать…» + «Проверить» под полем. */
+/* ---------- строка проверки под полем ---------- */
+
+/* Ссылка «Как придумать…» слева, кнопка проверки — справа от неё.
+   Карточка результата идёт отдельной строкой на всю ширину. */
 .wiz__checkrow {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 6px 12px;
+  justify-content: space-between;
+  column-gap: 12px;
+  row-gap: 4px;
+  margin-top: 6px;
+}
+
+.wiz__checkrow .ai-review__actions {
+  margin-left: auto;
+  max-width: 100%;
 }
 
 .wiz__checkrow .ai-review,
+.wiz__checkrow .ai-review__copied,
 .wiz__checkrow .ai-review__error {
-  grid-column: 1 / -1;
+  flex: 0 0 100%;
+  width: 100%;
 }
 
-.wiz__checkrow .wiz__hint-link {
-  min-width: 0;
+/* Карточка трюка: строка проверки вынесена под рамку, чтобы кнопки не
+   читались как ещё одна рамка внутри карточки. */
+.wiz__stunt-box {
+  display: block;
 }
 
-/* Карточка трюка: проверка занимает отдельную строку под описанием. */
 .wiz__stunt-review {
-  grid-column: 1 / -1;
-}
-
-.wiz__stunt {
-  grid-template-columns: minmax(0, 1fr) 28px;
+  margin-top: 4px;
 }
 
 .wiz__stunt-review .ai-review {
   margin-top: 6px;
 }
 
+/* Копирование прячется в шеврон внутри рамки «Проверить»: без второй
+   рамки и без лишней ширины, но действие остаётся в один клик. */
+.ai-review__caret {
+  position: absolute;
+  top: 1px;
+  right: 1px;
+  bottom: 1px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: color-mix(in srgb, var(--accent-gold-ink) 70%, transparent);
+  cursor: pointer;
+}
+
+.ai-review__caret svg {
+  width: 12px;
+  height: 12px;
+}
+
+.ai-review__caret:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--accent-gold) 10%, transparent);
+  color: var(--accent-gold-deep);
+}
+
+.ai-review__caret:disabled {
+  cursor: default;
+  opacity: 0.55;
+}
+
+.ai-review__caret:focus-visible {
+  outline: 2px solid var(--accent-gold-deep);
+  outline-offset: -2px;
+}
+
+.ai-review__menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 6;
+  width: 100%;
+  padding: 4px;
+  border: 1px solid color-mix(in srgb, var(--accent-gold) 52%, transparent);
+  background: var(--surface-box);
+  box-shadow: 0 10px 24px var(--shadow-warm);
+}
+
+.ai-review__menuitem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 36px;
+  padding: 6px 10px;
+  border: 0;
+  background: transparent;
+  font-family: var(--font-body);
+  font-size: var(--text-caption);
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: left;
+  color: var(--accent-gold-ink);
+  cursor: pointer;
+}
+
+.ai-review__menuitem svg {
+  flex: none;
+  width: 14px;
+  height: 14px;
+}
+
+.ai-review__menuitem:hover {
+  background: color-mix(in srgb, var(--accent-gold) 10%, transparent);
+}
+
+.ai-review__menuitem:focus-visible {
+  outline: 2px solid var(--accent-gold-deep);
+  outline-offset: -2px;
+}
+
 @media (max-width: 720px) {
-  .wiz__checkrow {
-    grid-template-columns: 1fr;
-    align-items: flex-start;
-  }
-
-  .wiz__checkrow .wiz__hint-link,
-  .wiz__checkrow .ai-review__actions {
-    grid-column: 1 / -1;
-  }
-
   .ai-review__actions {
-    display: grid;
-    grid-template-columns: 1fr;
-    width: 100%;
+    flex-wrap: nowrap;
+    gap: 0;
   }
 
-  .ai-review__actions button {
-    width: 100%;
-    min-height: 44px;
+  .ai-review__check,
+  .ai-review__copy {
+    height: 38px;
   }
 
   .ai-review__check {
-    min-height: 44px;
+    padding: 3px 24px 3px 10px;
+  }
+
+  .wiz__checkrow .ai-review__actions {
+    margin-left: 0;
+  }
+
+  .ai-review__caret {
+    width: 24px;
   }
 }

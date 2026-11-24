@@ -1,7 +1,7 @@
 import { firebaseApp } from '../firebase/app';
 import { ensureAppCheck } from '../firebase/appCheck';
 
-export type ReviewKind = 'concept' | 'trouble' | 'aspect' | 'stunt';
+export type ReviewKind = 'concept' | 'trouble' | 'aspects' | 'stunt';
 
 export type ReviewInput = {
   kind: ReviewKind;
@@ -23,6 +23,11 @@ export type ReviewResult = {
   example: string | null;
 };
 
+/** Разбор трёх свободных аспектов: правка для заполненного, варианты для пустого. */
+export type BatchSlot = { slot: number; advice: string | null; options: string[] };
+
+export type BatchResult = { score: number; verdict: string; slots: BatchSlot[] };
+
 export class QuotaError extends Error {
   readonly resetAt: number;
 
@@ -36,62 +41,95 @@ export class QuotaError extends Error {
 const KIND_LABEL: Record<ReviewKind, string> = {
   concept: 'концепция',
   trouble: 'проблема',
-  aspect: 'аспект',
+  aspects: 'три свободных аспекта',
   stunt: 'трюк',
 };
 
-const SYSTEM_PROMPT = `Ты — опытный ведущий Fate Core. Проверяешь один элемент персонажа: концепцию, проблему, аспект или трюк. Пиши по-русски, коротко и по делу. Не переписывай персонажа и не придумывай новый лист.
+/**
+ * Общие правила для обеих проверок: встроенной и ручной.
+ * Задача — короткий разбор с готовыми правками, без пересказа правил и воды.
+ */
+const RULES = `Ты — редактор листа персонажа Fate Core. Пиши по-русски, коротко и только про проверяемый текст: без вступлений, без пересказа правил, без вопросов и без похвалы «в целом».
 
-КОНЦЕПЦИЯ
-Хорошая концепция — одна фраза о том, кто герой и чем он занимается. В ней видно и повод призвать аспект, и повод навязать неприятность.
-Плохо: «Непобедимый мечник», «Опытный воин» — это роль или лозунг, второй стороны нет.
-Хорошо: «Опытный ведьмак, скрывающий проклятье.» — видно ремесло и тайну, которая осложняет жизнь.
+ЧТО СМОТРЕТЬ
+Концепция: кто герой и чем занимается; есть ли вторая сторона — повод призвать и повод навязать неприятность. Оценивай текст сам по себе и ничего с ним не сравнивай.
+Проблема: конкретный порок, враг, долг или проклятие, которое будет мешать; не цель и не следствие профессии. Сверяй только с концепцией: проблема не должна её пересказывать.
+Свободные аспекты: правдивая фраза, которая работает в обе стороны; не лозунг, не навык, не трюк. Их проверяют по три сразу: заполненные сверяй с концепцией, проблемой и между собой — смысл не должен повторяться.
+Трюк: узкий приём с условием; не заменяет навык и не срабатывает всегда. Сверяй с концепцией.
 
-ПРОБЛЕМА
-Проблема — порок, враг, долг или проклятие, которое регулярно втягивает героя в неприятности. Это не цель и не задача, которую можно решить раз и навсегда, и она не должна пересказывать концепцию.
-Плохо: «Криминальный мир меня ненавидит» при концепции «Ведущий детектив» — это следствие профессии, а не отдельная проблема. «Найти убийцу» — цель.
-Хорошо: «Дон Джованни ненавидит меня лично» — конкретный враг, который будет мешать.
+КАК ПИСАТЬ
+Вердикт — 2–4 слова: суть оценки, без цифр и без слова «оценка».
+Что хорошо — ровно 2 пункта до 14 слов: деталь из текста и что она даёт за столом. Не пересказывай текст и не повторяй одну мысль дважды.
+Что усилить — ровно 2 пункта: сначала что не так (до 8 слов), потом готовая замена или добавка до 18 слов, которую можно вписать в лист как есть.
+Пересечение — только если проверяемый текст повторяет смысл другого элемента: назови элемент и что совпадает. Иначе «нет». Для концепции — всегда «нет».
+Пример — переписанный сам текст, если его можно усилить, иначе «—». Не придумывай нового элемента и не уходи в другой жанр.
 
-АСПЕКТ
-Аспект — правдивая фраза о герое или мире, важная для истории. Он должен работать в обе стороны: за жетон даёт +2 или переброс, а Мастер может навязать его как осложнение. Аспект не абсолют, не навык, не трюк и не повторяет другие аспекты.
-Плохо: «Непобедимый мечник», «Тяжёлое прошлое» — нет второй стороны или слишком размыто.
-Хорошо: «Серебряный меч отца» — помогает против нечисти, но создаёт проблемы, когда меч узнают.
+ГРАНИЦЫ
+Не выдумывай фактов о герое, которых нет в тексте.
+Не предлагай больше двух правок и не давай советов «в общем».
+Если в тексте не хватает нужной детали, скажи об этом в «что усилить», а не в вердикте.
 
-ТРЮК
-Трюк — узкий приём, который даёт преимущество в конкретном случае. Он не работает всегда и не заменяет навык.
-Формулы: «Потому что я …, я получаю +2 к … при …, когда …»; «… я использую … вместо …, когда …»; «Раз за сцену я могу …».
-Плохо: «Я всегда побеждаю», «+2 ко всем броскам».
-Хорошо: «Потому что я вырос в канализации, я получаю +2 к Скрытности, когда прячусь в тесных проходах.»
+ТРИ АСПЕКТА СРАЗУ
+Заполненному аспекту — одна правка с готовой заменой, до 20 слов.
+Пустому полю — ровно два варианта до 10 слов: первый спокойнее, второй смелее.
+Варианты не должны повторять концепцию, проблему и уже написанные аспекты.
+Каждый вариант — законченная фраза для листа, без пояснений в скобках.
 
 ОЦЕНКА
-5 — можно играть сразу.
-4 — сильный элемент, одна деталь просит правки.
-3 — рабочий, но одна сторона провисает.
-2 — лозунг, навык, слишком общее или нет второй стороны.
-1 — не по теме, пусто или противоречит Fate.
+5 — играть можно сразу. 4 — одна деталь просит правки. 3 — провисает одна сторона. 2 — лозунг, навык или общее место. 1 — не по теме или противоречит Fate.`;
 
-В strengths — ровно две конкретные сильные стороны. В advice — ровно два улучшения: что не так и как исправить. Ссылайся на слова проверяемого текста. Если текста мало, оцени его как есть и в advice напиши, каких деталей не хватает. Не задавай вопросов.
+const JSON_ANSWER = `Ответ — только JSON без markdown и текста вокруг:
+{"score":4,"verdict":"живая концепция","strengths":["...","..."],"advice":[{"what":"...","how":"..."},{"what":"...","how":"..."}],"overlap":null,"example":null}
+score — оценка 1–5. verdict — вердикт. strengths — «что хорошо». advice — «что усилить»: what — что не так, how — готовая замена. overlap — пересечение или null. example — пример или null. Других полей нет.`;
 
-Ответ — только JSON без markdown и текста вокруг:
-{"score":4,"verdict":"сильная концепция","strengths":["...","..."],"advice":[{"what":"...","how":"..."},{"what":"...","how":"..."}],"overlap":null,"example":null}
-score — целое от 1 до 5. overlap — строка «пересекается с аспектом „…“» или null. example — короткая улучшенная версия текста или null. Других полей нет.`;
+const JSON_ANSWER_BATCH = `Ответ — только JSON без markdown и текста вокруг:
+{"score":3,"verdict":"два аспекта рабочие","slots":[{"slot":0,"advice":"готовая замена","options":[]},{"slot":1,"advice":null,"options":["первый вариант","второй вариант"]}]}
+score — оценка 1–5. verdict — вердикт. slots — ровно три, по порядку: slot 0, 1, 2.
+Заполненный аспект: advice — готовая замена, options — [].
+Пустое поле: advice — null, options — ровно два варианта.`;
+
+const SYSTEM_PROMPT = `${RULES}\n\n${JSON_ANSWER}`;
+const SYSTEM_PROMPT_BATCH = `${RULES}\n\n${JSON_ANSWER_BATCH}`;
+
+/**
+ * Что показывать модели вместе с проверяемым текстом.
+ * Концепция — вершина листа: её прорабатывают отдельно, ничего не сравнивая.
+ * Проблема опирается только на концепцию, свободный аспект — на всё, что выше
+ * и рядом. Трюк сверяется с концепцией.
+ */
+function buildContext(input: ReviewInput): string[] {
+  if (input.kind === 'concept') return [];
+  const lines: string[] = [];
+  const concept = input.concept.trim();
+  if (concept) lines.push(`Концепция: ${concept}`);
+  if (input.kind === 'trouble' || input.kind === 'stunt') return lines;
+  const trouble = input.trouble.trim();
+  if (trouble) lines.push(`Проблема: ${trouble}`);
+  return lines;
+}
 
 function buildUserMessage(input: ReviewInput): string {
+  const setting = input.setting === 'witcher' ? 'Ведьмак' : 'Fate Core';
+  if (input.kind === 'aspects') {
+    const lines = [
+      `Тип проверки: ${KIND_LABEL[input.kind]}.`,
+      `Сеттинг: ${setting}.`,
+      'Проверяемые аспекты:',
+    ];
+    input.aspects.slice(0, 3).forEach((text, index) => {
+      lines.push(`Аспект ${index + 1}: ${text.trim() || '(пусто)'}`);
+    });
+    const context = buildContext(input);
+    if (context.length > 0) lines.push('', 'Что уже есть у героя:', ...context);
+    return lines.join('\n');
+  }
   const lines = [
     `Тип проверки: ${KIND_LABEL[input.kind]}.`,
-    `Сеттинг: ${input.setting === 'witcher' ? 'Ведьмак' : 'Fate Core'}.`,
+    `Сеттинг: ${setting}.`,
     `Проверяемый текст: ${input.text.trim()}`,
-    '',
-    'Уже заполнено у героя:',
-    `Концепция: ${input.concept.trim() || '—'}`,
-    `Проблема: ${input.trouble.trim() || '—'}`,
   ];
-  const aspects = input.aspects.map((aspect) => aspect.trim()).filter(Boolean);
-  if (aspects.length > 0) {
-    lines.push('Другие аспекты:');
-    aspects.forEach((aspect, index) => lines.push(`${index + 1}. ${aspect}`));
-  }
-  lines.push('', 'Сравни проверяемый текст с уже заполненным и укажи overlap, если он повторяет смысл другого элемента.');
+  const context = buildContext(input);
+  if (context.length > 0) lines.push('', 'Что уже есть у героя:', ...context);
   return lines.join('\n');
 }
 
@@ -142,30 +180,47 @@ type AiModule = typeof import('firebase/ai');
 const MODEL_IDS = ['gemini-4-hydrogen', 'gemini-3.8-flash', 'gemini-3.5-flash-lite'] as const;
 const modelCache = new Map<string, Promise<import('firebase/ai').GenerativeModel>>();
 
-async function createModel(modelId: string) {
+async function createModel(modelId: string, batch = false) {
   if (!firebaseApp) throw new Error('Firebase не настроен.');
   await ensureAppCheck();
   const { GoogleAIBackend, Schema, ThinkingLevel, getAI, getGenerativeModel } =
     (await import('firebase/ai')) as AiModule;
   const ai = getAI(firebaseApp, { backend: new GoogleAIBackend() });
-  const advice = Schema.object({
-    properties: { what: Schema.string(), how: Schema.string() },
-  });
-  const schema = Schema.object({
-    properties: {
-      score: Schema.integer(),
-      verdict: Schema.string(),
-      strengths: Schema.array({ items: Schema.string() }),
-      advice: Schema.array({ items: advice }),
-      overlap: Schema.string({ nullable: true }),
-      example: Schema.string({ nullable: true }),
-    },
-  });
+  const schema = batch
+    ? Schema.object({
+        properties: {
+          score: Schema.integer(),
+          verdict: Schema.string(),
+          slots: Schema.array({
+            items: Schema.object({
+              properties: {
+                slot: Schema.integer(),
+                advice: Schema.string({ nullable: true }),
+                options: Schema.array({ items: Schema.string() }),
+              },
+            }),
+          }),
+        },
+      })
+    : Schema.object({
+        properties: {
+          score: Schema.integer(),
+          verdict: Schema.string(),
+          strengths: Schema.array({ items: Schema.string() }),
+          advice: Schema.array({
+            items: Schema.object({
+              properties: { what: Schema.string(), how: Schema.string() },
+            }),
+          }),
+          overlap: Schema.string({ nullable: true }),
+          example: Schema.string({ nullable: true }),
+        },
+      });
   return getGenerativeModel(
     ai,
     {
       model: modelId,
-      systemInstruction: SYSTEM_PROMPT,
+      systemInstruction: batch ? SYSTEM_PROMPT_BATCH : SYSTEM_PROMPT,
       generationConfig: {
         responseMimeType: 'application/json',
         responseSchema: schema,
@@ -176,12 +231,13 @@ async function createModel(modelId: string) {
   );
 }
 
-function getModel(modelId: string) {
-  let model = modelCache.get(modelId);
+function getModel(modelId: string, batch = false) {
+  const key = batch ? `${modelId}:batch` : modelId;
+  let model = modelCache.get(key);
   if (!model) {
-    model = createModel(modelId);
-    modelCache.set(modelId, model);
-    void model.catch(() => modelCache.delete(modelId));
+    model = createModel(modelId, batch);
+    modelCache.set(key, model);
+    void model.catch(() => modelCache.delete(key));
   }
   return model;
 }
@@ -240,6 +296,88 @@ function parseResult(raw: string): ReviewResult {
   return { score, verdict: data.verdict.trim(), strengths, advice, overlap, example };
 }
 
+function parseBatch(raw: string, texts: string[]): BatchResult {
+  let value: unknown;
+  try {
+    value = JSON.parse(raw);
+  } catch {
+    throw new Error('Модель ответила не JSON.');
+  }
+  if (typeof value !== 'object' || value === null) throw new Error('Пустой ответ модели.');
+  const data = value as Record<string, unknown>;
+  const score = data.score;
+  if (typeof score !== 'number' || !Number.isInteger(score) || score < 1 || score > 5) {
+    throw new Error('Некорректная оценка.');
+  }
+  if (typeof data.verdict !== 'string' || !data.verdict.trim()) throw new Error('Нет вывода.');
+  if (!Array.isArray(data.slots)) throw new Error('Нет разбора по аспектам.');
+  const parsed = new Map<number, BatchSlot>();
+  data.slots.forEach((item) => {
+    if (typeof item !== 'object' || item === null) return;
+    const record = item as Record<string, unknown>;
+    const slot = record.slot;
+    if (typeof slot !== 'number' || !Number.isInteger(slot)) return;
+    const advice = typeof record.advice === 'string' ? record.advice.trim() : '';
+    const options = Array.isArray(record.options)
+      ? record.options
+          .filter((option): option is string => typeof option === 'string')
+          .map((option) => option.trim())
+          .filter(Boolean)
+      : [];
+    parsed.set(slot, { slot, advice: advice || null, options });
+  });
+  const slots: BatchSlot[] = texts.slice(0, 3).map((text, index) => {
+    const item = parsed.get(index);
+    if (text.trim()) {
+      if (!item?.advice) throw new Error('Не хватает правки для аспекта.');
+      return { slot: index, advice: item.advice, options: [] };
+    }
+    if (!item || item.options.length === 0) throw new Error('Не хватает вариантов для пустого поля.');
+    return { slot: index, advice: null, options: item.options.slice(0, 2) };
+  });
+  return { score, verdict: data.verdict.trim(), slots };
+}
+
+export async function reviewAspects(input: ReviewInput): Promise<BatchResult> {
+  const texts = input.aspects.slice(0, 3);
+  if (!texts.some((text) => text.trim())) throw new Error('Сначала заполните хотя бы одно поле.');
+  let lastError: unknown = null;
+  let quotaReset = 0;
+  for (const modelId of MODEL_IDS) {
+    let model: import('firebase/ai').GenerativeModel;
+    try {
+      model = await getModel(modelId, true);
+    } catch (error) {
+      lastError = error;
+      continue;
+    }
+    const tries = modelId === MODEL_IDS[0] ? 2 : 1;
+    for (let attempt = 0; attempt < tries; attempt += 1) {
+      try {
+        const response = await model.generateContent(buildUserMessage(input));
+        return parseBatch(response.response.text().trim(), texts);
+      } catch (error) {
+        lastError = error;
+        if (isPermissionError(error)) {
+          throw new Error('Проверка пока не подключена. Включите Firebase AI Logic и App Check в консоли Firebase.');
+        }
+        if (isQuotaError(error)) {
+          quotaReset = Math.max(quotaReset, quotaResetAt(error));
+          break;
+        }
+        if (isOverloaded(error)) break;
+      }
+    }
+    await new Promise((resolve) => setTimeout(resolve, 250));
+  }
+  if (quotaReset > 0) throw new QuotaError(quotaReset);
+  console.error('AI review failed', lastError);
+  if (lastError && isOverloaded(lastError)) {
+    throw new Error('Модель сейчас перегружена. Попробуйте через минуту.');
+  }
+  throw new Error('Проверка сейчас недоступна. Попробуйте позже.');
+}
+
 export async function reviewElement(input: ReviewInput): Promise<ReviewResult> {
   if (!input.text.trim()) throw new Error('Сначала заполните поле.');
   let lastError: unknown = null;
@@ -279,21 +417,34 @@ export async function reviewElement(input: ReviewInput): Promise<ReviewResult> {
   throw new Error('Проверка сейчас недоступна. Попробуйте позже.');
 }
 
-const MANUAL_INSTRUCTION = `Ответь обычным текстом, без JSON и без markdown, в таком порядке:
+/** Ручная проверка: тот же разбор, но обычным текстом для чужого чата. */
+function manualFormat(kind: ReviewKind): string {
+  if (kind === 'aspects') {
+    return `Ответь обычным текстом, без JSON и markdown, строго по шаблону и без вступлений:
+Оценка: X/5
+Вердикт: ...
+Заполненные аспекты:
+1. <аспект> — готовая замена.
+2. <аспект> — готовая замена.
+Пустые поля — по два варианта на каждое:
+3. <номер поля>: первый вариант / второй вариант
+Пример: ... (или «—»)`;
+  }
+  const overlap = kind === 'concept' ? '' : 'Пересечение: ... (или «нет»)\n';
+  return `Ответь обычным текстом, без JSON и markdown, строго по шаблону и без вступлений:
 Оценка: X/5
 Вердикт: ...
 Что хорошо:
 1. ...
 2. ...
 Что усилить:
-1. ...
-2. ...
-Пересечение: ... (или «нет»)
-Пример: ... (или «—»)`;
+1. Что не так — готовая замена.
+2. Что не так — готовая замена.
+${overlap}Пример: ... (или «—»)`;
+}
 
 export function buildManualPrompt(input: ReviewInput): string {
-  const rules = SYSTEM_PROMPT.replace(/\n\nОтвет — только JSON[\s\S]*$/, '');
-  return `${rules}\n\n${MANUAL_INSTRUCTION}\n\n${buildUserMessage(input)}`;
+  return `${RULES}\n\n${manualFormat(input.kind)}\n\n${buildUserMessage(input)}`;
 }
 
 export function reviewErrorMessage(error: unknown): string {
