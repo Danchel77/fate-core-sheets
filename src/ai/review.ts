@@ -13,20 +13,27 @@ export type ReviewInput = {
 };
 
 export type ReviewResult = {
-  score: number;
+  score: number | null;
   verdict: string;
   strengths: string[];
   /** Что конкретно не так: 1–3 коротких пункта, без готовых замен. */
   issues: string[];
-  /** Как будет лучше: ровно два переписанных варианта целиком. */
+  /** Как будет лучше: переписанные варианты целиком. */
   variants: string[];
   overlap: string | null;
+  /** Ответ модели, который не удалось разобрать: показываем как есть, без потери. */
+  raw: string | null;
 };
 
-/** Разбор трёх свободных аспектов: правка для заполненного, варианты для пустого. */
+/** Разбор трёх свободных аспектов: разбор и варианты для заполненного поля. */
 export type BatchSlot = { slot: number; note: string; variants: string[] };
 
-export type BatchResult = { score: number; verdict: string; slots: BatchSlot[] };
+export type BatchResult = {
+  score: number | null;
+  verdict: string;
+  slots: BatchSlot[];
+  raw: string | null;
+};
 
 export class QuotaError extends Error {
   readonly resetAt: number;
@@ -262,10 +269,11 @@ function quotaResetAt(error: unknown): number {
 
 type AiModule = typeof import('firebase/ai');
 
-const MODEL_IDS = ['gemini-4-hydrogen', 'gemini-3.8-flash', 'gemini-3.5-flash-lite'] as const;
-const modelCache = new Map<string, Promise<import('firebase/ai').GenerativeModel>>();
+const MODEL_ID = 'gemini-4-hydrogen';
+const REQUEST_TIMEOUT_MS = 40_000;
+const modelCache = new Map<ReviewKind, Promise<import('firebase/ai').GenerativeModel>>();
 
-async function createModel(modelId: string, kind: ReviewKind) {
+async function createModel(kind: ReviewKind) {
   if (!firebaseApp) throw new Error('Firebase не настроен.');
   await ensureAppCheck();
   const { GoogleAIBackend, Schema, ThinkingLevel, getAI, getGenerativeModel } =
@@ -281,8 +289,8 @@ async function createModel(modelId: string, kind: ReviewKind) {
             items: Schema.object({
               properties: {
                 slot: Schema.integer(),
-                advice: Schema.string({ nullable: true }),
-                options: Schema.array({ items: Schema.string() }),
+                note: Schema.string(),
+                variants: Schema.array({ items: Schema.string() }),
               },
             }),
           }),
@@ -301,25 +309,24 @@ async function createModel(modelId: string, kind: ReviewKind) {
   return getGenerativeModel(
     ai,
     {
-      model: modelId,
+      model: MODEL_ID,
       systemInstruction: systemPrompt(kind),
       generationConfig: {
         responseMimeType: 'application/json',
         responseSchema: schema,
-        thinkingConfig: { thinkingLevel: ThinkingLevel.MEDIUM },
+        thinkingConfig: { thinkingLevel: ThinkingLevel.LOW },
       },
     },
-    { timeout: 20000 },
+    { timeout: REQUEST_TIMEOUT_MS },
   );
 }
 
-function getModel(modelId: string, kind: ReviewKind) {
-  const key = `${modelId}:${kind}`;
-  let model = modelCache.get(key);
+function getModel(kind: ReviewKind) {
+  let model = modelCache.get(kind);
   if (!model) {
-    model = createModel(modelId, kind);
-    modelCache.set(key, model);
-    void model.catch(() => modelCache.delete(key));
+    model = createModel(kind);
+    modelCache.set(kind, model);
+    void model.catch(() => modelCache.delete(kind));
   }
   return model;
 }
@@ -341,164 +348,117 @@ function isOverloaded(error: unknown): boolean {
   return /\b(500|503|504)\b|high demand|overload|temporarily|unavailable/i.test(errorText(error));
 }
 
-function parseResult(raw: string): ReviewResult {
-  let value: unknown;
-  try {
-    value = JSON.parse(raw);
-  } catch {
-    throw new Error('Модель ответила не JSON.');
-  }
-  if (typeof value !== 'object' || value === null) throw new Error('Пустой ответ модели.');
-  const data = value as Record<string, unknown>;
-  const score = data.score;
-  if (typeof score !== 'number' || !Number.isInteger(score) || score < 1 || score > 5) {
-    throw new Error('Некорректная оценка.');
-  }
-  if (typeof data.verdict !== 'string' || !data.verdict.trim()) throw new Error('Нет вывода.');
-  if (!Array.isArray(data.strengths) || data.strengths.length !== 2) {
-    throw new Error('Не две сильные стороны.');
-  }
-  if (!Array.isArray(data.issues) || data.issues.length < 1 || data.issues.length > 3) {
-    throw new Error('Нет разбора слабых сторон.');
-  }
-  if (!Array.isArray(data.variants) || data.variants.length !== 2) {
-    throw new Error('Не два варианта.');
-  }
-  const strengths = data.strengths.map((item) => {
-    if (typeof item !== 'string' || !item.trim()) throw new Error('Пустая сильная сторона.');
-    return item.trim();
-  });
-  const issues = data.issues.map((item) => {
-    if (typeof item !== 'string' || !item.trim()) throw new Error('Пустая слабая сторона.');
-    return item.trim();
-  });
-  const variants = data.variants.map((item) => {
-    if (typeof item !== 'string' || !item.trim()) throw new Error('Пустой вариант.');
-    return item.trim();
-  });
-  const overlap = data.overlap === null ? null : typeof data.overlap === 'string' ? data.overlap.trim() : null;
-  return { score, verdict: data.verdict.trim(), strengths, issues, variants, overlap };
+function asText(value: unknown): string {
+  if (typeof value === 'string') return value.trim();
+  if (typeof value === 'number' && Number.isFinite(value)) return String(value);
+  return '';
 }
 
-function parseBatch(raw: string, texts: string[]): BatchResult {
-  let value: unknown;
-  try {
-    value = JSON.parse(raw);
-  } catch {
-    throw new Error('Модель ответила не JSON.');
+function asList(value: unknown): string[] {
+  if (!Array.isArray(value)) return [];
+  return value.map(asText).filter(Boolean);
+}
+
+function asScore(value: unknown): number | null {
+  if (typeof value !== 'number' || !Number.isFinite(value)) return null;
+  return Math.min(5, Math.max(1, Math.round(value)));
+}
+
+/** Разбираем ответ модели как можно мягче: лишние поля и обрамление не повод терять ответ. */
+function pickObject(raw: string): Record<string, unknown> | null {
+  const text = raw.trim();
+  const start = text.indexOf('{');
+  const end = text.lastIndexOf('}');
+  const candidates = [text];
+  if (start >= 0 && end > start) candidates.push(text.slice(start, end + 1));
+  for (const candidate of candidates) {
+    try {
+      const value: unknown = JSON.parse(candidate);
+      if (value && typeof value === 'object' && !Array.isArray(value)) {
+        return value as Record<string, unknown>;
+      }
+    } catch {
+      /* пробуем следующий вариант */
+    }
   }
-  if (typeof value !== 'object' || value === null) throw new Error('Пустой ответ модели.');
-  const data = value as Record<string, unknown>;
-  const score = data.score;
-  if (typeof score !== 'number' || !Number.isInteger(score) || score < 1 || score > 5) {
-    throw new Error('Некорректная оценка.');
+  return null;
+}
+
+function parseResult(raw: string): ReviewResult {
+  const data = pickObject(raw);
+  if (!data) return { score: null, verdict: '', strengths: [], issues: [], variants: [], overlap: null, raw };
+  const strengths = asList(data.strengths);
+  const issues = asList(data.issues);
+  const variants = asList(data.variants);
+  const verdict = asText(data.verdict);
+  const overlap = asText(data.overlap) || null;
+  if (strengths.length === 0 && issues.length === 0 && variants.length === 0) {
+    return { score: asScore(data.score), verdict, strengths, issues, variants, overlap, raw };
   }
-  if (typeof data.verdict !== 'string' || !data.verdict.trim()) throw new Error('Нет вывода.');
-  if (!Array.isArray(data.slots)) throw new Error('Нет разбора по аспектам.');
-  const parsed = new Map<number, BatchSlot>();
-  data.slots.forEach((item) => {
-    if (typeof item !== 'object' || item === null) return;
+  return { score: asScore(data.score), verdict, strengths, issues, variants, overlap, raw: null };
+}
+
+function parseBatch(raw: string): BatchResult {
+  const data = pickObject(raw);
+  if (!data) return { score: null, verdict: '', slots: [], raw };
+  const score = asScore(data.score);
+  const verdict = asText(data.verdict);
+  const slots: BatchSlot[] = [];
+  const list = Array.isArray(data.slots) ? data.slots : [];
+  list.forEach((item, index) => {
+    if (!item || typeof item !== 'object') return;
     const record = item as Record<string, unknown>;
-    const slot = record.slot;
-    if (typeof slot !== 'number' || !Number.isInteger(slot)) return;
-    const note = typeof record.note === 'string' ? record.note.trim() : '';
-    const variants = Array.isArray(record.variants)
-      ? record.variants
-          .filter((variant): variant is string => typeof variant === 'string')
-          .map((variant) => variant.trim())
-          .filter(Boolean)
-      : [];
-    if (!note) return;
-    parsed.set(slot, { slot, note, variants });
+    const slot = typeof record.slot === 'number' ? record.slot : index;
+    const note = asText(record.note);
+    const variants = asList(record.variants).slice(0, 2);
+    if (!note && variants.length === 0) return;
+    slots.push({ slot, note, variants });
   });
-  const slots: BatchSlot[] = texts.slice(0, 3).map((text, index) => {
-    const item = parsed.get(index);
-    if (!item) throw new Error('Не хватает разбора одного из полей.');
-    if (text.trim()) return { slot: index, note: item.note, variants: item.variants.slice(0, 2) };
-    if (item.variants.length === 0) throw new Error('Не хватает вариантов для пустого поля.');
-    return { slot: index, note: item.note, variants: item.variants.slice(0, 2) };
-  });
-  return { score, verdict: data.verdict.trim(), slots };
+  if (slots.length === 0) return { score, verdict, slots, raw };
+  return { score, verdict, slots, raw: null };
+}
+
+/** Ответ → карточке. Никаких повторов и запасных моделей: один клик — один запрос. */
+async function requestText(input: ReviewInput): Promise<string> {
+  const model = await getModel(input.kind);
+  const response = await model.generateContent(buildUserMessage(input));
+  return response.response.text().trim();
+}
+
+function isTimeout(error: unknown): boolean {
+  return /timeout|timed out|deadline|abort|cancel|ETIMEDOUT/i.test(errorText(error));
+}
+
+function describeError(error: unknown): Error {
+  if (error instanceof QuotaError) return error;
+  if (isQuotaError(error)) return new QuotaError(quotaResetAt(error));
+  if (isPermissionError(error)) {
+    return new Error('Проверка пока не подключена. Включите Firebase AI Logic и App Check в консоли Firebase.');
+  }
+  if (isTimeout(error)) return new Error('Модель не ответила за 40 секунд. Попробуйте ещё раз.');
+  if (isOverloaded(error)) return new Error('Модель сейчас перегружена. Попробуйте через минуту.');
+  console.error('AI review failed', error);
+  return new Error('Проверка сейчас недоступна. Попробуйте позже.');
 }
 
 /** Один запрос на три свободных аспекта или три трюка. */
 export async function reviewBatch(input: ReviewInput): Promise<BatchResult> {
   const texts = input.items.slice(0, 3);
   if (!texts.some((text) => text.trim())) throw new Error('Сначала заполните хотя бы одно поле.');
-  let lastError: unknown = null;
-  let quotaReset = 0;
-  for (const modelId of MODEL_IDS) {
-    let model: import('firebase/ai').GenerativeModel;
-    try {
-      model = await getModel(modelId, input.kind);
-    } catch (error) {
-      lastError = error;
-      continue;
-    }
-    const tries = modelId === MODEL_IDS[0] ? 2 : 1;
-    for (let attempt = 0; attempt < tries; attempt += 1) {
-      try {
-        const response = await model.generateContent(buildUserMessage(input));
-        return parseBatch(response.response.text().trim(), texts);
-      } catch (error) {
-        lastError = error;
-        if (isPermissionError(error)) {
-          throw new Error('Проверка пока не подключена. Включите Firebase AI Logic и App Check в консоли Firebase.');
-        }
-        if (isQuotaError(error)) {
-          quotaReset = Math.max(quotaReset, quotaResetAt(error));
-          break;
-        }
-        if (isOverloaded(error)) break;
-      }
-    }
-    await new Promise((resolve) => setTimeout(resolve, 250));
+  try {
+    return parseBatch(await requestText(input));
+  } catch (error) {
+    throw describeError(error);
   }
-  if (quotaReset > 0) throw new QuotaError(quotaReset);
-  console.error('AI review failed', lastError);
-  if (lastError && isOverloaded(lastError)) {
-    throw new Error('Модель сейчас перегружена. Попробуйте через минуту.');
-  }
-  throw new Error('Проверка сейчас недоступна. Попробуйте позже.');
 }
 
 export async function reviewElement(input: ReviewInput): Promise<ReviewResult> {
   if (!input.text.trim()) throw new Error('Сначала заполните поле.');
-  let lastError: unknown = null;
-  let quotaReset = 0;
-  for (const modelId of MODEL_IDS) {
-    let model: import('firebase/ai').GenerativeModel;
-    try {
-      model = await getModel(modelId, input.kind);
-    } catch (error) {
-      lastError = error;
-      continue;
-    }
-    const tries = modelId === MODEL_IDS[0] ? 2 : 1;
-    for (let attempt = 0; attempt < tries; attempt += 1) {
-      try {
-        const response = await model.generateContent(buildUserMessage(input));
-        return parseResult(response.response.text().trim());
-      } catch (error) {
-        lastError = error;
-        if (isPermissionError(error)) {
-          throw new Error('Проверка пока не подключена. Включите Firebase AI Logic и App Check в консоли Firebase.');
-        }
-        if (isQuotaError(error)) {
-          quotaReset = Math.max(quotaReset, quotaResetAt(error));
-          break;
-        }
-        if (isOverloaded(error)) break;
-      }
-    }
-    await new Promise((resolve) => setTimeout(resolve, 250));
+  try {
+    return parseResult(await requestText(input));
+  } catch (error) {
+    throw describeError(error);
   }
-  if (quotaReset > 0) throw new QuotaError(quotaReset);
-  console.error('AI review failed', lastError);
-  if (lastError && isOverloaded(lastError)) {
-    throw new Error('Модель сейчас перегружена. Попробуйте через минуту.');
-  }
-  throw new Error('Проверка сейчас недоступна. Попробуйте позже.');
 }
 
 /** Ручная проверка: тот же бриф и разбор, но обычным текстом для чужого чата. */

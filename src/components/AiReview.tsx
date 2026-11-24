@@ -62,18 +62,25 @@ function CardHead({
   collapsed,
   onToggle,
 }: {
-  score: number;
+  score: number | null;
   verdict: string;
   collapsed: boolean;
   onToggle: () => void;
 }) {
   return (
-    <button type="button" className="ai-review__head" aria-expanded={!collapsed} onClick={onToggle}>
-      <span className="ai-review__score">
-        <strong>{score}</strong>
-        <span>/5</span>
-      </span>
-      <span className="ai-review__verdict">{capitalise(verdict)}</span>
+    <button
+      type="button"
+      className={`ai-review__head${score === null ? ' ai-review__head--plain' : ''}`}
+      aria-expanded={!collapsed}
+      onClick={onToggle}
+    >
+      {score !== null && (
+        <span className="ai-review__score">
+          <strong>{score}</strong>
+          <span>/5</span>
+        </span>
+      )}
+      <span className="ai-review__verdict">{verdict ? capitalise(verdict) : 'Разбор'}</span>
       <IconChevronDown className="ai-review__chev" />
     </button>
   );
@@ -81,6 +88,19 @@ function CardHead({
 
 function ReviewCard({ result }: { result: ReviewResult }) {
   const [collapsed, setCollapsed] = useState(false);
+
+  if (result.raw) {
+    return (
+      <article className="ai-review">
+        <div className="ai-review__body">
+          <div className="ai-review__block">
+            <h4>Ответ модели</h4>
+            <p className="ai-review__raw">{result.raw}</p>
+          </div>
+        </div>
+      </article>
+    );
+  }
 
   return (
     <article className={`ai-review${collapsed ? ' is-collapsed' : ''}`}>
@@ -93,32 +113,38 @@ function ReviewCard({ result }: { result: ReviewResult }) {
 
       {!collapsed && (
         <div className="ai-review__body">
-          <div className="ai-review__block">
-            <h4>Что хорошо</h4>
-            <ul>
-              {result.strengths.map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-            </ul>
-          </div>
+          {result.strengths.length > 0 && (
+            <div className="ai-review__block">
+              <h4>Что хорошо</h4>
+              <ul>
+                {result.strengths.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </div>
+          )}
 
-          <div className="ai-review__block ai-review__block--issues">
-            <h4>Что не так</h4>
-            <ul>
-              {result.issues.map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-            </ul>
-          </div>
+          {result.issues.length > 0 && (
+            <div className="ai-review__block ai-review__block--issues">
+              <h4>Что не так</h4>
+              <ul>
+                {result.issues.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </div>
+          )}
 
-          <div className="ai-review__block ai-review__block--better">
-            <h4>Как будет лучше</h4>
-            <ul>
-              {result.variants.map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-            </ul>
-          </div>
+          {result.variants.length > 0 && (
+            <div className="ai-review__block ai-review__block--better">
+              <h4>Как будет лучше</h4>
+              <ul>
+                {result.variants.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </div>
+          )}
 
           {result.overlap && <p className="ai-review__overlap">{result.overlap}</p>}
         </div>
@@ -141,6 +167,19 @@ function BatchCard({
 }) {
   const [collapsed, setCollapsed] = useState(false);
   const fixes = batch.slots.filter((slot) => slot.variants.length > 0);
+
+  if (batch.raw) {
+    return (
+      <article className="ai-review">
+        <div className="ai-review__body">
+          <div className="ai-review__block">
+            <h4>Ответ модели</h4>
+            <p className="ai-review__raw">{batch.raw}</p>
+          </div>
+        </div>
+      </article>
+    );
+  }
 
   return (
     <article className={`ai-review${collapsed ? ' is-collapsed' : ''}`}>
@@ -199,6 +238,7 @@ export function AiReview({ kind, setting, label, text, concept, trouble, items }
   const [copied, setCopied] = useState(false);
   const [copyError, setCopyError] = useState<string | null>(null);
   const pendingAuth = useRef(false);
+  const requestId = useRef(0);
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const moreRef = useRef<HTMLButtonElement>(null);
@@ -249,17 +289,22 @@ export function AiReview({ kind, setting, label, text, concept, trouble, items }
       return;
     }
     if (quotaUntil !== null && quotaUntil > Date.now()) return;
+    const id = requestId.current + 1;
+    requestId.current = id;
     setState({ status: 'loading' });
     setCopied(false);
     setCopyError(null);
     const input: ReviewInput = { kind, setting, text, concept, trouble, items };
     try {
       if (batch) {
-        setState({ status: 'batch', batch: await reviewBatch(input) });
+        const result = await reviewBatch(input);
+        if (id === requestId.current) setState({ status: 'batch', batch: result });
       } else {
-        setState({ status: 'ready', review: await reviewElement(input) });
+        const result = await reviewElement(input);
+        if (id === requestId.current) setState({ status: 'ready', review: result });
       }
     } catch (error) {
+      if (id !== requestId.current) return;
       if (error instanceof QuotaError) {
         setQuotaUntil(error.resetAt);
         setState({ status: 'idle' });
@@ -282,12 +327,18 @@ export function AiReview({ kind, setting, label, text, concept, trouble, items }
     }
   }, [items, concept, filled, kind, setting, text, trouble]);
 
+  /* Сбрасываем карточку только когда текст правда изменился, а не из-за новой ссылки на массив. */
+  const contentKey = [text, concept, trouble, ...items].join('\u0000');
+  const contentKeyRef = useRef(contentKey);
   useEffect(() => {
+    if (contentKeyRef.current === contentKey) return;
+    contentKeyRef.current = contentKey;
+    requestId.current += 1;
     setState({ status: 'idle' });
     setCopied(false);
     setCopyError(null);
     pendingAuth.current = false;
-  }, [text, concept, trouble, items]);
+  }, [contentKey]);
 
   useEffect(() => {
     if (ready && user && pendingAuth.current) {

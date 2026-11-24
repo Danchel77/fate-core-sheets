@@ -122,6 +122,18 @@
   color: var(--text-ink-primary);
 }
 
+.ai-review__head--plain {
+  grid-template-columns: minmax(0, 1fr) 24px;
+}
+
+.ai-review__raw {
+  margin: 0;
+  font-size: var(--text-caption);
+  line-height: 1.5;
+  white-space: pre-wrap;
+  color: var(--text-ink-primary);
+}
+
 .ai-review__head {
   display: grid;
   grid-template-columns: 58px minmax(0, 1fr) 24px;
